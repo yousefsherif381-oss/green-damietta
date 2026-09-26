@@ -900,7 +900,26 @@
         </footer>
     </div>
 
-    <!-- Instant Auth Check Script (Instant execution without waiting for page load) -->
+    <!-- Firebase Initialization Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
+            authDomain: "green-damietta-b0a29.firebaseapp.com",
+            projectId: "green-damietta-b0a29",
+            storageBucket: "green-damietta-b0a29.firebasestorage.app",
+            messagingSenderId: "210935345765",
+            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
+            measurementId: "G-CT9KYEKXML"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+
+    <!-- Instant Auth Check Script -->
     <script>
         (function checkAuthImmediately() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -924,9 +943,8 @@
 
     <!-- App Logic Script -->
     <script>
-        let currentMode = 'login'; // 'login' or 'signup'
+        let currentMode = 'login';
 
-        // Switch between Login and Sign Up UI
         function switchAuthMode(mode) {
             currentMode = mode;
             const messageBox = document.getElementById('authMessage');
@@ -949,7 +967,6 @@
             }
         }
 
-        // Handle Form Submission (Sign In & Sign Up)
         function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
@@ -970,78 +987,66 @@
                         document.getElementById('passwordInput').value = '';
                     }, 1500);
                 }
-            } else { // Login mode
+            } else {
                 if (!users[email]) {
                     showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
                 } else if (users[email].password !== password) {
-                    showMessage('⚠️ Incorrect password! Please try again.', 'error');
+                    showMessage('⚠️ Incorrect password!', 'error');
                 } else {
-                    const userName = users[email].name;
                     localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userName', userName);
-                    showMainSite(userName);
+                    localStorage.setItem('userName', users[email].name);
+                    localStorage.setItem('userEmail', email);
+                    showMessage('✅ Signed in successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 }
             }
         }
 
-        function showMessage(msg, type) {
-            const messageBox = document.getElementById('authMessage');
-            messageBox.textContent = msg;
-            messageBox.className = 'auth-message ' + (type === 'error' ? 'auth-error' : 'auth-success');
-            messageBox.style.display = 'block';
-        }
-
-        // Helper function to decode JWT response from Google
-        function parseJwt(token) {
-            try {
-                var base64Url = token.split('.')[1];
-                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                return JSON.parse(jsonPayload);
-            } catch(e) {
-                return null;
-            }
-        }
-
-        // Handle Google Auth Response
         function handleCredentialResponse(response) {
-            let name = "";
-            const responsePayload = parseJwt(response.credential);
-            if (responsePayload && responsePayload.name) {
-                name = responsePayload.name;
+            try {
+                const responsePayload = parseJwt(response.credential);
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', responsePayload.name);
+                localStorage.setItem('userEmail', responsePayload.email);
+                location.reload();
+            } catch (e) {
+                console.error(e);
             }
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userName', name);
-            showMainSite(name);
         }
 
-        // Display website & Update Welcome Message
-        function showMainSite(name) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainSite').style.display = 'block';
-            
-            const welcomeText = name ? `Welcome, ${name} 👋` : 'Welcome 👋';
-            document.getElementById('welcomeUser').textContent = welcomeText;
+        function parseJwt(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
         }
 
-        // Logout logic
         function logout() {
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('userName');
+            localStorage.removeItem('userEmail');
             location.reload();
         }
 
-        // Quiz Logic
+        function showMessage(text, type) {
+            const msg = document.getElementById('authMessage');
+            msg.textContent = text;
+            msg.className = 'auth-message ' + (type === 'error' ? 'auth-error' : 'auth-success');
+            msg.style.display = 'block';
+        }
+
         function checkQuiz() {
             const q1 = document.querySelector('input[name="q1"]:checked');
             const q2 = document.querySelector('input[name="q2"]:checked');
-            const result = document.getElementById('result');
+            const resultDiv = document.getElementById('result');
 
             if (!q1 || !q2) {
-                result.style.color = "#d33";
-                result.textContent = "Please answer all questions first!";
+                resultDiv.style.color = '#d32f2f';
+                resultDiv.textContent = '⚠️ Please answer all questions before submitting!';
                 return;
             }
 
@@ -1049,19 +1054,18 @@
             if (q1.value === 'b') score++;
             if (q2.value === 'a') score++;
 
-            result.style.color = "#126c3d";
-            result.textContent = `You scored ${score} out of 2! ${score === 2 ? 'Excellent job! 🎉' : 'Try again for a perfect score.'}`;
-            
+            resultDiv.style.color = '#147a43';
+            resultDiv.textContent = `🎯 Your Score: ${score} / 2`;
+            document.getElementById('submitBtn').style.display = 'none';
             document.getElementById('retryBtn').style.display = 'block';
         }
 
-        // Reset Quiz Logic
         function resetQuiz() {
             document.getElementById('quizForm').reset();
             document.getElementById('result').textContent = '';
+            document.getElementById('submitBtn').style.display = 'block';
             document.getElementById('retryBtn').style.display = 'none';
         }
     </script>
-
 </body>
 </html>
