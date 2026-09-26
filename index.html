@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Damietta | 🌱</title>
+    <!-- Official Google Sign-In Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background: #f4fbf6;
+            color: #183b2a;
+            line-height: 1.8;
+        }
+
+        /* -------------------------------------------------- */
+        /* Login & Auth Screen (Hidden by default to prevent lag) */
+        /* -------------------------------------------------- */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #124d27;
+            display: none; /* إخفاء افتراضي لتجنب الوميض */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 35px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .login-box h1 {
+            color: #126c3d;
+            margin: 10px 0 5px 0;
+            font-size: 26px;
+        }
+
+        .login-box p {
+            color: #6b7d72;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: #174e31;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #cce3d4;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #147a43;
+            box-shadow: 0 0 0 3px rgba(20,122,67,0.15);
+        }
+
+        .btn-auth {
+            width: 100%;
+            background: #147a43;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn-auth:hover {
+            background: #106336;
+        }
+
+        .toggle-mode {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #557262;
+        }
+
+        .toggle-mode span {
+            color: #147a43;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #8fa095;
+            font-size: 13px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e1ebe4;
+        }
+
+        .divider span {
+            padding: 0 10px;
+        }
+
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+        }
+
+        .auth-message {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+            text-align: center;
+        }
+
+        .auth-error {
+            color: #d32f2f;
+            background: #fde8e8;
+            border: 1px solid #f8b4b4;
+        }
+
+        .auth-success {
+            color: #1b5e20;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+        }
+
+        /* -------------------------------------------------- */
+        /* Main Website Design (Hidden by default) */
+        /* -------------------------------------------------- */
+        #mainSite {
+            display: none;
+        }
+
+        /* Header Bar */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.97);
+            border-bottom: 1px solid #d9eadf;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: auto;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            color: #147a43;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: #f0a928;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #214b35;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: #16834a;
+        }
+
+        .user-nav-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #eaf7ee;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #137441;
+            font-weight: bold;
+        }
+
+        .btn-logout {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #c9302c;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 650px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px;
+            background:
+                linear-gradient(rgba(7,72,42,0.78), rgba(8,93,50,0.74)),
+                linear-gradient(135deg, #147a43, #76b852);
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 900px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 18px;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .hero h1 {
+            font-size: 58px;
+            margin-bottom: 15px;
+        }
+
+        .hero h2 {
+            font-size: 28px;
+            font-weight: normal;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 19px;
+            max-width: 750px;
+            margin: auto;
+            opacity: 0.95;
+        }
+
+        .hero-buttons {
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 13px 27px;
+            border-radius: 10px;
+            margin: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-main {
+            background: white;
+            color: #137441;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-outline {
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: #137441;
+        }
+
+        /* General Sections */
+        section {
+            padding: 75px 20px;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            color: #126c3d;
+            margin-bottom: 8px;
+        }
+
+        .section-title p {
+            color: #63766b;
+        }
+
+        .green-section {
+            background: #eaf7ee;
+        }
+
+        /* Cards Layout */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            border: 1px solid #dfede3;
+            box-shadow: 0 8px 25px rgba(30,80,50,0.07);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-7px);
+        }
+
+        .icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            color: #137441;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #607368;
+        }
+
+        /* About Green Tech */
+        .about-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .about-text {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(30,80,50,0.06);
+        }
+
+        .about-text h3 {
+            color: #137441;
+            font-size: 25px;
+            margin-bottom: 15px;
+        }
+
+        .facts {
+            display: grid;
+            gap: 15px;
+        }
+
+        .fact {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #46a758;
+        }
+
+        /* Projects Section */
+        .project {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-tag {
+            display: inline-block;
+            background: #e4f6e9;
+            color: #137441;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        /* Green Ammonia Feature */
+        .feature {
+            background: linear-gradient(135deg, #083f29, #137441);
+            color: white;
+            border-radius: 25px;
+            padding: 45px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .feature h2 {
+            font-size: 34px;
+            margin-bottom: 15px;
+        }
+
+        .feature p {
+            opacity: 0.92;
+        }
+
+        .feature-box {
+            background: rgba(255,255,255,0.12);
+            padding: 25px;
+            border-radius: 18px;
+        }
+
+        .feature-box strong {
+            font-size: 35px;
+            display: block;
+        }
+
+        /* Goals Section */
+        .goals {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .goal {
+            background: white;
+            padding: 25px 18px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #e0eee5;
+        }
+
+        .goal .icon {
+            font-size: 35px;
+        }
+
+        /* Quiz Section */
+        .quiz {
+            max-width: 750px;
+            margin: auto;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(30,80,50,0.08);
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question h3 {
+            margin-bottom: 12px;
+            color: #174e31;
+        }
+
+        .option {
+            display: block;
+            padding: 12px;
+            margin: 7px 0;
+            border: 1px solid #d8e7dd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option:hover {
+            background: #eef9f1;
+        }
+
+        .quiz-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .quiz button {
+            width: 100%;
+            border: none;
+            padding: 14px;
+            background: #147a43;
+            color: white;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .quiz button:hover {
+            background: #106336;
+        }
+
+        .btn-retry {
+            background: #eef9f1 !important;
+            color: #147a43 !important;
+            border: 2px solid #147a43 !important;
+            display: none;
+        }
+
+        .btn-retry:hover {
+            background: #147a43 !important;
+            color: white !important;
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            background: #092d1d;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        footer h2 {
+            margin-bottom: 10px;
+        }
+
+        footer p {
+            color: #c4d8cc;
+        }
+
+        .copyright {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #9ab3a5;
+        }
+
+        @media (max-width: 900px) {
+            .hero h1 { font-size: 45px; }
+            .cards, .goals { grid-template-columns: 1fr 1fr; }
+            .about-box, .feature { grid-template-columns: 1fr; }
+            nav { flex-direction: column; }
+        }
+
+        @media (max-width: 600px) {
+            .cards, .goals { grid-template-columns: 1fr; }
+            nav ul { justify-content: center; gap: 10px; font-size: 13px; }
+            .hero { min-height: 580px; }
+            .hero h1 { font-size: 35px; }
+            .hero h2 { font-size: 21px; }
+            .hero p { font-size: 16px; }
+            section { padding: 50px 15px; }
+            .feature { padding: 30px 20px; }
+            .quiz-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login & Register Screen -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <div style="font-size: 45px;">🌿</div>
+            <h1 id="authTitle">Sign In</h1>
+            <p id="authSubtitle">Sign in to access the platform</p>
+            
+            <!-- Auth Form -->
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label for="nameInput">Full Name</label>
+                    <input type="text" id="nameInput" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="emailInput">Email Address</label>
+                    <input type="email" id="emailInput" placeholder="name@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="passwordInput">Password</label>
+                    <input type="password" id="passwordInput" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-auth" id="authBtn">Sign In</button>
+            </form>
+
+            <div id="authMessage" class="auth-message"></div>
+
+            <div class="toggle-mode">
+                <span id="toggleText">Don't have an account? <span onclick="switchAuthMode('signup')">Sign Up</span></span>
+            </div>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <!-- Google Sign-In -->
+            <div id="g_id_onload"
+                 data-client_id="869130030417-1e62v181qh58pi9lrun7scdfcmkcvhsd.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse">
+            </div>
+            
+            <div class="g_id_signin" 
+                 data-type="standard" 
+                 data-size="large" 
+                 data-theme="outline" 
+                 data-text="sign_in_with" 
+                 data-shape="rectangular">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Website -->
+    <div id="mainSite">
+        <!-- Navigation Header -->
+        <header>
+            <nav>
+                <div class="logo">
+                    🌱 Green <span>Damietta</span>
+                </div>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#green">Green Tech</a></li>
+                    <li><a href="#projects">Damietta Projects</a></li>
+                    <li><a href="#quiz">Test Yourself</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+                <div class="user-nav-box">
+                    <span id="welcomeUser">Welcome 👋</span>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <div class="badge">Green Technology Competition 2026</div>
+                <h1>Green Damietta 🌱</h1>
+                <h2>Technology for a Better Environment</h2>
+                <p>
+                    An interactive educational platform showcasing how technology
+                    can protect the environment and foster sustainable development
+                    through key projects in Damietta Governorate.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn btn-main">Explore Projects</a>
+                    <a href="#quiz" class="btn btn-outline">Start Quiz</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Green Tech Section -->
+        <section id="green" class="green-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>What is Green Technology?</h2>
+                    <p>Technological solutions that reduce environmental impact and drive sustainability</p>
+                </div>
+                <div class="about-box">
+                    <div class="about-text">
+                        <h3>🌱 Technology & Environment</h3>
+                        <p>
+                            Green technology encompasses solutions and practices designed 
+                            to protect the environment and improve sustainability, such as energy 
+                            conservation, waste management, and renewable energy usage.
+                        </p>
+                        <br>
+                        <p>
+                            Information technology itself becomes more sustainable through 
+                            energy efficiency, eco-friendly hardware, and optimized data centers.
+                        </p>
+                    </div>
+                    <div class="facts">
+                        <div class="fact">
+                            ⚡ <strong>Energy Conservation</strong><br>Optimizing energy use efficiently.
+                        </div>
+                        <div class="fact">
+                            ♻️ <strong>Recycling</strong><br>Minimizing waste and reusing resources.
+                        </div>
+                        <div class="fact">
+                            💧 <strong>Water Protection</strong><br>Smart technology for water resource management.
+                        </div>
+                        <div class="fact">
+                            🌳 <strong>Environmental Care</strong><br>Reducing human ecological footprint.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Damietta -->
+        <section>
+            <div class="container">
+                <div class="section-title">
+                    <h2>Why Damietta?</h2>
+                    <p>A coastal governorate leading innovative green and sustainable initiatives.</p>
+                </div>
+                <div class="cards">
+                    <div class="card">
+                        <div class="icon">🌊</div>
+                        <h3>Coastal Location</h3>
+                        <p>Damietta's unique geography highlights the vital importance of protecting marine ecosystems and water resources.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">♻️</div>
+                        <h3>Waste Management</h3>
+                        <p>Active projects focusing on efficient collection, recycling, and resource recovery.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">⚡</div>
+                        <h3>Clean Energy</h3>
+                        <p>Leveraging green tech to transition toward sustainable, highly efficient energy solutions.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Damietta Projects -->
+        <section id="projects" class="green-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Green Projects in Damietta</h2>
+                    <p>Key regional initiatives driving technology and environmental sustainability</p>
+                </div>
+                <div class="cards">
+                    <div class="card project">
+                        <span class="project-tag">Kafr Saad</span>
+                        <div class="icon">🌾</div>
+                        <h3>Agricultural Waste Recycling</h3>
+                        <p>Utilizing agricultural waste through biogas units to generate clean, renewable energy.</p>
+                    </div>
+                    <div class="card project">
+                        <span class="project-tag">GreenTech</span>
+                        <div class="icon">♻️</div>
+                        <h3>Waste Management System</h3>
+                        <p>An integrated ecosystem for waste collection and recycling to lower environmental impact.</p>
+                    </div>
+                    <div class="card project">
+                        <span class="project-tag">Sustainable Farming</span>
+                        <div class="icon">🐟</div>
+                        <h3>Aquaponics Systems</h3>
+                        <p>Combining fish farming and soil-less plant cultivation as a modern eco-friendly farming method.</p>
+                    </div>
+                    <div class="card project">
+                        <span class="project-tag">Ezbet El-Borg</span>
+                        <div class="icon">🚢</div>
+                        <h3>Eco Fishing Port</h3>
+                        <p>Optimizing energy efficiency and waste control in local maritime operations.</p>
+                    </div>
+                    <div class="card project">
+                        <span class="project-tag">Academic</span>
+                        <div class="icon">🎓</div>
+                        <h3>Horus University</h3>
+                        <p>Connecting environmental research and sustainable tech within the university campus.</p>
+                    </div>
+                    <div class="card project">
+                        <span class="project-tag">Future Energy</span>
+                        <div class="icon">💧</div>
+                        <h3>Water Desalination</h3>
+                        <p>Deploying sustainable green tech solutions for coastal clean water production.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Green Ammonia Feature -->
+        <section>
+            <div class="container">
+                <div class="feature">
+                    <div>
+                        <h2>⚡ Green Ammonia in Damietta</h2>
+                        <p>
+                            A flagship green transformation project at Damietta Port, 
+                            producing green ammonia powered by renewable solar and wind energy.
+                        </p>
+                        <br>
+                        <p>
+                            This initiative showcases the powerful combination of industrial growth, 
+                            clean energy, and advanced green technologies.
+                        </p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>150,000 Tons</strong>
+                        Targeted annual production capacity.
+                        <br><br>
+                        <strong>2028</strong>
+                        Scheduled operational launch year.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section class="green-section" id="about">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Green Tech Goals</h2>
+                    <p>Core objectives behind implementing eco-friendly technological solutions</p>
+                </div>
+                <div class="goals">
+                    <div class="goal"><div class="icon">🌍</div><h3>Reduce Emissions</h3></div>
+                    <div class="goal"><div class="icon">💡</div><h3>Energy Efficiency</h3></div>
+                    <div class="goal"><div class="icon">🌱</div><h3>Smart Agriculture</h3></div>
+                    <div class="goal"><div class="icon">🚮</div><h3>Waste Reduction</h3></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Test Your Knowledge</h2>
+                    <p>Answer the questions below to evaluate your understanding of Green Tech in Damietta</p>
+                </div>
+                <div class="quiz">
+                    <form id="quizForm">
+                        <div class="question">
+                            <h3>1. What is the main objective of green technology?</h3>
+                            <label class="option"><input type="radio" name="q1" value="a"> Increase electricity consumption</label>
+                            <label class="option"><input type="radio" name="q1" value="b"> Protect the environment and achieve sustainability</label>
+                            <label class="option"><input type="radio" name="q1" value="c"> Eliminate all technology</label>
+                        </div>
+                        <div class="question">
+                            <h3>2. What energy sources power Damietta's Green Ammonia project?</h3>
+                            <label class="option"><input type="radio" name="q2" value="a"> Solar and Wind Energy</label>
+                            <label class="option"><input type="radio" name="q2" value="b"> Coal and Natural Gas</label>
+                            <label class="option"><input type="radio" name="q2" value="c"> Diesel Generators</label>
+                        </div>
+                    </form>
+                    
+                    <div class="quiz-buttons">
+                        <button id="submitBtn" onclick="checkQuiz()">Submit Answers</button>
+                        <button id="retryBtn" class="btn-retry" onclick="resetQuiz()">Test Again 🔄</button>
+                    </div>
+                    
+                    <div id="result"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <h2>Green Damietta</h2>
+            <p>An educational and awareness initiative for green technology and sustainable development</p>
+            <div class="copyright">
+                All Rights Reserved &copy; 2026 - Green Damietta
+            </div>
+        </footer>
+    </div>
+
+    <!-- Instant Auth Check Script (Instant execution without waiting for page load) -->
+    <script>
+        (function checkAuthImmediately() {
+            var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            var loginScreen = document.getElementById('loginScreen');
+            var mainSite = document.getElementById('mainSite');
+            var storedName = localStorage.getItem('userName');
+
+            if (isLoggedIn) {
+                if (mainSite) mainSite.style.display = 'block';
+                if (loginScreen) loginScreen.style.display = 'none';
+                var welcomeUser = document.getElementById('welcomeUser');
+                if (welcomeUser) {
+                    welcomeUser.textContent = storedName ? 'Welcome, ' + storedName + ' 👋' : 'Welcome 👋';
+                }
+            } else {
+                if (loginScreen) loginScreen.style.display = 'flex';
+                if (mainSite) mainSite.style.display = 'none';
+            }
+        })();
+    </script>
+
+    <!-- App Logic Script -->
+    <script>
+        let currentMode = 'login'; // 'login' or 'signup'
+
+        // Switch between Login and Sign Up UI
+        function switchAuthMode(mode) {
+            currentMode = mode;
+            const messageBox = document.getElementById('authMessage');
+            messageBox.style.display = 'none';
+
+            if (mode === 'signup') {
+                document.getElementById('authTitle').textContent = 'Create Account';
+                document.getElementById('authSubtitle').textContent = 'Sign up to get started';
+                document.getElementById('nameGroup').style.display = 'block';
+                document.getElementById('nameInput').required = true;
+                document.getElementById('authBtn').textContent = 'Sign Up';
+                document.getElementById('toggleText').innerHTML = 'Already have an account? <span onclick="switchAuthMode(\'login\')">Sign In</span>';
+            } else {
+                document.getElementById('authTitle').textContent = 'Sign In';
+                document.getElementById('authSubtitle').textContent = 'Sign in to access the platform';
+                document.getElementById('nameGroup').style.display = 'none';
+                document.getElementById('nameInput').required = false;
+                document.getElementById('authBtn').textContent = 'Sign In';
+                document.getElementById('toggleText').innerHTML = 'Don\'t have an account? <span onclick="switchAuthMode(\'signup\')">Sign Up</span>';
+            }
+        }
+
+        // Handle Form Submission (Sign In & Sign Up)
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('emailInput').value.trim().toLowerCase();
+            const password = document.getElementById('passwordInput').value;
+            const name = document.getElementById('nameInput').value.trim();
+            
+            let users = JSON.parse(localStorage.getItem('appUsers') || '{}');
+
+            if (currentMode === 'signup') {
+                if (users[email]) {
+                    showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
+                } else {
+                    users[email] = { name: name, password: password };
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                    showMessage('✅ Account created successfully! Switching to Sign In...', 'success');
+                    setTimeout(() => {
+                        switchAuthMode('login');
+                        document.getElementById('passwordInput').value = '';
+                    }, 1500);
+                }
+            } else { // Login mode
+                if (!users[email]) {
+                    showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
+                } else if (users[email].password !== password) {
+                    showMessage('⚠️ Incorrect password! Please try again.', 'error');
+                } else {
+                    const userName = users[email].name;
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userName', userName);
+                    showMainSite(userName);
+                }
+            }
+        }
+
+        function showMessage(msg, type) {
+            const messageBox = document.getElementById('authMessage');
+            messageBox.textContent = msg;
+            messageBox.className = 'auth-message ' + (type === 'error' ? 'auth-error' : 'auth-success');
+            messageBox.style.display = 'block';
+        }
+
+        // Helper function to decode JWT response from Google
+        function parseJwt(token) {
+            try {
+                var base64Url = token.split('.')[1];
+                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // Handle Google Auth Response
+        function handleCredentialResponse(response) {
+            let name = "";
+            const responsePayload = parseJwt(response.credential);
+            if (responsePayload && responsePayload.name) {
+                name = responsePayload.name;
+            }
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', name);
+            showMainSite(name);
+        }
+
+        // Display website & Update Welcome Message
+        function showMainSite(name) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainSite').style.display = 'block';
+            
+            const welcomeText = name ? `Welcome, ${name} 👋` : 'Welcome 👋';
+            document.getElementById('welcomeUser').textContent = welcomeText;
+        }
+
+        // Logout logic
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userName');
+            location.reload();
+        }
+
+        // Quiz Logic
+        function checkQuiz() {
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const result = document.getElementById('result');
+
+            if (!q1 || !q2) {
+                result.style.color = "#d33";
+                result.textContent = "Please answer all questions first!";
+                return;
+            }
+
+            let score = 0;
+            if (q1.value === 'b') score++;
+            if (q2.value === 'a') score++;
+
+            result.style.color = "#126c3d";
+            result.textContent = `You scored ${score} out of 2! ${score === 2 ? 'Excellent job! 🎉' : 'Try again for a perfect score.'}`;
+            
+            document.getElementById('retryBtn').style.display = 'block';
+        }
+
+        // Reset Quiz Logic
+        function resetQuiz() {
+            document.getElementById('quizForm').reset();
+            document.getElementById('result').textContent = '';
+            document.getElementById('retryBtn').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
