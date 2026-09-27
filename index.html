@@ -24,7 +24,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* Login & Auth Modal with Smooth Animation */
+        /* Login & Auth Modal with Smooth Animation (Fade & Slide) */
         /* -------------------------------------------------- */
         #loginScreen {
             position: fixed;
@@ -33,13 +33,13 @@
             width: 100vw;
             height: 100vh;
             background-color: rgba(18, 77, 39, 0.85);
-            display: none; /* مخفي افتراضياً */
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             padding: 20px;
             opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.35s ease-in-out;
         }
 
         #loginScreen.active {
@@ -51,17 +51,17 @@
             background: white;
             padding: 35px 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             text-align: center;
             max-width: 420px;
             width: 100%;
             position: relative;
-            transform: translateY(-30px);
-            transition: transform 0.3s ease-in-out;
+            transform: translateY(-40px) scale(0.95);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         #loginScreen.active .login-box {
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
 
         .close-btn {
@@ -670,7 +670,7 @@
 
 <body>
 
-    <!-- Login & Register Popup Modal with Animation -->
+    <!-- Login & Register Popup Modal with Smooth Animation -->
     <div id="loginScreen">
         <div class="login-box">
             <span class="close-btn" onclick="closeAuthModal()">&times;</span>
@@ -764,7 +764,7 @@
                 </p>
                 <div class="hero-buttons">
                     <a href="#projects" class="btn btn-main">Explore Projects</a>
-                    <a href="#quiz" class="btn btn-outline" onclick="checkQuizAccess(event)">Start Quiz</a>
+                    <a href="#quiz" class="btn btn-outline">Start Quiz</a>
                 </div>
             </div>
         </section>
@@ -991,7 +991,7 @@
         window.db = db;
     </script>
 
-    <!-- UI State Initialization Script -->
+    <!-- UI State Initialization & Global Button Protection Script -->
     <script>
         (function checkAuthUI() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -1011,6 +1011,31 @@
                 if (userNavBox) userNavBox.style.display = 'none';
             }
         })();
+
+        // حماية عامة: جعل أي زر في الصفحة يتطلب تسجيل دخول عدا أزرار تسجيل الدخول والخروج والنافذة المنبثقة
+        document.addEventListener('click', function(event) {
+            var target = event.target.closest('button, a');
+            if (!target) return;
+
+            if (
+                target.closest('#loginScreen') || 
+                target.classList.contains('btn-nav-login') || 
+                target.classList.contains('btn-nav-signup') || 
+                target.classList.contains('btn-logout') ||
+                target.getAttribute('onclick')?.includes('openAuthModal') ||
+                target.getAttribute('onclick')?.includes('switchAuthMode') ||
+                target.getAttribute('onclick')?.includes('closeAuthModal')
+            ) {
+                return;
+            }
+
+            var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                event.preventDefault();
+                event.stopPropagation();
+                openAuthModal('login');
+            }
+        }, true);
     </script>
 
     <!-- App Logic Script -->
@@ -1031,7 +1056,7 @@
             modal.classList.remove('active');
             setTimeout(() => {
                 modal.style.display = 'none';
-            }, 300);
+            }, 350);
         }
 
         function switchAuthMode(mode) {
@@ -1128,21 +1153,7 @@
             msg.style.display = 'block';
         }
 
-        function checkQuizAccess(event) {
-            var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            if (!isLoggedIn) {
-                event.preventDefault();
-                openAuthModal('login');
-            }
-        }
-
         function checkQuiz() {
-            var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            if (!isLoggedIn) {
-                openAuthModal('login');
-                return;
-            }
-
             const q1 = document.querySelector('input[name="q1"]:checked');
             const q2 = document.querySelector('input[name="q2"]:checked');
             const resultDiv = document.getElementById('result');
