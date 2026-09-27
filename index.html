@@ -584,7 +584,7 @@
             background: #eef9f1;
         }
 
-        /* ألوان الإجابات الصحيحة والخاطئة المضمونة */
+        /* ألوان الإجابات الصحيحة والخاطئة */
         .option.correct-ans {
             background-color: #d4edda !important;
             border-color: #28a745 !important;
@@ -638,6 +638,74 @@
             margin-top: 20px;
             font-size: 20px;
             font-weight: bold;
+        }
+
+        /* Rating Section Styles */
+        .rating-section {
+            max-width: 750px;
+            margin: auto;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(30,80,50,0.08);
+            text-align: center;
+        }
+
+        .stars {
+            font-size: 35px;
+            cursor: pointer;
+            color: #ccc;
+            margin: 15px 0;
+            display: inline-flex;
+            gap: 5px;
+        }
+
+        .stars span {
+            transition: 0.2s;
+        }
+
+        .stars span.active, .stars span:hover, .stars span:hover ~ span {
+            color: #ffc107;
+        }
+
+        .rating-section textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #cce3d4;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            margin-bottom: 15px;
+        }
+
+        .rating-section textarea:focus {
+            border-color: #147a43;
+            box-shadow: 0 0 0 3px rgba(20,122,67,0.15);
+        }
+
+        .rating-btn {
+            background: #147a43;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .rating-btn:hover {
+            background: #106336;
+        }
+
+        #ratingResult {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #147a43;
+            display: none;
         }
 
         /* Footer */
@@ -749,6 +817,7 @@
                     <li><a href="#green">Green Tech</a></li>
                     <li><a href="#projects">Damietta Projects</a></li>
                     <li><a href="#quiz">Test Yourself</a></li>
+                    <li><a href="#rating">Rate Us</a></li>
                     <li><a href="#about">About</a></li>
                 </ul>
                 
@@ -974,6 +1043,29 @@
             </div>
         </section>
 
+        <!-- Rating Section -->
+        <section id="rating">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Rate Our Website</h2>
+                    <p>Help us improve and make Green Damietta better for everyone!</p>
+                </div>
+                <div class="rating-section">
+                    <div class="stars" id="ratingStars">
+                        <span data-value="1">★</span>
+                        <span data-value="2">★</span>
+                        <span data-value="3">★</span>
+                        <span data-value="4">★</span>
+                        <span data-value="5">★</span>
+                    </div>
+                    <textarea id="feedbackInput" placeholder="Write your feedback or suggestions here..."></textarea>
+                    <br>
+                    <button class="rating-btn" onclick="submitRating()">Submit Rating</button>
+                    <div id="ratingResult"></div>
+                </div>
+            </div>
+        </section>
+
         <!-- Footer -->
         <footer>
             <h2>Green Damietta</h2>
@@ -1056,6 +1148,46 @@
     <!-- App Logic Script -->
     <script>
         let currentMode = 'login';
+        let selectedRating = 0;
+
+        // تفاعلية النجوم للتقييم
+        const stars = document.querySelectorAll('#ratingStars span');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = this.getAttribute('data-value');
+                stars.forEach(s => s.classList.remove('active'));
+                for (let i = 0; i < selectedRating; i++) {
+                    stars[i].classList.add('active');
+                }
+            });
+        });
+
+        function submitRating() {
+            var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                openAuthModal('login');
+                return;
+            }
+
+            const feedback = document.getElementById('feedbackInput').value.trim();
+            const ratingResult = document.getElementById('ratingResult');
+
+            if (selectedRating === 0) {
+                ratingResult.style.color = '#d32f2f';
+                ratingResult.textContent = '⚠️ Please select at least one star to rate!';
+                ratingResult.style.display = 'block';
+                return;
+            }
+
+            ratingResult.style.color = '#147a43';
+            ratingResult.textContent = '🌟 Thank you for your valuable feedback!';
+            ratingResult.style.display = 'block';
+
+            // حفظ التقييم محلياً (يمكن ربطه بـ Firestore في الخطوة القادمة)
+            let ratings = JSON.parse(localStorage.getItem('siteRatings') || '[]');
+            ratings.push({ rating: selectedRating, feedback: feedback, user: localStorage.getItem('userEmail'), date: new Date().toISOString() });
+            localStorage.setItem('siteRatings', JSON.stringify(ratings));
+        }
 
         function openAuthModal(mode) {
             switchAuthMode(mode);
@@ -1179,14 +1311,12 @@
                 return;
             }
 
-            // إزالة أي ألوان قديمة من كل الخيارات
             document.querySelectorAll('.option').forEach(opt => {
                 opt.classList.remove('correct-ans', 'wrong-ans');
             });
 
             let score = 0;
 
-            // تصحيح السؤال الأول (الإجابة الصحيحة b)
             const q1SelectedLabel = q1.closest('.option');
             if (q1.value === 'b') {
                 score++;
@@ -1196,7 +1326,6 @@
                 document.getElementById('lbl_q1_b').classList.add('correct-ans');
             }
 
-            // تصحيح السؤال الثاني (الإجابة الصحيحة a)
             const q2SelectedLabel = q2.closest('.option');
             if (q2.value === 'a') {
                 score++;
