@@ -1076,11 +1076,11 @@
         </footer>
     </div>
 
-    <!-- Firebase Initialization Script -->
+    <!-- Firebase Initialization & Cloud Firestore Database Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
@@ -1096,6 +1096,7 @@
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
         window.db = db;
+        window.dbOperations = { collection, addDoc, getDocs, query, where, setDoc, doc };
     </script>
 
     <!-- UI State Initialization & Global Button Protection Script -->
@@ -1119,7 +1120,7 @@
             }
         })();
 
-        // حماية عامة: جعل أي زر في الصفحة يتطلب تسجيل دخول عدا أزرار تسجيل الدخول والخروج والنافذة المنبثقة
+        // حماية عامة لجميع أزرار الموقع
         document.addEventListener('click', function(event) {
             var target = event.target.closest('button, a');
             if (!target) return;
@@ -1145,12 +1146,11 @@
         }, true);
     </script>
 
-    <!-- App Logic Script -->
+    <!-- App Logic & Cloud Database Auth Script -->
     <script>
         let currentMode = 'login';
         let selectedRating = 0;
 
-        // تفاعلية النجوم للتقييم
         const stars = document.querySelectorAll('#ratingStars span');
         stars.forEach(star => {
             star.addEventListener('click', function() {
@@ -1162,7 +1162,8 @@
             });
         });
 
-        function submitRating() {
+        // إرسال التقييم إلى سحابة Firestore مباشرة
+        async function submitRating() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
                 openAuthModal('login');
@@ -1179,14 +1180,25 @@
                 return;
             }
 
-            ratingResult.style.color = '#147a43';
-            ratingResult.textContent = '🌟 Thank you for your valuable feedback!';
-            ratingResult.style.display = 'block';
-
-            // حفظ التقييم محلياً (يمكن ربطه بـ Firestore في الخطوة القادمة)
-            let ratings = JSON.parse(localStorage.getItem('siteRatings') || '[]');
-            ratings.push({ rating: selectedRating, feedback: feedback, user: localStorage.getItem('userEmail'), date: new Date().toISOString() });
-            localStorage.setItem('siteRatings', JSON.stringify(ratings));
+            try {
+                if (window.db && window.dbOperations) {
+                    await window.dbOperations.addDoc(window.dbOperations.collection(window.db, "ratings"), {
+                        rating: Number(selectedRating),
+                        feedback: feedback,
+                        userEmail: localStorage.getItem('userEmail'),
+                        userName: localStorage.getItem('userName'),
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                ratingResult.style.color = '#147a43';
+                ratingResult.textContent = '🌟 Thank you! Your feedback was saved to the cloud.';
+                ratingResult.style.display = 'block';
+            } catch (error) {
+                console.error(error);
+                ratingResult.style.color = '#d32f2f';
+                ratingResult.textContent = '⚠️ Error saving rating to cloud.';
+                ratingResult.style.display = 'block';
+            }
         }
 
         function openAuthModal(mode) {
@@ -1228,40 +1240,56 @@
             }
         }
 
-        function handleAuthSubmit(event) {
+        // تسجيل وحفظ بيانات المستخدم سحابياً في Firestore لتعمل من أي جهاز
+        async function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
             const password = document.getElementById('passwordInput').value;
             const name = document.getElementById('nameInput').value.trim();
-            
-            let users = JSON.parse(localStorage.getItem('appUsers') || '{}');
 
-            if (currentMode === 'signup') {
-                if (users[email]) {
-                    showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
+            if (!window.db || !window.dbOperations) {
+                showMessage('⚠️ Database is initializing, please try again in a second.', 'error');
+                return;
+            }
+
+            const { doc, getDoc, setDoc } = window.dbOperations;
+            const userRef = doc(window.db, "users", email);
+
+            try {
+                if (currentMode === 'signup') {
+                    const userSnap = await getDoc(userRef);
+                    if (userSnap.exists()) {
+                        showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
+                    } else {
+                        await setDoc(userRef, { name: name, password: password, email: email });
+                        showMessage('✅ Account created successfully! Switching to Sign In...', 'success');
+                        setTimeout(() => {
+                            switchAuthMode('login');
+                            document.getElementById('passwordInput').value = '';
+                        }, 1500);
+                    }
                 } else {
-                    users[email] = { name: name, password: password };
-                    localStorage.setItem('appUsers', JSON.stringify(users));
-                    showMessage('✅ Account created successfully! Switching to Sign In...', 'success');
-                    setTimeout(() => {
-                        switchAuthMode('login');
-                        document.getElementById('passwordInput').value = '';
-                    }, 1500);
+                    const userSnap = await getDoc(userRef);
+                    if (!userSnap.exists()) {
+                        showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
+                    } else {
+                        const userData = userSnap.data();
+                        if (userData.password !== password) {
+                            showMessage('⚠️ Incorrect password!', 'error');
+                        } else {
+                            localStorage.setItem('isLoggedIn', 'true');
+                            localStorage.setItem('userName', userData.name);
+                            localStorage.setItem('userEmail', email);
+                            showMessage('✅ Signed in successfully! Redirecting...', 'success');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        }
+                    }
                 }
-            } else {
-                if (!users[email]) {
-                    showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
-                } else if (users[email].password !== password) {
-                    showMessage('⚠️ Incorrect password!', 'error');
-                } else {
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userName', users[email].name);
-                    localStorage.setItem('userEmail', email);
-                    showMessage('✅ Signed in successfully! Redirecting...', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
+            } catch (e) {
+                console.error(e);
+                showMessage('⚠️ Connection error. Please check your internet.', 'error');
             }
         }
 
