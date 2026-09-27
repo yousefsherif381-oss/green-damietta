@@ -1260,7 +1260,7 @@
                 if (passwordGroup) passwordGroup.style.display = 'none';
                 if (forgotPasswordDiv) forgotPasswordDiv.style.display = 'none';
                 document.getElementById('passwordInput').required = false;
-                document.getElementById('authBtn').textContent = 'Send Reset Instructions';
+                document.getElementById('authBtn').textContent = 'Recover Password';
                 document.getElementById('toggleText').innerHTML = 'Remembered your password? <span onclick="switchAuthMode(\'login\')">Sign In</span>';
             } else {
                 document.getElementById('authTitle').textContent = 'Sign In';
@@ -1282,8 +1282,8 @@
         async function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
-            const password = document.getElementById('passwordInput').value;
-            const name = document.getElementById('nameInput').value.trim();
+            const messageBox = document.getElementById('authMessage');
+            messageBox.style.display = 'none';
 
             if (!window.db || !window.dbOperations) {
                 showMessage('⚠️ Database is initializing, please try again in a second.', 'error');
@@ -1304,6 +1304,9 @@
                     }
                     return;
                 }
+
+                const password = document.getElementById('passwordInput').value;
+                const name = document.getElementById('nameInput').value.trim();
 
                 if (currentMode === 'signup') {
                     const userSnap = await getDoc(userRef);
