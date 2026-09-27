@@ -24,7 +24,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* Login & Auth Modal (Popup) */
+        /* Login & Auth Modal with Smooth Animation */
         /* -------------------------------------------------- */
         #loginScreen {
             position: fixed;
@@ -33,11 +33,18 @@
             width: 100vw;
             height: 100vh;
             background-color: rgba(18, 77, 39, 0.85);
-            display: none; /* مخفي افتراضياً ويظهر عند الحاجة */
+            display: none; /* مخفي افتراضياً */
             justify-content: center;
             align-items: center;
             z-index: 9999;
             padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #loginScreen.active {
+            display: flex;
+            opacity: 1;
         }
 
         .login-box {
@@ -49,6 +56,12 @@
             max-width: 420px;
             width: 100%;
             position: relative;
+            transform: translateY(-30px);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #loginScreen.active .login-box {
+            transform: translateY(0);
         }
 
         .close-btn {
@@ -657,7 +670,7 @@
 
 <body>
 
-    <!-- Login & Register Popup Modal -->
+    <!-- Login & Register Popup Modal with Animation -->
     <div id="loginScreen">
         <div class="login-box">
             <span class="close-btn" onclick="closeAuthModal()">&times;</span>
@@ -956,7 +969,7 @@
         </footer>
     </div>
 
-    <!-- Firebase Initialization Script (App, Analytics & Firestore DB Ready) -->
+    <!-- Firebase Initialization Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
@@ -974,10 +987,8 @@
 
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
-        
-        // قاعدة البيانات (Firestore Database) أصبحت جاهزة للاستخدام في الخطوات القادمة
         const db = getFirestore(app);
-        window.db = db; 
+        window.db = db;
     </script>
 
     <!-- UI State Initialization Script -->
@@ -1008,11 +1019,19 @@
 
         function openAuthModal(mode) {
             switchAuthMode(mode);
-            document.getElementById('loginScreen').style.display = 'flex';
+            const modal = document.getElementById('loginScreen');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
         }
 
         function closeAuthModal() {
-            document.getElementById('loginScreen').style.display = 'none';
+            const modal = document.getElementById('loginScreen');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
         }
 
         function switchAuthMode(mode) {
@@ -1113,7 +1132,6 @@
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
                 event.preventDefault();
-                alert('⚠️ Please Sign In or Sign Up first to take the quiz!');
                 openAuthModal('login');
             }
         }
@@ -1121,7 +1139,6 @@
         function checkQuiz() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
-                alert('⚠️ Please Sign In first to submit your answers!');
                 openAuthModal('login');
                 return;
             }
