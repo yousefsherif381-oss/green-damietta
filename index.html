@@ -5,7 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Green Damietta | 🌱</title>
-    <!-- Official Google Sign-In Library -->
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Google Sign-In Library -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
@@ -23,9 +27,6 @@
             line-height: 1.8;
         }
 
-        /* -------------------------------------------------- */
-        /* Login & Auth Modal with Smooth Animation (Fade & Slide) */
-        /* -------------------------------------------------- */
         #loginScreen {
             position: fixed;
             top: 0;
@@ -206,9 +207,6 @@
             border: 1px solid #a5d6a7;
         }
 
-        /* -------------------------------------------------- */
-        /* Main Website Design */
-        /* -------------------------------------------------- */
         header {
             position: sticky;
             top: 0;
@@ -323,7 +321,6 @@
             background: #c9302c;
         }
 
-        /* Hero Section */
         .hero {
             min-height: 650px;
             display: flex;
@@ -401,7 +398,6 @@
             color: #137441;
         }
 
-        /* General Sections */
         section {
             padding: 75px 20px;
         }
@@ -430,7 +426,6 @@
             background: #eaf7ee;
         }
 
-        /* Cards Layout */
         .cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -464,7 +459,6 @@
             color: #607368;
         }
 
-        /* About Green Tech */
         .about-box {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -497,7 +491,6 @@
             border-left: 5px solid #46a758;
         }
 
-        /* Projects Section */
         .project {
             position: relative;
             overflow: hidden;
@@ -513,7 +506,6 @@
             margin-bottom: 10px;
         }
 
-        /* Green Ammonia Feature */
         .feature {
             background: linear-gradient(135deg, #083f29, #137441);
             color: white;
@@ -545,7 +537,6 @@
             display: block;
         }
 
-        /* Goals Section */
         .goals {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -564,7 +555,6 @@
             font-size: 35px;
         }
 
-        /* Quiz Section */
         .quiz {
             max-width: 750px;
             margin: auto;
@@ -597,7 +587,6 @@
             background: #eef9f1;
         }
 
-        /* ألوان الإجابات الصحيحة والخاطئة */
         .option.correct-ans {
             background-color: #d4edda !important;
             border-color: #28a745 !important;
@@ -653,7 +642,6 @@
             font-weight: bold;
         }
 
-        /* Rating Section Styles */
         .rating-section {
             max-width: 750px;
             margin: auto;
@@ -721,7 +709,6 @@
             display: none;
         }
 
-        /* Footer */
         footer {
             background: #092d1d;
             color: white;
@@ -766,7 +753,6 @@
 
 <body>
 
-    <!-- Login & Register Popup Modal with Smooth Animation -->
     <div id="loginScreen">
         <div class="login-box">
             <span class="close-btn" onclick="closeAuthModal()">&times;</span>
@@ -774,7 +760,6 @@
             <h1 id="authTitle">Sign In</h1>
             <p id="authSubtitle">Sign in to access the platform</p>
             
-            <!-- Auth Form -->
             <form id="authForm" onsubmit="handleAuthSubmit(event)">
                 <div class="form-group" id="nameGroup" style="display: none;">
                     <label for="nameInput">Full Name</label>
@@ -804,7 +789,6 @@
                 <span>OR</span>
             </div>
 
-            <!-- Google Sign-In -->
             <div id="g_id_onload"
                  data-client_id="869130030417-1e62v181qh58pi9lrun7scdfcmkcvhsd.apps.googleusercontent.com"
                  data-callback="handleCredentialResponse">
@@ -820,9 +804,7 @@
         </div>
     </div>
 
-    <!-- Main Website -->
     <div id="mainSite">
-        <!-- Navigation Header -->
         <header>
             <nav>
                 <div class="logo">
@@ -837,7 +819,6 @@
                     <li><a href="#about">About</a></li>
                 </ul>
                 
-                <!-- Authentication Navigation Buttons / User Box -->
                 <div>
                     <div id="authNavButtons" class="auth-nav-buttons">
                         <button class="btn-nav-login" onclick="openAuthModal('login')">Login</button>
@@ -851,7 +832,6 @@
             </nav>
         </header>
 
-        <!-- Hero Section -->
         <section class="hero" id="home">
             <div class="hero-content">
                 <div class="badge">Green Technology Competition 2026</div>
@@ -869,7 +849,6 @@
             </div>
         </section>
 
-        <!-- Green Tech Section -->
         <section id="green" class="green-section">
             <div class="container">
                 <div class="section-title">
@@ -908,7 +887,6 @@
             </div>
         </section>
 
-        <!-- Why Damietta -->
         <section>
             <div class="container">
                 <div class="section-title">
@@ -935,7 +913,6 @@
             </div>
         </section>
 
-        <!-- Damietta Projects -->
         <section id="projects" class="green-section">
             <div class="container">
                 <div class="section-title">
@@ -983,7 +960,6 @@
             </div>
         </section>
 
-        <!-- Green Ammonia Feature -->
         <section>
             <div class="container">
                 <div class="feature">
@@ -1010,7 +986,6 @@
             </div>
         </section>
 
-        <!-- Goals Section -->
         <section class="green-section" id="about">
             <div class="container">
                 <div class="section-title">
@@ -1026,7 +1001,6 @@
             </div>
         </section>
 
-        <!-- Quiz Section -->
         <section id="quiz">
             <div class="container">
                 <div class="section-title">
@@ -1059,7 +1033,6 @@
             </div>
         </section>
 
-        <!-- Rating Section -->
         <section id="rating">
             <div class="container">
                 <div class="section-title">
@@ -1082,7 +1055,6 @@
             </div>
         </section>
 
-        <!-- Footer -->
         <footer>
             <h2>Green Damietta</h2>
             <p>An educational and awareness initiative for green technology and sustainable development</p>
@@ -1092,8 +1064,23 @@
         </footer>
     </div>
 
-    <!-- UI State Initialization & Global Button Protection Script -->
+    <!-- Firebase Configuration & Sync Script -->
     <script>
+        // إعدادات فايربيس السحابية
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-PlaceholderKey-ChangeMeIfNeeded",
+            authDomain: "green-damietta.firebaseapp.com",
+            projectId: "green-damietta",
+            storageBucket: "green-damietta.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456:web:abcd"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
         (function checkAuthUI() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             var authNavButtons = document.getElementById('authNavButtons');
@@ -1113,7 +1100,6 @@
             }
         })();
 
-        // حماية عامة لجميع أزرار الموقع
         document.addEventListener('click', function(event) {
             var target = event.target.closest('button, a');
             if (!target) return;
@@ -1140,7 +1126,6 @@
         }, true);
     </script>
 
-    <!-- App Logic & Fast Local Storage Auth Script -->
     <script>
         let currentMode = 'login';
         let selectedRating = 0;
@@ -1156,7 +1141,7 @@
             });
         });
 
-        function submitRating() {
+        async function submitRating() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
                 openAuthModal('login');
@@ -1173,19 +1158,24 @@
                 return;
             }
 
-            let ratings = JSON.parse(localStorage.getItem('siteRatings') || '[]');
-            ratings.push({
-                rating: Number(selectedRating),
-                feedback: feedback,
-                userEmail: localStorage.getItem('userEmail'),
-                userName: localStorage.getItem('userName'),
-                createdAt: new Date().toISOString()
-            });
-            localStorage.setItem('siteRatings', JSON.stringify(ratings));
+            try {
+                await db.collection('ratings').add({
+                    rating: Number(selectedRating),
+                    feedback: feedback,
+                    userEmail: localStorage.getItem('userEmail'),
+                    userName: localStorage.getItem('userName'),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-            ratingResult.style.color = '#147a43';
-            ratingResult.textContent = '🌟 Thank you! Your feedback was saved successfully.';
-            ratingResult.style.display = 'block';
+                ratingResult.style.color = '#147a43';
+                ratingResult.textContent = '🌟 Thank you! Your feedback was saved to the cloud successfully.';
+                ratingResult.style.display = 'block';
+            } catch (e) {
+                console.error(e);
+                ratingResult.style.color = '#d32f2f';
+                ratingResult.textContent = '⚠️ Error saving rating. Please check connection.';
+                ratingResult.style.display = 'block';
+            }
         }
 
         function openAuthModal(mode) {
@@ -1250,54 +1240,59 @@
             switchAuthMode('forgot');
         }
 
-        function handleAuthSubmit(event) {
+        async function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
             const messageBox = document.getElementById('authMessage');
             messageBox.style.display = 'none';
 
-            let users = JSON.parse(localStorage.getItem('appUsers') || '{}');
+            try {
+                const userRef = db.collection('users').doc(email);
+                const doc = await userRef.get();
 
-            if (currentMode === 'forgot') {
-                if (!users[email]) {
-                    showMessage('⚠️ This email is not registered in our system!', 'error');
-                } else {
-                    showMessage(`✅ Your password is: "${users[email].password}"`, 'success');
-                }
-                return;
-            }
-
-            const password = document.getElementById('passwordInput').value;
-            const name = document.getElementById('nameInput').value.trim();
-
-            if (currentMode === 'signup') {
-                if (users[email]) {
-                    showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
-                } else {
-                    users[email] = { name: name, password: password, email: email };
-                    localStorage.setItem('appUsers', JSON.stringify(users));
-                    showMessage('✅ Account created successfully! Switching to Sign In...', 'success');
-                    setTimeout(() => {
-                        switchAuthMode('login');
-                        document.getElementById('passwordInput').value = '';
-                    }, 1200);
-                }
-            } else {
-                if (!users[email]) {
-                    showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
-                } else {
-                    if (users[email].password !== password) {
-                        showMessage('⚠️ Incorrect password!', 'error');
+                if (currentMode === 'forgot') {
+                    if (!doc.exists) {
+                        showMessage('⚠️ This email is not registered in our system!', 'error');
                     } else {
-                        localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userName', users[email].name);
-                        localStorage.setItem('userEmail', email);
-                        showMessage('✅ Signed in successfully! Redirecting...', 'success');
+                        showMessage(`✅ Your password is: "${doc.data().password}"`, 'success');
+                    }
+                    return;
+                }
+
+                const password = document.getElementById('passwordInput').value;
+                const name = document.getElementById('nameInput').value.trim();
+
+                if (currentMode === 'signup') {
+                    if (doc.exists) {
+                        showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
+                    } else {
+                        await userRef.set({ name: name, password: password, email: email, createdAt: new Date() });
+                        showMessage('✅ Account created successfully in cloud! Switching to Sign In...', 'success');
                         setTimeout(() => {
-                            location.reload();
-                        }, 800);
+                            switchAuthMode('login');
+                            document.getElementById('passwordInput').value = '';
+                        }, 1200);
+                    }
+                } else {
+                    if (!doc.exists) {
+                        showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
+                    } else {
+                        if (doc.data().password !== password) {
+                            showMessage('⚠️ Incorrect password!', 'error');
+                        } else {
+                            localStorage.setItem('isLoggedIn', 'true');
+                            localStorage.setItem('userName', doc.data().name);
+                            localStorage.setItem('userEmail', email);
+                            showMessage('✅ Signed in successfully! Redirecting...', 'success');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 800);
+                        }
                     }
                 }
+            } catch (e) {
+                console.error(e);
+                showMessage('⚠️ Connection error with cloud database. Try again.', 'error');
             }
         }
 
