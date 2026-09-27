@@ -584,6 +584,21 @@
             background: #eef9f1;
         }
 
+        /* أنماط ألوان الإجابات الصحيحة والخاطئة */
+        .option.correct {
+            background-color: #e8f5e9 !important;
+            border-color: #4caf50 !important;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .option.incorrect {
+            background-color: #ffebee !important;
+            border-color: #f44336 !important;
+            color: #c62828;
+            font-weight: bold;
+        }
+
         .quiz-buttons {
             display: flex;
             gap: 10px;
@@ -935,17 +950,17 @@
                 </div>
                 <div class="quiz">
                     <form id="quizForm">
-                        <div class="question">
+                        <div class="question" id="q1Block">
                             <h3>1. What is the main objective of green technology?</h3>
-                            <label class="option"><input type="radio" name="q1" value="a"> Increase electricity consumption</label>
-                            <label class="option"><input type="radio" name="q1" value="b"> Protect the environment and achieve sustainability</label>
-                            <label class="option"><input type="radio" name="q1" value="c"> Eliminate all technology</label>
+                            <label class="option" id="q1_a"><input type="radio" name="q1" value="a"> Increase electricity consumption</label>
+                            <label class="option" id="q1_b"><input type="radio" name="q1" value="b"> Protect the environment and achieve sustainability</label>
+                            <label class="option" id="q1_c"><input type="radio" name="q1" value="c"> Eliminate all technology</label>
                         </div>
-                        <div class="question">
+                        <div class="question" id="q2Block">
                             <h3>2. What energy sources power Damietta's Green Ammonia project?</h3>
-                            <label class="option"><input type="radio" name="q2" value="a"> Solar and Wind Energy</label>
-                            <label class="option"><input type="radio" name="q2" value="b"> Coal and Natural Gas</label>
-                            <label class="option"><input type="radio" name="q2" value="c"> Diesel Generators</label>
+                            <label class="option" id="q2_a"><input type="radio" name="q2" value="a"> Solar and Wind Energy</label>
+                            <label class="option" id="q2_b"><input type="radio" name="q2" value="b"> Coal and Natural Gas</label>
+                            <label class="option" id="q2_c"><input type="radio" name="q2" value="c"> Diesel Generators</label>
                         </div>
                     </form>
                     
@@ -1164,9 +1179,34 @@
                 return;
             }
 
+            // إزالة أي تلوين سابق
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+
             let score = 0;
-            if (q1.value === 'b') score++;
-            if (q2.value === 'a') score++;
+
+            // تصحيح السؤال الأول (الإجابة الصحيحة هي b)
+            const q1Parent = q1.closest('.option');
+            if (q1.value === 'b') {
+                score++;
+                q1Parent.classList.add('correct');
+            } else {
+                q1Parent.classList.add('incorrect');
+                // تلوين الإجابة الصحيحة بالأخضر ليراها المستخدم
+                document.getElementById('q1_b').classList.add('correct');
+            }
+
+            // تصحيح السؤال الثاني (الإجابة الصحيحة هي a)
+            const q2Parent = q2.closest('.option');
+            if (q2.value === 'a') {
+                score++;
+                q2Parent.classList.add('correct');
+            } else {
+                q2Parent.classList.add('incorrect');
+                // تلوين الإجابة الصحيحة بالأخضر
+                document.getElementById('q2_a').classList.add('correct');
+            }
 
             resultDiv.style.color = '#147a43';
             resultDiv.textContent = `🎯 Your Score: ${score} / 2`;
@@ -1176,6 +1216,9 @@
 
         function resetQuiz() {
             document.getElementById('quizForm').reset();
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
             document.getElementById('result').textContent = '';
             document.getElementById('submitBtn').style.display = 'block';
             document.getElementById('retryBtn').style.display = 'none';
