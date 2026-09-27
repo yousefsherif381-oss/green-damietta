@@ -1092,29 +1092,6 @@
         </footer>
     </div>
 
-    <!-- Firebase Initialization & Cloud Firestore Database Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
-            authDomain: "green-damietta-b0a29.firebaseapp.com",
-            projectId: "green-damietta-b0a29",
-            storageBucket: "green-damietta-b0a29.firebasestorage.app",
-            messagingSenderId: "210935345765",
-            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
-            measurementId: "G-CT9KYEKXML"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-        window.db = db;
-        window.dbOperations = { collection, addDoc, getDocs, query, where, setDoc, doc, getDoc };
-    </script>
-
     <!-- UI State Initialization & Global Button Protection Script -->
     <script>
         (function checkAuthUI() {
@@ -1163,7 +1140,7 @@
         }, true);
     </script>
 
-    <!-- App Logic & Cloud Database Auth Script -->
+    <!-- App Logic & Fast Local Storage Auth Script -->
     <script>
         let currentMode = 'login';
         let selectedRating = 0;
@@ -1179,7 +1156,7 @@
             });
         });
 
-        async function submitRating() {
+        function submitRating() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
                 openAuthModal('login');
@@ -1196,25 +1173,19 @@
                 return;
             }
 
-            try {
-                if (window.db && window.dbOperations) {
-                    await window.dbOperations.addDoc(window.dbOperations.collection(window.db, "ratings"), {
-                        rating: Number(selectedRating),
-                        feedback: feedback,
-                        userEmail: localStorage.getItem('userEmail'),
-                        userName: localStorage.getItem('userName'),
-                        createdAt: new Date().toISOString()
-                    });
-                }
-                ratingResult.style.color = '#147a43';
-                ratingResult.textContent = '🌟 Thank you! Your feedback was saved to the cloud.';
-                ratingResult.style.display = 'block';
-            } catch (error) {
-                console.error(error);
-                ratingResult.style.color = '#d32f2f';
-                ratingResult.textContent = '⚠️ Error saving rating to cloud.';
-                ratingResult.style.display = 'block';
-            }
+            let ratings = JSON.parse(localStorage.getItem('siteRatings') || '[]');
+            ratings.push({
+                rating: Number(selectedRating),
+                feedback: feedback,
+                userEmail: localStorage.getItem('userEmail'),
+                userName: localStorage.getItem('userName'),
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('siteRatings', JSON.stringify(ratings));
+
+            ratingResult.style.color = '#147a43';
+            ratingResult.textContent = '🌟 Thank you! Your feedback was saved successfully.';
+            ratingResult.style.display = 'block';
         }
 
         function openAuthModal(mode) {
@@ -1279,69 +1250,54 @@
             switchAuthMode('forgot');
         }
 
-        async function handleAuthSubmit(event) {
+        function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
             const messageBox = document.getElementById('authMessage');
             messageBox.style.display = 'none';
 
-            if (!window.db || !window.dbOperations) {
-                showMessage('⚠️ Database is initializing, please try again in a second.', 'error');
+            let users = JSON.parse(localStorage.getItem('appUsers') || '{}');
+
+            if (currentMode === 'forgot') {
+                if (!users[email]) {
+                    showMessage('⚠️ This email is not registered in our system!', 'error');
+                } else {
+                    showMessage(`✅ Your password is: "${users[email].password}"`, 'success');
+                }
                 return;
             }
 
-            const { doc, getDoc, setDoc } = window.dbOperations;
-            const userRef = doc(window.db, "users", email);
+            const password = document.getElementById('passwordInput').value;
+            const name = document.getElementById('nameInput').value.trim();
 
-            try {
-                if (currentMode === 'forgot') {
-                    const userSnap = await getDoc(userRef);
-                    if (!userSnap.exists()) {
-                        showMessage('⚠️ This email is not registered in our system!', 'error');
-                    } else {
-                        const userData = userSnap.data();
-                        showMessage(`✅ Your password is: "${userData.password}"`, 'success');
-                    }
-                    return;
-                }
-
-                const password = document.getElementById('passwordInput').value;
-                const name = document.getElementById('nameInput').value.trim();
-
-                if (currentMode === 'signup') {
-                    const userSnap = await getDoc(userRef);
-                    if (userSnap.exists()) {
-                        showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
-                    } else {
-                        await setDoc(userRef, { name: name, password: password, email: email });
-                        showMessage('✅ Account created successfully! Switching to Sign In...', 'success');
-                        setTimeout(() => {
-                            switchAuthMode('login');
-                            document.getElementById('passwordInput').value = '';
-                        }, 1500);
-                    }
+            if (currentMode === 'signup') {
+                if (users[email]) {
+                    showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
                 } else {
-                    const userSnap = await getDoc(userRef);
-                    if (!userSnap.exists()) {
-                        showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
+                    users[email] = { name: name, password: password, email: email };
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                    showMessage('✅ Account created successfully! Switching to Sign In...', 'success');
+                    setTimeout(() => {
+                        switchAuthMode('login');
+                        document.getElementById('passwordInput').value = '';
+                    }, 1200);
+                }
+            } else {
+                if (!users[email]) {
+                    showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
+                } else {
+                    if (users[email].password !== password) {
+                        showMessage('⚠️ Incorrect password!', 'error');
                     } else {
-                        const userData = userSnap.data();
-                        if (userData.password !== password) {
-                            showMessage('⚠️ Incorrect password!', 'error');
-                        } else {
-                            localStorage.setItem('isLoggedIn', 'true');
-                            localStorage.setItem('userName', userData.name);
-                            localStorage.setItem('userEmail', email);
-                            showMessage('✅ Signed in successfully! Redirecting...', 'success');
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1000);
-                        }
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userName', users[email].name);
+                        localStorage.setItem('userEmail', email);
+                        showMessage('✅ Signed in successfully! Redirecting...', 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 800);
                     }
                 }
-            } catch (e) {
-                console.error(e);
-                showMessage('⚠️ Connection error. Please check your internet.', 'error');
             }
         }
 
