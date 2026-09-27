@@ -584,18 +584,18 @@
             background: #eef9f1;
         }
 
-        /* أنماط ألوان الإجابات الصحيحة والخاطئة */
-        .option.correct {
-            background-color: #e8f5e9 !important;
-            border-color: #4caf50 !important;
-            color: #1b5e20;
+        /* ألوان الإجابات الصحيحة والخاطئة المضمونة */
+        .option.correct-ans {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724 !important;
             font-weight: bold;
         }
 
-        .option.incorrect {
-            background-color: #ffebee !important;
-            border-color: #f44336 !important;
-            color: #c62828;
+        .option.wrong-ans {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24 !important;
             font-weight: bold;
         }
 
@@ -950,17 +950,17 @@
                 </div>
                 <div class="quiz">
                     <form id="quizForm">
-                        <div class="question" id="q1Block">
+                        <div class="question">
                             <h3>1. What is the main objective of green technology?</h3>
-                            <label class="option" id="q1_a"><input type="radio" name="q1" value="a"> Increase electricity consumption</label>
-                            <label class="option" id="q1_b"><input type="radio" name="q1" value="b"> Protect the environment and achieve sustainability</label>
-                            <label class="option" id="q1_c"><input type="radio" name="q1" value="c"> Eliminate all technology</label>
+                            <label class="option" id="lbl_q1_a"><input type="radio" name="q1" value="a"> Increase electricity consumption</label>
+                            <label class="option" id="lbl_q1_b"><input type="radio" name="q1" value="b"> Protect the environment and achieve sustainability</label>
+                            <label class="option" id="lbl_q1_c"><input type="radio" name="q1" value="c"> Eliminate all technology</label>
                         </div>
-                        <div class="question" id="q2Block">
+                        <div class="question">
                             <h3>2. What energy sources power Damietta's Green Ammonia project?</h3>
-                            <label class="option" id="q2_a"><input type="radio" name="q2" value="a"> Solar and Wind Energy</label>
-                            <label class="option" id="q2_b"><input type="radio" name="q2" value="b"> Coal and Natural Gas</label>
-                            <label class="option" id="q2_c"><input type="radio" name="q2" value="c"> Diesel Generators</label>
+                            <label class="option" id="lbl_q2_a"><input type="radio" name="q2" value="a"> Solar and Wind Energy</label>
+                            <label class="option" id="lbl_q2_b"><input type="radio" name="q2" value="b"> Coal and Natural Gas</label>
+                            <label class="option" id="lbl_q2_c"><input type="radio" name="q2" value="c"> Diesel Generators</label>
                         </div>
                     </form>
                     
@@ -1179,33 +1179,31 @@
                 return;
             }
 
-            // إزالة أي تلوين سابق
+            // إزالة أي ألوان قديمة من كل الخيارات
             document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('correct', 'incorrect');
+                opt.classList.remove('correct-ans', 'wrong-ans');
             });
 
             let score = 0;
 
-            // تصحيح السؤال الأول (الإجابة الصحيحة هي b)
-            const q1Parent = q1.closest('.option');
+            // تصحيح السؤال الأول (الإجابة الصحيحة b)
+            const q1SelectedLabel = q1.closest('.option');
             if (q1.value === 'b') {
                 score++;
-                q1Parent.classList.add('correct');
+                q1SelectedLabel.classList.add('correct-ans');
             } else {
-                q1Parent.classList.add('incorrect');
-                // تلوين الإجابة الصحيحة بالأخضر ليراها المستخدم
-                document.getElementById('q1_b').classList.add('correct');
+                q1SelectedLabel.classList.add('wrong-ans');
+                document.getElementById('lbl_q1_b').classList.add('correct-ans');
             }
 
-            // تصحيح السؤال الثاني (الإجابة الصحيحة هي a)
-            const q2Parent = q2.closest('.option');
+            // تصحيح السؤال الثاني (الإجابة الصحيحة a)
+            const q2SelectedLabel = q2.closest('.option');
             if (q2.value === 'a') {
                 score++;
-                q2Parent.classList.add('correct');
+                q2SelectedLabel.classList.add('correct-ans');
             } else {
-                q2Parent.classList.add('incorrect');
-                // تلوين الإجابة الصحيحة بالأخضر
-                document.getElementById('q2_a').classList.add('correct');
+                q2SelectedLabel.classList.add('wrong-ans');
+                document.getElementById('lbl_q2_a').classList.add('correct-ans');
             }
 
             resultDiv.style.color = '#147a43';
@@ -1217,7 +1215,7 @@
         function resetQuiz() {
             document.getElementById('quizForm').reset();
             document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('correct', 'incorrect');
+                opt.classList.remove('correct-ans', 'wrong-ans');
             });
             document.getElementById('result').textContent = '';
             document.getElementById('submitBtn').style.display = 'block';
