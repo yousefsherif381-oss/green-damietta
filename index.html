@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Green Damietta | 🌱</title>
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs (App, Auth, and Realtime Database) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <!-- Google Sign-In Library -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -1064,12 +1064,12 @@
         </footer>
     </div>
 
-    <!-- Firebase Configuration & Sync Script -->
+    <!-- Firebase Realtime Database Configuration & Sync Script -->
     <script>
-        // إعدادات فايربيس السحابية
         const firebaseConfig = {
             apiKey: "AIzaSyD-PlaceholderKey-ChangeMeIfNeeded",
             authDomain: "green-damietta.firebaseapp.com",
+            databaseURL: "https://green-damietta-default-rtdb.firebaseio.com",
             projectId: "green-damietta",
             storageBucket: "green-damietta.appspot.com",
             messagingSenderId: "123456789",
@@ -1079,7 +1079,7 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        const db = firebase.firestore();
+        const db = firebase.database();
 
         (function checkAuthUI() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -1159,12 +1159,13 @@
             }
 
             try {
-                await db.collection('ratings').add({
+                const ratingRef = db.ref('ratings').push();
+                await ratingRef.set({
                     rating: Number(selectedRating),
                     feedback: feedback,
                     userEmail: localStorage.getItem('userEmail'),
                     userName: localStorage.getItem('userName'),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: new Date().toISOString()
                 });
 
                 ratingResult.style.color = '#147a43';
@@ -1243,18 +1244,20 @@
         async function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
+            const safeEmail = email.replace(/[.#$[\]]/g, '_');
             const messageBox = document.getElementById('authMessage');
             messageBox.style.display = 'none';
 
             try {
-                const userRef = db.collection('users').doc(email);
-                const doc = await userRef.get();
+                const userRef = db.ref('users/' + safeEmail);
+                const snapshot = await userRef.get();
+                const userData = snapshot.val();
 
                 if (currentMode === 'forgot') {
-                    if (!doc.exists) {
+                    if (!snapshot.exists()) {
                         showMessage('⚠️ This email is not registered in our system!', 'error');
                     } else {
-                        showMessage(`✅ Your password is: "${doc.data().password}"`, 'success');
+                        showMessage(`✅ Your password is: "${userData.password}"`, 'success');
                     }
                     return;
                 }
@@ -1263,10 +1266,10 @@
                 const name = document.getElementById('nameInput').value.trim();
 
                 if (currentMode === 'signup') {
-                    if (doc.exists) {
+                    if (snapshot.exists()) {
                         showMessage('⚠️ An account with this email already exists! Please Sign In.', 'error');
                     } else {
-                        await userRef.set({ name: name, password: password, email: email, createdAt: new Date() });
+                        await userRef.set({ name: name, password: password, email: email, createdAt: new Date().toISOString() });
                         showMessage('✅ Account created successfully in cloud! Switching to Sign In...', 'success');
                         setTimeout(() => {
                             switchAuthMode('login');
@@ -1274,14 +1277,14 @@
                         }, 1200);
                     }
                 } else {
-                    if (!doc.exists) {
+                    if (!snapshot.exists()) {
                         showMessage('⚠️ Email not registered! Please Sign Up first.', 'error');
                     } else {
-                        if (doc.data().password !== password) {
+                        if (userData.password !== password) {
                             showMessage('⚠️ Incorrect password!', 'error');
                         } else {
                             localStorage.setItem('isLoggedIn', 'true');
-                            localStorage.setItem('userName', doc.data().name);
+                            localStorage.setItem('userName', userData.name);
                             localStorage.setItem('userEmail', email);
                             showMessage('✅ Signed in successfully! Redirecting...', 'success');
                             setTimeout(() => {
