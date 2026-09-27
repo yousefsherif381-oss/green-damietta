@@ -24,7 +24,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* Login & Auth Screen (Hidden by default to prevent lag) */
+        /* Login & Auth Modal (Popup) */
         /* -------------------------------------------------- */
         #loginScreen {
             position: fixed;
@@ -32,8 +32,8 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #124d27;
-            display: none; /* إخفاء افتراضي لتجنب الوميض */
+            background-color: rgba(18, 77, 39, 0.85);
+            display: none; /* مخفي افتراضياً ويظهر عند الحاجة */
             justify-content: center;
             align-items: center;
             z-index: 9999;
@@ -48,6 +48,20 @@
             text-align: center;
             max-width: 420px;
             width: 100%;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #8fa095;
+            font-weight: bold;
+        }
+        .close-btn:hover {
+            color: #d32f2f;
         }
 
         .login-box h1 {
@@ -167,13 +181,8 @@
         }
 
         /* -------------------------------------------------- */
-        /* Main Website Design (Hidden by default) */
+        /* Main Website Design */
         /* -------------------------------------------------- */
-        #mainSite {
-            display: none;
-        }
-
-        /* Header Bar */
         header {
             position: sticky;
             top: 0;
@@ -223,8 +232,46 @@
             color: #16834a;
         }
 
-        .user-nav-box {
+        .auth-nav-buttons {
             display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-nav-login {
+            background: transparent;
+            color: #147a43;
+            border: 1px solid #147a43;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-nav-login:hover {
+            background: #eaf7ee;
+        }
+
+        .btn-nav-signup {
+            background: #147a43;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-nav-signup:hover {
+            background: #106336;
+        }
+
+        .user-nav-box {
+            display: none;
             align-items: center;
             gap: 12px;
             background: #eaf7ee;
@@ -610,9 +657,10 @@
 
 <body>
 
-    <!-- Login & Register Screen -->
+    <!-- Login & Register Popup Modal -->
     <div id="loginScreen">
         <div class="login-box">
+            <span class="close-btn" onclick="closeAuthModal()">&times;</span>
             <div style="font-size: 45px;">🌿</div>
             <h1 id="authTitle">Sign In</h1>
             <p id="authSubtitle">Sign in to access the platform</p>
@@ -675,9 +723,17 @@
                     <li><a href="#quiz">Test Yourself</a></li>
                     <li><a href="#about">About</a></li>
                 </ul>
-                <div class="user-nav-box">
-                    <span id="welcomeUser">Welcome 👋</span>
-                    <button class="btn-logout" onclick="logout()">Logout</button>
+                
+                <!-- Authentication Navigation Buttons / User Box -->
+                <div>
+                    <div id="authNavButtons" class="auth-nav-buttons">
+                        <button class="btn-nav-login" onclick="openAuthModal('login')">Login</button>
+                        <button class="btn-nav-signup" onclick="openAuthModal('signup')">Sign Up</button>
+                    </div>
+                    <div id="userNavBox" class="user-nav-box">
+                        <span id="welcomeUser">Welcome 👋</span>
+                        <button class="btn-logout" onclick="logout()">Logout</button>
+                    </div>
                 </div>
             </nav>
         </header>
@@ -695,7 +751,7 @@
                 </p>
                 <div class="hero-buttons">
                     <a href="#projects" class="btn btn-main">Explore Projects</a>
-                    <a href="#quiz" class="btn btn-outline">Start Quiz</a>
+                    <a href="#quiz" class="btn btn-outline" onclick="checkQuizAccess(event)">Start Quiz</a>
                 </div>
             </div>
         </section>
@@ -900,10 +956,11 @@
         </footer>
     </div>
 
-    <!-- Firebase Initialization Script -->
+    <!-- Firebase Initialization Script (App, Analytics & Firestore DB Ready) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
@@ -917,26 +974,30 @@
 
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
+        
+        // قاعدة البيانات (Firestore Database) أصبحت جاهزة للاستخدام في الخطوات القادمة
+        const db = getFirestore(app);
+        window.db = db; 
     </script>
 
-    <!-- Instant Auth Check Script -->
+    <!-- UI State Initialization Script -->
     <script>
-        (function checkAuthImmediately() {
+        (function checkAuthUI() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            var loginScreen = document.getElementById('loginScreen');
-            var mainSite = document.getElementById('mainSite');
+            var authNavButtons = document.getElementById('authNavButtons');
+            var userNavBox = document.getElementById('userNavBox');
             var storedName = localStorage.getItem('userName');
 
             if (isLoggedIn) {
-                if (mainSite) mainSite.style.display = 'block';
-                if (loginScreen) loginScreen.style.display = 'none';
+                if (authNavButtons) authNavButtons.style.display = 'none';
+                if (userNavBox) userNavBox.style.display = 'flex';
                 var welcomeUser = document.getElementById('welcomeUser');
                 if (welcomeUser) {
                     welcomeUser.textContent = storedName ? 'Welcome, ' + storedName + ' 👋' : 'Welcome 👋';
                 }
             } else {
-                if (loginScreen) loginScreen.style.display = 'flex';
-                if (mainSite) mainSite.style.display = 'none';
+                if (authNavButtons) authNavButtons.style.display = 'flex';
+                if (userNavBox) userNavBox.style.display = 'none';
             }
         })();
     </script>
@@ -944,6 +1005,15 @@
     <!-- App Logic Script -->
     <script>
         let currentMode = 'login';
+
+        function openAuthModal(mode) {
+            switchAuthMode(mode);
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('loginScreen').style.display = 'none';
+        }
 
         function switchAuthMode(mode) {
             currentMode = mode;
@@ -1039,7 +1109,23 @@
             msg.style.display = 'block';
         }
 
+        function checkQuizAccess(event) {
+            var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                event.preventDefault();
+                alert('⚠️ Please Sign In or Sign Up first to take the quiz!');
+                openAuthModal('login');
+            }
+        }
+
         function checkQuiz() {
+            var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                alert('⚠️ Please Sign In first to submit your answers!');
+                openAuthModal('login');
+                return;
+            }
+
             const q1 = document.querySelector('input[name="q1"]:checked');
             const q2 = document.querySelector('input[name="q2"]:checked');
             const resultDiv = document.getElementById('result');
