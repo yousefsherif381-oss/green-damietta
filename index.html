@@ -821,12 +821,12 @@
                 
                 <div>
                     <div id="authNavButtons" class="auth-nav-buttons">
-                        <button class="btn-nav-login" onclick="openAuthModal('login')">Login</button>
-                        <button class="btn-nav-signup" onclick="openAuthModal('signup')">Sign Up</button>
+                        <button class="btn-nav-login" type="button" onclick="openAuthModal('login')">Login</button>
+                        <button class="btn-nav-signup" type="button" onclick="openAuthModal('signup')">Sign Up</button>
                     </div>
                     <div id="userNavBox" class="user-nav-box">
                         <span id="welcomeUser">Welcome 👋</span>
-                        <button class="btn-logout" onclick="logout()">Logout</button>
+                        <button class="btn-logout" type="button" onclick="logout()">Logout</button>
                     </div>
                 </div>
             </nav>
@@ -1024,8 +1024,8 @@
                     </form>
                     
                     <div class="quiz-buttons">
-                        <button id="submitBtn" onclick="checkQuiz()">Submit Answers</button>
-                        <button id="retryBtn" class="btn-retry" onclick="resetQuiz()">Test Again 🔄</button>
+                        <button id="submitBtn" type="button" onclick="checkQuiz()">Submit Answers</button>
+                        <button id="retryBtn" type="button" class="btn-retry" onclick="resetQuiz()">Test Again 🔄</button>
                     </div>
                     
                     <div id="result"></div>
@@ -1049,7 +1049,7 @@
                     </div>
                     <textarea id="feedbackInput" placeholder="Write your feedback or suggestions here..."></textarea>
                     <br>
-                    <button class="rating-btn" onclick="submitRating()">Submit Rating</button>
+                    <button class="rating-btn" type="button" onclick="submitRating()">Submit Rating</button>
                     <div id="ratingResult"></div>
                 </div>
             </div>
