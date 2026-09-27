@@ -135,6 +135,19 @@
             background: #106336;
         }
 
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+        .forgot-password span {
+            font-size: 12px;
+            color: #147a43;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         .toggle-mode {
             margin-top: 15px;
             font-size: 13px;
@@ -771,9 +784,12 @@
                     <label for="emailInput">Email Address</label>
                     <input type="email" id="emailInput" placeholder="name@example.com" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="passwordGroup">
                     <label for="passwordInput">Password</label>
                     <input type="password" id="passwordInput" placeholder="••••••••" required>
+                </div>
+                <div class="forgot-password" id="forgotPasswordDiv">
+                    <span onclick="forgotPassword()">Forgot Password?</span>
                 </div>
                 <button type="submit" class="btn-auth" id="authBtn">Sign In</button>
             </form>
@@ -1080,7 +1096,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
@@ -1096,7 +1112,7 @@
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
         window.db = db;
-        window.dbOperations = { collection, addDoc, getDocs, query, where, setDoc, doc };
+        window.dbOperations = { collection, addDoc, getDocs, query, where, setDoc, doc, getDoc };
     </script>
 
     <!-- UI State Initialization & Global Button Protection Script -->
@@ -1132,7 +1148,8 @@
                 target.classList.contains('btn-logout') ||
                 target.getAttribute('onclick')?.includes('openAuthModal') ||
                 target.getAttribute('onclick')?.includes('switchAuthMode') ||
-                target.getAttribute('onclick')?.includes('closeAuthModal')
+                target.getAttribute('onclick')?.includes('closeAuthModal') ||
+                target.getAttribute('onclick')?.includes('forgotPassword')
             ) {
                 return;
             }
@@ -1162,7 +1179,6 @@
             });
         });
 
-        // إرسال التقييم إلى سحابة Firestore مباشرة
         async function submitRating() {
             var isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
@@ -1223,24 +1239,46 @@
             const messageBox = document.getElementById('authMessage');
             messageBox.style.display = 'none';
 
+            const passwordGroup = document.getElementById('passwordGroup');
+            const forgotPasswordDiv = document.getElementById('forgotPasswordDiv');
+
             if (mode === 'signup') {
                 document.getElementById('authTitle').textContent = 'Create Account';
                 document.getElementById('authSubtitle').textContent = 'Sign up to get started';
                 document.getElementById('nameGroup').style.display = 'block';
                 document.getElementById('nameInput').required = true;
+                if (passwordGroup) passwordGroup.style.display = 'block';
+                if (forgotPasswordDiv) forgotPasswordDiv.style.display = 'block';
+                document.getElementById('passwordInput').required = true;
                 document.getElementById('authBtn').textContent = 'Sign Up';
                 document.getElementById('toggleText').innerHTML = 'Already have an account? <span onclick="switchAuthMode(\'login\')">Sign In</span>';
+            } else if (mode === 'forgot') {
+                document.getElementById('authTitle').textContent = 'Reset Password';
+                document.getElementById('authSubtitle').textContent = 'Enter your email to recover password';
+                document.getElementById('nameGroup').style.display = 'none';
+                document.getElementById('nameInput').required = false;
+                if (passwordGroup) passwordGroup.style.display = 'none';
+                if (forgotPasswordDiv) forgotPasswordDiv.style.display = 'none';
+                document.getElementById('passwordInput').required = false;
+                document.getElementById('authBtn').textContent = 'Send Reset Instructions';
+                document.getElementById('toggleText').innerHTML = 'Remembered your password? <span onclick="switchAuthMode(\'login\')">Sign In</span>';
             } else {
                 document.getElementById('authTitle').textContent = 'Sign In';
                 document.getElementById('authSubtitle').textContent = 'Sign in to access the platform';
                 document.getElementById('nameGroup').style.display = 'none';
                 document.getElementById('nameInput').required = false;
+                if (passwordGroup) passwordGroup.style.display = 'block';
+                if (forgotPasswordDiv) forgotPasswordDiv.style.display = 'block';
+                document.getElementById('passwordInput').required = true;
                 document.getElementById('authBtn').textContent = 'Sign In';
                 document.getElementById('toggleText').innerHTML = 'Don\'t have an account? <span onclick="switchAuthMode(\'signup\')">Sign Up</span>';
             }
         }
 
-        // تسجيل وحفظ بيانات المستخدم سحابياً في Firestore لتعمل من أي جهاز
+        function forgotPassword() {
+            switchAuthMode('forgot');
+        }
+
         async function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
@@ -1256,6 +1294,17 @@
             const userRef = doc(window.db, "users", email);
 
             try {
+                if (currentMode === 'forgot') {
+                    const userSnap = await getDoc(userRef);
+                    if (!userSnap.exists()) {
+                        showMessage('⚠️ This email is not registered in our system!', 'error');
+                    } else {
+                        const userData = userSnap.data();
+                        showMessage(`✅ Your password is: "${userData.password}"`, 'success');
+                    }
+                    return;
+                }
+
                 if (currentMode === 'signup') {
                     const userSnap = await getDoc(userRef);
                     if (userSnap.exists()) {
