@@ -13,33 +13,46 @@
             --primary: #1e3a8a; --primary-light: #eff6ff;
             --secondary: #059669; --secondary-light: #ecfdf5;
             --text-main: #0f172a; --text-muted: #475569;
-            --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1; --radius: 14px;
+            --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1; --radius: 16px;
             --shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.08);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); }
-        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; animation: fadeInUp 0.5s ease; }
         nav { max-width: 1280px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 22px; font-weight: 850; color: var(--primary); text-decoration: none; }
         .logo span { color: var(--secondary); }
         nav ul { list-style: none; display: flex; gap: 28px; align-items: center; }
-        nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; }
+        nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; transition: color 0.3s; }
         nav a:hover, nav a.active { color: var(--primary); }
 
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
-        .lesson-card { background: var(--white); border-radius: var(--radius); padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .container { max-width: 950px; margin: 40px auto; padding: 0 24px; animation: fadeInUp 0.7s ease; }
+        .lesson-card { background: var(--white); border-radius: var(--radius); padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 30px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .lesson-card:hover { transform: translateY(-4px); }
         .lesson-title { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .video-container { width: 100%; height: 380px; background: #0f172a; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; margin-bottom: 20px; position: relative; overflow: hidden; }
-        .video-placeholder { text-align: center; padding: 20px; }
-        .btn-action { background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-action:hover { background: #047857; }
         
-        .quiz-section { background: var(--primary-light); border: 1px solid #bfdbfe; padding: 20px; border-radius: 10px; margin-top: 15px; display: none; }
-        .quiz-section h4 { color: var(--primary); margin-bottom: 10px; font-size: 16px; }
-        .options-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .option-btn { background: white; border: 1px solid var(--border); padding: 10px 15px; border-radius: 8px; text-align: right; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
-        .option-btn:hover { background: #e2e8f0; }
-        .quiz-feedback { margin-top: 10px; font-weight: 700; font-size: 14px; }
+        .video-container { width: 100%; height: 360px; background: #0f172a; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; margin-bottom: 20px; position: relative; overflow: hidden; }
+        .video-placeholder { text-align: center; padding: 20px; animation: scaleIn 0.5s ease; }
+        
+        .btn-action { background: var(--secondary); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-action:hover { background: #047857; transform: scale(1.05); }
+        
+        .quiz-section { background: var(--primary-light); border: 1px solid #bfdbfe; padding: 22px; border-radius: 12px; margin-top: 20px; display: none; animation: scaleIn 0.4s ease; }
+        .quiz-section h4 { color: var(--primary); margin-bottom: 12px; font-size: 16px; }
+        .options-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .option-btn { background: white; border: 1px solid var(--border); padding: 12px 16px; border-radius: 10px; text-align: right; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .option-btn:hover { background: #e2e8f0; border-color: var(--primary); transform: translateX(-6px); }
+        .quiz-feedback { margin-top: 15px; font-weight: 700; font-size: 14px; animation: fadeInUp 0.3s ease; }
     </style>
 </head>
 <body>
@@ -119,8 +132,7 @@
         const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
 
         function finishVideo(lessonNum) {
-            document.getElementById('vidBox' + lessonNum).innerHTML = '<div style="color: #34d399; font-weight:bold; font-size:18px;">✔️ تمت مشاهدة الفيديو بنجاح! انتقل للاختبار أدناه.</div>';
-            document.getElementById('quiz1').style.display = 'block'; // تفعيل الاختبار الفوري
+            document.getElementById('vidBox' + lessonNum).innerHTML = '<div style="color: #34d399; font-weight:bold; font-size:18px; animation: scaleIn 0.4s ease;">✔️ تمت مشاهدة الفيديو بنجاح! انتقل للاختبار أدناه.</div>';
             document.getElementById('quiz' + lessonNum).style.display = 'block';
         }
 
@@ -138,7 +150,6 @@
                 feedbackEl.textContent = '🎉 إجابة صحيحة 100%! تم إضافة 50 نقطة لحسابك السحابي.';
                 feedbackEl.style.color = '#059669';
 
-                // حفظ النتيجة في سحابة Firebase
                 userRef.child('quizzes/lesson' + lessonNum).set({
                     title: 'الدرس ' + lessonNum,
                     result: 'ناجح (إجابة صحيحة)',
@@ -146,7 +157,6 @@
                     date: new Date().toLocaleDateString()
                 });
 
-                // تحديث النقاط سحابياً
                 userRef.child('points').get().then(snap => {
                     let pts = snap.exists() ? snap.val() : 50;
                     userRef.child('points').set(pts + 50);
