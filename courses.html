@@ -3,127 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة الدروس والاختبارات الفورية | أبواب</title>
+    <title>المسارات والدروس | منصة أبواب</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --brand-primary: #10b981;
-            --brand-dark: #047857;
-            --brand-light: #ecfdf5;
-            --bg-main: #f8fafc;
-            --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --radius-lg: 20px;
-            --radius-md: 12px;
-            --shadow-subtle: 0 4px 25px -2px rgba(15, 23, 42, 0.05);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --abwaab-green: #00B67A;
+            --abwaab-green-dark: #00925F;
+            --abwaab-green-light: #E6F8F2;
+            --abwaab-dark: #1E293B;
+            --abwaab-bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+            --radius-btn: 12px;
+            --radius-box: 16px;
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
+            --transition: all 0.25s ease-in-out;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', sans-serif; }
-        body { background: var(--bg-main); color: var(--text-main); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; }
+        body { background: var(--abwaab-bg); color: var(--text-main); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1280px; margin: auto; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--abwaab-green); text-decoration: none; }
+        .logo span { color: var(--abwaab-dark); }
+        .nav-links { display: flex; list-style: none; gap: 32px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); }
+        .nav-links a:hover, .nav-links a.active { color: var(--abwaab-green); }
 
-        header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        nav { max-width: 1300px; margin: auto; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 26px; font-weight: 900; color: var(--brand-primary); text-decoration: none; }
-        .logo span { color: var(--text-main); font-weight: 700; }
-        nav ul { list-style: none; display: flex; gap: 36px; align-items: center; }
-        nav a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); }
-        nav a:hover, nav a.active { color: var(--brand-primary); }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; }
+        .page-title { margin-bottom: 30px; text-align: center; }
+        .page-title h1 { font-size: 28px; font-weight: 900; color: var(--abwaab-dark); margin-bottom: 6px; }
+        .page-title p { color: var(--text-muted); font-size: 15px; }
 
-        .container { max-width: 960px; margin: 45px auto; padding: 0 24px; animation: fadeIn 0.6s ease; }
-        
-        .page-header { text-align: center; margin-bottom: 45px; }
-        .page-header h1 { color: var(--text-main); font-size: 32px; font-weight: 900; margin-bottom: 10px; }
-        .page-header p { color: var(--text-muted); font-size: 16px; }
+        .lesson-card { background: var(--card-bg); border-radius: var(--radius-box); padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-card); margin-bottom: 30px; }
+        .lesson-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .lesson-title { font-size: 18px; font-weight: 800; color: var(--abwaab-dark); display: flex; align-items: center; gap: 10px; }
+        .badge { background: var(--abwaab-green-light); color: var(--abwaab-green-dark); font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 700; }
 
-        .lesson-card { background: var(--surface); border-radius: var(--radius-lg); padding: 35px; border: 1px solid var(--border); box-shadow: var(--shadow-subtle); margin-bottom: 35px; transition: var(--transition); }
-        .lesson-header { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .lesson-header span.badge { background: var(--brand-light); color: var(--brand-dark); font-size: 13px; padding: 4px 12px; border-radius: 20px; font-weight: 700; }
+        .video-box { width: 100%; height: 380px; background: #0B132B; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; border: 1px solid #1E293B; }
+        .btn-action { background: var(--abwaab-green); color: white; border: none; padding: 12px 26px; border-radius: var(--radius-btn); font-weight: 800; cursor: pointer; transition: var(--transition); font-size: 14px; box-shadow: 0 4px 15px rgba(0,182,122,0.3); }
+        .btn-action:hover { background: var(--abwaab-green-dark); transform: translateY(-2px); }
 
-        .video-box { width: 100%; height: 400px; background: #090d16; border-radius: var(--radius-md); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; position: relative; overflow: hidden; border: 1px solid #1e293b; }
-        .video-placeholder { text-align: center; padding: 25px; z-index: 2; }
-        
-        .btn-action { background: var(--brand-primary); color: white; border: none; padding: 14px 30px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; transition: var(--transition); font-size: 15px; box-shadow: 0 4px 20px rgba(16,185,129,0.3); }
-        .btn-action:hover { background: var(--brand-dark); transform: scale(1.02); }
-
-        .quiz-box { background: var(--brand-light); border: 1px solid #a7f3d0; padding: 30px; border-radius: var(--radius-md); margin-top: 25px; display: none; animation: fadeIn 0.4s ease; }
-        .quiz-box h4 { color: var(--brand-dark); margin-bottom: 20px; font-size: 18px; font-weight: 800; line-height: 1.5; }
-        
-        .options-grid { display: flex; flex-direction: column; gap: 14px; }
-        .option-item { background: white; border: 1px solid var(--border); padding: 16px 20px; border-radius: var(--radius-md); text-align: right; cursor: pointer; font-weight: 700; font-size: 15px; transition: var(--transition); display: flex; align-items: center; justify-content: space-between; }
-        .option-item:hover { background: #f8fafc; border-color: var(--brand-primary); transform: translateX(-6px); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .quiz-feedback { margin-top: 20px; font-weight: 800; font-size: 16px; padding: 12px; border-radius: 8px; text-align: center; display: none; }
+        .quiz-box { background: var(--abwaab-green-light); border: 1px solid #A7F3D0; padding: 24px; border-radius: 12px; margin-top: 20px; display: none; }
+        .quiz-box h4 { color: #064E3B; margin-bottom: 16px; font-size: 16px; font-weight: 800; }
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background: white; border: 1px solid var(--border-color); padding: 14px 18px; border-radius: 10px; text-align: right; cursor: pointer; font-weight: 700; font-size: 14px; transition: var(--transition); display: flex; justify-content: space-between; }
+        .option-btn:hover { background: #F8FAFC; border-color: var(--abwaab-green); transform: translateX(-4px); }
+        .quiz-feedback { margin-top: 14px; font-weight: 800; font-size: 14px; padding: 10px; border-radius: 8px; text-align: center; display: none; }
     </style>
 </head>
 <body>
     <header>
-        <nav>
-            <a href="index.html" class="logo">🟢 أبواب <span>الدمياطية</span></a>
-            <ul>
+        <div class="nav-container">
+            <a href="index.html" class="logo">🟢 أبواب <span>Abwaab</span></a>
+            <ul class="nav-links">
                 <li><a href="index.html">الرئيسية</a></li>
                 <li><a href="courses.html" class="active">المسارات والدروس</a></li>
                 <li><a href="dashboard.html">لوحة التحكم</a></li>
             </ul>
-        </nav>
+        </div>
     </header>
 
     <div class="container">
-        <div class="page-header">
-            <h1>مكتبة الدروس والتقييمات الفورية</h1>
-            <p>شاهد المحتوى التعليمي التفاعلي، ثم أجب عن الاختبار القصير لاجتياز الدرس واكتساب النقاط</p>
+        <div class="page-title">
+            <h1>مادة العلوم والبيئة المتطورة</h1>
+            <p>شاهد الدرس التفاعلي ثم أجب عن الاختبار القصير لاجتياز الدرس واكتساب النقاط</p>
         </div>
 
-        <!-- الدرس الأول -->
+        <!-- الدرس 1 -->
         <div class="lesson-card">
             <div class="lesson-header">
-                <span class="badge">الدرس الأول</span>
-                <span>أساسيات الطاقة المتجددة والمدن الذكية</span>
+                <div class="lesson-title"><span>الدرس 1:</span> أساسيات الطاقة المتجددة والمدن الذكية</div>
+                <span class="badge">فيديو + اختبار</span>
             </div>
             <div class="video-box" id="vidContainer1">
-                <div class="video-placeholder">
-                    <div style="font-size: 56px; margin-bottom: 12px;">▶️</div>
-                    <p style="margin-bottom: 20px; font-size: 16px; font-weight: 600; color: #cbd5e1;">مشغل الفيديو التعليمي (المدة: 5 دقائق)</p>
-                    <button class="btn-action" onclick="finishLesson(1)">انتهيت من المشاهدة (ابدأ الاختبار الفوري)</button>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
+                    <p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">مشغل الفيديو التعليمي القصير (المدة: 5 دقائق)</p>
+                    <button class="btn-action" onclick="finishLesson(1)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
                 </div>
             </div>
-            
+
             <div class="quiz-box" id="quizBox1">
-                <h4>📝 اختبار فوري بعد الدرس: ما هو المصدر الأساسي للطاقة النظيفة في المدن الذكية الحديثة؟</h4>
-                <div class="options-grid">
-                    <button class="option-item" onclick="submitQuiz(1, false, 'أ) الفحم الحجري')"><span>أ) الفحم الحجري</span> <span>⚪</span></button>
-                    <button class="option-item" onclick="submitQuiz(1, true, 'ب) الطاقة الشمسية وطاقة الرياح')"><span>ب) الطاقة الشمسية وطاقة الرياح</span> <span>⚪</span></button>
-                    <button class="option-item" onclick="submitQuiz(1, false, 'ج) المنتجات البترولية الثقيلة')"><span>ج) المنتجات البترولية الثقيلة</span> <span>⚪</span></button>
+                <h4>📝 اختبار فوري بعد الدرس: ما هو المصدر الأساسي للطاقة النظيفة في المدن الذكية؟</h4>
+                <div class="options-list">
+                    <button class="option-btn" onclick="submitQuiz(1, false, 'أ) الفحم الحجري')"><span>أ) الفحم الحجري</span> <span>⚪</span></button>
+                    <button class="option-btn" onclick="submitQuiz(1, true, 'ب) الطاقة الشمسية وطاقة الرياح')"><span>ب) الطاقة الشمسية وطاقة الرياح</span> <span>⚪</span></button>
+                    <button class="option-btn" onclick="submitQuiz(1, false, 'ج) الوقود الأحفوري')"><span>ج) الوقود الأحفوري</span> <span>⚪</span></button>
                 </div>
                 <div class="quiz-feedback" id="feedback1"></div>
             </div>
         </div>
 
-        <!-- الدرس الثاني -->
+        <!-- الدرس 2 -->
         <div class="lesson-card">
             <div class="lesson-header">
-                <span class="badge">الدرس الثاني</span>
-                <span>دورات إعادة التدوير الحيوي والبيئة</span>
+                <div class="lesson-title"><span>الدرس 2:</span> دورات إعادة التدوير الحيوي والبيئة</div>
+                <span class="badge">فيديو + اختبار</span>
             </div>
             <div class="video-box" id="vidContainer2">
-                <div class="video-placeholder">
-                    <div style="font-size: 56px; margin-bottom: 12px;">▶️</div>
-                    <p style="margin-bottom: 20px; font-size: 16px; font-weight: 600; color: #cbd5e1;">مشغل الفيديو التعليمي (المدة: 4 دقائق)</p>
-                    <button class="btn-action" onclick="finishLesson(2)">انتهيت من المشاهدة (ابدأ الاختبار الفوري)</button>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
+                    <p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">مشغل الفيديو التعليمي القصير (المدة: 4 دقائق)</p>
+                    <button class="btn-action" onclick="finishLesson(2)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
                 </div>
             </div>
-            
+
             <div class="quiz-box" id="quizBox2">
-                <h4>📝 اختبار فوري بعد الدرس: ما هي الفائدة الكبرى من تطبيق عمليات إعادة التدوير بالمجتمعات؟</h4>
-                <div class="options-grid">
-                    <button class="option-item" onclick="submitQuiz(2, true, 'أ) تقليل النفايات والحفاظ على الموارد')"><span>أ) تقليل النفايات والحفاظ على الموارد الطبيعية</span> <span>⚪</span></button>
-                    <button class="option-item" onclick="submitQuiz(2, false, 'ب) زيادة استهلاك الطاقة التقليدية')"><span>ب) زيادة استهلاك الطاقة التقليدية</span> <span>⚪</span></button>
-                    <button class="option-item" onclick="submitQuiz(2, false, 'ج) رفع نسبة التلوث الصناعي')"><span>ج) رفع نسبة التلوث الصناعي</span> <span>⚪</span></button>
+                <h4>📝 اختبار فوري بعد الدرس: ما الفائدة الكبرى من تطبيق عمليات إعادة التدوير بالمجتمعات؟</h4>
+                <div class="options-list">
+                    <button class="option-btn" onclick="submitQuiz(2, true, 'أ) تقليل النفايات والحفاظ على الموارد')"><span>أ) تقليل النفايات والحفاظ على الموارد الطبيعية</span> <span>⚪</span></button>
+                    <button class="option-btn" onclick="submitQuiz(2, false, 'ب) زيادة استهلاك الطاقة التقليدية')"><span>ب) زيادة استهلاك الطاقة التقليدية</span> <span>⚪</span></button>
+                    <button class="option-btn" onclick="submitQuiz(2, false, 'ج) رفع نسبة التلوث')"><span>ج) رفع نسبة التلوث</span> <span>⚪</span></button>
                 </div>
                 <div class="quiz-feedback" id="feedback2"></div>
             </div>
@@ -144,13 +140,13 @@
         const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
 
         function finishLesson(num) {
-            document.getElementById('vidContainer' + num).innerHTML = '<div style="color: #34d399; font-weight:900; font-size:20px; animation: fadeIn 0.4s ease; display:flex; align-items:center; gap:10px;">✔️ تمت مشاهدة الدرس بنجاح! تم فتح أسئلة الاختبار أدناه.</div>';
+            document.getElementById('vidContainer' + num).innerHTML = '<div style="color: #34D399; font-weight: 800; font-size: 17px;">✔️ تمت مشاهدة الفيديو بنجاح! تم تفعيل أسئلة الاختبار أدناه.</div>';
             document.getElementById('quizBox' + num).style.display = 'block';
         }
 
         function submitQuiz(num, isCorrect, ansText) {
             if (!safeKey) {
-                alert('⚠️ يرجى تسجيل الدخول أولاً من الصفحة الرئيسية لكي يتم حفظ نقاطك ونتيجتك سحابياً!');
+                alert('⚠️ يرجى تسجيل الدخول أولاً من الصفحة الرئيسية لحفظ تقدمك ونقاطك سحابياً!');
                 location.href = 'index.html';
                 return;
             }
@@ -160,9 +156,8 @@
             const userRef = db.ref('users/' + safeKey);
 
             if (isCorrect) {
-                feedbackEl.textContent = '🎉 إجابة صحيحة وممتازة! تم إضافة 75 نقطة تفوق إلى حسابك.';
-                feedbackEl.style.background = '#dcfce7';
-                feedbackEl.style.color = '#166534';
+                feedbackEl.textContent = '🎉 إجابة صحيحة وممتازة! تم إضافة 100 نقطة لحسابك في أبواب.';
+                feedbackEl.style.background = '#DCFCE7'; feedbackEl.style.color = '#166534';
 
                 userRef.child('quizzes/lesson' + num).set({
                     title: 'الدرس ' + num,
@@ -172,13 +167,12 @@
                 });
 
                 userRef.child('points').get().then(snap => {
-                    let currentPts = snap.exists() ? snap.val() : 150;
-                    userRef.child('points').set(currentPts + 75);
+                    let currentPts = snap.exists() ? snap.val() : 200;
+                    userRef.child('points').set(currentPts + 100);
                 });
             } else {
-                feedbackEl.textContent = '❌ إجابة غير دقيقة، ركز في تفاصيل الدرس وحاول مرة أخرى!';
-                feedbackEl.style.background = '#fee2e2';
-                feedbackEl.style.color = '#b91c1c';
+                feedbackEl.textContent = '❌ إجابة خاطئة، تراجع عن تفاصيل الفيديو وحاول مرة أخرى!';
+                feedbackEl.style.background = '#FEE2E2'; feedbackEl.style.color = '#B91C1C';
             }
         }
     </script>
