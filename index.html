@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أكاديمية دمietta الخضراء | المنصة التعليمية الذكية</title>
+    <title>أكاديمية دمياط الذكية | المنصة التعليمية المتكاملة</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -11,76 +11,48 @@
 
     <style>
         :root {
-            --primary: #1e3a8a; /* الأزرق المعرفي العميق */
-            --primary-dark: #1e1b4b;
-            --secondary: #059669; /* الأخضر الهادئ الداعم للتركيز */
-            --secondary-light: #ecfdf5;
-            --accent: #f59e0b;
-            --text-main: #0f172a;
-            --text-muted: #475569;
-            --bg-body: #f8fafc;
-            --white: #ffffff;
-            --border: #cbd5e1;
-            --radius: 14px;
-            --shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.08), 0 8px 10px -6px rgba(5, 150, 105, 0.05);
+            --primary: #1e3a8a; --primary-dark: #1e1b4b;
+            --secondary: #059669; --secondary-light: #ecfdf5;
+            --text-main: #0f172a; --text-muted: #475569;
+            --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1;
+            --radius: 14px; --shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.08);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: var(--bg-body); color: var(--text-main); line-height: 1.7; }
-
         header { position: sticky; top: 0; z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
         nav { max-width: 1280px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 22px; font-weight: 850; color: var(--primary); display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .logo { font-size: 22px; font-weight: 850; color: var(--primary); text-decoration: none; display: flex; gap: 8px; }
         .logo span { color: var(--secondary); }
         nav ul { list-style: none; display: flex; gap: 28px; align-items: center; }
         nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; transition: 0.2s; }
         nav a:hover, nav a.active { color: var(--primary); }
-
         .auth-buttons { display: flex; gap: 10px; align-items: center; }
-        .btn-login { background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 8px 18px; border-radius: var(--radius); font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.2s; }
-        .btn-login:hover { background: #eff6ff; }
-        .btn-signup { background: var(--primary); color: var(--white); border: none; padding: 10px 20px; border-radius: var(--radius); font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.2s; }
-        .btn-signup:hover { background: var(--primary-dark); }
-
+        .btn-login { background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 8px 18px; border-radius: var(--radius); font-weight: 700; cursor: pointer; font-size: 13px; }
+        .btn-signup { background: var(--primary); color: var(--white); border: none; padding: 10px 20px; border-radius: var(--radius); font-weight: 700; cursor: pointer; font-size: 13px; }
         .user-pill { display: none; align-items: center; gap: 12px; background: var(--secondary-light); padding: 6px 14px; border-radius: 30px; font-size: 13px; color: var(--secondary); font-weight: 700; border: 1px solid #a7f3d0; }
         .btn-logout { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
-
         .hero { padding: 90px 24px; background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; text-align: center; }
         .hero-content { max-width: 800px; margin: auto; }
         .badge { display: inline-block; padding: 6px 16px; background: rgba(5, 150, 105, 0.2); border: 1px solid #34d399; border-radius: 50px; font-size: 13px; font-weight: 700; margin-bottom: 20px; color: #6ee7b7; }
-        .hero h1 { font-size: 42px; font-weight: 850; margin-bottom: 16px; letter-spacing: -0.5px; }
-        .hero p { font-size: 17px; opacity: 0.9; margin-bottom: 35px; line-height: 1.8; color: #e2e8f0; }
-        .hero-btns { display: flex; gap: 14px; justify-content: center; }
+        .hero h1 { font-size: 42px; font-weight: 850; margin-bottom: 16px; }
+        .hero p { font-size: 17px; opacity: 0.9; margin-bottom: 35px; color: #e2e8f0; }
         .btn { padding: 12px 26px; border-radius: var(--radius); font-weight: 700; text-decoration: none; display: inline-block; transition: 0.2s; font-size: 15px; }
         .btn-main { background: var(--secondary); color: white; }
-        .btn-main:hover { background: #047857; transform: translateY(-2px); }
-        .btn-outline { background: transparent; color: white; border: 2px solid rgba(255,255,255,0.4); }
-        .btn-outline:hover { background: rgba(255,255,255,0.1); }
-
+        .btn-main:hover { background: #047857; }
         .features { max-width: 1200px; margin: 60px auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .feature-card { background: var(--white); padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); transition: 0.3s; }
-        .feature-card:hover { transform: translateY(-5px); border-color: var(--secondary); }
+        .feature-card { background: var(--white); padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
         .feature-card h3 { font-size: 18px; color: var(--primary); margin-bottom: 10px; font-weight: 800; }
         .feature-card p { color: var(--text-muted); font-size: 14px; }
-
         #authModal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
         .modal-box { background: var(--white); padding: 40px 30px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; max-width: 420px; width: 100%; position: relative; }
-        .close-modal { position: absolute; top: 15px; left: 20px; font-size: 22px; cursor: pointer; color: var(--text-muted); font-weight: bold; }
-        .close-modal:hover { color: #ef4444; }
-        .modal-box h2 { color: var(--primary); margin: 10px 0 5px 0; font-size: 24px; }
-        .modal-box p { color: var(--text-muted); margin-bottom: 25px; font-size: 13px; }
+        .close-modal { position: absolute; top: 15px; left: 20px; font-size: 22px; cursor: pointer; color: var(--text-muted); }
         .form-group { text-align: right; margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
-        .form-group input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; outline: none; transition: 0.2s; }
-        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15); }
-        .btn-submit-auth { width: 100%; background: var(--primary); color: var(--white); border: none; padding: 12px; border-radius: var(--radius); font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 5px; }
-        .btn-submit-auth:hover { background: var(--primary-dark); }
-        .modal-toggle { margin-top: 15px; font-size: 13px; color: var(--text-muted); }
-        .modal-toggle span { color: var(--secondary); font-weight: 700; cursor: pointer; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; outline: none; }
+        .btn-submit-auth { width: 100%; background: var(--primary); color: var(--white); border: none; padding: 12px; border-radius: var(--radius); font-weight: 700; cursor: pointer; margin-top: 5px; }
         .msg-box { padding: 10px; border-radius: 8px; font-size: 13px; margin-top: 12px; display: none; }
         .msg-err { color: #b91c1c; background: #fee2e2; }
         .msg-suc { color: #166534; background: #dcfce7; }
-
         footer { background: var(--primary-dark); color: white; padding: 40px 24px; text-align: center; margin-top: 80px; }
         footer p { color: #94a3b8; font-size: 14px; }
     </style>
@@ -90,10 +62,8 @@
     <div id="authModal">
         <div class="modal-box">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div style="font-size: 36px;">🎓</div>
-            <h2 id="modalTitle">تسجيل الدخول</h2>
-            <p id="modalSubtitle">الوصول إلى حسابك الأكاديمي السحابي</p>
-            
+            <h2 id="modalTitle" style="color: var(--primary); margin-bottom: 5px;">تسجيل الدخول</h2>
+            <p id="modalSubtitle" style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">حسابك السحابي الموحد</p>
             <form onsubmit="handleAuth(event)">
                 <div class="form-group" id="nameField" style="display: none;">
                     <label>الاسم الكامل</label>
@@ -109,11 +79,9 @@
                 </div>
                 <button type="submit" class="btn-submit-auth" id="authSubmitBtn">دخول</button>
             </form>
-
             <div id="authMsg" class="msg-box"></div>
-
-            <div class="modal-toggle">
-                <span id="toggleText">ليس لديك حساب؟ <span onclick="switchMode('signup')">إنشاء حساب جديد</span></span>
+            <div style="margin-top: 15px; font-size: 13px; color: var(--text-muted);">
+                <span id="toggleText">ليس لديك حساب؟ <span style="color: var(--secondary); font-weight: 700; cursor: pointer;" onclick="switchMode('signup')">إنشاء حساب جديد</span></span>
             </div>
         </div>
     </div>
@@ -123,8 +91,8 @@
             <a href="index.html" class="logo">🌿 أكاديمية <span>دمياط</span></a>
             <ul>
                 <li><a href="index.html" class="active">الرئيسية</a></li>
-                <li><a href="courses.html">المسارات والدورات</a></li>
-                <li><a href="dashboard.html">لوحة التحكم السحابية</a></li>
+                <li><a href="courses.html">المسارات والدروس</a></li>
+                <li><a href="dashboard.html">لوحة تحكم الطالب</a></li>
             </ul>
             <div>
                 <div id="authButtons" class="auth-buttons">
@@ -141,33 +109,30 @@
 
     <section class="hero">
         <div class="hero-content">
-            <div class="badge">✨ منصة التعليم الذكي المعتمدة</div>
-            <h1>تمكين العقول نحو مستقبل مستدام وتكنولوجيا واعدة</h1>
-            <p>استمتع بتجربة تعلم تفاعلية متكاملة، مسارات تعليمية مرنة، تتبّع حي للنقاط والتقدم عبر السحابة، وبنك أسئلة واختبارات قياسية لتقييم مستواك بدقة.</p>
-            <div class="hero-btns">
-                <a href="courses.html" class="btn btn-main">استكشف المسارات التعليمية</a>
-                <a href="dashboard.html" class="btn btn-outline">عرض لوحة التحكم</a>
-            </div>
+            <div class="badge">✨ منصة التعليم الذكي الشاملة</div>
+            <h1>تعلم بذكاء مع دروس الفيديو التفاعلية والاختبارات الفورية</h1>
+            <p>مثل أفضل المنصات التعليمية، استمتع بحصص فيديو قصيرة وموجزة، يتبعها اختبار فوري لتقييم فهمك مع تتبع دقيق للنقاط عبر السحابة.</p>
+            <a href="courses.html" class="btn btn-main">تصفح المواد والدروس الآن</a>
         </div>
     </section>
 
     <div class="features">
         <div class="feature-card">
-            <h3>🎯 مسارات تخصصية متقدمة</h3>
-            <p>مناهج مصممة خصيصاً لتواكب أحدث المعايير الوطنية والعالمية في التكنولوجيا والبيئة.</p>
+            <h3>🎥 دروس فيديو قصيرة وتفاعلية</h3>
+            <p>محتوى مصمم خصيصاً لتسهيل الفهم السريع للمناهج الأساسية.</p>
         </div>
         <div class="feature-card">
-            <h3>☁️ تزامن سحابي فوري (Firebase)</h3>
-            <p>يتم حفظ إنجازاتك واختباراتك والنقاط التي جمعتها في قاعدة بيانات سحابية لحظياً.</p>
+            <h3>📝 اختبار بعد كل فيديو وحساب للدرجات</h3>
+            <p>اختبر استيعابك فور الانتهاء من مشاهدة الدرس واكسب نقاطاً لحسابك.</p>
         </div>
         <div class="feature-card">
-            <h3>📊 قياس وتقييم الأداء</h3>
-            <p>لوحة تحكم ذكية تعرض تفاصيل تقدمك الأكاديمي، النقاط المكتسبة، والدورات المكتملة.</p>
+            <h3>☁️ لوحة تحكم الطالب وسجل السحابة</h3>
+            <p>مزامنة لحظية لكل إنجازاتك ونقاطك عبر قاعدة البيانات الآمنة.</p>
         </div>
     </div>
 
     <footer>
-        <p>أكاديمية دمياط الخضراء الذكية &bull; جميع الحقوق محفوظة &copy; 2026</p>
+        <p>أكاديمية دمياط الذكية &bull; جميع الحقوق محفوظة &copy; 2026</p>
     </footer>
 
     <script>
@@ -200,9 +165,7 @@
             switchMode(mode);
             document.getElementById('authModal').style.display = 'flex';
         }
-        function closeModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
+        function closeModal() { document.getElementById('authModal').style.display = 'none'; }
         function switchMode(mode) {
             isSignUp = (mode === 'signup');
             document.getElementById('authMsg').style.display = 'none';
@@ -210,12 +173,12 @@
                 document.getElementById('modalTitle').textContent = 'إنشاء حساب جديد';
                 document.getElementById('nameField').style.display = 'block';
                 document.getElementById('authSubmitBtn').textContent = 'سجل الآن';
-                document.getElementById('toggleText').innerHTML = 'لديك حساب بالفعل؟ <span onclick="switchMode(\'login\')">تسجيل الدخول</span>';
+                document.getElementById('toggleText').innerHTML = 'لديك حساب بالفعل؟ <span style="color: var(--secondary); font-weight: 700; cursor: pointer;" onclick="switchMode(\'login\')">تسجيل الدخول</span>';
             } else {
                 document.getElementById('modalTitle').textContent = 'تسجيل الدخول';
                 document.getElementById('nameField').style.display = 'none';
                 document.getElementById('authSubmitBtn').textContent = 'دخول';
-                document.getElementById('toggleText').innerHTML = 'ليس لديك حساب؟ <span onclick="switchMode(\'signup\')">إنشاء حساب جديد</span>';
+                document.getElementById('toggleText').innerHTML = 'ليس لديك حساب؟ <span style="color: var(--secondary); font-weight: 700; cursor: pointer;" onclick="switchMode(\'signup\')">إنشاء حساب جديد</span>';
             }
         }
 
@@ -232,22 +195,19 @@
 
                 if (isSignUp) {
                     if (snap.exists()) {
-                        msgEl.textContent = '⚠️ البريد الإلكتروني مسجل مسبقاً. قم بتسجيل الدخول.';
-                        msgEl.className = 'msg-box msg-err';
-                        msgEl.style.display = 'block';
+                        msgEl.textContent = '⚠️ البريد الإلكتروني مسجل مسبقاً.';
+                        msgEl.className = 'msg-box msg-err'; msgEl.style.display = 'block';
                     } else {
                         const name = document.getElementById('nameInput').value.trim();
-                        await ref.set({ name, password, email, points: 50 }); // هدية ترحيبية 50 نقطة
-                        msgEl.textContent = '✅ تم إنشاء الحساب بنجاح! يمكنك الدخول الآن.';
-                        msgEl.className = 'msg-box msg-suc';
-                        msgEl.style.display = 'block';
+                        await ref.set({ name, password, email, points: 50 });
+                        msgEl.textContent = '✅ تم إنشاء الحساب بنجاح! سجل دخولك الآن.';
+                        msgEl.className = 'msg-box msg-suc'; msgEl.style.display = 'block';
                         setTimeout(() => switchMode('login'), 1000);
                     }
                 } else {
                     if (!snap.exists() || snap.val().password !== password) {
-                        msgEl.textContent = '⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-                        msgEl.className = 'msg-box msg-err';
-                        msgEl.style.display = 'block';
+                        msgEl.textContent = '⚠️ البريد أو كلمة المرور غير صحيحة.';
+                        msgEl.className = 'msg-box msg-err'; msgEl.style.display = 'block';
                     } else {
                         localStorage.setItem('isLoggedIn', 'true');
                         localStorage.setItem('userName', snap.val().name);
@@ -256,16 +216,11 @@
                     }
                 }
             } catch (err) {
-                msgEl.textContent = '⚠️ حدث خطأ في الاتصال بالسحابة. حاول مرة أخرى.';
-                msgEl.className = 'msg-box msg-err';
-                msgEl.style.display = 'block';
+                msgEl.textContent = '⚠️ خطأ في الاتصال بالسحابة.';
+                msgEl.className = 'msg-box msg-err'; msgEl.style.display = 'block';
             }
         }
-
-        function logout() {
-            localStorage.clear();
-            location.reload();
-        }
+        function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
