@@ -3,63 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة الدروس والتقييمات | منصة أبواب</title>
+    <title>مكتبة الدروس والاختبارات الفورية | أبواب</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --secondary: #10b981;
-            --secondary-light: #ecfdf5;
+            --brand-primary: #10b981;
+            --brand-dark: #047857;
+            --brand-light: #ecfdf5;
+            --bg-main: #f8fafc;
+            --surface: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --bg-body: #f8fafc;
-            --white: #ffffff;
             --border: #e2e8f0;
-            --radius: 16px;
-            --shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.08);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-subtle: 0 4px 25px -2px rgba(15, 23, 42, 0.05);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); }
+        body { background: var(--bg-main); color: var(--text-main); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; animation: fadeIn 0.4s ease; }
-        nav { max-width: 1280px; margin: auto; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 900; color: var(--primary); text-decoration: none; }
-        .logo span { color: var(--secondary); }
-        nav ul { list-style: none; display: flex; gap: 32px; align-items: center; }
+        header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        nav { max-width: 1300px; margin: auto; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 26px; font-weight: 900; color: var(--brand-primary); text-decoration: none; }
+        .logo span { color: var(--text-main); font-weight: 700; }
+        nav ul { list-style: none; display: flex; gap: 36px; align-items: center; }
         nav a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); }
-        nav a:hover, nav a.active { color: var(--primary); }
+        nav a:hover, nav a.active { color: var(--brand-primary); }
 
-        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; animation: fadeIn 0.6s ease; }
-        .lesson-card { background: var(--white); border-radius: var(--radius); padding: 32px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 30px; transition: var(--transition); }
-        .lesson-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(37,99,235,0.12); }
-        .lesson-header { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
-
-        .video-box { width: 100%; height: 380px; background: #0f172a; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; margin-bottom: 24px; position: relative; overflow: hidden; }
-        .video-placeholder { text-align: center; padding: 20px; animation: fadeIn 0.5s ease; }
+        .container { max-width: 960px; margin: 45px auto; padding: 0 24px; animation: fadeIn 0.6s ease; }
         
-        .btn-action { background: var(--secondary); color: white; border: none; padding: 13px 28px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: var(--transition); font-size: 15px; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
-        .btn-action:hover { background: #059669; transform: scale(1.03); }
+        .page-header { text-align: center; margin-bottom: 45px; }
+        .page-header h1 { color: var(--text-main); font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+        .page-header p { color: var(--text-muted); font-size: 16px; }
 
-        .quiz-box { background: var(--primary-light); border: 1px solid #bfdbfe; padding: 25px; border-radius: 14px; margin-top: 20px; display: none; animation: fadeIn 0.4s ease; }
-        .quiz-box h4 { color: var(--primary); margin-bottom: 15px; font-size: 17px; font-weight: 800; }
+        .lesson-card { background: var(--surface); border-radius: var(--radius-lg); padding: 35px; border: 1px solid var(--border); box-shadow: var(--shadow-subtle); margin-bottom: 35px; transition: var(--transition); }
+        .lesson-header { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .lesson-header span.badge { background: var(--brand-light); color: var(--brand-dark); font-size: 13px; padding: 4px 12px; border-radius: 20px; font-weight: 700; }
+
+        .video-box { width: 100%; height: 400px; background: #090d16; border-radius: var(--radius-md); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; position: relative; overflow: hidden; border: 1px solid #1e293b; }
+        .video-placeholder { text-align: center; padding: 25px; z-index: 2; }
         
-        .options-grid { display: flex; flex-direction: column; gap: 12px; }
-        .option-item { background: white; border: 1px solid var(--border); padding: 14px 18px; border-radius: 12px; text-align: right; cursor: pointer; font-weight: 700; font-size: 14px; transition: var(--transition); }
-        .option-item:hover { background: #f1f5f9; border-color: var(--primary); transform: translateX(-6px); }
-        .quiz-feedback { margin-top: 15px; font-weight: 800; font-size: 15px; }
+        .btn-action { background: var(--brand-primary); color: white; border: none; padding: 14px 30px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; transition: var(--transition); font-size: 15px; box-shadow: 0 4px 20px rgba(16,185,129,0.3); }
+        .btn-action:hover { background: var(--brand-dark); transform: scale(1.02); }
+
+        .quiz-box { background: var(--brand-light); border: 1px solid #a7f3d0; padding: 30px; border-radius: var(--radius-md); margin-top: 25px; display: none; animation: fadeIn 0.4s ease; }
+        .quiz-box h4 { color: var(--brand-dark); margin-bottom: 20px; font-size: 18px; font-weight: 800; line-height: 1.5; }
+        
+        .options-grid { display: flex; flex-direction: column; gap: 14px; }
+        .option-item { background: white; border: 1px solid var(--border); padding: 16px 20px; border-radius: var(--radius-md); text-align: right; cursor: pointer; font-weight: 700; font-size: 15px; transition: var(--transition); display: flex; align-items: center; justify-content: space-between; }
+        .option-item:hover { background: #f8fafc; border-color: var(--brand-primary); transform: translateX(-6px); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .quiz-feedback { margin-top: 20px; font-weight: 800; font-size: 16px; padding: 12px; border-radius: 8px; text-align: center; display: none; }
     </style>
 </head>
 <body>
     <header>
         <nav>
-            <a href="index.html" class="logo">🚀 منصة <span>أبواب</span></a>
+            <a href="index.html" class="logo">🟢 أبواب <span>الدمياطية</span></a>
             <ul>
                 <li><a href="index.html">الرئيسية</a></li>
                 <li><a href="courses.html" class="active">المسارات والدروس</a></li>
@@ -69,28 +74,31 @@
     </header>
 
     <div class="container">
-        <div style="text-align: center; margin-bottom: 40px;">
-            <h1 style="color: var(--primary); font-size: 32px; font-weight: 900; margin-bottom: 8px;">مكتبة الدروس التفاعلية</h1>
-            <p style="color: var(--text-muted); font-size: 15px;">شاهد الدرس التعليمي كاملاً، ثم أجب عن التقييم الفوري لاكتساب النقاط في حسابك السحابي</p>
+        <div class="page-header">
+            <h1>مكتبة الدروس والتقييمات الفورية</h1>
+            <p>شاهد المحتوى التعليمي التفاعلي، ثم أجب عن الاختبار القصير لاجتياز الدرس واكتساب النقاط</p>
         </div>
 
         <!-- الدرس الأول -->
         <div class="lesson-card">
-            <div class="lesson-header">🎥 الدرس الأول: أساسيات التحول الرقمي والذكاء الاصطناعي</div>
+            <div class="lesson-header">
+                <span class="badge">الدرس الأول</span>
+                <span>أساسيات الطاقة المتجددة والمدن الذكية</span>
+            </div>
             <div class="video-box" id="vidContainer1">
                 <div class="video-placeholder">
-                    <div style="font-size: 52px; margin-bottom: 12px;">▶️</div>
-                    <p style="margin-bottom: 18px; font-size: 16px; font-weight: 600;">فيديو شرح تفاعلي (المدة: 4 دقائق)</p>
+                    <div style="font-size: 56px; margin-bottom: 12px;">▶️</div>
+                    <p style="margin-bottom: 20px; font-size: 16px; font-weight: 600; color: #cbd5e1;">مشغل الفيديو التعليمي (المدة: 5 دقائق)</p>
                     <button class="btn-action" onclick="finishLesson(1)">انتهيت من المشاهدة (ابدأ الاختبار الفوري)</button>
                 </div>
             </div>
             
             <div class="quiz-box" id="quizBox1">
-                <h4>📝 التقييم الفوري: ما هو الدور الرئيسي للذكاء الاصطناعي في المنصات التعليمية؟</h4>
+                <h4>📝 اختبار فوري بعد الدرس: ما هو المصدر الأساسي للطاقة النظيفة في المدن الذكية الحديثة؟</h4>
                 <div class="options-grid">
-                    <button class="option-item" onclick="submitQuiz(1, false, 'أ) إبطاء سرعة التصفح')">أ) إبطاء سرعة التصفح وتخزين البيانات</button>
-                    <button class="option-item" onclick="submitQuiz(1, true, 'ب) تخصيص تجربة التعلم وتحليل أداء الطالب')">ب) تخصيص تجربة التعلم وتحليل أداء الطالب بدقة</button>
-                    <button class="option-item" onclick="submitQuiz(1, false, 'ج) إلغاء الحاجة للمعلمين تماماً')">ج) إلغاء الحاجة للمعلمين تماماً</button>
+                    <button class="option-item" onclick="submitQuiz(1, false, 'أ) الفحم الحجري')"><span>أ) الفحم الحجري</span> <span>⚪</span></button>
+                    <button class="option-item" onclick="submitQuiz(1, true, 'ب) الطاقة الشمسية وطاقة الرياح')"><span>ب) الطاقة الشمسية وطاقة الرياح</span> <span>⚪</span></button>
+                    <button class="option-item" onclick="submitQuiz(1, false, 'ج) المنتجات البترولية الثقيلة')"><span>ج) المنتجات البترولية الثقيلة</span> <span>⚪</span></button>
                 </div>
                 <div class="quiz-feedback" id="feedback1"></div>
             </div>
@@ -98,21 +106,24 @@
 
         <!-- الدرس الثاني -->
         <div class="lesson-card">
-            <div class="lesson-header">🎥 الدرس الثاني: هندسة البرمجيات وتطوير واجهات المستخدم</div>
+            <div class="lesson-header">
+                <span class="badge">الدرس الثاني</span>
+                <span>دورات إعادة التدوير الحيوي والبيئة</span>
+            </div>
             <div class="video-box" id="vidContainer2">
                 <div class="video-placeholder">
-                    <div style="font-size: 52px; margin-bottom: 12px;">▶️</div>
-                    <p style="margin-bottom: 18px; font-size: 16px; font-weight: 600;">فيديو شرح تفاعلي (المدة: 5 دقائق)</p>
+                    <div style="font-size: 56px; margin-bottom: 12px;">▶️</div>
+                    <p style="margin-bottom: 20px; font-size: 16px; font-weight: 600; color: #cbd5e1;">مشغل الفيديو التعليمي (المدة: 4 دقائق)</p>
                     <button class="btn-action" onclick="finishLesson(2)">انتهيت من المشاهدة (ابدأ الاختبار الفوري)</button>
                 </div>
             </div>
             
             <div class="quiz-box" id="quizBox2">
-                <h4>📝 التقييم الفوري: أي لغة تعتبر الأساس في بناء الهيكل الأساسي لصفحات الويب؟</h4>
+                <h4>📝 اختبار فوري بعد الدرس: ما هي الفائدة الكبرى من تطبيق عمليات إعادة التدوير بالمجتمعات؟</h4>
                 <div class="options-grid">
-                    <button class="option-item" onclick="submitQuiz(2, true, 'أ) HTML')">أ) HTML</button>
-                    <button class="option-item" onclick="submitQuiz(2, false, 'ب) Photoshop')">ب) Photoshop</button>
-                    <button class="option-item" onclick="submitQuiz(2, false, 'ج) Microsoft Word')">ج) Microsoft Word</button>
+                    <button class="option-item" onclick="submitQuiz(2, true, 'أ) تقليل النفايات والحفاظ على الموارد')"><span>أ) تقليل النفايات والحفاظ على الموارد الطبيعية</span> <span>⚪</span></button>
+                    <button class="option-item" onclick="submitQuiz(2, false, 'ب) زيادة استهلاك الطاقة التقليدية')"><span>ب) زيادة استهلاك الطاقة التقليدية</span> <span>⚪</span></button>
+                    <button class="option-item" onclick="submitQuiz(2, false, 'ج) رفع نسبة التلوث الصناعي')"><span>ج) رفع نسبة التلوث الصناعي</span> <span>⚪</span></button>
                 </div>
                 <div class="quiz-feedback" id="feedback2"></div>
             </div>
@@ -133,23 +144,25 @@
         const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
 
         function finishLesson(num) {
-            document.getElementById('vidContainer' + num).innerHTML = '<div style="color: #34d399; font-weight:900; font-size:18px; animation: fadeIn 0.4s ease;">✔️ تمت مشاهدة الدرس بنجاح! انتقل للتقييم أدناه.</div>';
+            document.getElementById('vidContainer' + num).innerHTML = '<div style="color: #34d399; font-weight:900; font-size:20px; animation: fadeIn 0.4s ease; display:flex; align-items:center; gap:10px;">✔️ تمت مشاهدة الدرس بنجاح! تم فتح أسئلة الاختبار أدناه.</div>';
             document.getElementById('quizBox' + num).style.display = 'block';
         }
 
         function submitQuiz(num, isCorrect, ansText) {
             if (!safeKey) {
-                alert('⚠️ يرجى تسجيل الدخول أولاً من الصفحة الرئيسية ليتم حفظ درجتك ونقاطك!');
+                alert('⚠️ يرجى تسجيل الدخول أولاً من الصفحة الرئيسية لكي يتم حفظ نقاطك ونتيجتك سحابياً!');
                 location.href = 'index.html';
                 return;
             }
 
             const feedbackEl = document.getElementById('feedback' + num);
+            feedbackEl.style.display = 'block';
             const userRef = db.ref('users/' + safeKey);
 
             if (isCorrect) {
-                feedbackEl.textContent = '🎉 إجابة صحيحة مئة بالمئة! تم إضافة 50 نقطة لحسابك السحابي.';
-                feedbackEl.style.color = '#10b981';
+                feedbackEl.textContent = '🎉 إجابة صحيحة وممتازة! تم إضافة 75 نقطة تفوق إلى حسابك.';
+                feedbackEl.style.background = '#dcfce7';
+                feedbackEl.style.color = '#166534';
 
                 userRef.child('quizzes/lesson' + num).set({
                     title: 'الدرس ' + num,
@@ -159,12 +172,13 @@
                 });
 
                 userRef.child('points').get().then(snap => {
-                    let currentPts = snap.exists() ? snap.val() : 100;
-                    userRef.child('points').set(currentPts + 50);
+                    let currentPts = snap.exists() ? snap.val() : 150;
+                    userRef.child('points').set(currentPts + 75);
                 });
             } else {
-                feedbackEl.textContent = '❌ إجابة غير صائبة، حاول التركيز واختيار الإجابة الصحيحة مرة أخرى.';
-                feedbackEl.style.color = '#ef4444';
+                feedbackEl.textContent = '❌ إجابة غير دقيقة، ركز في تفاصيل الدرس وحاول مرة أخرى!';
+                feedbackEl.style.background = '#fee2e2';
+                feedbackEl.style.color = '#b91c1c';
             }
         }
     </script>
