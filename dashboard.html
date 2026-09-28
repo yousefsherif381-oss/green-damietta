@@ -3,92 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الطالب | أكاديمية دمياط</title>
+    <title>لوحة تحكم الطالب | منصة أبواب</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --primary: #1e3a8a; --primary-light: #eff6ff;
-            --secondary: #059669; --secondary-light: #ecfdf5;
-            --text-main: #0f172a; --text-muted: #475569;
-            --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1; --radius: 16px;
-            --shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.08);
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --secondary: #10b981;
+            --secondary-light: #ecfdf5;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(25px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; animation: fadeInUp 0.5s ease; }
-        nav { max-width: 1280px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 22px; font-weight: 850; color: var(--primary); text-decoration: none; }
+        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; animation: fadeIn 0.4s ease; }
+        nav { max-width: 1280px; margin: auto; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--primary); text-decoration: none; }
         .logo span { color: var(--secondary); }
-        nav ul { list-style: none; display: flex; gap: 28px; align-items: center; }
-        nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; transition: color 0.3s; }
+        nav ul { list-style: none; display: flex; gap: 32px; align-items: center; }
+        nav a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); }
         nav a:hover, nav a.active { color: var(--primary); }
 
-        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; animation: fadeInUp 0.7s ease; }
-        .card { background: var(--white); padding: 35px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; animation: fadeIn 0.6s ease; }
+        .card { background: var(--white); padding: 35px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 28px; transition: var(--transition); }
         .card:hover { transform: translateY(-3px); }
-        .card h2 { color: var(--primary); font-size: 22px; margin-bottom: 10px; font-weight: 800; }
+        .card h2 { color: var(--primary); font-size: 24px; margin-bottom: 12px; font-weight: 900; }
         
-        .profile-info { background: var(--primary-light); padding: 20px; border-radius: 12px; margin-top: 15px; border: 1px solid #bfdbfe; text-align: right; }
-        .profile-info p { margin: 8px 0; font-weight: 700; font-size: 14px; color: var(--primary-dark); }
+        .profile-box { background: var(--primary-light); padding: 25px; border-radius: 14px; margin-top: 20px; border: 1px solid #bfdbfe; text-align: right; }
+        .profile-box p { margin: 10px 0; font-weight: 800; font-size: 15px; color: var(--primary-dark); }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .stat-box { background: var(--secondary-light); border: 1px solid #a7f3d0; padding: 16px; border-radius: 12px; text-align: center; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .stat-box:hover { transform: scale(1.03); }
-        .stat-box h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
-        .stat-box span { font-size: 22px; font-weight: 850; color: var(--secondary); }
+        .stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 20px; }
+        .stat-card { background: var(--secondary-light); border: 1px solid #a7f3d0; padding: 18px; border-radius: 12px; text-align: center; transition: var(--transition); }
+        .stat-card:hover { transform: scale(1.02); }
+        .stat-card h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; }
+        .stat-card span { font-size: 24px; font-weight: 900; color: var(--secondary); }
         
-        .list { list-style: none; margin-top: 15px; }
-        .item { background: #f8fafc; border: 1px solid var(--border); padding: 14px 18px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .item:hover { background: #f1f5f9; transform: translateX(-4px); border-color: var(--primary); }
+        .results-list { list-style: none; margin-top: 15px; }
+        .result-item { background: #f8fafc; border: 1px solid var(--border); padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; transition: var(--transition); }
+        .result-item:hover { background: #f1f5f9; border-color: var(--primary); transform: translateX(-4px); }
     </style>
 </head>
 <body>
     <header>
         <nav>
-            <a href="index.html" class="logo">🌿 أكاديمية <span>دمياط</span></a>
+            <a href="index.html" class="logo">🚀 منصة <span>أبواب</span></a>
             <ul>
                 <li><a href="index.html">الرئيسية</a></li>
                 <li><a href="courses.html">المسارات والدروس</a></li>
-                <li><a href="dashboard.html" class="active">لوحة تحكم الطالب</a></li>
+                <li><a href="dashboard.html" class="active">لوحة التحكم</a></li>
             </ul>
         </nav>
     </header>
 
     <div class="container">
         <div class="card" style="text-align: center;">
-            <h2>لوحة تحكم الطالب</h2>
-            <p style="color: var(--text-muted); font-size: 13px;">متابعة تفاصيل حسابك ونتائج اختباراتك المزامنة سحابياً</p>
+            <h2>لوحة تحكم الطالب الذكية</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">متابعة فورية لمستوى إنجازك ونقاطك المتزامنة سحابياً</p>
             
-            <div class="profile-info" style="display: inline-block; width: 100%; max-width: 500px;">
+            <div class="profile-box" style="display: inline-block; width: 100%; max-width: 550px;">
                 <p>👤 اسم الطالب: <span id="dashName" style="color: var(--secondary);">جاري التحميل...</span></p>
                 <p>📧 البريد الإلكتروني: <span id="dashEmail" style="color: var(--secondary);">جاري التحميل...</span></p>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <h4>النقاط الإجمالية</h4>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <h4>إجمالي نقاط التفوق</h4>
                         <span id="dashPoints">--</span>
                     </div>
-                    <div class="stat-box">
-                        <h4>حالة السحابة</h4>
-                        <span style="font-size: 13px; color: var(--primary);">متصل بـ Firebase ✔️</span>
+                    <div class="stat-card">
+                        <h4>حالة الربط السحابي</h4>
+                        <span style="font-size: 14px; color: var(--primary);">متصل بنجاح ✔️</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>سجل اختباراتك ونتائجك الفورية</h2>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">يتم تحديث هذه القائمة تلقائياً عند اجتيازك لاختبارات الفيديوهات</p>
-            <ul id="quizList" class="list">
-                <li style="color: var(--text-muted);">جاري جلب النتائج من السحابة...</li>
+            <h2>سجل الاختبارات والتقييمات الفورية</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 18px;">يتم رصد وعرض النتائج فور انتهائك من التقييمات في قسم المسارات</p>
+            <ul id="resultsList" class="results-list">
+                <li style="color: var(--text-muted); text-align: center; padding: 20px;">جاري جلب البيانات من السحابة...</li>
             </ul>
         </div>
     </div>
@@ -108,20 +112,20 @@
         const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
 
         if (!localStorage.getItem('isLoggedIn') || !safeKey) {
-            alert('⚠️ يرجى تسجيل الدخول أولاً لعرض لوحة التحكم الخاصة بك.');
+            alert('⚠️ يرجى تسجيل الدخول أولاً للوصول إلى لوحة التحكم.');
             location.href = 'index.html';
         } else {
-            document.getElementById('dashName').textContent = name || 'طالب أكاديمي';
+            document.getElementById('dashName').textContent = name || 'طالب متميز';
             document.getElementById('dashEmail').textContent = email;
 
             const userRef = db.ref('users/' + safeKey);
             
             userRef.child('points').on('value', snap => {
-                document.getElementById('dashPoints').textContent = snap.exists() ? snap.val() : '50';
+                document.getElementById('dashPoints').textContent = snap.exists() ? snap.val() : '100';
             });
 
             userRef.child('quizzes').get().then(snap => {
-                const listEl = document.getElementById('quizList');
+                const listEl = document.getElementById('resultsList');
                 listEl.innerHTML = '';
                 if (snap.exists()) {
                     const quizzes = snap.val();
@@ -130,15 +134,15 @@
                         count++;
                         const q = quizzes[id];
                         const li = document.createElement('li');
-                        li.className = 'item';
-                        li.innerHTML = `<span>📝 <strong>${q.title}</strong> (${q.answer})</span> <span style="color: #059669; font-weight: 800;">✔️ ${q.result} (${q.date})</span>`;
+                        li.className = 'result-item';
+                        li.innerHTML = `<span>📝 <strong>${q.title}</strong> &bull; <span style="color: var(--text-muted); font-size: 13px;">${q.answer}</span></span> <span style="color: var(--secondary);">✔️ ${q.result} (${q.date})</span>`;
                         listEl.appendChild(li);
                     }
                     if (count === 0) {
-                        listEl.innerHTML = '<li style="color: var(--text-muted);">لم تقم بإتمام أي اختبار بعد. توجه إلى قسم "المسارات والدروس" وشاهد الفيديوهات!</li>';
+                        listEl.innerHTML = '<li style="color: var(--text-muted); text-align: center; padding: 20px;">لم تقم باجتياز أي اختبار بعد. توجه إلى "المسارات والدروس" وابدأ الآن!</li>';
                     }
                 } else {
-                    listEl.innerHTML = '<li style="color: var(--text-muted);">لم تقم بإتمام أي اختبار بعد. توجه إلى قسم "المسارات والدروس" وشاهد الفيديوهات!</li>';
+                    listEl.innerHTML = '<li style="color: var(--text-muted); text-align: center; padding: 20px;">لم تقم باجتياز أي اختبار بعد. توجه إلى "المسارات والدروس" وابدأ الآن!</li>';
                 }
             });
         }
