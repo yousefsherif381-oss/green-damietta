@@ -51,11 +51,11 @@
         .hero h1 { font-size: 46px; font-weight: 900; margin-bottom: 16px; line-height: 1.3; }
         .hero p { font-size: 18px; opacity: 0.9; margin-bottom: 35px; color: #ECFDF5; }
 
-        /* اختيار الدولة والصف (مثل أبواب الأصلية) */
-        .configurator-bar { background: white; max-width: 900px; margin: -45px auto 60px; padding: 24px; border-radius: var(--radius-box); box-shadow: 0 15px 35px rgba(0,0,0,0.08); display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: center; position: relative; z-index: 10; border: 1px solid var(--border-color); }
+        /* شريط اختيار الدولة والصف الدراسي (مطابق لأبواب الأصلية) */
+        .configurator-bar { background: white; max-width: 950px; margin: -45px auto 60px; padding: 24px; border-radius: var(--radius-box); box-shadow: 0 15px 35px rgba(0,0,0,0.08); display: grid; grid-template-columns: 1fr 1.5fr auto; gap: 16px; align-items: center; position: relative; z-index: 10; border: 1px solid var(--border-color); }
         .config-group { text-align: right; }
         .config-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
-        .config-group select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-btn); font-size: 15px; font-weight: 700; color: var(--abwaab-dark); outline: none; background: #F8FAFC; cursor: pointer; }
+        .config-group select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-btn); font-size: 14px; font-weight: 700; color: var(--abwaab-dark); outline: none; background: #F8FAFC; cursor: pointer; }
         .btn-start-study { background: var(--abwaab-green); color: white; border: none; padding: 14px 28px; border-radius: var(--radius-btn); font-weight: 800; font-size: 15px; cursor: pointer; transition: var(--transition); height: 100%; box-shadow: 0 6px 16px rgba(0,182,122,0.3); }
         .btn-start-study:hover { background: var(--abwaab-green-dark); transform: translateY(-2px); }
 
@@ -136,26 +136,26 @@
         </div>
     </section>
 
-    <!-- شريط اختيار الدولة والصف الدراسي (هوية أبواب) -->
+    <!-- شريط اختيار الدولة والصف (شامل جميع الدول والصفوف العربية) -->
     <div class="configurator-bar">
         <div class="config-group">
             <label>اختر دولتك</label>
-            <select id="countrySelect">
-                <option value="eg">🇪🇬 مصر</option>
+            <select id="countrySelect" onchange="updateGrades()">
+                <option value="eg">🇪🇬 جمهورية مصر العربية</option>
                 <option value="sa">🇸🇦 المملكة العربية السعودية</option>
-                <option value="jo">🇯🇴 الأردن</option>
+                <option value="jo">🇯🇴 المملكة الأردنية الهاشمية</option>
+                <option value="ae">🇦🇪 دولة الإمارات العربية المتحدة</option>
+                <option value="iq">🇮🇶 الجمهورية العراقية</option>
+                <option value="kw">🇰.د دولة الكويت</option>
             </select>
         </div>
         <div class="config-group">
             <label>اختر الصف الدراسي</label>
             <select id="gradeSelect">
-                <option value="prep3">الصف الثالث الاعدادي</option>
-                <option value="sec1">الصف الأول الثانوي</option>
-                <option value="sec2">الصف الثاني الثانوي</option>
-                <option value="sec3">الصف الثالث الثانوي (التوجيهي / الثانوية العامة)</option>
+                <!-- يتم تعبئتها تلقائياً عبر الجافاسكريبت حسب الدولة -->
             </select>
         </div>
-        <button class="btn-start-study" onclick="goToCourses()">ابدأ الدراسة الآن 🚀</button>
+        <button class="btn-start-study" onclick="goToCourses()">استعراض المواد والدروس 🚀</button>
     </div>
 
     <div class="features-section">
@@ -189,6 +189,91 @@
         };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
+
+        // قاعدة بيانات الصفوف الدراسية الشاملة لجميع الدول
+        const gradesData = {
+            eg: [
+                {id: 'eg_prim4', name: 'الصف الرابع الابتدائي'},
+                {id: 'eg_prim5', name: 'الصف الخامس الابتدائي'},
+                {id: 'eg_prim6', name: 'الصف السادس الابتدائي'},
+                {id: 'eg_prep1', name: 'الصف الأول الاعدادي'},
+                {id: 'eg_prep2', name: 'الصف الثاني الاعدادي'},
+                {id: 'eg_prep3', name: 'الصف الثالث الاعدادي'},
+                {id: 'eg_sec1', name: 'الصف الأول الثانوي'},
+                {id: 'eg_sec2', name: 'الصف الثاني الثانوي'},
+                {id: 'eg_sec3', name: 'الصف الثالث الثانوي (الثانوية العامة)'}
+            ],
+            sa: [
+                {id: 'sa_prim4', name: 'الصف الرابع الابتدائي'},
+                {id: 'sa_prim5', name: 'الصف الخامس الابتدائي'},
+                {id: 'sa_prim6', name: 'الصف السادس الابتدائي'},
+                {id: 'sa_inter1', name: 'الصف الأول المتوسط'},
+                {id: 'sa_inter2', name: 'الصف الثاني المتوسط'},
+                {id: 'sa_inter3', name: 'الصف الثالث المتوسط'},
+                {id: 'sa_sec1', name: 'الصف الأول الثانوي'},
+                {id: 'sa_sec2', name: 'الصف الثاني الثانوي'},
+                {id: 'sa_sec3', name: 'الصف الثالث الثانوي'}
+            ],
+            jo: [
+                {id: 'jo_basic4', name: 'الصف الرابع الأساسي'},
+                {id: 'jo_basic5', name: 'الصف الخامس الأساسي'},
+                {id: 'jo_basic6', name: 'الصف السادس الأساسي'},
+                {id: 'jo_basic7', name: 'الصف السابع الأساسي'},
+                {id: 'jo_basic8', name: 'الصف الثامن الأساسي'},
+                {id: 'jo_basic9', name: 'الصف التاسع الأساسي'},
+                {id: 'jo_basic10', name: 'الصف العاشر الأساسي'},
+                {id: 'jo_sec1', name: 'الصف الأول الثانوي'},
+                {id: 'jo_sec2', name: 'الصف الثاني الثانوي (التوجيهي)'}
+            ],
+            ae: [
+                {id: 'ae_prim4', name: 'الصف الرابع الابتدائي'},
+                {id: 'ae_prim5', name: 'الصف الخامس الابتدائي'},
+                {id: 'ae_prim6', name: 'الصف السادس الابتدائي'},
+                {id: 'ae_prep1', name: 'الصف السابع (أول متوسط)'},
+                {id: 'ae_prep2', name: 'الصف الثامن (ثاني متوسط)'},
+                {id: 'ae_prep3', name: 'الصف التاسع (ثالث متوسط)'},
+                {id: 'ae_sec1', name: 'الصف العاشر (أول ثانوي)'},
+                {id: 'ae_sec2', name: 'الصف الحادي عشر'},
+                {id: 'ae_sec3', name: 'الصف الثاني عشر (الثانوية العامة)'}
+            ],
+            iq: [
+                {id: 'iq_prim4', name: 'الصف الرابع الابتدائي'},
+                {id: 'iq_prim5', name: 'الصف الخامس الابتدائي'},
+                {id: 'iq_prim6', name: 'الصف السادس الابتدائي'},
+                {id: 'iq_prep1', name: 'الصف الأول المتوسط'},
+                {id: 'iq_prep2', name: 'الصف الثاني المتوسط'},
+                {id: 'iq_prep3', name: 'الصف الثالث المتوسط'},
+                {id: 'iq_sec4', name: 'الصف الرابع العلمي / الأدبي'},
+                {id: 'iq_sec5', name: 'الصف الخامس العلمي / الأدبي'},
+                {id: 'iq_sec6', name: 'الصف السادس الإعدادي (السادس العلمي / الأدبي)'}
+            ],
+            kw: [
+                {id: 'kw_prim4', name: 'الصف الرابع الابتدائي'},
+                {id: 'kw_prim5', name: 'الصف الخامس الابتدائي'},
+                {id: 'kw_inter1', name: 'الصف السادس المتوسط'},
+                {id: 'kw_inter2', name: 'الصف السابع المتوسط'},
+                {id: 'kw_inter3', name: 'الصف الثامن المتوسط'},
+                {id: 'kw_inter4', name: 'الصف التاسع المتوسط'},
+                {id: 'kw_sec1', name: 'الصف العاشر الثانوي'},
+                {id: 'kw_sec2', name: 'الصف الحادي عشر الثانوي'},
+                {id: 'kw_sec3', name: 'الصف الثاني عشر الثانوي'}
+            ]
+        };
+
+        function updateGrades() {
+            const country = document.getElementById('countrySelect').value;
+            const gradeSelect = document.getElementById('gradeSelect');
+            gradeSelect.innerHTML = '';
+            
+            const list = gradesData[country] || gradesData['eg'];
+            list.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.textContent = g.name;
+                gradeSelect.appendChild(opt);
+            });
+        }
+        updateGrades();
 
         let isSignUpMode = false;
 
