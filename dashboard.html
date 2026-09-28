@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المسارات التعليمية والاختبارات | أكاديمية دمياط الخضراء</title>
+    <title>لوحة تحكم الطالب | أكاديمية دمياط</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -12,7 +12,7 @@
         :root {
             --primary: #1e3a8a; --primary-light: #eff6ff;
             --secondary: #059669; --secondary-light: #ecfdf5;
-            --accent: #f59e0b; --text-main: #0f172a; --text-muted: #475569;
+            --text-main: #0f172a; --text-muted: #475569;
             --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1; --radius: 14px;
             --shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.08);
         }
@@ -26,29 +26,17 @@
         nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; }
         nav a:hover, nav a.active { color: var(--primary); }
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
-        .header-title { text-align: center; margin-bottom: 40px; }
-        .header-title h1 { font-size: 34px; color: var(--primary); font-weight: 850; margin-bottom: 8px; }
-        .header-title p { color: var(--text-muted); font-size: 15px; }
-
-        .section-title { font-size: 22px; color: var(--primary); font-weight: 800; margin: 40px 0 20px 0; border-right: 5px solid var(--secondary); padding-right: 12px; }
-
-        .courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .course-card { background: var(--white); border-radius: var(--radius); padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
-        .course-card:hover { transform: translateY(-4px); border-color: var(--secondary); }
-        .icon { font-size: 38px; margin-bottom: 15px; }
-        .course-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--primary-dark); }
-        .course-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
-        .btn-track { width: 100%; background: var(--secondary-light); color: var(--secondary); border: 1px solid #a7f3d0; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-track:hover { background: var(--secondary); color: white; }
-        .completed { background: #dcfce7 !important; color: #166534 !important; border-color: #86efac !important; }
-
-        .quiz-box { background: white; padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-top: 20px; }
-        .quiz-box h3 { color: var(--primary); margin-bottom: 15px; }
-        .quiz-options { display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap; }
-        .btn-quiz { background: var(--primary-light); color: var(--primary); border: 1px solid #93c5fd; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-quiz:hover { background: var(--primary); color: white; }
-        #quizResult { margin-top: 15px; font-weight: 700; font-size: 14px; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; }
+        .card { background: var(--white); padding: 35px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; }
+        .card h2 { color: var(--primary); font-size: 22px; margin-bottom: 10px; font-weight: 800; }
+        .profile-info { background: var(--primary-light); padding: 18px 22px; border-radius: 10px; margin-top: 15px; border: 1px solid #bfdbfe; text-align: right; }
+        .profile-info p { margin: 8px 0; font-weight: 700; font-size: 14px; color: var(--primary-dark); }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        .stat-box { background: var(--secondary-light); border: 1px solid #a7f3d0; padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-box h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
+        .stat-box span { font-size: 20px; font-weight: 850; color: var(--secondary); }
+        .list { list-style: none; margin-top: 15px; }
+        .item { background: #f8fafc; border: 1px solid var(--border); padding: 14px 18px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -57,54 +45,39 @@
             <a href="index.html" class="logo">🌿 أكاديمية <span>دمياط</span></a>
             <ul>
                 <li><a href="index.html">الرئيسية</a></li>
-                <li><a href="courses.html" class="active">المسارات والدورات</a></li>
-                <li><a href="dashboard.html">لوحة التحكم السحابية</a></li>
+                <li><a href="courses.html">المسارات والدروس</a></li>
+                <li><a href="dashboard.html" class="active">لوحة تحكم الطالب</a></li>
             </ul>
         </nav>
     </header>
 
     <div class="container">
-        <div class="header-title">
-            <h1>المسارات التعليمية التخصصية</h1>
-            <p>أتمم المسارات المعتمدة وشارك في الاختبارات القصيرة لرفع رصيد نقاطك وسجل تقدمك سحابياً</p>
-        </div>
-
-        <div class="courses-grid">
-            <div class="course-card">
-                <div>
-                    <div class="icon">⚡</div>
-                    <h3>مسار التكنولوجيا الخضراء والطاقة</h3>
-                    <p>استكشاف أنظمة الطاقة المتجددة، كفاءة الشبكات النظيفة، ومفاهيم المدن المستدامة.</p>
+        <div class="card" style="text-align: center;">
+            <h2>لوحة تحكم الطالب</h2>
+            <p style="color: var(--text-muted); font-size: 13px;">متابعة تفاصيل حسابك ونتائج اختباراتك المزامنة سحابياً</p>
+            
+            <div class="profile-info" style="display: inline-block; width: 100%; max-width: 500px;">
+                <p>👤 اسم الطالب: <span id="dashName" style="color: var(--secondary);">جاري التحميل...</span></p>
+                <p>📧 البريد الإلكتروني: <span id="dashEmail" style="color: var(--secondary);">جاري التحميل...</span></p>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h4>النقاط الإجمالية</h4>
+                        <span id="dashPoints">--</span>
+                    </div>
+                    <div class="stat-box">
+                        <h4>حالة السحابة</h4>
+                        <span style="font-size: 13px; color: var(--primary);">متصل بـ Firebase ✔️</span>
+                    </div>
                 </div>
-                <button class="btn-track" id="t1Btn" onclick="syncTrack('track1', 'التكنولوجيا الخضراء والطاقة', 150)">إتمام المسار (+150 نقطة)</button>
-            </div>
-            <div class="course-card">
-                <div>
-                    <div class="icon">♻️</div>
-                    <h3>مسار إعادة التدوير الذكي والبيئة</h3>
-                    <p>تعلم أنظمة التحويل الحيوي، إنتاج الغاز الحيوي، ودورات إعادة التدوير البيئية.</p>
-                </div>
-                <button class="btn-track" id="t2Btn" onclick="syncTrack('track2', 'إعادة التدوير الذكي والبيئة', 150)">إتمام المسار (+150 نقطة)</button>
-            </div>
-            <div class="course-card">
-                <div>
-                    <div class="icon">💧</div>
-                    <h3>مسار الزراعة المائية المستدامة</h3>
-                    <p>مناهج وتقنيات الحفاظ على الموارد المائية وحلول الزراعة الحديثة المبتكرة.</p>
-                </div>
-                <button class="btn-track" id="t3Btn" onclick="syncTrack('track3', 'الزراعة المائية المستدامة', 150)">إتمام المسار (+150 نقطة)</button>
             </div>
         </div>
 
-        <div class="section-title">بنك الأسئلة والاختبارات التفاعلية</div>
-        <div class="quiz-box">
-            <h3>سؤال اختباري سريع: ما هي المصادر الرئيسية للطاقة النظيفة في المدن الذكية؟</h3>
-            <div class="quiz-options">
-                <button class="btn-quiz" onclick="answerQuiz(false)">أ) الوقود الأحفوري التقليدي</button>
-                <button class="btn-quiz" onclick="answerQuiz(true)">ب) الطاقة الشمسية وطاقة الرياح</button>
-                <button class="btn-quiz" onclick="answerQuiz(false)">ج) الفحم الحجري</button>
-            </div>
-            <div id="quizResult"></div>
+        <div class="card">
+            <h2>سجل اختباراتك ونتائجك الفورية</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">يتم تحديث هذه القائمة تلقائياً عند اجتيازك لاختبارات الفيديوهات</p>
+            <ul id="quizList" class="list">
+                <li style="color: var(--text-muted);">جاري جلب النتائج من السحابة...</li>
+            </ul>
         </div>
     </div>
 
@@ -118,67 +91,46 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
+        const name = localStorage.getItem('userName');
         const email = localStorage.getItem('userEmail');
         const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!safeKey) return;
-            db.ref('users/' + safeKey + '/progress').get().then(snap => {
-                if (snap.exists()) {
-                    const data = snap.val();
-                    if (data.track1) setBtnDone('t1Btn');
-                    if (data.track2) setBtnDone('t2Btn');
-                    if (data.track3) setBtnDone('t3Btn');
-                }
-            });
-        });
+        if (!localStorage.getItem('isLoggedIn') || !safeKey) {
+            alert('⚠️ يرجى تسجيل الدخول أولاً لعرض لوحة التحكم الخاصة بك.');
+            location.href = 'index.html';
+        } else {
+            document.getElementById('dashName').textContent = name || 'طالب أكاديمي';
+            document.getElementById('dashEmail').textContent = email;
 
-        function syncTrack(id, name, pointsReward) {
-            if (!safeKey) {
-                alert('⚠️ يرجى تسجيل الدخول أولاً من الصفحة الرئيسية لحفظ إنجازاتك سحابياً!');
-                location.href = 'index.html';
-                return;
-            }
-            
-            // حفظ المسار وتحديث النقاط
             const userRef = db.ref('users/' + safeKey);
-            userRef.child('progress/' + id).set({
-                name: name,
-                status: 'مكتمل',
-                time: new Date().toLocaleDateString()
-            }).then(() => {
-                userRef.child('points').get().then(snap => {
-                    let currentPoints = snap.exists() ? snap.val() : 50;
-                    userRef.child('points').set(currentPoints + pointsReward);
-                });
-                setBtnDone(id + 'Btn');
-                alert('✅ تم حفظ إنجازك وإضافة النقاط بنجاح إلى حسابك السحابي!');
+            
+            // جلب النقاط
+            userRef.child('points').on('value', snap => {
+                document.getElementById('dashPoints').textContent = snap.exists() ? snap.val() : '50';
             });
-        }
 
-        function setBtnDone(btnId) {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.textContent = '✔️ تم الإتمام والتزامن';
-                btn.classList.add('completed');
-            }
-        }
-
-        function answerQuiz(isCorrect) {
-            const res = document.getElementById('quizResult');
-            if (isCorrect) {
-                res.textContent = '🎉 إجابة صحيحة! أحسنت، واصل التقدم.';
-                res.style.color = '#059669';
-                if (safeKey) {
-                    db.ref('users/' + safeKey + '/points').get().then(snap => {
-                        let current = snap.exists() ? snap.val() : 50;
-                        db.ref('users/' + safeKey + '/points').set(current + 25);
-                    });
+            // جلب نتائج الاختبارات
+            userRef.child('quizzes').get().then(snap => {
+                const listEl = document.getElementById('quizList');
+                listEl.innerHTML = '';
+                if (snap.exists()) {
+                    const quizzes = snap.val();
+                    let count = 0;
+                    for (let id in quizzes) {
+                        count++;
+                        const q = quizzes[id];
+                        const li = document.createElement('li');
+                        li.className = 'item';
+                        li.innerHTML = `<span>📝 <strong>${q.title}</strong> (${q.answer})</span> <span style="color: #059669; font-weight: 800;">✔️ ${q.result} (${q.date})</span>`;
+                        listEl.appendChild(li);
+                    }
+                    if (count === 0) {
+                        listEl.innerHTML = '<li style="color: var(--text-muted);">لم تقم بإتمام أي اختبار بعد. توجه إلى قسم "المسارات والدروس" وشاهد الفيديوهات!</li>';
+                    }
+                } else {
+                    listEl.innerHTML = '<li style="color: var(--text-muted);">لم تقم بإتمام أي اختبار بعد. توجه إلى قسم "المسارات والدروس" وشاهد الفيديوهات!</li>';
                 }
-            } else {
-                res.textContent = '❌ إجابة غير دقيقة، حاول مرة أخرى في السؤال القادم.';
-                res.style.color = '#dc2626';
-            }
+            });
         }
     </script>
 </body>
