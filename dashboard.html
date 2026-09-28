@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم الشخصية | منصة أبواب</title>
-    <!-- Firebase SDK -->
+    <title>لوحة التحكم | منصة أبواب التعليمية</title>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -22,6 +22,7 @@
             --radius-btn: 12px;
             --radius-box: 16px;
             --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
+            --transition: all 0.25s ease-in-out;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--abwaab-bg); color: var(--text-main); }
@@ -31,24 +32,41 @@
         .logo { font-size: 24px; font-weight: 900; color: var(--abwaab-green); text-decoration: none; }
         .logo span { color: var(--abwaab-dark); }
         .nav-links { display: flex; list-style: none; gap: 32px; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); }
         .nav-links a:hover, .nav-links a.active { color: var(--abwaab-green); }
 
-        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; }
-        .card { background: var(--card-bg); padding: 35px; border-radius: var(--radius-box); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); margin-bottom: 30px; }
-        .card h2 { font-size: 22px; font-weight: 900; color: var(--abwaab-dark); margin-bottom: 6px; }
-        .card p.sub { color: var(--text-muted); font-size: 14px; margin-bottom: 22px; }
+        .container { max-width: 1050px; margin: 40px auto; padding: 0 24px; }
+        
+        /* بطاقة الترحيب والإحصائيات */
+        .profile-banner { background: linear-gradient(135deg, #064E3B 0%, #006A4E 60%, #00B67A 100%); color: white; border-radius: var(--radius-box); padding: 35px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,182,122,0.2); }
+        .profile-info h1 { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+        .profile-info p { opacity: 0.9; font-size: 14px; color: #ECFDF5; }
+        
+        .stats-badge-box { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); padding: 16px 26px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.3); }
+        .stats-badge-box span { display: block; font-size: 13px; opacity: 0.85; }
+        .stats-badge-box strong { font-size: 24px; font-weight: 900; color: #FDE047; }
 
-        .profile-box { background: var(--abwaab-green-light); border: 1px solid #A7F3D0; padding: 24px; border-radius: 12px; text-align: right; }
-        .profile-box p { font-weight: 800; font-size: 15px; color: var(--abwaab-green-dark); margin-bottom: 8px; }
+        /* الأقسام والشبكات */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
+        .dash-card { background: var(--card-bg); border-radius: var(--radius-box); padding: 25px; border: 1px solid var(--border-color); box-shadow: var(--shadow-card); }
+        .dash-card h3 { font-size: 18px; font-weight: 800; color: var(--abwaab-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 15px; }
-        .stat-card { background: white; border: 1px solid #A7F3D0; padding: 18px; border-radius: 10px; text-align: center; }
-        .stat-card h4 { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-        .stat-card span { font-size: 26px; font-weight: 900; color: var(--abwaab-green); }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); font-size: 14px; font-weight: 700; }
+        .info-row:last-child { border-bottom: none; }
+        .info-row span:last-child { color: var(--text-muted); font-weight: 600; }
 
-        .results-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .result-row { background: #F8FAFC; border: 1px solid var(--border-color); padding: 16px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        .history-table th, .history-table td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .history-table th { font-weight: 800; color: var(--text-muted); font-size: 13px; }
+        .history-table td { font-weight: 700; color: var(--abwaab-dark); }
+
+        .btn-refresh { background: var(--abwaab-green); color: white; border: none; padding: 10px 20px; border-radius: var(--radius-btn); font-weight: 800; cursor: pointer; font-size: 13px; margin-top: 16px; transition: var(--transition); }
+        .btn-refresh:hover { background: var(--abwaab-green-dark); }
+
+        .not-logged { text-align: center; padding: 60px 20px; background: white; border-radius: var(--radius-box); border: 1px solid var(--border-color); }
+        .not-logged h2 { font-size: 22px; font-weight: 900; margin-bottom: 10px; color: var(--abwaab-dark); }
+        .not-logged p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+        .btn-main { background: var(--abwaab-green); color: white; border: none; padding: 12px 28px; border-radius: var(--radius-btn); font-weight: 800; cursor: pointer; text-decoration: none; display: inline-block; }
     </style>
 </head>
 <body>
@@ -63,34 +81,8 @@
         </div>
     </header>
 
-    <div class="container">
-        <div class="card" style="text-align: center;">
-            <h2>لوحة تحكم الطالب</h2>
-            <p class="sub">متابعة لحظية لإنجازاتك الأكاديمية ونقاطك المتزامنة عبر السحابة</p>
-            
-            <div class="profile-box" style="max-width: 550px; margin: auto;">
-                <p>👤 اسم الطالب: <span id="dashName" style="color: var(--text-main);">جاري التحميل...</span></p>
-                <p>📧 البريد الإلكتروني: <span id="dashEmail" style="color: var(--text-main);">جاري التحميل...</span></p>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h4>نقاط التفوق</h4>
-                        <span id="dashPoints">--</span>
-                    </div>
-                    <div class="stat-card">
-                        <h4>حالة الربط السحابي</h4>
-                        <span style="font-size: 13px; color: var(--abwaab-green);">متصل سحابياً ✔️</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>سجل الاختبارات والنتائج الفورية</h2>
-            <p class="sub">تظهر هنا تقييماتك ودرجاتك فور انتهائك من حل تدريبات الدروس</p>
-            <ul id="resultsList" class="results-list">
-                <li style="color: var(--text-muted); text-align: center; padding: 20px;">جاري جلب السجل من السحابة...</li>
-            </ul>
-        </div>
+    <div class="container" id="mainContainer">
+        <!-- يتم تعبئة المحتوى ديناميكياً عبر الجافاسكريبت حسب حالة تسجيل الدخول -->
     </div>
 
     <script>
@@ -103,43 +95,122 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        const name = localStorage.getItem('userName');
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         const email = localStorage.getItem('userEmail');
-        const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
+        const name = localStorage.getItem('userName');
+        const country = localStorage.getItem('selectedCountry') || 'eg';
+        const grade = localStorage.getItem('selectedGrade') || 'eg_sec3';
 
-        if (!localStorage.getItem('isLoggedIn') || !safeKey) {
-            alert('⚠️ يرجى تسجيل الدخول أولاً للوصول إلى لوحة التحكم.');
-            location.href = 'index.html';
+        const container = document.getElementById('mainContainer');
+
+        // خريطة أسماء الدول والصفوف لعرضها بوضوح في لوحة التحكم
+        const countryNames = { eg: 'جمهورية مصر العربية', sa: 'المملكة العربية السعودية', jo: 'المملكة الأردنية الهاشمية', ae: 'الإمارات العربية المتحدة', iq: 'الجمهورية العراقية', kw: 'دولة الكويت' };
+        const gradeNames = {
+            eg_prim4: 'الصف الرابع الابتدائي', eg_prim5: 'الصف الخامس الابتدائي', eg_prim6: 'الصف السادس الابتدائي',
+            eg_prep1: 'الصف الأول الاعدادي', eg_prep2: 'الصف الثاني الاعدادي', eg_prep3: 'الصف الثالث الاعدادي',
+            eg_sec1: 'الصف الأول الثانوي', eg_sec2: 'الصف الثاني الثانوي', eg_sec3: 'الصف الثالث الثانوي (الثانوية العامة)',
+            sa_prim4: 'الصف الرابع الابتدائي', sa_sec3: 'الصف الثالث الثانوي', jo_sec2: 'الصف الثاني الثانوي (التوجيهي)',
+            ae_sec3: 'الصف الثاني عشر (الثانوية العامة)', iq_sec6: 'الصف السادس الإعدادي', kw_sec3: 'الصف الثاني عشر الثانوي'
+        };
+
+        if (!isLoggedIn || !email) {
+            container.innerHTML = `
+                <div class="not-logged">
+                    <h2>⚠️ يرجى تسجيل الدخول أولاً لعرض لوحة التحكم</h2>
+                    <p>تابع تقدمك الدراسي، نقاطك المتراكمة، وسجل اختباراتك الفورية معنا.</p>
+                    <a href="index.html" class="btn-main">الذهاب لصفحة تسجيل الدخول</a>
+                </div>
+            `;
         } else {
-            document.getElementById('dashName').textContent = name || 'طالب متميز';
-            document.getElementById('dashEmail').textContent = email;
-
+            const safeKey = email.replace(/[.#$[\]]/g, '_');
             const userRef = db.ref('users/' + safeKey);
-            
-            userRef.child('points').on('value', snap => {
-                document.getElementById('dashPoints').textContent = snap.exists() ? snap.val() : '200';
-            });
 
-            userRef.child('quizzes').get().then(snap => {
-                const listEl = document.getElementById('resultsList');
-                listEl.innerHTML = '';
-                if (snap.exists()) {
-                    const quizzes = snap.val();
-                    let count = 0;
-                    for (let id in quizzes) {
-                        count++;
-                        const q = quizzes[id];
-                        const li = document.createElement('li');
-                        li.className = 'result-row';
-                        li.innerHTML = `<span>📝 <strong>${q.title}</strong> &bull; <span style="color: var(--text-muted); font-size: 13px;">${q.answer}</span></span> <span style="color: var(--abwaab-green-dark);">✔️ ${q.result} (${q.date})</span>`;
-                        listEl.appendChild(li);
-                    }
-                    if (count === 0) {
-                        listEl.innerHTML = '<li style="color: var(--text-muted); text-align: center; padding: 20px;">لم تقم باجتياز أي اختبار بعد. توجه إلى قسم "المسارات والدروس" وابدأ التحدي!</li>';
-                    }
+            userRef.on('value', (snapshot) => {
+                const userData = snapshot.val() || { points: 200, quizzes: {} };
+                const points = userData.points || 200;
+                const quizzes = userData.quizzes || {};
+
+                let quizzesRows = '';
+                const quizKeys = Object.keys(quizzes);
+                if (quizKeys.length === 0) {
+                    quizzesRows = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">لم تقم بحل أي اختبارات بعد. توجه إلى صفحة المسارات وابدأ الآن!</td></tr>`;
                 } else {
-                    listEl.innerHTML = '<li style="color: var(--text-muted); text-align: center; padding: 20px;">لم تقم باجتياز أي اختبار بعد. توجه إلى قسم "المسارات والدروس" وابدأ التحدي!</li>';
+                    quizKeys.forEach(qKey => {
+                        const q = quizzes[qKey];
+                        quizzesRows += `
+                            <tr>
+                                <td>${q.title}</td>
+                                <td><span style="color: var(--abwaab-green); font-weight: 800;">${q.result}</span></td>
+                                <td>${q.date || 'اليوم'}</td>
+                            </tr>
+                        `;
+                    });
                 }
+
+                container.innerHTML = `
+                    <div class="profile-banner">
+                        <div class="profile-info">
+                            <h1>مرحباً بك، ${name || 'طالبنا المميز'} 👋</h1>
+                            <p>أنت تسير بخطى ثابتة نحو التفوق الدراسي. تابع إنجازاتك اليومية هنا.</p>
+                        </div>
+                        <div class="stats-badge-box">
+                            <span>إجمالي النقاط</span>
+                            <strong>⭐ ${points}</strong>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dash-card">
+                            <h3>🎓 معلومات الحساب والمسار</h3>
+                            <div class="info-row">
+                               <span>البريد الإلكتروني:</span>
+                               <span>${email}</span>
+                            </div>
+                            <div class="info-row">
+                               <span>الدولة المختارة:</span>
+                               <span>${countryNames[country] || 'جمهورية مصر العربية'}</span>
+                            </div>
+                            <div class="info-row">
+                               <span>الصف الدراسي:</span>
+                               <span>${gradeNames[grade] || grade}</span>
+                            </div>
+                            <button class="btn-refresh" onclick="location.href='courses.html'">تصفح مواد المنهاج والدروس 🚀</button>
+                        </div>
+
+                        <div class="dash-card">
+                            <h3>📊 ملخص النشاط والأداء</h3>
+                            <div class="info-row">
+                               <span>الدروس المكتملة:</span>
+                               <span>${quizKeys.length} دروس</span>
+                            </div>
+                            <div class="info-row">
+                               <span>معدل حل الاختبارات:</span>
+                               <span>${quizKeys.length > 0 ? 'ممتاز (100%)' : 'بانتظار البدء'}</span>
+                            </div>
+                            <div class="info-row">
+                               <span>حالة الحساب:</span>
+                               <span style="color: var(--abwaab-green);">نشط وموثق سحابياً</span>
+                            </div>
+                            <button class="btn-refresh" onclick="location.reload()">تحديث البيانات المباشرة 🔄</button>
+                        </div>
+                    </div>
+
+                    <div class="dash-card">
+                        <h3>📝 سجل الاختبارات الفورية المجتازة</h3>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم الاختبار / الدرس</th>
+                                    <th>حالة الاجتياز</th>
+                                    <th>تاريخ الإنجاز</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${quizzesRows}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
             });
         }
     </script>
