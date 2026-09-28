@@ -13,30 +13,42 @@
             --primary: #1e3a8a; --primary-light: #eff6ff;
             --secondary: #059669; --secondary-light: #ecfdf5;
             --text-main: #0f172a; --text-muted: #475569;
-            --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1; --radius: 14px;
+            --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1; --radius: 16px;
             --shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.08);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); }
-        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; animation: fadeInUp 0.5s ease; }
         nav { max-width: 1280px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 22px; font-weight: 850; color: var(--primary); text-decoration: none; }
         .logo span { color: var(--secondary); }
         nav ul { list-style: none; display: flex; gap: 28px; align-items: center; }
-        nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; }
+        nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; transition: color 0.3s; }
         nav a:hover, nav a.active { color: var(--primary); }
 
-        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; }
-        .card { background: var(--white); padding: 35px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; animation: fadeInUp 0.7s ease; }
+        .card { background: var(--white); padding: 35px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card:hover { transform: translateY(-3px); }
         .card h2 { color: var(--primary); font-size: 22px; margin-bottom: 10px; font-weight: 800; }
-        .profile-info { background: var(--primary-light); padding: 18px 22px; border-radius: 10px; margin-top: 15px; border: 1px solid #bfdbfe; text-align: right; }
+        
+        .profile-info { background: var(--primary-light); padding: 20px; border-radius: 12px; margin-top: 15px; border: 1px solid #bfdbfe; text-align: right; }
         .profile-info p { margin: 8px 0; font-weight: 700; font-size: 14px; color: var(--primary-dark); }
+        
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .stat-box { background: var(--secondary-light); border: 1px solid #a7f3d0; padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-box { background: var(--secondary-light); border: 1px solid #a7f3d0; padding: 16px; border-radius: 12px; text-align: center; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .stat-box:hover { transform: scale(1.03); }
         .stat-box h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
-        .stat-box span { font-size: 20px; font-weight: 850; color: var(--secondary); }
+        .stat-box span { font-size: 22px; font-weight: 850; color: var(--secondary); }
+        
         .list { list-style: none; margin-top: 15px; }
-        .item { background: #f8fafc; border: 1px solid var(--border); padding: 14px 18px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .item { background: #f8fafc; border: 1px solid var(--border); padding: 14px 18px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .item:hover { background: #f1f5f9; transform: translateX(-4px); border-color: var(--primary); }
     </style>
 </head>
 <body>
@@ -104,12 +116,10 @@
 
             const userRef = db.ref('users/' + safeKey);
             
-            // جلب النقاط
             userRef.child('points').on('value', snap => {
                 document.getElementById('dashPoints').textContent = snap.exists() ? snap.val() : '50';
             });
 
-            // جلب نتائج الاختبارات
             userRef.child('quizzes').get().then(snap => {
                 const listEl = document.getElementById('quizList');
                 listEl.innerHTML = '';
