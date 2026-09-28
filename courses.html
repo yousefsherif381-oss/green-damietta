@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المسارات التعليمية والاختبارات | أكاديمية دمياط الخضراء</title>
+    <title>مكتبة الدروس والاختبارات الفورية | أكاديمية دمياط</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -12,7 +12,7 @@
         :root {
             --primary: #1e3a8a; --primary-light: #eff6ff;
             --secondary: #059669; --secondary-light: #ecfdf5;
-            --accent: #f59e0b; --text-main: #0f172a; --text-muted: #475569;
+            --text-main: #0f172a; --text-muted: #475569;
             --bg-body: #f8fafc; --white: #ffffff; --border: #cbd5e1; --radius: 14px;
             --shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.08);
         }
@@ -26,29 +26,20 @@
         nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 14px; }
         nav a:hover, nav a.active { color: var(--primary); }
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
-        .header-title { text-align: center; margin-bottom: 40px; }
-        .header-title h1 { font-size: 34px; color: var(--primary); font-weight: 850; margin-bottom: 8px; }
-        .header-title p { color: var(--text-muted); font-size: 15px; }
-
-        .section-title { font-size: 22px; color: var(--primary); font-weight: 800; margin: 40px 0 20px 0; border-right: 5px solid var(--secondary); padding-right: 12px; }
-
-        .courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .course-card { background: var(--white); border-radius: var(--radius); padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
-        .course-card:hover { transform: translateY(-4px); border-color: var(--secondary); }
-        .icon { font-size: 38px; margin-bottom: 15px; }
-        .course-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--primary-dark); }
-        .course-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
-        .btn-track { width: 100%; background: var(--secondary-light); color: var(--secondary); border: 1px solid #a7f3d0; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-track:hover { background: var(--secondary); color: white; }
-        .completed { background: #dcfce7 !important; color: #166534 !important; border-color: #86efac !important; }
-
-        .quiz-box { background: white; padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-top: 20px; }
-        .quiz-box h3 { color: var(--primary); margin-bottom: 15px; }
-        .quiz-options { display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap; }
-        .btn-quiz { background: var(--primary-light); color: var(--primary); border: 1px solid #93c5fd; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-quiz:hover { background: var(--primary); color: white; }
-        #quizResult { margin-top: 15px; font-weight: 700; font-size: 14px; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
+        .lesson-card { background: var(--white); border-radius: var(--radius); padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .lesson-title { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .video-container { width: 100%; height: 380px; background: #0f172a; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; margin-bottom: 20px; position: relative; overflow: hidden; }
+        .video-placeholder { text-align: center; padding: 20px; }
+        .btn-action { background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-action:hover { background: #047857; }
+        
+        .quiz-section { background: var(--primary-light); border: 1px solid #bfdbfe; padding: 20px; border-radius: 10px; margin-top: 15px; display: none; }
+        .quiz-section h4 { color: var(--primary); margin-bottom: 10px; font-size: 16px; }
+        .options-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .option-btn { background: white; border: 1px solid var(--border); padding: 10px 15px; border-radius: 8px; text-align: right; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
+        .option-btn:hover { background: #e2e8f0; }
+        .quiz-feedback { margin-top: 10px; font-weight: 700; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -57,54 +48,60 @@
             <a href="index.html" class="logo">🌿 أكاديمية <span>دمياط</span></a>
             <ul>
                 <li><a href="index.html">الرئيسية</a></li>
-                <li><a href="courses.html" class="active">المسارات والدورات</a></li>
-                <li><a href="dashboard.html">لوحة التحكم السحابية</a></li>
+                <li><a href="courses.html" class="active">المسارات والدروس</a></li>
+                <li><a href="dashboard.html">لوحة تحكم الطالب</a></li>
             </ul>
         </nav>
     </header>
 
     <div class="container">
-        <div class="header-title">
-            <h1>المسارات التعليمية التخصصية</h1>
-            <p>أتمم المسارات المعتمدة وشارك في الاختبارات القصيرة لرفع رصيد نقاطك وسجل تقدمك سحابياً</p>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: var(--primary); font-size: 30px; font-weight: 850;">مكتبة الفيديوهات والاختبارات الفورية</h1>
+            <p style="color: var(--text-muted); font-size: 14px;">شاهد الدرس التعليمي، ثم أجب عن الاختبار الذي يظهر بعده مباشرة لكسب النقاط!</p>
         </div>
 
-        <div class="courses-grid">
-            <div class="course-card">
-                <div>
-                    <div class="icon">⚡</div>
-                    <h3>مسار التكنولوجيا الخضراء والطاقة</h3>
-                    <p>استكشاف أنظمة الطاقة المتجددة، كفاءة الشبكات النظيفة، ومفاهيم المدن المستدامة.</p>
+        <!-- الدرس الأول -->
+        <div class="lesson-card" id="lesson1">
+            <div class="lesson-title">🎥 الدرس 1: أساسيات الطاقة المتجددة والمدن الذكية</div>
+            <div class="video-container" id="vidBox1">
+                <div class="video-placeholder">
+                    <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
+                    <p style="margin-bottom: 15px; font-size: 15px;">فيديو تعليمي تفاعلي قصير (المدة: 3 دقائق)</p>
+                    <button class="btn-action" onclick="finishVideo(1)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
                 </div>
-                <button class="btn-track" id="t1Btn" onclick="syncTrack('track1', 'التكنولوجيا الخضراء والطاقة', 150)">إتمام المسار (+150 نقطة)</button>
             </div>
-            <div class="course-card">
-                <div>
-                    <div class="icon">♻️</div>
-                    <h3>مسار إعادة التدوير الذكي والبيئة</h3>
-                    <p>تعلم أنظمة التحويل الحيوي، إنتاج الغاز الحيوي، ودورات إعادة التدوير البيئية.</p>
+            
+            <div class="quiz-section" id="quiz1">
+                <h4>📝 اختبار فوري بعد الدرس: ما هو المصدر الأساسي للطاقة النظيفة في المدن الذكية؟</h4>
+                <div class="options-list">
+                    <button class="option-btn" onclick="submitAnswer(1, false, 'أ) الفحم الحجري')">أ) الفحم الحجري</button>
+                    <button class="option-btn" onclick="submitAnswer(1, true, 'ب) الطاقة الشمسية وطاقة الرياح')">ب) الطاقة الشمسية وطاقة الرياح</button>
+                    <button class="option-btn" onclick="submitAnswer(1, false, 'ج) المنتجات البترولية الثقيلة')">ج) المنتجات البترولية الثقيلة</button>
                 </div>
-                <button class="btn-track" id="t2Btn" onclick="syncTrack('track2', 'إعادة التدوير الذكي والبيئة', 150)">إتمام المسار (+150 نقطة)</button>
-            </div>
-            <div class="course-card">
-                <div>
-                    <div class="icon">💧</div>
-                    <h3>مسار الزراعة المائية المستدامة</h3>
-                    <p>مناهج وتقنيات الحفاظ على الموارد المائية وحلول الزراعة الحديثة المبتكرة.</p>
-                </div>
-                <button class="btn-track" id="t3Btn" onclick="syncTrack('track3', 'الزراعة المائية المستدامة', 150)">إتمام المسار (+150 نقطة)</button>
+                <div class="quiz-feedback" id="feedback1"></div>
             </div>
         </div>
 
-        <div class="section-title">بنك الأسئلة والاختبارات التفاعلية</div>
-        <div class="quiz-box">
-            <h3>سؤال اختباري سريع: ما هي المصادر الرئيسية للطاقة النظيفة في المدن الذكية؟</h3>
-            <div class="quiz-options">
-                <button class="btn-quiz" onclick="answerQuiz(false)">أ) الوقود الأحفوري التقليدي</button>
-                <button class="btn-quiz" onclick="answerQuiz(true)">ب) الطاقة الشمسية وطاقة الرياح</button>
-                <button class="btn-quiz" onclick="answerQuiz(false)">ج) الفحم الحجري</button>
+        <!-- الدرس الثاني -->
+        <div class="lesson-card" id="lesson2">
+            <div class="lesson-title">🎥 الدرس 2: دورات إعادة التدوير الحيوي والبيئة</div>
+            <div class="video-container" id="vidBox2">
+                <div class="video-placeholder">
+                    <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
+                    <p style="margin-bottom: 15px; font-size: 15px;">فيديو تعليمي تفاعلي قصير (المدة: 4 دقائق)</p>
+                    <button class="btn-action" onclick="finishVideo(2)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
+                </div>
             </div>
-            <div id="quizResult"></div>
+            
+            <div class="quiz-section" id="quiz2">
+                <h4>📝 اختبار فوري بعد الدرس: أي مما يلي يعد من فوائد إعادة التدوير الذكي؟</h4>
+                <div class="options-list">
+                    <button class="option-btn" onclick="submitAnswer(2, true, 'أ) تقليل النفايات والحفاظ على الموارد')">أ) تقليل النفايات والحفاظ على الموارد</button>
+                    <button class="option-btn" onclick="submitAnswer(2, false, 'ب) زيادة استهلاك الطاقة التقليدية')">ب) زيادة استهلاك الطاقة التقليدية</button>
+                    <button class="option-btn" onclick="submitAnswer(2, false, 'ج) زيادة الانبعاثات الكربونية')">ج) زيادة الانبعاثات الكربونية</button>
+                </div>
+                <div class="quiz-feedback" id="feedback2"></div>
+            </div>
         </div>
     </div>
 
@@ -121,63 +118,42 @@
         const email = localStorage.getItem('userEmail');
         const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!safeKey) return;
-            db.ref('users/' + safeKey + '/progress').get().then(snap => {
-                if (snap.exists()) {
-                    const data = snap.val();
-                    if (data.track1) setBtnDone('t1Btn');
-                    if (data.track2) setBtnDone('t2Btn');
-                    if (data.track3) setBtnDone('t3Btn');
-                }
-            });
-        });
+        function finishVideo(lessonNum) {
+            document.getElementById('vidBox' + lessonNum).innerHTML = '<div style="color: #34d399; font-weight:bold; font-size:18px;">✔️ تمت مشاهدة الفيديو بنجاح! انتقل للاختبار أدناه.</div>';
+            document.getElementById('quiz1').style.display = 'block'; // تفعيل الاختبار الفوري
+            document.getElementById('quiz' + lessonNum).style.display = 'block';
+        }
 
-        function syncTrack(id, name, pointsReward) {
+        function submitAnswer(lessonNum, isCorrect, answerText) {
             if (!safeKey) {
-                alert('⚠️ يرجى تسجيل الدخول أولاً من الصفحة الرئيسية لحفظ إنجازاتك سحابياً!');
+                alert('⚠️ يرجى تسجيل الدخول أولاً من الصفحة الرئيسية ليتم حفظ درجتك ونقاطك سحابياً!');
                 location.href = 'index.html';
                 return;
             }
-            
-            // حفظ المسار وتحديث النقاط
+
+            const feedbackEl = document.getElementById('feedback' + lessonNum);
             const userRef = db.ref('users/' + safeKey);
-            userRef.child('progress/' + id).set({
-                name: name,
-                status: 'مكتمل',
-                time: new Date().toLocaleDateString()
-            }).then(() => {
-                userRef.child('points').get().then(snap => {
-                    let currentPoints = snap.exists() ? snap.val() : 50;
-                    userRef.child('points').set(currentPoints + pointsReward);
-                });
-                setBtnDone(id + 'Btn');
-                alert('✅ تم حفظ إنجازك وإضافة النقاط بنجاح إلى حسابك السحابي!');
-            });
-        }
 
-        function setBtnDone(btnId) {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.textContent = '✔️ تم الإتمام والتزامن';
-                btn.classList.add('completed');
-            }
-        }
-
-        function answerQuiz(isCorrect) {
-            const res = document.getElementById('quizResult');
             if (isCorrect) {
-                res.textContent = '🎉 إجابة صحيحة! أحسنت، واصل التقدم.';
-                res.style.color = '#059669';
-                if (safeKey) {
-                    db.ref('users/' + safeKey + '/points').get().then(snap => {
-                        let current = snap.exists() ? snap.val() : 50;
-                        db.ref('users/' + safeKey + '/points').set(current + 25);
-                    });
-                }
+                feedbackEl.textContent = '🎉 إجابة صحيحة 100%! تم إضافة 50 نقطة لحسابك السحابي.';
+                feedbackEl.style.color = '#059669';
+
+                // حفظ النتيجة في سحابة Firebase
+                userRef.child('quizzes/lesson' + lessonNum).set({
+                    title: 'الدرس ' + lessonNum,
+                    result: 'ناجح (إجابة صحيحة)',
+                    answer: answerText,
+                    date: new Date().toLocaleDateString()
+                });
+
+                // تحديث النقاط سحابياً
+                userRef.child('points').get().then(snap => {
+                    let pts = snap.exists() ? snap.val() : 50;
+                    userRef.child('points').set(pts + 50);
+                });
             } else {
-                res.textContent = '❌ إجابة غير دقيقة، حاول مرة أخرى في السؤال القادم.';
-                res.style.color = '#dc2626';
+                feedbackEl.textContent = '❌ إجابة خاطئة، حاول مرة أخرى.';
+                feedbackEl.style.color = '#dc2626';
             }
         }
     </script>
