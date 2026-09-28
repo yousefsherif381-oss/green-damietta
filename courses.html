@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المسارات والدروس | منصة أبواب</title>
+    <title>المسارات والمواد الدراسية | منصة أبواب</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -35,17 +35,22 @@
         .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); }
         .nav-links a:hover, .nav-links a.active { color: var(--abwaab-green); }
 
-        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
         .page-title { margin-bottom: 30px; text-align: center; }
         .page-title h1 { font-size: 28px; font-weight: 900; color: var(--abwaab-dark); margin-bottom: 6px; }
         .page-title p { color: var(--text-muted); font-size: 15px; }
+
+        /* شريط اختيار المادة الدراسية */
+        .subjects-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 35px; }
+        .subject-card { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-box); padding: 18px; text-align: center; cursor: pointer; transition: var(--transition); font-weight: 800; font-size: 14px; }
+        .subject-card:hover, .subject-card.active { border-color: var(--abwaab-green); background: var(--abwaab-green-light); color: var(--abwaab-green-dark); transform: translateY(-3px); }
 
         .lesson-card { background: var(--card-bg); border-radius: var(--radius-box); padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-card); margin-bottom: 30px; }
         .lesson-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .lesson-title { font-size: 18px; font-weight: 800; color: var(--abwaab-dark); display: flex; align-items: center; gap: 10px; }
         .badge { background: var(--abwaab-green-light); color: var(--abwaab-green-dark); font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 700; }
 
-        .video-box { width: 100%; height: 380px; background: #0B132B; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; border: 1px solid #1E293B; }
+        .video-box { width: 100%; height: 360px; background: #0B132B; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; border: 1px solid #1E293B; }
         .btn-action { background: var(--abwaab-green); color: white; border: none; padding: 12px 26px; border-radius: var(--radius-btn); font-weight: 800; cursor: pointer; transition: var(--transition); font-size: 14px; box-shadow: 0 4px 15px rgba(0,182,122,0.3); }
         .btn-action:hover { background: var(--abwaab-green-dark); transform: translateY(-2px); }
 
@@ -71,57 +76,68 @@
 
     <div class="container">
         <div class="page-title">
-            <h1>مادة العلوم والبيئة المتطورة</h1>
-            <p>شاهد الدرس التفاعلي ثم أجب عن الاختبار القصير لاجتياز الدرس واكتساب النقاط</p>
+            <h1 id="pageHeading">اختر المادة الدراسية</h1>
+            <p>جميع مواد المنهاج المقرر لصفك الدراسي مع الشرح المصور والاختبارات الفورية</p>
         </div>
 
-        <!-- الدرس 1 -->
-        <div class="lesson-card">
-            <div class="lesson-header">
-                <div class="lesson-title"><span>الدرس 1:</span> أساسيات الطاقة المتجددة والمدن الذكية</div>
-                <span class="badge">فيديو + اختبار</span>
-            </div>
-            <div class="video-box" id="vidContainer1">
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
-                    <p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">مشغل الفيديو التعليمي القصير (المدة: 5 دقائق)</p>
-                    <button class="btn-action" onclick="finishLesson(1)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
-                </div>
-            </div>
-
-            <div class="quiz-box" id="quizBox1">
-                <h4>📝 اختبار فوري بعد الدرس: ما هو المصدر الأساسي للطاقة النظيفة في المدن الذكية؟</h4>
-                <div class="options-list">
-                    <button class="option-btn" onclick="submitQuiz(1, false, 'أ) الفحم الحجري')"><span>أ) الفحم الحجري</span> <span>⚪</span></button>
-                    <button class="option-btn" onclick="submitQuiz(1, true, 'ب) الطاقة الشمسية وطاقة الرياح')"><span>ب) الطاقة الشمسية وطاقة الرياح</span> <span>⚪</span></button>
-                    <button class="option-btn" onclick="submitQuiz(1, false, 'ج) الوقود الأحفوري')"><span>ج) الوقود الأحفوري</span> <span>⚪</span></button>
-                </div>
-                <div class="quiz-feedback" id="feedback1"></div>
-            </div>
+        <!-- مواد الدراسة المتعددة -->
+        <div class="subjects-bar">
+            <div class="subject-card active" onclick="selectSubject('math', 'الرياضيات المتقدمة')">📐 الرياضيات</div>
+            <div class="subject-card" onclick="selectSubject('science', 'العلوم والبيئة')">🧪 العلوم / الفيزياء</div>
+            <div class="subject-card" onclick="selectSubject('arabic', 'اللغة العربية والقواعد')">📖 اللغة العربية</div>
+            <div class="subject-card" onclick="selectSubject('english', 'اللغة الإنجليزية (English)')">🔤 اللغة الإنجليزية</div>
         </div>
 
-        <!-- الدرس 2 -->
-        <div class="lesson-card">
-            <div class="lesson-header">
-                <div class="lesson-title"><span>الدرس 2:</span> دورات إعادة التدوير الحيوي والبيئة</div>
-                <span class="badge">فيديو + اختبار</span>
-            </div>
-            <div class="video-box" id="vidContainer2">
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
-                    <p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">مشغل الفيديو التعليمي القصير (المدة: 4 دقائق)</p>
-                    <button class="btn-action" onclick="finishLesson(2)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
+        <!-- محتوى الدروس بناء على المادة المختارة -->
+        <div id="lessonsContainer">
+            <!-- الدرس الأول -->
+            <div class="lesson-card">
+                <div class="lesson-header">
+                    <div class="lesson-title"><span id="subLabel1">الدرس 1:</span> المفاهيم الأساسية والتطبيقات العملية</div>
+                    <span class="badge">فيديو تفاعلي + اختبار</span>
+                </div>
+                <div class="video-box" id="vidContainer1">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
+                        <p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">مشغل الفيديو التعليمي القصير (المدة: 5 دقائق)</p>
+                        <button class="btn-action" onclick="finishLesson(1)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
+                    </div>
+                </div>
+
+                <div class="quiz-box" id="quizBox1">
+                    <h4 id="qText1">📝 اختبار فوري بعد الدرس: ما هو القانون الأساسي للتعامل مع المفاهيم النظرية والتطبيقية؟</h4>
+                    <div class="options-list">
+                        <button class="option-btn" onclick="submitQuiz(1, false, 'أ) الحفظ والتكرار العشوائي')"><span>أ) الحفظ والتكرار العشوائي</span> <span>⚪</span></button>
+                        <button class="option-btn" onclick="submitQuiz(1, true, 'ب) الفهم والتحليل وحل التمارين')"><span>ب) الفهم والتحليل وحل التمارين العملية</span> <span>⚪</span></button>
+                        <button class="option-btn" onclick="submitQuiz(1, false, 'ج) تجاهل الأمثلة والتركيز على النظريات')"><span>ج) تجاهل الأمثلة والتركيز على النظريات</span> <span>⚪</span></button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback1"></div>
                 </div>
             </div>
 
-            <div class="quiz-box" id="quizBox2">
-                <h4>📝 اختبار فوري بعد الدرس: ما الفائدة الكبرى من تطبيق عمليات إعادة التدوير بالمجتمعات؟</h4>
-                <div class="options-list">
-                    <button class="option-btn" onclick="submitQuiz(2, true, 'أ) تقليل النفايات والحفاظ على الموارد')"><span>أ) تقليل النفايات والحفاظ على الموارد الطبيعية</span> <span>⚪</span></button>
-                    <button class="option-btn" onclick="submitQuiz(2, false, 'ب) زيادة استهلاك الطاقة التقليدية')"><span>ب) زيادة استهلاك الطاقة التقليدية</span> <span>⚪</span></button>
-                    <button class="option-btn" onclick="submitQuiz(2, false, 'ج) رفع نسبة التلوث')"><span>ج) رفع نسبة التلوث</span> <span>⚪</span></button>
+            <!-- الدرس الثاني -->
+            <div class="lesson-card">
+                <div class="lesson-header">
+                    <div class="lesson-title"><span id="subLabel2">الدرس 2:</span> التمارين المتقدمة واختبارات التميز</div>
+                    <span class="badge">فيديو تفاعلي + اختبار</span>
                 </div>
-                <div class="quiz-feedback" id="feedback2"></div>
+                <div class="video-box" id="vidContainer2">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">▶️</div>
+                        <p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">مشغل الفيديو التعليمي القصير (المدة: 4 دقائق)</p>
+                        <button class="btn-action" onclick="finishLesson(2)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button>
+                    </div>
+                </div>
+
+                <div class="quiz-box" id="quizBox2">
+                    <h4 id="qText2">📝 اختبار فوري بعد الدرس: ما الفائدة الكبرى من حل الاختبارات الفورية المتكررة؟</h4>
+                    <div class="options-list">
+                        <button class="option-btn" onclick="submitQuiz(2, true, 'أ) تثبيت المعلومة وقياس مستوى الفهم')"><span>أ) تثبيت المعلومة وقياس مستوى الفهم الحقيقي</span> <span>⚪</span></button>
+                        <button class="option-btn" onclick="submitQuiz(2, false, 'ب) إهدار الوقت بدون فائدة')"><span>ب) إهدار الوقت بدون فائدة</span> <span>⚪</span></button>
+                        <button class="option-btn" onclick="submitQuiz(2, false, 'ج) زيادة صعوبة الدراسة مع التعقيد')"><span>ج) زيادة صعوبة الدراسة مع التعقيد</span> <span>⚪</span></button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback2"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -138,6 +154,21 @@
 
         const email = localStorage.getItem('userEmail');
         const safeKey = email ? email.replace(/[.#$[\]]/g, '_') : null;
+
+        function selectSubject(subKey, subName) {
+            document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('pageHeading').textContent = 'مادة ' + subName;
+            
+            // إعادة ضبط مشغلات الفيديو والاختبارات عند تبديل المادة
+            document.getElementById('vidContainer1').innerHTML = `<div style="text-align: center; padding: 20px;"><div style="font-size: 48px; margin-bottom: 10px;">▶️</div><p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">شرح فيديو ${subName} - الدرس الأول</p><button class="btn-action" onclick="finishLesson(1)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button></div>`;
+            document.getElementById('quizBox1').style.display = 'none';
+            document.getElementById('feedback1').style.display = 'none';
+
+            document.getElementById('vidContainer2').innerHTML = `<div style="text-align: center; padding: 20px;"><div style="font-size: 48px; margin-bottom: 10px;">▶️</div><p style="margin-bottom: 16px; font-size: 15px; font-weight: 600; color: #94A3B8;">شرح فيديو ${subName} - الدرس الثاني</p><button class="btn-action" onclick="finishLesson(2)">انتهيت من مشاهدة الفيديو (ابدأ الاختبار)</button></div>`;
+            document.getElementById('quizBox2').style.display = 'none';
+            document.getElementById('feedback2').style.display = 'none';
+        }
 
         function finishLesson(num) {
             document.getElementById('vidContainer' + num).innerHTML = '<div style="color: #34D399; font-weight: 800; font-size: 17px;">✔️ تمت مشاهدة الفيديو بنجاح! تم تفعيل أسئلة الاختبار أدناه.</div>';
@@ -160,7 +191,7 @@
                 feedbackEl.style.background = '#DCFCE7'; feedbackEl.style.color = '#166534';
 
                 userRef.child('quizzes/lesson' + num).set({
-                    title: 'الدرس ' + num,
+                    title: 'اختبار الدرس ' + num,
                     result: 'ناجح (اجتياز تام)',
                     answer: ansText,
                     date: new Date().toLocaleDateString()
