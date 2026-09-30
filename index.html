@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مدرسة اللغات الرسمية الجديدة | بوابة ولي الأمر</title>
-    <!-- Firebase SDKs (App, Auth, Realtime Database) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -56,12 +56,11 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل الدخول / إنشاء حساب / استعادة كلمة المرور -->
     <div id="authModal">
         <div class="modal-box">
             <span class="close-btn" onclick="toggleModal(false)">&times;</span>
             <h2 id="modalTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تسجيل دخول ولي الأمر</h2>
-            <p id="modalDesc" style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة مستوى طفلك والشكاوى من أي جهاز</p>
+            <p id="modalDesc" style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة طفلك من أي جهاز</p>
             <form onsubmit="handleAuth(event)">
                 <div class="form-group" id="nameGroup" style="display: none;">
                     <label>اسم ولي الأمر الكامل</label>
@@ -76,7 +75,7 @@
                     <input type="email" id="emailInput" placeholder="parent@school.com" required>
                 </div>
                 <div class="form-group" id="passwordGroup">
-                    <label>كلمة المرور (6 أحرف على الأقل)</label>
+                    <label>كلمة المرور</label>
                     <input type="password" id="passwordInput" placeholder="••••••••" required>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;" id="submitBtn">دخول</button>
@@ -112,12 +111,11 @@
     <section class="hero">
         <div>
             <h1>بوابة خدمات أولياء الأمور والطلاب</h1>
-            <p>قدم شكواك أو استفسارك للإدارة، وتابع المستوى الأكاديمي، الحضور، والردود الرسمية من أي جهاز بكل سهولة.</p>
+            <p>قدم شكواك أو استفسارك للإدارة، وتابع المستوى الأكاديمي، الحضور، والردود الرسمية لحظة بلحظة.</p>
         </div>
     </section>
 
     <div class="container">
-        <!-- قسم تقديم شكوى أو طلب -->
         <div class="card">
             <h2>📝 تقديم شكوى أو استفسار جديد</h2>
             <form onsubmit="submitTicket(event)">
@@ -156,7 +154,6 @@
             </form>
         </div>
 
-        <!-- قسم متابعة الشكاوى وسجل الردود -->
         <div class="card">
             <h2>📬 أرشيف الشكاوى والردود الرسمية</h2>
             <div id="ticketsList" style="max-height: 450px; overflow-y: auto;">
@@ -174,24 +171,26 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyD-PlaceholderKey-ChangeMeIfNeeded",
-            authDomain: "green-damietta.firebaseapp.com",
+            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
+            authDomain: "green-damietta-b0a29.firebaseapp.com",
             databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com",
-            projectId: "green-damietta",
+            projectId: "green-damietta-b0a29",
+            storageBucket: "green-damietta-b0a29.firebasestorage.app",
+            messagingSenderId: "210935345765",
+            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
+            measurementId: "G-CT9KYEKXML"
         };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const auth = firebase.auth();
         const db = firebase.database();
 
-        let authMode = 'login'; // 'login', 'signup', 'forgot'
+        let authMode = 'login';
 
-        // مراقبة حالة تسجيل الدخول سحابياً من أي جهاز
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 document.getElementById('authActions').style.display = 'none';
                 document.getElementById('userPill').style.display = 'flex';
                 
-                // جلب بيانات ولي الأمر الإضافية من قاعدة البيانات
                 const safeKey = user.email.replace(/[.#$[\]]/g, '_');
                 const snap = await db.ref('parents/' + safeKey).get();
                 if (snap.exists()) {
@@ -247,7 +246,7 @@
                 modalDesc.textContent = 'أدخل بريدك الإلكتروني لإرسال رابط إعادة التعيين';
                 nameGroup.style.display = 'none';
                 studentBindGroup.style.display = 'none';
-                passwordGroup.style.display = 'none'; // الإرسال يتم عبر الإيميل رسمياً
+                passwordGroup.style.display = 'none';
                 submitBtn.textContent = 'إرسال رابط الاستعادة';
             }
         }
@@ -263,10 +262,7 @@
                     const name = document.getElementById('nameInput').value.trim();
                     const studentName = document.getElementById('bindStudentName').value.trim();
                     
-                    // إنشاء الحساب في نظام المصادقة السحابي
                     await auth.createUserWithEmailAndPassword(email, password);
-                    
-                    // حفظ بيانات الطالب وولي الأمر في قاعدة البيانات
                     const safeKey = email.replace(/[.#$[\]]/g, '_');
                     await db.ref('parents/' + safeKey).set({ name, email, studentName });
 
@@ -378,7 +374,8 @@
                                 <span>اسم الطالب: ${s.name}</span>
                                 <span style="color: var(--primary-color);">${s.grade}</span>
                             </div>
-                            <p style="font-size: 13px; margin-bottom: 10px;"><b>حالة الحضور:</b> <span style="color: #16A34A;">${s.attendance || 'منتظم'}</span></p>
+                            <p style="font-size: 13px; margin-bottom: 6px;"><b>حالة الحضور والغياب:</b> <span style="color: #16A34A;">${s.attendance || 'منتظم'}</span></p>
+                            <p style="font-size: 13px; margin-bottom: 10px;"><b>التقييم السلوكي:</b> <span style="color: #0284C7;">${s.behavior || 'ممتاز'}</span></p>
                             <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 8px;">درجات الاختبارات وأعمال السنة:</h4>
                             <table class="grades-table">
                                 <thead>
