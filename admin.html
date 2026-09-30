@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الإدارة | مدرسة اللغات الرسمية الجديدة</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <script>
+        const adminAuth = sessionStorage.getItem('isAdminAuth');
+        if (adminAuth !== 'true') {
+            const savedAdminPass = localStorage.getItem('adminPassword') || "Admin2026@School";
+            const password = prompt("⚠️ هذه الصفحة خاصة بإدارة المدرسة فقط. يرجى إدخال كلمة المرور:");
+            if (password === savedAdminPass) {
+                sessionStorage.setItem('isAdminAuth', 'true');
+            } else {
+                alert("❌ كلمة المرور غير صحيحة! سيتم توجيهك للصفحة الرئيسية.");
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #0284C7;
+            --bg-color: #F8FAFC;
+            --border-color: #E2E8F0;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg-color); color: #1E293B; line-height: 1.7; }
+
+        header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
+        .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; }
+        .nav-links a.active { color: var(--primary-color); }
+
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 24px; }
+        .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; }
+
+        .ticket-item { background: #F8FAFC; border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 16px; }
+        .reply-box { margin-top: 12px; display: flex; gap: 10px; }
+        .reply-box input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; }
+        .btn-reply { background: #16A34A; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #475569; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">⚙️ لوحة إدارة المدرسة</a>
+            <ul class="nav-links">
+                <li><a href="index.html">الرئيسية والشكاوى</a></li>
+                <li><a href="admin.html" class="active">لوحة الإدارة</a></li>
+            </ul>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="changeAdminPassword()" style="background: #0284C7; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 700;">تغيير كلمة المرور</button>
+                <button onclick="logoutAdmin()" style="background: #EF4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 700;">خروج</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>📥 شكاوى وطلبات أولياء الأمور الواردة</h2>
+            <div id="adminTicketsList">
+                <p style="color: #64748B; text-align: center;">جاري تحميل الشكاوى...</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>➕ تسجيل طالب جديد وتحديد الصف والدرجات</h2>
+            <form onsubmit="addStudentData(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم الطالب الرباعي</label>
+                        <input type="text" id="addName" placeholder="يوسف محمود إبراهيم" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اختر الصف الدراسي</label>
+                        <select id="addGrade" required>
+                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                            <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
+                            <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                            <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>حالة الحضور</label>
+                        <input type="text" id="addAttendance" value="منتظم بنسبة 100%">
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات رائد الفصل</label>
+                        <input type="text" id="addNotes" value="طالب مجتهد ومنتظم في الحضور.">
+                    </div>
+                </div>
+                <button type="submit" style="background: var(--primary-color); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px;">حفظ وتفعيل الطالب في النظام 💾</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-PlaceholderKey-ChangeMeIfNeeded",
+            authDomain: "green-damietta.firebaseapp.com",
+            databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com",
+            projectId: "green-damietta",
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('isAdminAuth');
+            window.location.href = "index.html";
+        }
+
+        function changeAdminPassword() {
+            const newPass = prompt("🔑 أدخل كلمة المرور الجديدة للإدارة:");
+            if (newPass && newPass.trim() !== "") {
+                localStorage.setItem('adminPassword', newPass.trim());
+                alert("✅ تم تغيير كلمة مرور الإدارة بنجاح!");
+            }
+        }
+
+        db.ref('tickets').on('value', (snapshot) => {
+            const list = document.getElementById('adminTicketsList');
+            list.innerHTML = '';
+            const data = snapshot.val();
+            if (!data) {
+                list.innerHTML = '<p style="color: #64748B; text-align: center;">لا توجد شكاوى جديدة حالياً.</p>';
+                return;
+            }
+
+            let html = '';
+            Object.keys(data).forEach(key => {
+                const t = data[key];
+                html += `
+                    <div class="ticket-item">
+                        <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px; margin-bottom: 6px;">
+                            <span>ولي الأمر: ${t.parentName} (${t.parentEmail})</span>
+                            <span style="color: #0284C7;">الطالب: ${t.studentName} - ${t.studentGrade}</span>
+                        </div>
+                        <p style="font-size: 13px; color: #475569; margin-bottom: 6px;"><b>نوع الطلب:</b> ${t.ticketType}</p>
+                        <p style="font-size: 14px; background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">${t.ticketContent}</p>
+                        <div style="font-size: 13px; color: #166534; background: #DCFCE7; padding: 8px; border-radius: 8px; margin-bottom: 10px;">
+                            <b>الرد الحالي:</b> ${t.adminReply}
+                        </div>
+                        <div class="reply-box">
+                            <input type="text" id="reply_${key}" placeholder="اكتب رد إدارة المدرسة هنا...">
+                            <button class="btn-reply" onclick="sendReply('${key}')">إرسال الرد 📤</button>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        });
+
+        async function sendReply(ticketId) {
+            const replyText = document.getElementById('reply_' + ticketId).value.trim();
+            if (!replyText) {
+                alert('⚠️ يرجى كتابة الرد أولاً!');
+                return;
+            }
+
+            await db.ref('tickets/' + ticketId).update({
+                adminReply: replyText,
+                status: 'تم الرد'
+            });
+            alert('✅ تم إرسال الرد لولي الأمر وتحديث حالته في الأرشيف!');
+        }
+
+        async function addStudentData(e) {
+            e.preventDefault();
+            const name = document.getElementById('addName').value.trim();
+            const grade = document.getElementById('addGrade').value;
+            const attendance = document.getElementById('addAttendance').value;
+            const notes = document.getElementById('addNotes').value;
+
+            await db.ref('students').push({
+                name,
+                grade,
+                attendance,
+                notes,
+                ar_work: 18, ar_exam: 27,
+                en_work: 19, en_exam: 29,
+                math_work: 17, math_exam: 26
+            });
+
+            alert('✅ تم تسجيل الطالب وتحديد صفه الدراسي بنجاح!');
+            document.getElementById('addName').value = '';
+        }
+    </script>
+</body>
+</html>
