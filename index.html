@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مدرسة اللغات الرسمية الجديدة | بوابة ولي الأمر</title>
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs (App, Auth, Realtime Database) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
@@ -44,7 +45,6 @@
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #F8FAFC; outline: none; }
         .form-group textarea { resize: vertical; height: 100px; }
 
-        /* نافذة تسجيل الدخول */
         #authModal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
         .modal-box { background: white; padding: 35px; border-radius: 20px; width: 100%; max-width: 400px; position: relative; }
         .close-btn { position: absolute; top: 15px; left: 20px; font-size: 22px; cursor: pointer; color: #64748B; }
@@ -56,12 +56,12 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل الدخول / إنشاء حساب -->
+    <!-- نافذة تسجيل الدخول / إنشاء حساب / استعادة كلمة المرور -->
     <div id="authModal">
         <div class="modal-box">
             <span class="close-btn" onclick="toggleModal(false)">&times;</span>
             <h2 id="modalTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تسجيل دخول ولي الأمر</h2>
-            <p style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة مستوى طفلك والشكاوى</p>
+            <p id="modalDesc" style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة مستوى طفلك والشكاوى من أي جهاز</p>
             <form onsubmit="handleAuth(event)">
                 <div class="form-group" id="nameGroup" style="display: none;">
                     <label>اسم ولي الأمر الكامل</label>
@@ -75,15 +75,16 @@
                     <label>البريد الإلكتروني</label>
                     <input type="email" id="emailInput" placeholder="parent@school.com" required>
                 </div>
-                <div class="form-group">
-                    <label>كلمة المرور</label>
+                <div class="form-group" id="passwordGroup">
+                    <label>كلمة المرور (6 أحرف على الأقل)</label>
                     <input type="password" id="passwordInput" placeholder="••••••••" required>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;" id="submitBtn">دخول</button>
             </form>
             <div id="alertBox" style="padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 700;"></div>
-            <div style="margin-top: 15px; text-align: center; font-size: 12px;">
-                <span id="switchText">ليس لديك حساب؟ <span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode('signup')">سجل حساب جديد</span></span>
+            <div style="margin-top: 15px; text-align: center; font-size: 12px; display: flex; justify-content: space-between;">
+                <span id="switchText"><span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode('signup')">سجل حساب جديد</span></span>
+                <span style="color: #EF4444; font-weight: 800; cursor: pointer;" onclick="switchMode('forgot')">نسيت كلمة المرور؟</span>
             </div>
         </div>
     </div>
@@ -111,7 +112,7 @@
     <section class="hero">
         <div>
             <h1>بوابة خدمات أولياء الأمور والطلاب</h1>
-            <p>قدم شكواك أو استفسارك للإدارة، وتابع المستوى الأكاديمي، الحضور، والردود الرسمية لحظة بلحظة.</p>
+            <p>قدم شكواك أو استفسارك للإدارة، وتابع المستوى الأكاديمي، الحضور، والردود الرسمية من أي جهاز بكل سهولة.</p>
         </div>
     </section>
 
@@ -164,13 +165,10 @@
         </div>
     </div>
 
-    <!-- قسم متابعة مستوى الطالب المربوط بالحساب -->
     <div style="max-width: 1100px; margin: 0 auto 40px auto; padding: 0 24px;">
         <div class="card" id="studentFollowSection" style="display: none;">
             <h2>📊 متابعة المستوى الدراسي والحضور (للطالب المسجل)</h2>
-            <div id="studentDataBox">
-                <!-- يتم تعبئتها ديناميكياً -->
-            </div>
+            <div id="studentDataBox"></div>
         </div>
     </div>
 
@@ -182,25 +180,35 @@
             projectId: "green-damietta",
         };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth();
         const db = firebase.database();
 
-        let isSignUp = false;
+        let authMode = 'login'; // 'login', 'signup', 'forgot'
 
-        function checkUserSession() {
-            const logged = localStorage.getItem('isLoggedIn') === 'true';
-            const name = localStorage.getItem('userName');
-            if (logged) {
+        // مراقبة حالة تسجيل الدخول سحابياً من أي جهاز
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
                 document.getElementById('authActions').style.display = 'none';
                 document.getElementById('userPill').style.display = 'flex';
-                document.getElementById('welcomeMsg').textContent = 'أهلاً، ' + name;
-                loadMyTickets();
+                
+                // جلب بيانات ولي الأمر الإضافية من قاعدة البيانات
+                const safeKey = user.email.replace(/[.#$[\]]/g, '_');
+                const snap = await db.ref('parents/' + safeKey).get();
+                if (snap.exists()) {
+                    const data = snap.val();
+                    document.getElementById('welcomeMsg').textContent = 'أهلاً، ' + data.name;
+                    localStorage.setItem('studentName', data.studentName || '');
+                } else {
+                    document.getElementById('welcomeMsg').textContent = 'أهلاً، ولي الأمر';
+                }
+
+                loadMyTickets(user.email);
                 loadMyStudentData();
             } else {
                 document.getElementById('authActions').style.display = 'block';
                 document.getElementById('userPill').style.display = 'none';
             }
-        }
-        checkUserSession();
+        });
 
         function openModal(mode) {
             switchMode(mode);
@@ -209,21 +217,38 @@
         function toggleModal(show) {
             document.getElementById('authModal').style.display = show ? 'flex' : 'none';
         }
+
         function switchMode(mode) {
-            isSignUp = (mode === 'signup');
+            authMode = mode;
             document.getElementById('alertBox').style.display = 'none';
-            if (isSignUp) {
-                document.getElementById('modalTitle').textContent = 'إنشاء حساب ولي أمر جديد';
-                document.getElementById('nameGroup').style.display = 'block';
-                document.getElementById('studentBindGroup').style.display = 'block';
-                document.getElementById('submitBtn').textContent = 'تسجيل الحساب';
-                document.getElementById('switchText').innerHTML = 'لديك حساب بالفعل؟ <span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode(\'login\')">تسجيل الدخول</span>';
-            } else {
-                document.getElementById('modalTitle').textContent = 'تسجيل دخول ولي الأمر';
-                document.getElementById('nameGroup').style.display = 'none';
-                document.getElementById('studentBindGroup').style.display = 'none';
-                document.getElementById('submitBtn').textContent = 'دخول';
-                document.getElementById('switchText').innerHTML = 'ليس لديك حساب؟ <span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode(\'signup\')">سجل حساب جديد</span>';
+            const nameGroup = document.getElementById('nameGroup');
+            const studentBindGroup = document.getElementById('studentBindGroup');
+            const passwordGroup = document.getElementById('passwordGroup');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDesc = document.getElementById('modalDesc');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (mode === 'signup') {
+                modalTitle.textContent = 'إنشاء حساب ولي أمر جديد';
+                modalDesc.textContent = 'أدخل بياناتك وسجل من أي جهاز';
+                nameGroup.style.display = 'block';
+                studentBindGroup.style.display = 'block';
+                passwordGroup.style.display = 'block';
+                submitBtn.textContent = 'تسجيل الحساب';
+            } else if (mode === 'login') {
+                modalTitle.textContent = 'تسجيل دخول ولي الأمر';
+                modalDesc.textContent = 'أدخل بريدك وكلمة المرور للمتابعة';
+                nameGroup.style.display = 'none';
+                studentBindGroup.style.display = 'none';
+                passwordGroup.style.display = 'block';
+                submitBtn.textContent = 'دخول';
+            } else if (mode === 'forgot') {
+                modalTitle.textContent = 'استعادة كلمة المرور';
+                modalDesc.textContent = 'أدخل بريدك الإلكتروني لإرسال رابط إعادة التعيين';
+                nameGroup.style.display = 'none';
+                studentBindGroup.style.display = 'none';
+                passwordGroup.style.display = 'none'; // الإرسال يتم عبر الإيميل رسمياً
+                submitBtn.textContent = 'إرسال رابط الاستعادة';
             }
         }
 
@@ -231,53 +256,50 @@
             e.preventDefault();
             const email = document.getElementById('emailInput').value.trim().toLowerCase();
             const password = document.getElementById('passwordInput').value;
-            const safeKey = email.replace(/[.#$[\]]/g, '_');
             const alertBox = document.getElementById('alertBox');
 
-            const ref = db.ref('parents/' + safeKey);
-            const snap = await ref.get();
-
-            if (isSignUp) {
-                if (snap.exists()) {
-                    alertBox.textContent = '⚠️ البريد مسجل مسبقاً، قم بتسجيل الدخول.';
-                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
-                } else {
+            try {
+                if (authMode === 'signup') {
                     const name = document.getElementById('nameInput').value.trim();
                     const studentName = document.getElementById('bindStudentName').value.trim();
-                    await ref.set({ name, email, password, studentName });
-                    alertBox.textContent = '✅ تم إنشاء الحساب بنجاح! جاري الدخول...';
+                    
+                    // إنشاء الحساب في نظام المصادقة السحابي
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    
+                    // حفظ بيانات الطالب وولي الأمر في قاعدة البيانات
+                    const safeKey = email.replace(/[.#$[\]]/g, '_');
+                    await db.ref('parents/' + safeKey).set({ name, email, studentName });
+
+                    alertBox.textContent = '✅ تم إنشاء الحساب بنجاح!';
                     alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
-                    setTimeout(() => {
-                        localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userName', name);
-                        localStorage.setItem('userEmail', email);
-                        localStorage.setItem('studentName', studentName);
-                        location.reload();
-                    }, 1000);
+                    setTimeout(() => { toggleModal(false); }, 1200);
+
+                } else if (authMode === 'login') {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    alertBox.textContent = '✅ تم تسجيل الدخول بنجاح!';
+                    alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
+                    setTimeout(() => { toggleModal(false); }, 1000);
+
+                } else if (authMode === 'forgot') {
+                    await auth.sendPasswordResetEmail(email);
+                    alertBox.textContent = '✅ تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني!';
+                    alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
                 }
-            } else {
-                if (!snap.exists() || snap.val().password !== password) {
-                    alertBox.textContent = '⚠️ البريد أو كلمة المرور غير صحيحة.';
-                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
-                } else {
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userName', snap.val().name);
-                    localStorage.setItem('userEmail', email);
-                    localStorage.setItem('studentName', snap.val().studentName || '');
-                    location.reload();
-                }
+            } catch (error) {
+                alertBox.textContent = '⚠️ حدث خطأ: ' + error.message;
+                alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
             }
         }
 
-        function logout() {
-            localStorage.clear();
+        async function logout() {
+            await auth.signOut();
             location.reload();
         }
 
         async function submitTicket(e) {
             e.preventDefault();
-            const email = localStorage.getItem('userEmail');
-            if (!email) {
+            const user = auth.currentUser;
+            if (!user) {
                 alert('⚠️ يرجى تسجيل الدخول أولاً كولي أمر لتقديم الشكوى!');
                 openModal('login');
                 return;
@@ -290,8 +312,8 @@
 
             const newTicketRef = db.ref('tickets').push();
             await newTicketRef.set({
-                parentEmail: email,
-                parentName: localStorage.getItem('userName'),
+                parentEmail: user.email,
+                parentName: user.displayName || 'ولي الأمر',
                 studentName,
                 studentGrade,
                 ticketType,
@@ -303,13 +325,9 @@
 
             alert('✅ تم إرسال الشكوى بنجاح للإدارة وسيتم الرد عليها قريباً!');
             document.getElementById('ticketContent').value = '';
-            loadMyTickets();
         }
 
-        function loadMyTickets() {
-            const email = localStorage.getItem('userEmail');
-            if (!email) return;
-
+        function loadMyTickets(email) {
             db.ref('tickets').on('value', (snapshot) => {
                 const list = document.getElementById('ticketsList');
                 list.innerHTML = '';
