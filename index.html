@@ -23,7 +23,7 @@
 
         header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
         .nav-container { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
+        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; cursor: default; user-select: none; }
         .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
         .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; transition: 0.2s; }
         .nav-links a:hover, .nav-links a.active { color: var(--primary-color); }
@@ -90,10 +90,11 @@
 
     <header>
         <div class="nav-container">
-            <a href="index.html" class="logo">🏫 مدرسة اللغات الرسمية الجديدة</a>
+            <!-- الدخول السري للوحة الإدارة: اضغط مرتين متتاليتين (Double Click) على اسم المدرسة -->
+            <a href="#" class="logo" ondblclick="window.location.href='admin.html'" title="بوابة المدرسة">🏫 مدرسة اللغات الرسمية الجديدة</a>
+            
             <ul class="nav-links">
                 <li><a href="index.html" class="active">الرئيسية والشكاوى</a></li>
-                <li><a href="admin.html">لوحة تحكم الإدارة ⚙️</a></li>
             </ul>
             <div>
                 <div id="authActions">
