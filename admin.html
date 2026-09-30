@@ -78,7 +78,7 @@
         </div>
 
         <div class="card">
-            <h2>➕ تسجيل طالب جديد وتحديد الصف والدرجات</h2>
+            <h2>➕ تسجيل طالب جديد وتحديد الدرجات، السلوك، والحضور</h2>
             <form onsubmit="addStudentData(event)">
                 <div class="form-row">
                     <div class="form-group">
@@ -100,27 +100,66 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-row">
                     <div class="form-group">
-                        <label>حالة الحضور</label>
-                        <input type="text" id="addAttendance" value="منتظم بنسبة 100%">
+                        <label>حالة الحضور والغياب</label>
+                        <input type="text" id="addAttendance" placeholder="منتظم / غياب يومين" value="منتظم بنسبة 100%" required>
                     </div>
                     <div class="form-group">
-                        <label>ملاحظات رائد الفصل</label>
-                        <input type="text" id="addNotes" value="طالب مجتهد ومنتظم في الحضور.">
+                        <label>التقييم السلوكي</label>
+                        <input type="text" id="addBehavior" placeholder="ممتاز، متعاون، إلخ..." value="ممتاز ومثالي" required>
                     </div>
                 </div>
-                <button type="submit" style="background: var(--primary-color); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px;">حفظ وتفعيل الطالب في النظام 💾</button>
+
+                <h3 style="font-size: 15px; font-weight: 800; margin: 20px 0 10px 0; color: #0284C7;">رصد الدرجات (أعمال سنة + اختبارات)</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اللغة العربية (أعمال سنة / اختبار)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" id="arWork" placeholder="أعمال سنة (20)" value="18">
+                            <input type="number" id="arExam" placeholder="اختبار (30)" value="27">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>اللغة الإنجليزية (أعمال سنة / اختبار)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" id="enWork" placeholder="أعمال سنة (20)" value="19">
+                            <input type="number" id="enExam" placeholder="اختبار (30)" value="28">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الرياضيات (أعمال سنة / اختبار)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" id="mathWork" placeholder="أعمال سنة (20)" value="17">
+                            <input type="number" id="mathExam" placeholder="اختبار (30)" value="26">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات رائد الفصل الأكاديمية</label>
+                        <input type="text" id="addNotes" value="طالب مجتهد ومستواه مبشر بالتميز.">
+                    </div>
+                </div>
+
+                <button type="submit" style="background: var(--primary-color); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px;">حفظ وتحديث بيانات الطالب 💾</button>
             </form>
         </div>
     </div>
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyD-PlaceholderKey-ChangeMeIfNeeded",
-            authDomain: "green-damietta.firebaseapp.com",
+            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
+            authDomain: "green-damietta-b0a29.firebaseapp.com",
             databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com",
-            projectId: "green-damietta",
+            projectId: "green-damietta-b0a29",
+            storageBucket: "green-damietta-b0a29.firebasestorage.app",
+            messagingSenderId: "210935345765",
+            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
+            measurementId: "G-CT9KYEKXML"
         };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
@@ -190,19 +229,28 @@
             const name = document.getElementById('addName').value.trim();
             const grade = document.getElementById('addGrade').value;
             const attendance = document.getElementById('addAttendance').value;
+            const behavior = document.getElementById('addBehavior').value;
             const notes = document.getElementById('addNotes').value;
+
+            const ar_work = document.getElementById('arWork').value;
+            const ar_exam = document.getElementById('arExam').value;
+            const en_work = document.getElementById('enWork').value;
+            const en_exam = document.getElementById('enExam').value;
+            const math_work = document.getElementById('mathWork').value;
+            const math_exam = document.getElementById('mathExam').value;
 
             await db.ref('students').push({
                 name,
                 grade,
                 attendance,
+                behavior,
                 notes,
-                ar_work: 18, ar_exam: 27,
-                en_work: 19, en_exam: 29,
-                math_work: 17, math_exam: 26
+                ar_work, ar_exam,
+                en_work, en_exam,
+                math_work, math_exam
             });
 
-            alert('✅ تم تسجيل الطالب وتحديد صفه الدراسي بنجاح!');
+            alert('✅ تم تسجيل وتحديث بيانات الطالب، الدرجات، السلوك والحضور بنجاح!');
             document.getElementById('addName').value = '';
         }
     </script>
