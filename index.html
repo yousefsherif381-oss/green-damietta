@@ -3,182 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة أبواب التعليمية | طريقك للتفوق الدراسي</title>
+    <title>مدرسة اللغات الرسمية الجديدة | بوابة ولي الأمر</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --abwaab-green: #00B67A;
-            --abwaab-green-dark: #00925F;
-            --abwaab-green-light: #E6F8F2;
-            --abwaab-dark: #1E293B;
-            --abwaab-bg: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
+            --primary-color: #0284C7;
+            --primary-dark: #0369A1;
+            --bg-color: #F8FAFC;
             --border-color: #E2E8F0;
-            --radius-btn: 12px;
-            --radius-box: 16px;
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
-            --transition: all 0.25s ease-in-out;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; }
-        body { background: var(--abwaab-bg); color: var(--text-main); line-height: 1.7; overflow-x: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg-color); color: #1E293B; line-height: 1.7; }
 
         header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
-        .nav-container { max-width: 1280px; margin: auto; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 900; color: var(--abwaab-green); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-        .logo span { color: var(--abwaab-dark); }
+        .nav-container { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
+        .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; transition: 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary-color); }
 
-        .nav-links { display: flex; list-style: none; gap: 32px; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); }
-        .nav-links a:hover, .nav-links a.active { color: var(--abwaab-green); }
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); padding: 8px 18px; border-radius: var(--radius); font-weight: 700; cursor: pointer; }
 
-        .auth-actions { display: flex; gap: 12px; align-items: center; }
-        .btn-outline { background: transparent; color: var(--abwaab-green); border: 2px solid var(--abwaab-green); padding: 8px 20px; border-radius: var(--radius-btn); font-weight: 700; cursor: pointer; transition: var(--transition); font-size: 14px; }
-        .btn-outline:hover { background: var(--abwaab-green-light); }
-        .btn-solid { background: var(--abwaab-green); color: white; border: none; padding: 10px 22px; border-radius: var(--radius-btn); font-weight: 700; cursor: pointer; transition: var(--transition); font-size: 14px; box-shadow: 0 4px 12px rgba(0,182,122,0.25); }
-        .btn-solid:hover { background: var(--abwaab-green-dark); }
+        .hero { padding: 40px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%); color: white; text-align: center; }
+        .hero h1 { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+        .hero p { font-size: 15px; opacity: 0.9; max-width: 700px; margin: auto; }
 
-        .user-pill { display: none; align-items: center; gap: 12px; background: var(--abwaab-green-light); padding: 6px 16px; border-radius: 30px; border: 1px solid #A7F3D0; color: var(--abwaab-green-dark); font-weight: 700; font-size: 14px; }
-        .btn-logout { background: #EF4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; }
 
-        .hero { padding: 80px 24px 100px; background: linear-gradient(135deg, #064E3B 0%, #006A4E 60%, #00B67A 100%); color: white; text-align: center; }
-        .hero-content { max-width: 800px; margin: auto; }
-        .hero h1 { font-size: 46px; font-weight: 900; margin-bottom: 16px; line-height: 1.3; }
-        .hero p { font-size: 18px; opacity: 0.9; margin-bottom: 35px; color: #ECFDF5; }
+        .form-group { margin-bottom: 16px; text-align: right; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #475569; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #F8FAFC; outline: none; }
+        .form-group textarea { resize: vertical; height: 100px; }
 
-        /* شريط اختيار الدولة والصف الدراسي (مطابق لأبواب الأصلية) */
-        .configurator-bar { background: white; max-width: 950px; margin: -45px auto 60px; padding: 24px; border-radius: var(--radius-box); box-shadow: 0 15px 35px rgba(0,0,0,0.08); display: grid; grid-template-columns: 1fr 1.5fr auto; gap: 16px; align-items: center; position: relative; z-index: 10; border: 1px solid var(--border-color); }
-        .config-group { text-align: right; }
-        .config-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
-        .config-group select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-btn); font-size: 14px; font-weight: 700; color: var(--abwaab-dark); outline: none; background: #F8FAFC; cursor: pointer; }
-        .btn-start-study { background: var(--abwaab-green); color: white; border: none; padding: 14px 28px; border-radius: var(--radius-btn); font-weight: 800; font-size: 15px; cursor: pointer; transition: var(--transition); height: 100%; box-shadow: 0 6px 16px rgba(0,182,122,0.3); }
-        .btn-start-study:hover { background: var(--abwaab-green-dark); transform: translateY(-2px); }
+        /* نافذة تسجيل الدخول */
+        #authModal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
+        .modal-box { background: white; padding: 35px; border-radius: 20px; width: 100%; max-width: 400px; position: relative; }
+        .close-btn { position: absolute; top: 15px; left: 20px; font-size: 22px; cursor: pointer; color: #64748B; }
 
-        .features-section { max-width: 1200px; margin: auto; padding: 0 24px 80px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .feature-box { background: white; padding: 32px; border-radius: var(--radius-box); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); }
-        .feature-icon { font-size: 38px; margin-bottom: 16px; display: inline-block; padding: 12px; background: var(--abwaab-green-light); border-radius: 12px; }
-        .feature-box h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--abwaab-dark); }
-        .feature-box p { font-size: 14px; color: var(--text-muted); }
-
-        /* Modal */
-        #authModal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
-        .modal-box { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); position: relative; }
-        .close-btn { position: absolute; top: 18px; left: 20px; font-size: 24px; cursor: pointer; color: var(--text-muted); }
-        .form-group { text-align: right; margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-        .form-group input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-btn); font-size: 14px; outline: none; background: #F8FAFC; }
-        .btn-submit { width: 100%; background: var(--abwaab-green); color: white; border: none; padding: 14px; border-radius: var(--radius-btn); font-weight: 800; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        .alert-msg { padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 14px; display: none; font-weight: 700; text-align: center; }
-
-        footer { background: #0F172A; color: white; padding: 40px 24px; text-align: center; font-size: 14px; border-top: 1px solid #334155; }
+        .grades-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .grades-table th, .grades-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        .grades-table th { background: #F1F5F9; color: #475569; font-weight: 800; }
     </style>
 </head>
 <body>
 
+    <!-- نافذة تسجيل الدخول / إنشاء حساب -->
     <div id="authModal">
         <div class="modal-box">
             <span class="close-btn" onclick="toggleModal(false)">&times;</span>
-            <h2 id="modalTitle" style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">تسجيل الدخول</h2>
-            <p id="modalSubtitle" style="font-size: 13px; color: var(--text-muted); margin-bottom: 22px;">تابع دروسك واختباراتك بكل سهولة</p>
-            
+            <h2 id="modalTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تسجيل دخول ولي الأمر</h2>
+            <p style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة مستوى طفلك والشكاوى</p>
             <form onsubmit="handleAuth(event)">
                 <div class="form-group" id="nameGroup" style="display: none;">
-                    <label>الاسم الكامل</label>
-                    <input type="text" id="nameInput" placeholder="أحمد محمد">
+                    <label>اسم ولي الأمر الكامل</label>
+                    <input type="text" id="nameInput" placeholder="محمود إبراهيم">
+                </div>
+                <div class="form-group" id="studentBindGroup" style="display: none;">
+                    <label>اسم الطالب الرباعي (المرتبط بحسابك)</label>
+                    <input type="text" id="bindStudentName" placeholder="يوسف محمود إبراهيم">
                 </div>
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
-                    <input type="email" id="emailInput" placeholder="student@abwaab.com" required>
+                    <input type="email" id="emailInput" placeholder="parent@school.com" required>
                 </div>
                 <div class="form-group">
                     <label>كلمة المرور</label>
                     <input type="password" id="passwordInput" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="btn-submit" id="submitBtn">تسجيل الدخول</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;" id="submitBtn">دخول</button>
             </form>
-            <div id="alertBox" class="alert-msg"></div>
-            <div style="margin-top: 18px; text-align: center; font-size: 13px; color: var(--text-muted);">
-                <span id="switchText">ليس لديك حساب؟ <span style="color: var(--abwaab-green); font-weight: 800; cursor: pointer;" onclick="switchAuthMode('signup')">أنشئ حساباً جديداً</span></span>
+            <div id="alertBox" style="padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 700;"></div>
+            <div style="margin-top: 15px; text-align: center; font-size: 12px;">
+                <span id="switchText">ليس لديك حساب؟ <span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode('signup')">سجل حساب جديد</span></span>
             </div>
         </div>
     </div>
 
     <header>
         <div class="nav-container">
-            <a href="index.html" class="logo">🟢 أبواب <span>Abwaab</span></a>
+            <a href="index.html" class="logo">🏫 مدرسة اللغات الرسمية الجديدة</a>
             <ul class="nav-links">
-                <li><a href="index.html" class="active">الرئيسية</a></li>
-                <li><a href="courses.html">المسارات والدروس</a></li>
-                <li><a href="dashboard.html">لوحة التحكم</a></li>
+                <li><a href="index.html" class="active">الرئيسية والشكاوى</a></li>
+                <li><a href="admin.html">لوحة تحكم الإدارة ⚙️</a></li>
             </ul>
             <div>
-                <div id="authActions" class="auth-actions">
-                    <button class="btn-outline" onclick="openModal('login')">تسجيل الدخول</button>
-                    <button class="btn-solid" onclick="openModal('signup')">حساب جديد</button>
+                <div id="authActions">
+                    <button class="btn-outline" onclick="openModal('login')">دخول أولياء الأمور</button>
+                    <button class="btn-primary" onclick="openModal('signup')" style="margin-right: 8px;">حساب جديد</button>
                 </div>
-                <div id="userPill" class="user-pill">
+                <div id="userPill" style="display: none; align-items: center; gap: 10px; font-weight: 700; font-size: 14px;">
                     <span id="welcomeMsg">أهلاً بك</span>
-                    <button class="btn-logout" onclick="logout()">خروج</button>
+                    <button onclick="logout()" style="background: #EF4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">خروج</button>
                 </div>
             </div>
         </div>
     </header>
 
     <section class="hero">
-        <div class="hero-content">
-            <h1>افهم دروسك بكل سهولة مع منصة أبواب</h1>
-            <p>شرح مبسط، فيديوهات تفاعلية قصيرة، واختبارات فورية تقيس فهمك أولاً بأول.</p>
+        <div>
+            <h1>بوابة خدمات أولياء الأمور والطلاب</h1>
+            <p>قدم شكواك أو استفسارك للإدارة، وتابع المستوى الأكاديمي، الحضور، والردود الرسمية لحظة بلحظة.</p>
         </div>
     </section>
 
-    <!-- شريط اختيار الدولة والصف (شامل جميع الدول والصفوف العربية) -->
-    <div class="configurator-bar">
-        <div class="config-group">
-            <label>اختر دولتك</label>
-            <select id="countrySelect" onchange="updateGrades()">
-                <option value="eg">🇪🇬 جمهورية مصر العربية</option>
-                <option value="sa">🇸🇦 المملكة العربية السعودية</option>
-                <option value="jo">🇯🇴 المملكة الأردنية الهاشمية</option>
-                <option value="ae">🇦🇪 دولة الإمارات العربية المتحدة</option>
-                <option value="iq">🇮🇶 الجمهورية العراقية</option>
-                <option value="kw">🇰.د دولة الكويت</option>
-            </select>
+    <div class="container">
+        <!-- قسم تقديم شكوى أو طلب -->
+        <div class="card">
+            <h2>📝 تقديم شكوى أو استفسار جديد</h2>
+            <form onsubmit="submitTicket(event)">
+                <div class="form-group">
+                    <label>اسم الطالب الرباعي</label>
+                    <input type="text" id="ticketStudentName" placeholder="يوسف محمود إبراهيم" required>
+                </div>
+                <div class="form-group">
+                    <label>اختر الصف الدراسي</label>
+                    <select id="ticketGrade" required>
+                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
+                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>نوع الشكوى / الطلب</label>
+                    <select id="ticketType">
+                        <option value="شكوى أكاديمية (مدرس / مادة)">شكوى أكاديمية (مدرس / مادة)</option>
+                        <option value="شئون طلاب / إدارية">شئون طلاب / إدارية</option>
+                        <option value="مصاريف مدرسية وباصات">مصاريف مدرسية وباصات</option>
+                        <option value="استفسار عام">استفسار عام</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>تفاصيل الشكوى أو الطلب</label>
+                    <textarea id="ticketContent" placeholder="اكتب تفاصيل الشكوى بوضوح..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">إرسال الشكوى للإدارة 🚀</button>
+            </form>
         </div>
-        <div class="config-group">
-            <label>اختر الصف الدراسي</label>
-            <select id="gradeSelect">
-                <!-- يتم تعبئتها تلقائياً عبر الجافاسكريبت حسب الدولة -->
-            </select>
+
+        <!-- قسم متابعة الشكاوى وسجل الردود -->
+        <div class="card">
+            <h2>📬 أرشيف الشكاوى والردود الرسمية</h2>
+            <div id="ticketsList" style="max-height: 450px; overflow-y: auto;">
+                <p style="color: #64748B; text-align: center; margin-top: 40px;">يرجى تسجيل الدخول لعرض الشكاوى والردود الخاصة بك.</p>
+            </div>
         </div>
-        <button class="btn-start-study" onclick="goToCourses()">استعراض المواد والدروس 🚀</button>
     </div>
 
-    <div class="features-section">
-        <div class="feature-box">
-            <span class="feature-icon">📚</span>
-            <h3>مناهج معتمدة رسمياً</h3>
-            <p>محتوى دراسي متكامل ومصمم خصيصاً ليطابق مناهج وزارة التربية والتعليم في دولتك.</p>
-        </div>
-        <div class="feature-box">
-            <span class="feature-icon">🎯</span>
-            <h3>اختبارات فورية ذكية</h3>
-            <p>تدرب على آلاف الأسئلة واعرف إجابتك الصحيحة والخاطئة مع شرح تفصيلي فوري.</p>
-        </div>
-        <div class="feature-box">
-            <span class="feature-icon">🏆</span>
-            <h3>نقاط ومنافسة مستمرة</h3>
-            <p>اكسب نقاط تفوق مع كل إنجاز وتابع تقدمك الأكاديمي عبر لوحة تحكم مخصصة.</p>
+    <!-- قسم متابعة مستوى الطالب المربوط بالحساب -->
+    <div style="max-width: 1100px; margin: 0 auto 40px auto; padding: 0 24px;">
+        <div class="card" id="studentFollowSection" style="display: none;">
+            <h2>📊 متابعة المستوى الدراسي والحضور (للطالب المسجل)</h2>
+            <div id="studentDataBox">
+                <!-- يتم تعبئتها ديناميكياً -->
+            </div>
         </div>
     </div>
-
-    <footer>
-        <p>جميع الحقوق محفوظة &copy; منصة أبواب التعليمية 2026</p>
-    </footer>
 
     <script>
         const firebaseConfig = {
@@ -190,137 +184,46 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        // قاعدة بيانات الصفوف الدراسية الشاملة لجميع الدول
-        const gradesData = {
-            eg: [
-                {id: 'eg_prim4', name: 'الصف الرابع الابتدائي'},
-                {id: 'eg_prim5', name: 'الصف الخامس الابتدائي'},
-                {id: 'eg_prim6', name: 'الصف السادس الابتدائي'},
-                {id: 'eg_prep1', name: 'الصف الأول الاعدادي'},
-                {id: 'eg_prep2', name: 'الصف الثاني الاعدادي'},
-                {id: 'eg_prep3', name: 'الصف الثالث الاعدادي'},
-                {id: 'eg_sec1', name: 'الصف الأول الثانوي'},
-                {id: 'eg_sec2', name: 'الصف الثاني الثانوي'},
-                {id: 'eg_sec3', name: 'الصف الثالث الثانوي (الثانوية العامة)'}
-            ],
-            sa: [
-                {id: 'sa_prim4', name: 'الصف الرابع الابتدائي'},
-                {id: 'sa_prim5', name: 'الصف الخامس الابتدائي'},
-                {id: 'sa_prim6', name: 'الصف السادس الابتدائي'},
-                {id: 'sa_inter1', name: 'الصف الأول المتوسط'},
-                {id: 'sa_inter2', name: 'الصف الثاني المتوسط'},
-                {id: 'sa_inter3', name: 'الصف الثالث المتوسط'},
-                {id: 'sa_sec1', name: 'الصف الأول الثانوي'},
-                {id: 'sa_sec2', name: 'الصف الثاني الثانوي'},
-                {id: 'sa_sec3', name: 'الصف الثالث الثانوي'}
-            ],
-            jo: [
-                {id: 'jo_basic4', name: 'الصف الرابع الأساسي'},
-                {id: 'jo_basic5', name: 'الصف الخامس الأساسي'},
-                {id: 'jo_basic6', name: 'الصف السادس الأساسي'},
-                {id: 'jo_basic7', name: 'الصف السابع الأساسي'},
-                {id: 'jo_basic8', name: 'الصف الثامن الأساسي'},
-                {id: 'jo_basic9', name: 'الصف التاسع الأساسي'},
-                {id: 'jo_basic10', name: 'الصف العاشر الأساسي'},
-                {id: 'jo_sec1', name: 'الصف الأول الثانوي'},
-                {id: 'jo_sec2', name: 'الصف الثاني الثانوي (التوجيهي)'}
-            ],
-            ae: [
-                {id: 'ae_prim4', name: 'الصف الرابع الابتدائي'},
-                {id: 'ae_prim5', name: 'الصف الخامس الابتدائي'},
-                {id: 'ae_prim6', name: 'الصف السادس الابتدائي'},
-                {id: 'ae_prep1', name: 'الصف السابع (أول متوسط)'},
-                {id: 'ae_prep2', name: 'الصف الثامن (ثاني متوسط)'},
-                {id: 'ae_prep3', name: 'الصف التاسع (ثالث متوسط)'},
-                {id: 'ae_sec1', name: 'الصف العاشر (أول ثانوي)'},
-                {id: 'ae_sec2', name: 'الصف الحادي عشر'},
-                {id: 'ae_sec3', name: 'الصف الثاني عشر (الثانوية العامة)'}
-            ],
-            iq: [
-                {id: 'iq_prim4', name: 'الصف الرابع الابتدائي'},
-                {id: 'iq_prim5', name: 'الصف الخامس الابتدائي'},
-                {id: 'iq_prim6', name: 'الصف السادس الابتدائي'},
-                {id: 'iq_prep1', name: 'الصف الأول المتوسط'},
-                {id: 'iq_prep2', name: 'الصف الثاني المتوسط'},
-                {id: 'iq_prep3', name: 'الصف الثالث المتوسط'},
-                {id: 'iq_sec4', name: 'الصف الرابع العلمي / الأدبي'},
-                {id: 'iq_sec5', name: 'الصف الخامس العلمي / الأدبي'},
-                {id: 'iq_sec6', name: 'الصف السادس الإعدادي (السادس العلمي / الأدبي)'}
-            ],
-            kw: [
-                {id: 'kw_prim4', name: 'الصف الرابع الابتدائي'},
-                {id: 'kw_prim5', name: 'الصف الخامس الابتدائي'},
-                {id: 'kw_inter1', name: 'الصف السادس المتوسط'},
-                {id: 'kw_inter2', name: 'الصف السابع المتوسط'},
-                {id: 'kw_inter3', name: 'الصف الثامن المتوسط'},
-                {id: 'kw_inter4', name: 'الصف التاسع المتوسط'},
-                {id: 'kw_sec1', name: 'الصف العاشر الثانوي'},
-                {id: 'kw_sec2', name: 'الصف الحادي عشر الثانوي'},
-                {id: 'kw_sec3', name: 'الصف الثاني عشر الثانوي'}
-            ]
-        };
+        let isSignUp = false;
 
-        function updateGrades() {
-            const country = document.getElementById('countrySelect').value;
-            const gradeSelect = document.getElementById('gradeSelect');
-            gradeSelect.innerHTML = '';
-            
-            const list = gradesData[country] || gradesData['eg'];
-            list.forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g.id;
-                opt.textContent = g.name;
-                gradeSelect.appendChild(opt);
-            });
-        }
-        updateGrades();
-
-        let isSignUpMode = false;
-
-        function checkSession() {
-            const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        function checkUserSession() {
+            const logged = localStorage.getItem('isLoggedIn') === 'true';
             const name = localStorage.getItem('userName');
-            if (loggedIn) {
+            if (logged) {
                 document.getElementById('authActions').style.display = 'none';
                 document.getElementById('userPill').style.display = 'flex';
-                document.getElementById('welcomeMsg').textContent = 'مرحباً، ' + (name || 'طالبنا المميز');
+                document.getElementById('welcomeMsg').textContent = 'أهلاً، ' + name;
+                loadMyTickets();
+                loadMyStudentData();
             } else {
-                document.getElementById('authActions').style.display = 'flex';
+                document.getElementById('authActions').style.display = 'block';
                 document.getElementById('userPill').style.display = 'none';
             }
         }
-        checkSession();
-
-        function goToCourses() {
-            const country = document.getElementById('countrySelect').value;
-            const grade = document.getElementById('gradeSelect').value;
-            localStorage.setItem('selectedCountry', country);
-            localStorage.setItem('selectedGrade', grade);
-            location.href = 'courses.html';
-        }
+        checkUserSession();
 
         function openModal(mode) {
-            switchAuthMode(mode);
+            switchMode(mode);
             document.getElementById('authModal').style.display = 'flex';
         }
         function toggleModal(show) {
             document.getElementById('authModal').style.display = show ? 'flex' : 'none';
         }
-        function switchAuthMode(mode) {
-            isSignUpMode = (mode === 'signup');
+        function switchMode(mode) {
+            isSignUp = (mode === 'signup');
             document.getElementById('alertBox').style.display = 'none';
-            if (isSignUpMode) {
-                document.getElementById('modalTitle').textContent = 'إنشاء حساب جديد';
-                document.getElementById('modalSubtitle').textContent = 'سجل معنا وابدأ رحلة التفوق';
+            if (isSignUp) {
+                document.getElementById('modalTitle').textContent = 'إنشاء حساب ولي أمر جديد';
                 document.getElementById('nameGroup').style.display = 'block';
-                document.getElementById('submitBtn').textContent = 'إنشاء الحساب';
-                document.getElementById('switchText').innerHTML = 'لديك حساب بالفعل؟ <span style="color: var(--abwaab-green); font-weight: 800; cursor: pointer;" onclick="switchAuthMode(\'login\')">تسجيل الدخول</span>';
+                document.getElementById('studentBindGroup').style.display = 'block';
+                document.getElementById('submitBtn').textContent = 'تسجيل الحساب';
+                document.getElementById('switchText').innerHTML = 'لديك حساب بالفعل؟ <span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode(\'login\')">تسجيل الدخول</span>';
             } else {
-                document.getElementById('modalTitle').textContent = 'تسجيل الدخول';
-                document.getElementById('modalSubtitle').textContent = 'أدخل بيانات حسابك للمتابعة';
+                document.getElementById('modalTitle').textContent = 'تسجيل دخول ولي الأمر';
                 document.getElementById('nameGroup').style.display = 'none';
-                document.getElementById('submitBtn').textContent = 'تسجيل الدخول';
-                document.getElementById('switchText').innerHTML = 'ليس لديك حساب؟ <span style="color: var(--abwaab-green); font-weight: 800; cursor: pointer;" onclick="switchAuthMode(\'signup\')">أنشئ حساباً جديداً</span>';
+                document.getElementById('studentBindGroup').style.display = 'none';
+                document.getElementById('submitBtn').textContent = 'دخول';
+                document.getElementById('switchText').innerHTML = 'ليس لديك حساب؟ <span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode(\'signup\')">سجل حساب جديد</span>';
             }
         }
 
@@ -331,41 +234,151 @@
             const safeKey = email.replace(/[.#$[\]]/g, '_');
             const alertBox = document.getElementById('alertBox');
 
-            try {
-                const ref = db.ref('users/' + safeKey);
-                const snap = await ref.get();
+            const ref = db.ref('parents/' + safeKey);
+            const snap = await ref.get();
 
-                if (isSignUpMode) {
-                    if (snap.exists()) {
-                        alertBox.textContent = '⚠️ البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول.';
-                        alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
-                    } else {
-                        const name = document.getElementById('nameInput').value.trim();
-                        await ref.set({ name, email, password, points: 200 });
-                        alertBox.textContent = '✅ تم إنشاء الحساب بنجاح! جاري تحويلك...';
-                        alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
-                        setTimeout(() => switchAuthMode('login'), 1200);
-                    }
+            if (isSignUp) {
+                if (snap.exists()) {
+                    alertBox.textContent = '⚠️ البريد مسجل مسبقاً، قم بتسجيل الدخول.';
+                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
                 } else {
-                    if (!snap.exists() || snap.val().password !== password) {
-                        alertBox.textContent = '⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-                        alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
-                    } else {
+                    const name = document.getElementById('nameInput').value.trim();
+                    const studentName = document.getElementById('bindStudentName').value.trim();
+                    await ref.set({ name, email, password, studentName });
+                    alertBox.textContent = '✅ تم إنشاء الحساب بنجاح! جاري الدخول...';
+                    alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
+                    setTimeout(() => {
                         localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userName', snap.val().name);
+                        localStorage.setItem('userName', name);
                         localStorage.setItem('userEmail', email);
+                        localStorage.setItem('studentName', studentName);
                         location.reload();
-                    }
+                    }, 1000);
                 }
-            } catch (err) {
-                alertBox.textContent = '⚠️ خطأ في الاتصال بالسحابة.';
-                alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+            } else {
+                if (!snap.exists() || snap.val().password !== password) {
+                    alertBox.textContent = '⚠️ البريد أو كلمة المرور غير صحيحة.';
+                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                } else {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userName', snap.val().name);
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('studentName', snap.val().studentName || '');
+                    location.reload();
+                }
             }
         }
 
         function logout() {
             localStorage.clear();
             location.reload();
+        }
+
+        async function submitTicket(e) {
+            e.preventDefault();
+            const email = localStorage.getItem('userEmail');
+            if (!email) {
+                alert('⚠️ يرجى تسجيل الدخول أولاً كولي أمر لتقديم الشكوى!');
+                openModal('login');
+                return;
+            }
+
+            const studentName = document.getElementById('ticketStudentName').value.trim();
+            const studentGrade = document.getElementById('ticketGrade').value;
+            const ticketType = document.getElementById('ticketType').value;
+            const ticketContent = document.getElementById('ticketContent').value.trim();
+
+            const newTicketRef = db.ref('tickets').push();
+            await newTicketRef.set({
+                parentEmail: email,
+                parentName: localStorage.getItem('userName'),
+                studentName,
+                studentGrade,
+                ticketType,
+                ticketContent,
+                status: 'قيد المراجعة',
+                adminReply: 'لم تقم الإدارة بالرد بعد',
+                date: new Date().toLocaleDateString()
+            });
+
+            alert('✅ تم إرسال الشكوى بنجاح للإدارة وسيتم الرد عليها قريباً!');
+            document.getElementById('ticketContent').value = '';
+            loadMyTickets();
+        }
+
+        function loadMyTickets() {
+            const email = localStorage.getItem('userEmail');
+            if (!email) return;
+
+            db.ref('tickets').on('value', (snapshot) => {
+                const list = document.getElementById('ticketsList');
+                list.innerHTML = '';
+                const data = snapshot.val();
+                if (!data) {
+                    list.innerHTML = '<p style="color: #64748B; text-align: center; margin-top: 30px;">لا توجد شكاوى مسجلة.</p>';
+                    return;
+                }
+
+                let html = '';
+                Object.keys(data).forEach(key => {
+                    const t = data[key];
+                    if (t.parentEmail === email) {
+                        const isReplied = t.status === 'تم الرد';
+                        html += `
+                            <div style="background: #F8FAFC; border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; margin-bottom: 14px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px;">
+                                    <span>الطالب: ${t.studentName} (${t.studentGrade})</span>
+                                    <span style="color: ${isReplied ? '#16A34A' : '#D97706'};">${t.status}</span>
+                                </div>
+                                <p style="font-size: 13px; color: #475569; margin-bottom: 6px;"><b>النوع:</b> ${t.ticketType}</p>
+                                <p style="font-size: 13px; color: #1E293B; background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px;">${t.ticketContent}</p>
+                                <div style="font-size: 13px; background: ${isReplied ? '#DCFCE7' : '#FEF3C7'}; padding: 10px; border-radius: 8px; color: ${isReplied ? '#166534' : '#B45309'};">
+                                    <b>رد إدارة المدرسة:</b> ${t.adminReply}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                list.innerHTML = html || '<p style="color: #64748B; text-align: center; margin-top: 30px;">لا توجد شكاوى مسجلة لك حتى الآن.</p>';
+            });
+        }
+
+        function loadMyStudentData() {
+            const studentName = localStorage.getItem('studentName');
+            if (!studentName) return;
+
+            db.ref('students').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                Object.keys(data).forEach(key => {
+                    const s = data[key];
+                    if (s.name.toLowerCase() === studentName.toLowerCase()) {
+                        document.getElementById('studentFollowSection').style.display = 'block';
+                        document.getElementById('studentDataBox').innerHTML = `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 14px;">
+                                <span>اسم الطالب: ${s.name}</span>
+                                <span style="color: var(--primary-color);">${s.grade}</span>
+                            </div>
+                            <p style="font-size: 13px; margin-bottom: 10px;"><b>حالة الحضور:</b> <span style="color: #16A34A;">${s.attendance || 'منتظم'}</span></p>
+                            <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 8px;">درجات الاختبارات وأعمال السنة:</h4>
+                            <table class="grades-table">
+                                <thead>
+                                    <tr><th>المادة الدراسية</th><th>أعمال السنة (من 20)</th><th>اختبار الشهر (من 30)</th><th>المجموع</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>اللغة العربية</td><td>${s.ar_work || 18}</td><td>${s.ar_exam || 26}</td><td><b>${(parseInt(s.ar_work||18)+parseInt(s.ar_exam||26))} / 50</b></td></tr>
+                                    <tr><td>اللغة الإنجليزية (English)</td><td>${s.en_work || 19}</td><td>${s.en_exam || 28}</td><td><b>${(parseInt(s.en_work||19)+parseInt(s.en_exam||28))} / 50</b></td></tr>
+                                    <tr><td>الرياضيات (Math)</td><td>${s.math_work || 17}</td><td>${s.math_exam || 25}</td><td><b>${(parseInt(s.math_work||17)+parseInt(s.math_exam||25))} / 50</b></td></tr>
+                                </tbody>
+                            </table>
+                            <div style="margin-top: 15px; background: #F8FAFC; padding: 10px; border-radius: 8px; font-size: 13px; color: #475569;">
+                                <b>ملاحظات رائد الفصل:</b> ${s.notes || 'الطالب منتظم ومستواه مبشر بالتفوق.'}
+                            </div>
+                        `;
+                    }
+                });
+            });
         }
     </script>
 </body>
