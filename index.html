@@ -32,17 +32,20 @@
         .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 30px; }
         .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; }
 
-        /* شاشة تسجيل دخول ولي الأمر */
-        #parentLoginOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: right; }
+        /* شاشة تسجيل الدخول وإنشاء الحساب */
+        #parentLoginOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; overflow-y: auto; }
+        .login-card { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 440px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: right; max-height: 90vh; overflow-y: auto; }
         
-        .form-group { margin-bottom: 16px; text-align: right; }
+        .form-group { margin-bottom: 14px; text-align: right; }
         .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #334155; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #FFFFFF; outline: none; transition: border-color 0.2s; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
         
-        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; margin-top: 5px; }
         .btn-primary:hover { background: var(--primary-dark); }
+        
+        .toggle-auth-text { margin-top: 15px; text-align: center; font-size: 13px; color: #64748B; font-weight: 600; }
+        .toggle-auth-text span { color: var(--primary-color); font-weight: 800; cursor: pointer; text-decoration: underline; }
 
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .info-box { background: #F8FAFC; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -69,13 +72,13 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل دخول ولي الأمر -->
+    <!-- نافذة تسجيل الدخول وإنشاء حساب جديد (Sign Up) -->
     <div id="parentLoginOverlay">
         <div class="login-card">
-            <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #0F172A; border: none; padding: 0;">👨‍👩‍👦 بوابة ولي الأمر</h2>
-            <p style="font-size: 13px; color: #64748B; margin-bottom: 20px;">أدخل اسم الطالب، الصف الدراسي، والرقم السري للمتابعة.</p>
+            <h2 id="authModalTitle" style="font-size: 19px; font-weight: 900; margin-bottom: 6px; color: #0F172A; border: none; padding: 0;">👨‍👩‍👦 بوابة ولي الأمر</h2>
+            <p id="authModalDesc" style="font-size: 12px; color: #64748B; margin-bottom: 16px;">أدخل اسم الطالب، الصف الدراسي، والرقم السري للمتابعة.</p>
             
-            <form onsubmit="handleParentLogin(event)">
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
                 <div class="form-group">
                     <label>اسم الطالب الرباعي</label>
                     <input type="text" id="loginStudentName" placeholder="أدخل اسم الطالب الكامل" required>
@@ -98,8 +101,12 @@
                     <label>الرقم السري (رقم القومي أو الهاتف)</label>
                     <input type="password" id="loginPassword" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="btn-primary">استعلام ومتابعة 🚀</button>
+                <button type="submit" id="authSubmitBtn" class="btn-primary">استعلام ومتابعة 🚀</button>
             </form>
+
+            <div class="toggle-auth-text">
+                <span id="authToggleMsg">ليس لديك حساب طالب مسجل؟</span> <span id="authToggleBtn" onclick="toggleAuthMode()">إنشاء حساب جديد (Sign Up)</span>
+            </div>
 
             <div id="loginAlert" style="padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 700;"></div>
         </div>
@@ -236,6 +243,7 @@
 
         let currentStudentData = null;
         let currentStudentKey = null;
+        let isSignUpMode = false;
 
         const gradeSubjects = {
             primary: [
@@ -267,42 +275,104 @@
             document.getElementById('mainContent').style.display = 'none';
         });
 
-        async function handleParentLogin(e) {
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const title = document.getElementById('authModalTitle');
+            const desc = document.getElementById('authModalDesc');
+            const btn = document.getElementById('authSubmitBtn');
+            const toggleMsg = document.getElementById('authToggleMsg');
+            const toggleBtn = document.getElementById('authToggleBtn');
+            const alertBox = document.getElementById('loginAlert');
+            alertBox.style.display = 'none';
+
+            if (isSignUpMode) {
+                title.textContent = '📝 إنشاء حساب طالب جديد (Sign Up)';
+                desc.textContent = 'أدخل اسم الطالب، الصف الدراسي، والرقم السري لتسجيل حساب جديد.';
+                btn.textContent = 'إنشاء الحساب والتسجيل ✨';
+                toggleMsg.textContent = 'لديك حساب مسجل بالفعل؟';
+                toggleBtn.textContent = 'تسجيل الدخول';
+            } else {
+                title.textContent = '👨‍👩‍👦 بوابة ولي الأمر';
+                desc.textContent = 'أدخل اسم الطالب، الصف الدراسي، والرقم السري للمتابعة.';
+                btn.textContent = 'استعلام ومتابعة 🚀';
+                toggleMsg.textContent = 'ليس لديك حساب طالب مسجل؟';
+                toggleBtn.textContent = 'إنشاء حساب جديد (Sign Up)';
+            }
+        }
+
+        async function handleAuthSubmit(e) {
             e.preventDefault();
             const inputName = document.getElementById('loginStudentName').value.trim();
             const inputGrade = document.getElementById('loginStudentGrade').value;
+            const inputPass = document.getElementById('loginPassword').value.trim();
             const alertBox = document.getElementById('loginAlert');
 
             db.ref('students').once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    alertBox.textContent = '❌ لا توجد بيانات طلاب مسجلة في النظام حالياً!';
-                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
-                    return;
-                }
+                const data = snapshot.val() || {};
 
-                let foundKey = null;
-                let foundStudent = null;
+                if (isSignUpMode) {
+                    // التحقق مما إذا كان الطالب موجوداً مسبقاً بنفس الاسم
+                    let exists = false;
+                    Object.keys(data).forEach(key => {
+                        if (data[key].name && data[key].name.toLowerCase() === inputName.toLowerCase()) {
+                            exists = true;
+                        }
+                    });
 
-                Object.keys(data).forEach(key => {
-                    const s = data[key];
-                    if (s.name && s.name.toLowerCase() === inputName.toLowerCase() && s.grade === inputGrade) {
-                        foundKey = key;
-                        foundStudent = s;
+                    if (exists) {
+                        alertBox.textContent = '⚠️ اسم الطالب مسجل مسبقاً في النظام، يرجى تسجيل الدخول مباشرة!';
+                        alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                        return;
                     }
-                });
 
-                if (foundStudent) {
-                    currentStudentData = foundStudent;
-                    currentStudentKey = foundKey;
+                    // إنشاء طالب جديد في النظام
+                    const newStudentRef = db.ref('students').push();
+                    const newStudentData = {
+                        name: inputName,
+                        grade: inputGrade,
+                        password: inputPass,
+                        classRoom: 'الفصل 1',
+                        attendance: 'منتظم',
+                        absenceDays: '0',
+                        behavior: 'ممتاز',
+                        notes: 'تم إنشاء الحساب بنجاح عبر البوابة.'
+                    };
 
-                    document.getElementById('parentLoginOverlay').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'block';
-                    renderStudentData();
-                    loadParentTickets(foundStudent.name);
+                    newStudentRef.set(newStudentData).then(() => {
+                        currentStudentData = newStudentData;
+                        currentStudentKey = newStudentRef.key;
+
+                        document.getElementById('parentLoginOverlay').style.display = 'none';
+                        document.getElementById('mainContent').style.display = 'block';
+                        renderStudentData();
+                        loadParentTickets(inputName);
+                    });
+
                 } else {
-                    alertBox.textContent = '❌ اسم الطالب أو الصف الدراسي غير مطابق، يرجى المراجعة!';
-                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                    // وضع تسجيل الدخول العادي
+                    let foundKey = null;
+                    let foundStudent = null;
+
+                    Object.keys(data).forEach(key => {
+                        const s = data[key];
+                        if (s.name && s.name.toLowerCase() === inputName.toLowerCase() && s.grade === inputGrade) {
+                            foundKey = key;
+                            foundStudent = s;
+                        }
+                    });
+
+                    if (foundStudent) {
+                        currentStudentData = foundStudent;
+                        currentStudentKey = foundKey;
+
+                        document.getElementById('parentLoginOverlay').style.display = 'none';
+                        document.getElementById('mainContent').style.display = 'block';
+                        renderStudentData();
+                        loadParentTickets(foundStudent.name);
+                    } else {
+                        alertBox.textContent = '❌ اسم الطالب أو الصف الدراسي غير مطابق، يرجى المراجعة أو إنشاء حساب!';
+                        alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                    }
                 }
             });
         }
