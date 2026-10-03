@@ -49,7 +49,7 @@
         .reply-box input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; }
         .btn-reply { background: #16A34A; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
         
-        .form-row-3 { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 14px; margin-bottom: 12px; }
+        .form-row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 12px; }
         .form-row-grades { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         
         .student-admin-card { background: #F8FAFC; border: 1px solid var(--border-color); padding: 22px; border-radius: 14px; margin-bottom: 20px; }
@@ -60,7 +60,7 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول (دائماً تظهر عند فتح الصفحة) -->
+    <!-- شاشة تسجيل الدخول للإدارة -->
     <div id="adminLoginOverlay">
         <div class="login-card">
             <h2 id="adminModalTitle" style="font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #0F172A; border: none; padding: 0;">🔐 تسجيل دخول الإدارة</h2>
@@ -151,7 +151,6 @@
 
         let adminLoginMode = 'login';
 
-        // المواد الدراسية لكل مرحلة تعليمية لتظهر تلقائياً بناءً على اختيار الصف
         const gradeSubjects = {
             primary: [
                 { id: 'ar', name: 'اللغة العربية' },
@@ -177,7 +176,6 @@
             return gradeSubjects.primary;
         }
 
-        // إجبار ظهور شاشة تسجيل الدخول في كل مرة يتم فيها فتح الصفحة أو عمل تحديث لها
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('adminLoginOverlay').style.display = 'flex';
         });
@@ -220,7 +218,6 @@
 
             if (adminLoginMode === 'login') {
                 if (uInput === savedUser && pInput === savedPass) {
-                    // إخفاء نافذة تسجيل الدخول فقط عند صحة البيانات بدون حفظها في الجلسة لتتطلب إعادة إدخالها عند التحديث
                     document.getElementById('adminLoginOverlay').style.display = 'none';
                 } else {
                     alertBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة!';
@@ -261,7 +258,6 @@
             document.getElementById('newAdminPass').value = '';
         }
 
-        // جلب وعرض الطلاب وتحديث المواد تلقائياً حسب الصف الدراسي
         db.ref('students').on('value', (snapshot) => {
             const list = document.getElementById('adminStudentsList');
             list.innerHTML = '';
@@ -307,7 +303,7 @@
                 html += `
                     <div class="student-admin-card">
                         <form onsubmit="updateStudentDetails(event, '${key}')">
-                            <div class="form-row-3">
+                            <div class="form-row-2">
                                 <div class="form-group">
                                     <label>اسم الطالب الرباعي</label>
                                     <input type="text" id="name_${key}" value="${s.name || ''}" required>
@@ -326,16 +322,20 @@
                                         <option value="الصف الثالث الاعدادي" ${currentGrade === 'الصف الثالث الاعدادي' ? 'selected' : ''}>الصف الثالث الاعدادي</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div class="form-row-2" style="grid-template-columns: 1fr 1fr;">
                                 <div class="form-group">
-                                    <label>رقم الجلوس والفصل</label>
-                                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                        <input type="text" id="classRoom_${key}" value="${s.classRoom || ''}" placeholder="الفصل">
-                                        <input type="text" id="seatNo_${key}" value="${s.seatNo || ''}" placeholder="الرقم">
-                                    </div>
+                                    <label>الفصل الدراسي</label>
+                                    <input type="text" id="classRoom_${key}" value="${s.classRoom || ''}" placeholder="الفصل">
+                                </div>
+                                <div class="form-group">
+                                    <label>التقييم السلوكي</label>
+                                    <input type="text" id="behavior_${key}" value="${s.behavior || 'ممتاز'}">
                                 </div>
                             </div>
 
-                            <div class="form-row-3" style="grid-template-columns: 2fr 1fr 2fr;">
+                            <div class="form-row-2" style="grid-template-columns: 2fr 1fr;">
                                 <div class="form-group">
                                     <label>حالة الحضور والغياب</label>
                                     <input type="text" id="attendance_${key}" value="${s.attendance || 'منتظم'}">
@@ -343,10 +343,6 @@
                                 <div class="form-group">
                                     <label>أيام الغياب</label>
                                     <input type="number" id="absenceDays_${key}" value="${s.absenceDays || '0'}">
-                                </div>
-                                <div class="form-group">
-                                    <label>التقييم السلوكي</label>
-                                    <input type="text" id="behavior_${key}" value="${s.behavior || 'ممتاز'}">
                                 </div>
                             </div>
 
@@ -376,7 +372,6 @@
             const name = document.getElementById('name_' + key).value.trim();
             const grade = document.getElementById('grade_' + key).value;
             const classRoom = document.getElementById('classRoom_' + key).value;
-            const seatNo = document.getElementById('seatNo_' + key).value;
             const attendance = document.getElementById('attendance_' + key).value;
             const absenceDays = document.getElementById('absenceDays_' + key).value;
             const behavior = document.getElementById('behavior_' + key).value;
@@ -384,7 +379,7 @@
 
             const subjects = getSubjectsForGrade(grade);
             let updateData = {
-                name, grade, classRoom, seatNo, attendance, absenceDays, behavior, notes
+                name, grade, classRoom, attendance, absenceDays, behavior, notes
             };
 
             subjects.forEach(sub => {
@@ -404,7 +399,6 @@
             }
         }
 
-        // جلب الشكاوى
         db.ref('tickets').on('value', (snapshot) => {
             const list = document.getElementById('adminTicketsList');
             list.innerHTML = ``;
