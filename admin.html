@@ -14,31 +14,32 @@
             --primary-color: #0284C7;
             --primary-dark: #0369A1;
             --bg-color: #F8FAFC;
-            --border-color: #E2E8F0;
-            --radius: 12px;
+            --border-color: #CBD5E1;
+            --radius: 10px;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { background: var(--bg-color); color: #1E293B; line-height: 1.7; }
 
-        header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .nav-container { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
+        .logo { font-size: 18px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
         .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
         .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; }
         .nav-links a.active { color: var(--primary-color); }
 
         .container { max-width: 1100px; margin: 40px auto; padding: 0 24px; }
         .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 30px; }
-        .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; }
+        .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; }
 
-        /* شاشة تسجيل الدخول الاحترافية (Modal) */
+        /* شاشة تسجيل الدخول */
         #adminLoginOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
         .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: right; }
         
-        .form-group { margin-bottom: 16px; text-align: right; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #475569; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #F8FAFC; outline: none; }
+        .form-group { margin-bottom: 14px; text-align: right; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #334155; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #FFFFFF; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
         
         .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
         .btn-primary:hover { background: var(--primary-dark); }
@@ -48,17 +49,21 @@
         .reply-box input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; }
         .btn-reply { background: #16A34A; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
         
-        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 15px; }
-        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; }
-        .student-admin-card { background: #F8FAFC; border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 15px; }
+        .form-row-3 { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 14px; margin-bottom: 12px; }
+        .form-row-grades { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        
+        .student-admin-card { background: #F8FAFC; border: 1px solid var(--border-color); padding: 22px; border-radius: 14px; margin-bottom: 20px; }
+        .grades-container { background: #FFFFFF; padding: 16px; border-radius: 10px; margin-bottom: 14px; border: 1px solid #E2E8F0; }
+        .subject-block { margin-bottom: 12px; border-bottom: 1px dashed #F1F5F9; padding-bottom: 10px; }
+        .subject-title { font-size: 13px; font-weight: 800; color: #0284C7; margin-bottom: 6px; }
     </style>
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول الاحترافية الخاصة بالإدارة -->
+    <!-- شاشة تسجيل الدخول (دائماً تظهر عند فتح الصفحة) -->
     <div id="adminLoginOverlay">
         <div class="login-card">
-            <h2 id="adminModalTitle" style="font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #0F172A;">🔐 تسجیل دخول الإدارة</h2>
+            <h2 id="adminModalTitle" style="font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #0F172A; border: none; padding: 0;">🔐 تسجيل دخول الإدارة</h2>
             <p id="adminModalDesc" style="font-size: 13px; color: #64748B; margin-bottom: 20px;">أدخل بيانات الاعتماد الخاصة بمدير النظام للتحكم الكامل.</p>
             
             <form onsubmit="handleAdminLogin(event)">
@@ -89,22 +94,22 @@
                 <li><a href="admin.html" class="active">لوحة الإدارة</a></li>
             </ul>
             <div>
-                <button onclick="logoutAdmin()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;">تسجيل خروج الأدمن 🚪</button>
+                <button onclick="logoutAdmin()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;">تسجيل خروج 🚪</button>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <!-- قسم تغيير بيانات الدخول -->
+        <!-- تغيير بيانات الدخول -->
         <div class="card">
             <h2>🔑 تغيير بيانات دخول لوحة الإدارة</h2>
             <form onsubmit="updateAdminCredentials(event)">
-                <div class="form-row-2">
-                    <div class="form-group">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم المستخدم الجديد</label>
                         <input type="text" id="newAdminUser" placeholder="admin" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>كلمة المرور الجديدة</label>
                         <input type="password" id="newAdminPass" placeholder="••••••••" required>
                     </div>
@@ -113,19 +118,19 @@
             </form>
         </div>
 
-        <!-- قسم إدارة ورصد درجات وتفاصيل الطلاب المسجلين -->
+        <!-- إدارة الطلاب -->
         <div class="card">
-            <h2>👥 قائمة الطلاب المسجلين والتحكم في أدق تفاصيلهم</h2>
+            <h2>👥 قائمة الطلاب المسجلين والتحكم في درجاتهم وموادهم</h2>
             <div id="adminStudentsList">
                 <p style="color: #64748B; text-align: center;">جاري تحميل الطلاب...</p>
             </div>
         </div>
 
-        <!-- قسم الشكاوى -->
+        <!-- الشكاوى -->
         <div class="card">
             <h2>📥 شكاوى وطلبات أولياء الأمور الواردة</h2>
             <div id="adminTicketsList">
-                <p style="color: #64748B; text-align: center;">جاري تحميل الشكاوى...</p>
+                <p style="color: #64748B; text-align: center;">لا توجد شكاوى جديدة حالياً.</p>
             </div>
         </div>
     </div>
@@ -146,13 +151,35 @@
 
         let adminLoginMode = 'login';
 
-        // التحقق مما إذا كان الأدمن مسجل الدخول مسبقاً في الجلسة الحالية
-        window.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('isAdminAuth') === 'true') {
-                document.getElementById('adminLoginOverlay').style.display = 'none';
-            } else {
-                document.getElementById('adminLoginOverlay').style.display = 'flex';
+        // المواد الدراسية لكل مرحلة تعليمية لتظهر تلقائياً بناءً على اختيار الصف
+        const gradeSubjects = {
+            primary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات' },
+                { id: 'science', name: 'العلوم' },
+                { id: 'social', name: 'الدراسات الاجتماعية' }
+            ],
+            prep: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات' },
+                { id: 'science', name: 'العلوم' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'computer', name: 'الحاسب الآلي' }
+            ]
+        };
+
+        function getSubjectsForGrade(gradeName) {
+            if (gradeName && gradeName.includes('الاعدادي')) {
+                return gradeSubjects.prep;
             }
+            return gradeSubjects.primary;
+        }
+
+        // إجبار ظهور شاشة تسجيل الدخول في كل مرة يتم فيها فتح الصفحة أو عمل تحديث لها
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('adminLoginOverlay').style.display = 'flex';
         });
 
         function toggleAdminMode(mode) {
@@ -193,7 +220,7 @@
 
             if (adminLoginMode === 'login') {
                 if (uInput === savedUser && pInput === savedPass) {
-                    sessionStorage.setItem('isAdminAuth', 'true');
+                    // إخفاء نافذة تسجيل الدخول فقط عند صحة البيانات بدون حفظها في الجلسة لتتطلب إعادة إدخالها عند التحديث
                     document.getElementById('adminLoginOverlay').style.display = 'none';
                 } else {
                     alertBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة!';
@@ -214,7 +241,6 @@
         }
 
         function logoutAdmin() {
-            sessionStorage.removeItem('isAdminAuth');
             location.reload();
         }
 
@@ -235,7 +261,7 @@
             document.getElementById('newAdminPass').value = '';
         }
 
-        // جلب وعرض الطلاب
+        // جلب وعرض الطلاب وتحديث المواد تلقائياً حسب الصف الدراسي
         db.ref('students').on('value', (snapshot) => {
             const list = document.getElementById('adminStudentsList');
             list.innerHTML = '';
@@ -248,39 +274,68 @@
             let html = '';
             Object.keys(data).forEach(key => {
                 const s = data[key];
+                const currentGrade = s.grade || 'الصف الأول الابتدائي';
+                const subjects = getSubjectsForGrade(currentGrade);
+
+                let subjectsHtml = '';
+                subjects.forEach(sub => {
+                    const wVal = s[sub.id + '_work'] || 0;
+                    const wkVal = s[sub.id + '_weekly'] || 0;
+                    const fVal = s[sub.id + '_final'] || 0;
+
+                    subjectsHtml += `
+                        <div class="subject-block">
+                            <div class="subject-title"><span>${sub.name}</span></div>
+                            <div class="form-row-grades">
+                                <div>
+                                    <label style="font-size:11px; color:#64748B;">أعمال السنة</label>
+                                    <input type="number" id="${sub.id}_work_${key}" value="${wVal}">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; color:#64748B;">التقييم الأسبوعي</label>
+                                    <input type="number" id="${sub.id}_weekly_${key}" value="${wkVal}">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; color:#64748B;">الامتحان النهائي</label>
+                                    <input type="number" id="${sub.id}_final_${key}" value="${fVal}">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
                 html += `
                     <div class="student-admin-card">
                         <form onsubmit="updateStudentDetails(event, '${key}')">
-                            <div class="form-row">
+                            <div class="form-row-3">
                                 <div class="form-group">
                                     <label>اسم الطالب الرباعي</label>
                                     <input type="text" id="name_${key}" value="${s.name || ''}" required>
                                 </div>
                                 <div class="form-group">
                                     <label>الصف الدراسي</label>
-                                    <select id="grade_${key}">
-                                        <option value="${s.grade}" selected>${s.grade || 'اختر الصف'}</option>
-                                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                                    <select id="grade_${key}" onchange="this.form.requestSubmit()">
+                                        <option value="الصف الأول الابتدائي" ${currentGrade === 'الصف الأول الابتدائي' ? 'selected' : ''}>الصف الأول الابتدائي</option>
+                                        <option value="الصف الثاني الابتدائي" ${currentGrade === 'الصف الثاني الابتدائي' ? 'selected' : ''}>الصف الثاني الابتدائي</option>
+                                        <option value="الصف الثالث الابتدائي" ${currentGrade === 'الصف الثالث الابتدائي' ? 'selected' : ''}>الصف الثالث الابتدائي</option>
+                                        <option value="الصف الرابع الابتدائي" ${currentGrade === 'الصف الرابع الابتدائي' ? 'selected' : ''}>الصف الرابع الابتدائي</option>
+                                        <option value="الصف الخامس الابتدائي" ${currentGrade === 'الصف الخامس الابتدائي' ? 'selected' : ''}>الصف الخامس الابتدائي</option>
+                                        <option value="الصف السادس الابتدائي" ${currentGrade === 'الصف السادس الابتدائي' ? 'selected' : ''}>الصف السادس الابتدائي</option>
+                                        <option value="الصف الأول الاعدادي" ${currentGrade === 'الصف الأول الاعدادي' ? 'selected' : ''}>الصف الأول الاعدادي</option>
+                                        <option value="الصف الثاني الاعدادي" ${currentGrade === 'الصف الثاني الاعدادي' ? 'selected' : ''}>الصف الثاني الاعدادي</option>
+                                        <option value="الصف الثالث الاعدادي" ${currentGrade === 'الصف الثالث الاعدادي' ? 'selected' : ''}>الصف الثالث الاعدادي</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>رقم الجلوس والفصل</label>
-                                    <div style="display:flex; gap:6px;">
-                                        <input type="text" id="classRoom_${key}" value="${s.classRoom || 'فصل 1'}" placeholder="الفصل">
-                                        <input type="text" id="seatNo_${key}" value="${s.seatNo || '101'}" placeholder="رقم الجلوس">
+                                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                        <input type="text" id="classRoom_${key}" value="${s.classRoom || ''}" placeholder="الفصل">
+                                        <input type="text" id="seatNo_${key}" value="${s.seatNo || ''}" placeholder="الرقم">
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-row">
+                            <div class="form-row-3" style="grid-template-columns: 2fr 1fr 2fr;">
                                 <div class="form-group">
                                     <label>حالة الحضور والغياب</label>
                                     <input type="text" id="attendance_${key}" value="${s.attendance || 'منتظم'}">
@@ -295,42 +350,19 @@
                                 </div>
                             </div>
 
-                            <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-color);">
-                                <h4 style="font-size: 13px; font-weight: 800; color: #0284C7; margin-bottom: 8px;">درجات المواد الدراسية:</h4>
-                                
-                                <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">اللغة العربية (أعمال / شهر 1 / شهر 2 / نهائي)</div>
-                                <div class="form-row" style="margin-bottom: 8px;">
-                                    <input type="number" id="ar_work_${key}" value="${s.ar_work || 0}">
-                                    <input type="number" id="ar_m1_${key}" value="${s.ar_m1 || 0}">
-                                    <input type="number" id="ar_m2_${key}" value="${s.ar_m2 || 0}">
-                                    <input type="number" id="ar_final_${key}" value="${s.ar_final || 0}">
-                                </div>
-
-                                <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">اللغة الإنجليزية (أعمال / شهر 1 / شهر 2 / نهائي)</div>
-                                <div class="form-row" style="margin-bottom: 8px;">
-                                    <input type="number" id="en_work_${key}" value="${s.en_work || 0}">
-                                    <input type="number" id="en_m1_${key}" value="${s.en_m1 || 0}">
-                                    <input type="number" id="en_m2_${key}" value="${s.en_m2 || 0}">
-                                    <input type="number" id="en_final_${key}" value="${s.en_final || 0}">
-                                </div>
-
-                                <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">الرياضيات (أعمال / شهر 1 / شهر 2 / نهائي)</div>
-                                <div class="form-row" style="margin-bottom: 8px;">
-                                    <input type="number" id="math_work_${key}" value="${s.math_work || 0}">
-                                    <input type="number" id="math_m1_${key}" value="${s.math_m1 || 0}">
-                                    <input type="number" id="math_m2_${key}" value="${s.math_m2 || 0}">
-                                    <input type="number" id="math_final_${key}" value="${s.math_final || 0}">
-                                </div>
+                            <div class="grades-container">
+                                <h4 style="font-size: 13px; font-weight: 800; color: #0F172A; margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">📚 مواد الصف (${currentGrade}) - (أعمال / أسبوعي / نهائي)</h4>
+                                ${subjectsHtml}
                             </div>
 
-                            <div class="form-group" style="margin-bottom: 12px;">
+                            <div class="form-group" style="margin-bottom: 16px;">
                                 <label>ملاحظات رائد الفصل والمعلمين</label>
                                 <input type="text" id="notes_${key}" value="${s.notes || ''}">
                             </div>
 
                             <div style="display: flex; gap: 10px;">
-                                <button type="submit" style="background: #16A34A; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1;">حفظ وتحديث تفاصيل الطالب 💾</button>
-                                <button type="button" onclick="deleteStudent('${key}')" style="background: #EF4444; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 800; cursor: pointer;">حذف الطالب 🗑️</button>
+                                <button type="submit" style="background: #16A34A; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1;">حفظ وتحديث بيانات الطالب 💾</button>
+                                <button type="button" onclick="deleteStudent('${key}')" style="background: #EF4444; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 800; cursor: pointer;">حذف 🗑️</button>
                             </div>
                         </form>
                     </div>
@@ -350,29 +382,19 @@
             const behavior = document.getElementById('behavior_' + key).value;
             const notes = document.getElementById('notes_' + key).value;
 
-            const ar_work = document.getElementById('ar_work_' + key).value;
-            const ar_m1 = document.getElementById('ar_m1_' + key).value;
-            const ar_m2 = document.getElementById('ar_m2_' + key).value;
-            const ar_final = document.getElementById('ar_final_' + key).value;
+            const subjects = getSubjectsForGrade(grade);
+            let updateData = {
+                name, grade, classRoom, seatNo, attendance, absenceDays, behavior, notes
+            };
 
-            const en_work = document.getElementById('en_work_' + key).value;
-            const en_m1 = document.getElementById('en_m1_' + key).value;
-            const en_m2 = document.getElementById('en_m2_' + key).value;
-            const en_final = document.getElementById('en_final_' + key).value;
-
-            const math_work = document.getElementById('math_work_' + key).value;
-            const math_m1 = document.getElementById('math_m1_' + key).value;
-            const math_m2 = document.getElementById('math_m2_' + key).value;
-            const math_final = document.getElementById('math_final_' + key).value;
-
-            await db.ref('students/' + key).update({
-                name, grade, classRoom, seatNo, attendance, absenceDays, behavior, notes,
-                ar_work, ar_m1, ar_m2, ar_final,
-                en_work, en_m1, en_m2, en_final,
-                math_work, math_m1, math_m2, math_final
+            subjects.forEach(sub => {
+                updateData[sub.id + '_work'] = document.getElementById(sub.id + '_work_' + key).value;
+                updateData[sub.id + '_weekly'] = document.getElementById(sub.id + '_weekly_' + key).value;
+                updateData[sub.id + '_final'] = document.getElementById(sub.id + '_final_' + key).value;
             });
 
-            alert('✅ تم تحديث كافة تفاصيل ودرجات الطالب بنجاح!');
+            await db.ref('students/' + key).update(updateData);
+            alert('✅ تم تحديث بيانات ودرجات الطالب بنجاح!');
         }
 
         async function deleteStudent(key) {
@@ -417,11 +439,11 @@
         });
 
         async function sendReply(ticketId) {
-            const replyText = document.getElementById('reply_' + ticketId).value.trim();
-            if (!replyText) { alert('⚠ يرجى كتابة الرد أولاً!'); return; }
+            const theReplyText = document.getElementById('reply_' + ticketId).value.trim();
+            if (!theReplyText) { alert('⚠ يرجى كتابة الرد أولاً!'); return; }
 
             await db.ref('tickets/' + ticketId).update({
-                adminReply: replyText,
+                adminReply: theReplyText,
                 status: 'تم الرد'
             });
             alert('✅ تم إرسال الرد بنجاح!');
