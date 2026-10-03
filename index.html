@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدرسة اللغات الرسمية الجديدة | بوابة ولي الأمر</title>
+    <title>بوابة ولي الأمر الشاملة | مدرسة اللغات الرسمية الجديدة</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -14,78 +14,70 @@
             --primary-color: #0284C7;
             --primary-dark: #0369A1;
             --bg-color: #F8FAFC;
-            --border-color: #E2E8F0;
-            --radius: 12px;
+            --border-color: #CBD5E1;
+            --radius: 10px;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { background: var(--bg-color); color: #1E293B; line-height: 1.7; }
 
-        header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .nav-container { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
+        .logo { font-size: 18px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
         .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
-        .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; transition: 0.2s; }
-        .nav-links a:hover, .nav-links a.active { color: var(--primary-color); }
+        .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; }
+        .nav-links a.active { color: var(--primary-color); }
 
-        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 14px; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-outline { background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); padding: 8px 18px; border-radius: var(--radius); font-weight: 700; cursor: pointer; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
+        .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; }
 
-        .hero { padding: 40px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%); color: white; text-align: center; }
-        .hero h1 { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
-        .hero p { font-size: 15px; opacity: 0.9; max-width: 700px; margin: auto; }
-
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; }
-
+        /* شاشة تسجيل دخول ولي الأمر */
+        #parentLoginOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: right; }
+        
         .form-group { margin-bottom: 16px; text-align: right; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #475569; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #F8FAFC; outline: none; }
-        .form-group textarea { resize: vertical; height: 100px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #334155; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #FFFFFF; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
+        
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
+        .btn-primary:hover { background: var(--primary-dark); }
 
-        #authModal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
-        .modal-box { background: white; padding: 35px; border-radius: 20px; width: 100%; max-width: 400px; position: relative; }
-        .close-btn { position: absolute; top: 15px; left: 20px; font-size: 22px; cursor: pointer; color: #64748B; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .info-box { background: #F8FAFC; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .info-box span { display: block; font-size: 12px; color: #64748B; font-weight: 700; margin-bottom: 4px; }
+        .info-box strong { font-size: 15px; color: #0F172A; }
 
-        .grades-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        .grades-table th, .grades-table td { padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color); }
-        .grades-table th { background: #F1F5F9; color: #475569; font-weight: 800; }
-        .grades-table td:first-child { text-align: right; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; text-align: right; }
+        th, td { padding: 12px; border: 1px solid var(--border-color); }
+        th { background: #F1F5F9; color: #0F172A; font-weight: 800; }
+        td { background: #FFFFFF; }
+
+        .ticket-history-item { background: #F8FAFC; border: 1px solid var(--border-color); padding: 16px; border-radius: 10px; margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="authModal">
-        <div class="modal-box">
-            <span class="close-btn" onclick="toggleModal(false)">&times;</span>
-            <h2 id="modalTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تسجيل دخول ولي الأمر</h2>
-            <p id="modalDesc" style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة طفلك بدقة</p>
-            <form onsubmit="handleAuth(event)">
-                <div class="form-group" id="nameGroup" style="display: none;">
-                    <label>اسم ولي الأمر الكامل</label>
-                    <input type="text" id="nameInput" placeholder="محمود إبراهيم">
-                </div>
-                <div class="form-group" id="studentBindGroup" style="display: none;">
-                    <label>اسم الطالب الرباعي (لربطه بالحساب)</label>
-                    <input type="text" id="bindStudentName" placeholder="يوسف محمود إبراهيم">
+    <!-- نافذة تسجيل دخول ولي الأمر (تظهر دائماً عند فتح أو تحديث الصفحة) -->
+    <div id="parentLoginOverlay">
+        <div class="login-card">
+            <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #0F172A; border: none; padding: 0;">👨‍👩‍👦 بوابة ولي الأمر</h2>
+            <p style="font-size: 13px; color: #64748B; margin-bottom: 20px;">أدخل رقم جلوس الطالب والرقم السري للمتابعة.</p>
+            
+            <form onsubmit="handleParentLogin(event)">
+                <div class="form-group">
+                    <label>رقم جلوس الطالب</label>
+                    <input type="text" id="loginSeatNo" placeholder="مثال: 1050" required>
                 </div>
                 <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" id="emailInput" placeholder="parent@school.com" required>
+                    <label>الرقم السري (رقم القومي أو الهاتف)</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
                 </div>
-                <div class="form-group" id="passwordGroup">
-                    <label>كلمة المرور</label>
-                    <input type="password" id="passwordInput" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;" id="submitBtn">دخول</button>
+                <button type="submit" class="btn-primary">استعلام ومتابعة 🚀</button>
             </form>
-            <div id="alertBox" style="padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 700;"></div>
-            <div style="margin-top: 15px; text-align: center; font-size: 12px; display: flex; justify-content: space-between;">
-                <span id="switchText"><span style="color: var(--primary-color); font-weight: 800; cursor: pointer;" onclick="switchMode('signup')">سجل حساب جديد</span></span>
-                <span style="color: #EF4444; font-weight: 800; cursor: pointer;" onclick="switchMode('forgot')">نسيت كلمة المرور؟</span>
-            </div>
+
+            <div id="loginAlert" style="padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 700;"></div>
         </div>
     </div>
 
@@ -93,80 +85,104 @@
         <div class="nav-container">
             <a href="index.html" class="logo">🏫 مدرسة اللغات الرسمية الجديدة</a>
             <ul class="nav-links">
-                <li><a href="index.html" class="active">الرئيسية والشكاوى</a></li>
+                <li><a href="index.html" class="active">بوابة ولي الأمر</a></li>
+                <li><a href="admin.html">لوحة الإدارة</a></li>
             </ul>
             <div>
-                <div id="authActions">
-                    <button class="btn-outline" onclick="openModal('login')">دخول أولياء الأمور</button>
-                    <button class="btn-primary" onclick="openModal('signup')" style="margin-right: 8px;">حساب جديد</button>
-                </div>
-                <div id="userPill" style="display: none; align-items: center; gap: 10px; font-weight: 700; font-size: 14px;">
-                    <span id="welcomeMsg">أهلاً بك</span>
-                    <button onclick="logout()" style="background: #EF4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">خروج</button>
-                </div>
+                <button onclick="logoutParent()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;">خروج 🚪</button>
             </div>
         </div>
     </header>
 
-    <section class="hero">
-        <div>
-            <h1>بوابة خدمات أولياء الأمور والطلاب</h1>
-            <p>قدم شكواك أو استفسارك للإدارة، وتابع التفاصيل الأكاديمية الدقيقة، الدرجات، الحضور والسلوك لحظة بلحظة.</p>
-        </div>
-    </section>
-
-    <div class="container">
+    <div class="container" id="mainContent" style="display: none;">
+        <!-- بيانات الطالب الأساسية -->
         <div class="card">
-            <h2>📝 تقديم شكوى أو استفسار جديد</h2>
+            <h2>📋 البيانات الأساسية للطالب</h2>
+            <div class="info-grid">
+                <div class="info-box">
+                    <span>اسم الطالب الرباعي</span>
+                    <strong id="viewName">-</strong>
+                </div>
+                <div class="info-box">
+                    <span>الصف الدراسي</span>
+                    <strong id="viewGrade">-</strong>
+                </div>
+                <div class="info-box">
+                    <span>الفصل / رقم الجلوس</span>
+                    <strong><span id="viewClass">-</span> / <span id="viewSeat">-</span></strong>
+                </div>
+                <div class="info-box">
+                    <span>حالة الحضور والأيام</span>
+                    <strong><span id="viewAttendance">-</span> (غياب: <span id="viewAbsence">0</span> أيام)</strong>
+                </div>
+                <div class="info-box">
+                    <span>التقييم السلوكي</span>
+                    <strong id="viewBehavior">-</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- درجات المواد الدراسية -->
+        <div class="card">
+            <h2>📊 تفاصيل درجات وتقييمات المواد الدراسية</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المادة الدراسية</th>
+                            <th>أعمال السنة</th>
+                            <th>التقييم الأسبوعي</th>
+                            <th>الامتحان النهائي</th>
+                            <th>المجموع الكلي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gradesTableBody">
+                        <!-- يتم تعبئتها ديناميكياً حسب مواد الصف -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 15px; background: #F8FAFC; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+                <span style="font-size: 13px; color: #64748B; font-weight: 700; display: block; margin-bottom: 4px;">ملاحظات رائد الفصل والمعلمين:</span>
+                <p id="viewNotes" style="font-size: 14px; color: #0F172A; font-weight: 600;">لا توجد ملاحظات حالياً.</p>
+            </div>
+        </div>
+
+        <!-- إرسال شكوى أو طلب للإدارة -->
+        <div class="card">
+            <h2>📨 إرسال شكوى أو استفسار لإدارة المدرسة</h2>
             <form onsubmit="submitTicket(event)">
-                <div class="form-group">
-                    <label>اسم الطالب الرباعي</label>
-                    <input type="text" id="ticketStudentName" placeholder="يوسف محمود إبراهيم" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="form-group">
+                        <label>اسم ولي الأمر</label>
+                        <input type="text" id="parentNameInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label>البريد الإلكتروني أو الهاتف</label>
+                        <input type="text" id="parentContactInput" required>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>اختر الصف الدراسي</label>
-                    <select id="ticketGrade" required>
-                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                    <label>نوع الطلب</label>
+                    <select id="ticketTypeInput">
+                        <option value="استفسار عن مستوى دراسي">استفسار عن مستوى دراسي</option>
+                        <option value="شكوى إدارية">شكوى إدارية</option>
+                        <option value="طلب مقابلة معتمد">طلب مقابلة معتمد</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>نوع الشكوى / الطلب</label>
-                    <select id="ticketType">
-                        <option value="شكوى أكاديمية (مدرس / مادة)">شكوى أكاديمية (مدرس / مادة)</option>
-                        <option value="شئون طلاب / إدارية">شئون طلاب / إدارية</option>
-                        <option value="مصاريف مدرسية وباصات">مصاريف مدرسية وباصات</option>
-                        <option value="استفسار عام">استفسار عام</option>
-                    </select>
+                    <label>نص الشكوى أو الطلب</label>
+                    <textarea id="ticketContentInput" rows="4" placeholder="اكتب تفاصيل طلبك هنا..." required></textarea>
                 </div>
-                <div class="form-group">
-                    <label>تفاصيل الشكوى أو الطلب</label>
-                    <textarea id="ticketContent" placeholder="اكتب تفاصيل الشكوى بوضوح..." required></textarea>
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">إرسال الشكوى للإدارة 🚀</button>
+                <button type="submit" class="btn-primary">إرسال الطلب للإدارة 📤</button>
             </form>
         </div>
 
+        <!-- متابعة الشكاوى والردود -->
         <div class="card">
-            <h2>📬 أرشيف الشكاوى والردود الرسمية</h2>
-            <div id="ticketsList" style="max-height: 450px; overflow-y: auto;">
-                <p style="color: #64748B; text-align: center; margin-top: 40px;">يرجى تسجيل الدخول لعرض الشكاوى والردود الخاصة بك.</p>
+            <h2>📥 متابعة حالة الطلبات والشكاوى السابقة</h2>
+            <div id="parentTicketsList">
+                <p style="color: #64748B; text-align: center; font-size: 13px;">جارٍ تحميل الطلبات...</p>
             </div>
-        </div>
-    </div>
-
-    <!-- قسم المتابعة الدقيقة لتفاصيل الطالب -->
-    <div style="max-width: 1100px; margin: 0 auto 40px auto; padding: 0 24px;">
-        <div class="card" id="studentFollowSection" style="display: none;">
-            <h2>📊 الملف الشامل وتفاصيل أداء الطالب</h2>
-            <div id="studentDataBox"></div>
         </div>
     </div>
 
@@ -182,271 +198,181 @@
             measurementId: "G-CT9KYEKXML"
         };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const auth = firebase.auth();
         const db = firebase.database();
 
-        let authMode = 'login';
+        let currentStudentData = null;
+        let currentStudentKey = null;
 
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                document.getElementById('authActions').style.display = 'none';
-                document.getElementById('userPill').style.display = 'flex';
-                
-                const safeKey = user.email.replace(/[.#$[\]]/g, '_');
-                const snap = await db.ref('parents/' + safeKey).get();
-                if (snap.exists()) {
-                    const data = snap.val();
-                    document.getElementById('welcomeMsg').textContent = 'أهلاً، ' + data.name;
-                    localStorage.setItem('studentName', data.studentName || '');
-                } else {
-                    document.getElementById('welcomeMsg').textContent = 'أهلاً، ولي الأمر';
-                }
+        // المواد الدراسية حسب المرحلة لتطابق لوحة الإدارة
+        const gradeSubjects = {
+            primary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات' },
+                { id: 'science', name: 'العلوم' },
+                { id: 'social', name: 'الدراسات الاجتماعية' }
+            ],
+            prep: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات' },
+                { id: 'science', name: 'العلوم' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'computer', name: 'الحاسب الآلي' }
+            ]
+        };
 
-                loadMyTickets(user.email);
-                loadMyStudentData();
-            } else {
-                document.getElementById('authActions').style.display = 'block';
-                document.getElementById('userPill').style.display = 'none';
+        function getSubjectsForGrade(gradeName) {
+            if (gradeName && gradeName.includes('الاعدادي')) {
+                return gradeSubjects.prep;
             }
+            return gradeSubjects.primary;
+        }
+
+        // إجبار ظهور شاشة تسجيل الدخول في كل مرة يتم فتح الصفحة أو تحديثها
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('parentLoginOverlay').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
         });
 
-        function openModal(mode) {
-            switchMode(mode);
-            document.getElementById('authModal').style.display = 'flex';
-        }
-        function toggleModal(show) {
-            document.getElementById('authModal').style.display = show ? 'flex' : 'none';
-        }
-
-        function switchMode(mode) {
-            authMode = mode;
-            document.getElementById('alertBox').style.display = 'none';
-            const nameGroup = document.getElementById('nameGroup');
-            const studentBindGroup = document.getElementById('studentBindGroup');
-            const passwordGroup = document.getElementById('passwordGroup');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDesc = document.getElementById('modalDesc');
-            const submitBtn = document.getElementById('submitBtn');
-
-            if (mode === 'signup') {
-                modalTitle.textContent = 'إنشاء حساب ولي أمر جديد';
-                modalDesc.textContent = 'أدخل بياناتك واسم طفلك لتظهر عند الإدارة فوراً';
-                nameGroup.style.display = 'block';
-                studentBindGroup.style.display = 'block';
-                passwordGroup.style.display = 'block';
-                submitBtn.textContent = 'تسجيل الحساب';
-            } else if (mode === 'login') {
-                modalTitle.textContent = 'تسجيل دخول ولي الأمر';
-                modalDesc.textContent = 'أدخل بريدك وكلمة المرور للمتابعة';
-                nameGroup.style.display = 'none';
-                studentBindGroup.style.display = 'none';
-                passwordGroup.style.display = 'block';
-                submitBtn.textContent = 'دخول';
-            } else if (mode === 'forgot') {
-                modalTitle.textContent = 'استعادة كلمة المرور';
-                modalDesc.textContent = 'أدخل بريدك الإلكتروني لإرسال رابط إعادة التعيين';
-                nameGroup.style.display = 'none';
-                studentBindGroup.style.display = 'none';
-                passwordGroup.style.display = 'none';
-                submitBtn.textContent = 'إرسال رابط الاستعادة';
-            }
-        }
-
-        async function handleAuth(e) {
+        async function handleParentLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('emailInput').value.trim().toLowerCase();
-            const password = document.getElementById('passwordInput').value;
-            const alertBox = document.getElementById('alertBox');
+            const seatNo = document.getElementById('loginSeatNo').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const alertBox = document.getElementById('loginAlert');
 
-            try {
-                if (authMode === 'signup') {
-                    const name = document.getElementById('nameInput').value.trim();
-                    const studentName = document.getElementById('bindStudentName').value.trim();
-                    
-                    await auth.createUserWithEmailAndPassword(email, password);
-                    const safeKey = email.replace(/[.#$[\]]/g, '_');
-                    
-                    // حفظ بيانات ولي الأمر
-                    await db.ref('parents/' + safeKey).set({ name, email, studentName });
-                    
-                    // إرسال الطالب تلقائياً لقائمة الطلاب لدي الإدارة ليتم رصد درجاته بدقة
-                    await db.ref('students').push({
-                        name: studentName,
-                        grade: 'غير محدد',
-                        classRoom: 'فصل 1',
-                        seatNo: '---',
-                        attendance: 'منتظم',
-                        absenceDays: '0',
-                        behavior: 'ممتاز',
-                        notes: 'تم تسجيل الحساب بواسطة ولي الأمر، في انتظار رصد الدرجات التفصيلية من الإدارة.',
-                        ar_work: 0, ar_m1: 0, ar_m2: 0, ar_final: 0,
-                        en_work: 0, en_m1: 0, en_m2: 0, en_final: 0,
-                        math_work: 0, math_m1: 0, math_m2: 0, math_final: 0
-                    });
-
-                    alertBox.textContent = '✅ تم إنشاء الحساب وسجل الطالب بنجاح لدى الإدارة!';
-                    alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
-                    setTimeout(() => { toggleModal(false); location.reload(); }, 1500);
-
-                } else if (authMode === 'login') {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    alertBox.textContent = '✅ تم تسجيل الدخول بنجاح!';
-                    alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
-                    setTimeout(() => { toggleModal(false); }, 1000);
-
-                } else if (authMode === 'forgot') {
-                    await auth.sendPasswordResetEmail(email);
-                    alertBox.textContent = '✅ تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني!';
-                    alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
+            db.ref('students').once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    alertBox.textContent = '❌ لا توجد بيانات طلاب مسجلة في النظام حالياً!';
+                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                    return;
                 }
-            } catch (error) {
-                alertBox.textContent = '⚠️ حدث خطأ: ' + error.message;
-                alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
-            }
+
+                let foundKey = null;
+                let foundStudent = null;
+
+                Object.keys(data).forEach(key => {
+                    const s = data[key];
+                    if (s.seatNo == seatNo) {
+                        foundKey = key;
+                        foundStudent = s;
+                    }
+                });
+
+                if (foundStudent) {
+                    // التحقق من الرقم السري (يمكن اعتباره الرقم القومي أو الهاتف لو مسجلين، أو افتراضي لو مش موجود)
+                    currentStudentData = foundStudent;
+                    currentStudentKey = foundKey;
+
+                    document.getElementById('parentLoginOverlay').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    renderStudentData();
+                    loadParentTickets(foundStudent.name);
+                } else {
+                    alertBox.textContent = '❌ رقم الجلوس غير صحيح، يرجى التأكد من الإدارة!';
+                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                }
+            });
         }
 
-        async function logout() {
-            await auth.signOut();
+        function logoutParent() {
             location.reload();
         }
 
-        async function submitTicket(e) {
-            e.preventDefault();
-            const user = auth.currentUser;
-            if (!user) {
-                alert('⚠️ يرجى تسجيل الدخول أولاً كولي أمر لتقديم الشكوى!');
-                openModal('login');
-                return;
-            }
+        function renderStudentData() {
+            const s = currentStudentData;
+            document.getElementById('viewName').textContent = s.name || '-';
+            document.getElementById('viewGrade').textContent = s.grade || '-';
+            document.getElementById('viewClass').textContent = s.classRoom || '-';
+            document.getElementById('viewSeat').textContent = s.seatNo || '-';
+            document.getElementById('viewAttendance').textContent = s.attendance || 'منتظم';
+            document.getElementById('viewAbsence').textContent = s.absenceDays || '0';
+            document.getElementById('viewBehavior').textContent = s.behavior || 'ممتاز';
+            document.getElementById('viewNotes').textContent = s.notes || 'لا توجد ملاحظات مسجلة.';
 
-            const studentName = document.getElementById('ticketStudentName').value.trim();
-            const studentGrade = document.getElementById('ticketGrade').value;
-            const ticketType = document.getElementById('ticketType').value;
-            const ticketContent = document.getElementById('ticketContent').value.trim();
+            const subjects = getSubjectsForGrade(s.grade);
+            const tbody = document.getElementById('gradesTableBody');
+            tbody.innerHTML = '';
+
+            subjects.forEach(sub => {
+                const work = parseFloat(s[sub.id + '_work'] || 0);
+                const weekly = parseFloat(s[sub.id + '_weekly'] || 0);
+                const final = parseFloat(s[sub.id + '_final'] || 0);
+                const total = work + weekly + final;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${sub.name}</b></td>
+                        <td>${work}</td>
+                        <td>${weekly}</td>
+                        <td>${final}</td>
+                        <td><strong style="color: #0284C7;">${total}</strong></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function submitTicket(event) {
+            event.preventDefault();
+            const parentName = document.getElementById('parentNameInput').value.trim();
+            const parentEmail = document.getElementById('parentContactInput').value.trim();
+            const ticketType = document.getElementById('ticketTypeInput').value;
+            const ticketContent = document.getElementById('ticketContentInput').value.trim();
 
             const newTicketRef = db.ref('tickets').push();
             await newTicketRef.set({
-                parentEmail: user.email,
-                parentName: user.displayName || 'ولي الأمر',
-                studentName,
-                studentGrade,
+                parentName,
+                parentEmail,
+                studentName: currentStudentData.name,
+                studentGrade: currentStudentData.grade,
+                studentSeat: currentStudentData.seatNo,
                 ticketType,
                 ticketContent,
-                status: 'قيد المراجعة',
-                adminReply: 'لم تقم الإدارة بالرد بعد',
-                date: new Date().toLocaleDateString()
+                adminReply: 'قيد المراجعة من الإدارة...',
+                status: 'جديد',
+                timestamp: Date.now()
             });
 
-            alert('✅ تم إرسال الشكوى بنجاح للإدارة وسيتم الرد عليها قريباً!');
-            document.getElementById('ticketContent').value = '';
+            alert('✅ تم إرسال طلبك بنجاح إلى الإدارة!');
+            document.getElementById('ticketContentInput').value = '';
+            loadParentTickets(currentStudentData.name);
         }
 
-        function loadMyTickets(email) {
+        function loadParentTickets(studentName) {
             db.ref('tickets').on('value', (snapshot) => {
-                const list = document.getElementById('ticketsList');
+                const list = document.getElementById('parentTicketsList');
                 list.innerHTML = '';
                 const data = snapshot.val();
                 if (!data) {
-                    list.innerHTML = '<p style="color: #64748B; text-align: center; margin-top: 30px;">لا توجد شكاوى مسجلة.</p>';
+                    list.innerHTML = '<p style="color: #64748B; text-align: center; font-size: 13px;">لا توجد طلبات سابقة.</p>';
                     return;
                 }
 
                 let html = '';
                 Object.keys(data).forEach(key => {
                     const t = data[key];
-                    if (t.parentEmail === email) {
-                        const isReplied = t.status === 'تم الرد';
+                    if (t.studentName === studentName) {
                         html += `
-                            <div style="background: #F8FAFC; border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; margin-bottom: 14px;">
-                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px;">
-                                    <span>الطالب: ${t.studentName} (${t.studentGrade})</span>
-                                    <span style="color: ${isReplied ? '#16A34A' : '#D97706'};">${t.status}</span>
+                            <div class="ticket-history-item">
+                                <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px; margin-bottom: 4px;">
+                                    <span>نوع الطلب: ${t.ticketType}</span>
+                                    <span style="color: #166534;">الحالة: ${t.status}</span>
                                 </div>
-                                <p style="font-size: 13px; color: #475569; margin-bottom: 6px;"><b>النوع:</b> ${t.ticketType}</p>
-                                <p style="font-size: 13px; color: #1E293B; background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px;">${t.ticketContent}</p>
-                                <div style="font-size: 13px; background: ${isReplied ? '#DCFCE7' : '#FEF3C7'}; padding: 10px; border-radius: 8px; color: ${isReplied ? '#166534' : '#B45309'};">
-                                    <b>رد إدارة المدرسة:</b> ${t.adminReply}
+                                <p style="font-size: 13px; color: #475569; margin-bottom: 8px;"><b>الطلب:</b> ${t.ticketContent}</p>
+                                <div style="font-size: 13px; color: #0369A1; background: #E0F2FE; padding: 8px; border-radius: 6px;">
+                                    <b>رد المدرسة:</b> ${t.adminReply}
                                 </div>
                             </div>
                         `;
                     }
                 });
-                list.innerHTML = html || '<p style="color: #64748B; text-align: center; margin-top: 30px;">لا توجد شكاوى مسجلة لك حتى الآن.</p>';
-            });
-        }
 
-        function loadMyStudentData() {
-            const studentName = localStorage.getItem('studentName');
-            if (!studentName) return;
-
-            db.ref('students').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
-
-                Object.keys(data).forEach(key => {
-                    const s = data[key];
-                    if (s.name.toLowerCase() === studentName.toLowerCase()) {
-                        document.getElementById('studentFollowSection').style.display = 'block';
-                        
-                        const arTotal = (parseInt(s.ar_work||0) + parseInt(s.ar_m1||0) + parseInt(s.ar_m2||0) + parseInt(s.ar_final||0));
-                        const enTotal = (parseInt(s.en_work||0) + parseInt(s.en_m1||0) + parseInt(s.en_m2||0) + parseInt(s.en_final||0));
-                        const mathTotal = (parseInt(s.math_work||0) + parseInt(s.math_m1||0) + parseInt(s.math_m2||0) + parseInt(s.math_final||0));
-
-                        document.getElementById('studentDataBox').innerHTML = `
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; font-weight: 800; font-size: 14px; background: #F8FAFC; padding: 12px; border-radius: 8px;">
-                                <span>👤 اسم الطالب: ${s.name}</span>
-                                <span>📚 الصف: ${s.grade}</span>
-                                <span>🏫 الفصل: ${s.classRoom || 'الأول'} | 🔢 رقم الجلوس: ${s.seatNo || '---'}</span>
-                            </div>
-                            <div style="display: flex; gap: 15px; margin-bottom: 15px; font-size: 13px;">
-                                <span style="background: #DCFCE7; color: #166534; padding: 6px 12px; border-radius: 6px;"><b>حالة الحضور:</b> ${s.attendance || 'منتظم'} (أيام الغياب: ${s.absenceDays || 0})</span>
-                                <span style="background: #E0F2FE; color: #0369A1; padding: 6px 12px; border-radius: 6px;"><b>السلوك:</b> ${s.behavior || 'ممتاز'}</span>
-                            </div>
-                            <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 8px;">رصد الدرجات التفصيلي:</h4>
-                            <table class="grades-table">
-                                <thead>
-                                    <tr>
-                                        <th>المادة الدراسية</th>
-                                        <th>أعمال السنة</th>
-                                        <th>اختبار الشهر 1</th>
-                                        <th>اختبار الشهر 2</th>
-                                        <th>اختبار النهاية</th>
-                                        <th>المجموع الكلي</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>اللغة العربية</td>
-                                        <td>${s.ar_work || 0}</td>
-                                        <td>${s.ar_m1 || 0}</td>
-                                        <td>${s.ar_m2 || 0}</td>
-                                        <td>${s.ar_final || 0}</td>
-                                        <td><b>${arTotal}</b></td>
-                                    </tr>
-                                    <tr>
-                                        <td>اللغة الإنجليزية</td>
-                                        <td>${s.en_work || 0}</td>
-                                        <td>${s.en_m1 || 0}</td>
-                                        <td>${s.en_m2 || 0}</td>
-                                        <td>${s.en_final || 0}</td>
-                                        <td><b>${enTotal}</b></td>
-                                    </tr>
-                                    <tr>
-                                        <td>الرياضيات</td>
-                                        <td>${s.math_work || 0}</td>
-                                        <td>${s.math_m1 || 0}</td>
-                                        <td>${s.math_m2 || 0}</td>
-                                        <td>${s.math_final || 0}</td>
-                                        <td><b>${mathTotal}</b></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div style="margin-top: 15px; background: #F8FAFC; padding: 12px; border-radius: 8px; font-size: 13px; color: #475569;">
-                                <b>ملاحظات رائد الفصل والمعلمين الدقيقة:</b> ${s.notes || 'لا توجد ملاحظات إضافية حالياً.'}
-                            </div>
-                        `;
-                    }
-                });
+                if (!html) {
+                    list.innerHTML = '<p style="color: #64748B; text-align: center; font-size: 13px;">لا توجد طلبات سابقة لهذا الطالب.</p>';
+                } else {
+                    list.innerHTML = html;
+                }
             });
         }
     </script>
