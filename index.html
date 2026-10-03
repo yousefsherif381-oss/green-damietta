@@ -23,7 +23,7 @@
 
         header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
         .nav-container { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; cursor: default; user-select: none; }
+        .logo { font-size: 20px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
         .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
         .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; transition: 0.2s; }
         .nav-links a:hover, .nav-links a.active { color: var(--primary-color); }
@@ -49,9 +49,10 @@
         .modal-box { background: white; padding: 35px; border-radius: 20px; width: 100%; max-width: 400px; position: relative; }
         .close-btn { position: absolute; top: 15px; left: 20px; font-size: 22px; cursor: pointer; color: #64748B; }
 
-        .grades-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .grades-table th, .grades-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        .grades-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        .grades-table th, .grades-table td { padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color); }
         .grades-table th { background: #F1F5F9; color: #475569; font-weight: 800; }
+        .grades-table td:first-child { text-align: right; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -60,14 +61,14 @@
         <div class="modal-box">
             <span class="close-btn" onclick="toggleModal(false)">&times;</span>
             <h2 id="modalTitle" style="font-size: 18px; font-weight: 900; margin-bottom: 6px;">تسجيل دخول ولي الأمر</h2>
-            <p id="modalDesc" style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة طفلك من أي جهاز</p>
+            <p id="modalDesc" style="font-size: 12px; color: #64748B; margin-bottom: 20px;">أدخل بياناتك لمتابعة طفلك بدقة</p>
             <form onsubmit="handleAuth(event)">
                 <div class="form-group" id="nameGroup" style="display: none;">
                     <label>اسم ولي الأمر الكامل</label>
                     <input type="text" id="nameInput" placeholder="محمود إبراهيم">
                 </div>
                 <div class="form-group" id="studentBindGroup" style="display: none;">
-                    <label>اسم الطالب الرباعي (المرتبط بحسابك)</label>
+                    <label>اسم الطالب الرباعي (لربطه بالحساب)</label>
                     <input type="text" id="bindStudentName" placeholder="يوسف محمود إبراهيم">
                 </div>
                 <div class="form-group">
@@ -90,9 +91,7 @@
 
     <header>
         <div class="nav-container">
-            <!-- الدخول السري للوحة الإدارة: اضغط مرتين متتاليتين (Double Click) على اسم المدرسة -->
-            <a href="#" class="logo" ondblclick="window.location.href='admin.html'" title="بوابة المدرسة">🏫 مدرسة اللغات الرسمية الجديدة</a>
-            
+            <a href="index.html" class="logo">🏫 مدرسة اللغات الرسمية الجديدة</a>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">الرئيسية والشكاوى</a></li>
             </ul>
@@ -112,7 +111,7 @@
     <section class="hero">
         <div>
             <h1>بوابة خدمات أولياء الأمور والطلاب</h1>
-            <p>قدم شكواك أو استفسارك للإدارة، وتابع المستوى الأكاديمي، الحضور، والردود الرسمية لحظة بلحظة.</p>
+            <p>قدم شكواك أو استفسارك للإدارة، وتابع التفاصيل الأكاديمية الدقيقة، الدرجات، الحضور والسلوك لحظة بلحظة.</p>
         </div>
     </section>
 
@@ -163,9 +162,10 @@
         </div>
     </div>
 
+    <!-- قسم المتابعة الدقيقة لتفاصيل الطالب -->
     <div style="max-width: 1100px; margin: 0 auto 40px auto; padding: 0 24px;">
         <div class="card" id="studentFollowSection" style="display: none;">
-            <h2>📊 متابعة المستوى الدراسي والحضور (للطالب المسجل)</h2>
+            <h2>📊 الملف الشامل وتفاصيل أداء الطالب</h2>
             <div id="studentDataBox"></div>
         </div>
     </div>
@@ -230,7 +230,7 @@
 
             if (mode === 'signup') {
                 modalTitle.textContent = 'إنشاء حساب ولي أمر جديد';
-                modalDesc.textContent = 'أدخل بياناتك وسجل من أي جهاز';
+                modalDesc.textContent = 'أدخل بياناتك واسم طفلك لتظهر عند الإدارة فوراً';
                 nameGroup.style.display = 'block';
                 studentBindGroup.style.display = 'block';
                 passwordGroup.style.display = 'block';
@@ -265,11 +265,28 @@
                     
                     await auth.createUserWithEmailAndPassword(email, password);
                     const safeKey = email.replace(/[.#$[\]]/g, '_');
+                    
+                    // حفظ بيانات ولي الأمر
                     await db.ref('parents/' + safeKey).set({ name, email, studentName });
+                    
+                    // إرسال الطالب تلقائياً لقائمة الطلاب لدي الإدارة ليتم رصد درجاته بدقة
+                    await db.ref('students').push({
+                        name: studentName,
+                        grade: 'غير محدد',
+                        classRoom: 'فصل 1',
+                        seatNo: '---',
+                        attendance: 'منتظم',
+                        absenceDays: '0',
+                        behavior: 'ممتاز',
+                        notes: 'تم تسجيل الحساب بواسطة ولي الأمر، في انتظار رصد الدرجات التفصيلية من الإدارة.',
+                        ar_work: 0, ar_m1: 0, ar_m2: 0, ar_final: 0,
+                        en_work: 0, en_m1: 0, en_m2: 0, en_final: 0,
+                        math_work: 0, math_m1: 0, math_m2: 0, math_final: 0
+                    });
 
-                    alertBox.textContent = '✅ تم إنشاء الحساب بنجاح!';
+                    alertBox.textContent = '✅ تم إنشاء الحساب وسجل الطالب بنجاح لدى الإدارة!';
                     alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
-                    setTimeout(() => { toggleModal(false); }, 1200);
+                    setTimeout(() => { toggleModal(false); location.reload(); }, 1500);
 
                 } else if (authMode === 'login') {
                     await auth.signInWithEmailAndPassword(email, password);
@@ -370,26 +387,62 @@
                     const s = data[key];
                     if (s.name.toLowerCase() === studentName.toLowerCase()) {
                         document.getElementById('studentFollowSection').style.display = 'block';
+                        
+                        const arTotal = (parseInt(s.ar_work||0) + parseInt(s.ar_m1||0) + parseInt(s.ar_m2||0) + parseInt(s.ar_final||0));
+                        const enTotal = (parseInt(s.en_work||0) + parseInt(s.en_m1||0) + parseInt(s.en_m2||0) + parseInt(s.en_final||0));
+                        const mathTotal = (parseInt(s.math_work||0) + parseInt(s.math_m1||0) + parseInt(s.math_m2||0) + parseInt(s.math_final||0));
+
                         document.getElementById('studentDataBox').innerHTML = `
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 14px;">
-                                <span>اسم الطالب: ${s.name}</span>
-                                <span style="color: var(--primary-color);">${s.grade}</span>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; font-weight: 800; font-size: 14px; background: #F8FAFC; padding: 12px; border-radius: 8px;">
+                                <span>👤 اسم الطالب: ${s.name}</span>
+                                <span>📚 الصف: ${s.grade}</span>
+                                <span>🏫 الفصل: ${s.classRoom || 'الأول'} | 🔢 رقم الجلوس: ${s.seatNo || '---'}</span>
                             </div>
-                            <p style="font-size: 13px; margin-bottom: 6px;"><b>حالة الحضور والغياب:</b> <span style="color: #16A34A;">${s.attendance || 'منتظم'}</span></p>
-                            <p style="font-size: 13px; margin-bottom: 10px;"><b>التقييم السلوكي:</b> <span style="color: #0284C7;">${s.behavior || 'ممتاز'}</span></p>
-                            <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 8px;">درجات الاختبارات وأعمال السنة:</h4>
+                            <div style="display: flex; gap: 15px; margin-bottom: 15px; font-size: 13px;">
+                                <span style="background: #DCFCE7; color: #166534; padding: 6px 12px; border-radius: 6px;"><b>حالة الحضور:</b> ${s.attendance || 'منتظم'} (أيام الغياب: ${s.absenceDays || 0})</span>
+                                <span style="background: #E0F2FE; color: #0369A1; padding: 6px 12px; border-radius: 6px;"><b>السلوك:</b> ${s.behavior || 'ممتاز'}</span>
+                            </div>
+                            <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 8px;">رصد الدرجات التفصيلي:</h4>
                             <table class="grades-table">
                                 <thead>
-                                    <tr><th>المادة الدراسية</th><th>أعمال السنة (من 20)</th><th>اختبار الشهر (من 30)</th><th>المجموع</th></tr>
+                                    <tr>
+                                        <th>المادة الدراسية</th>
+                                        <th>أعمال السنة</th>
+                                        <th>اختبار الشهر 1</th>
+                                        <th>اختبار الشهر 2</th>
+                                        <th>اختبار النهاية</th>
+                                        <th>المجموع الكلي</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>اللغة العربية</td><td>${s.ar_work || 18}</td><td>${s.ar_exam || 26}</td><td><b>${(parseInt(s.ar_work||18)+parseInt(s.ar_exam||26))} / 50</b></td></tr>
-                                    <tr><td>اللغة الإنجليزية (English)</td><td>${s.en_work || 19}</td><td>${s.en_exam || 28}</td><td><b>${(parseInt(s.en_work||19)+parseInt(s.en_exam||28))} / 50</b></td></tr>
-                                    <tr><td>الرياضيات (Math)</td><td>${s.math_work || 17}</td><td>${s.math_exam || 25}</td><td><b>${(parseInt(s.math_work||17)+parseInt(s.math_exam||25))} / 50</b></td></tr>
+                                    <tr>
+                                        <td>اللغة العربية</td>
+                                        <td>${s.ar_work || 0}</td>
+                                        <td>${s.ar_m1 || 0}</td>
+                                        <td>${s.ar_m2 || 0}</td>
+                                        <td>${s.ar_final || 0}</td>
+                                        <td><b>${arTotal}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td>اللغة الإنجليزية</td>
+                                        <td>${s.en_work || 0}</td>
+                                        <td>${s.en_m1 || 0}</td>
+                                        <td>${s.en_m2 || 0}</td>
+                                        <td>${s.en_final || 0}</td>
+                                        <td><b>${enTotal}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td>الرياضيات</td>
+                                        <td>${s.math_work || 0}</td>
+                                        <td>${s.math_m1 || 0}</td>
+                                        <td>${s.math_m2 || 0}</td>
+                                        <td>${s.math_final || 0}</td>
+                                        <td><b>${mathTotal}</b></td>
+                                    </tr>
                                 </tbody>
                             </table>
-                            <div style="margin-top: 15px; background: #F8FAFC; padding: 10px; border-radius: 8px; font-size: 13px; color: #475569;">
-                                <b>ملاحظات رائد الفصل:</b> ${s.notes || 'الطالب منتظم ومستواه مبشر بالتفوق.'}
+                            <div style="margin-top: 15px; background: #F8FAFC; padding: 12px; border-radius: 8px; font-size: 13px; color: #475569;">
+                                <b>ملاحظات رائد الفصل والمعلمين الدقيقة:</b> ${s.notes || 'لا توجد ملاحظات إضافية حالياً.'}
                             </div>
                         `;
                     }
