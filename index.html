@@ -59,16 +59,16 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل دخول ولي الأمر (تظهر دائماً عند فتح أو تحديث الصفحة) -->
+    <!-- نافذة تسجيل دخول ولي الأمر -->
     <div id="parentLoginOverlay">
         <div class="login-card">
             <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #0F172A; border: none; padding: 0;">👨‍👩‍👦 بوابة ولي الأمر</h2>
-            <p style="font-size: 13px; color: #64748B; margin-bottom: 20px;">أدخل رقم جلوس الطالب والرقم السري للمتابعة.</p>
+            <p style="font-size: 13px; color: #64748B; margin-bottom: 20px;">أدخل اسم الطالب والرقم السري للمتابعة.</p>
             
             <form onsubmit="handleParentLogin(event)">
                 <div class="form-group">
-                    <label>رقم جلوس الطالب</label>
-                    <input type="text" id="loginSeatNo" placeholder="مثال: 1050" required>
+                    <label>اسم الطالب الرباعي</label>
+                    <input type="text" id="loginStudentName" placeholder="أدخل اسم الطالب الكامل" required>
                 </div>
                 <div class="form-group">
                     <label>الرقم السري (رقم القومي أو الهاتف)</label>
@@ -108,8 +108,8 @@
                     <strong id="viewGrade">-</strong>
                 </div>
                 <div class="info-box">
-                    <span>الفصل / رقم الجلوس</span>
-                    <strong><span id="viewClass">-</span> / <span id="viewSeat">-</span></strong>
+                    <span>الفصل الدراسي</span>
+                    <strong id="viewClass">-</strong>
                 </div>
                 <div class="info-box">
                     <span>حالة الحضور والأيام</span>
@@ -137,7 +137,7 @@
                         </tr>
                     </thead>
                     <tbody id="gradesTableBody">
-                        <!-- يتم تعبئتها ديناميكياً حسب مواد الصف -->
+                        <!-- تعبئة ديناميكية -->
                     </tbody>
                 </table>
             </div>
@@ -147,7 +147,7 @@
             </div>
         </div>
 
-        <!-- إرسال شكوى أو طلب للإدارة -->
+        <!-- إرسال شكوى -->
         <div class="card">
             <h2>📨 إرسال شكوى أو استفسار لإدارة المدرسة</h2>
             <form onsubmit="submitTicket(event)">
@@ -177,7 +177,7 @@
             </form>
         </div>
 
-        <!-- متابعة الشكاوى والردود -->
+        <!-- متابعة الشكاوى -->
         <div class="card">
             <h2>📥 متابعة حالة الطلبات والشكاوى السابقة</h2>
             <div id="parentTicketsList">
@@ -203,7 +203,6 @@
         let currentStudentData = null;
         let currentStudentKey = null;
 
-        // المواد الدراسية حسب المرحلة لتطابق لوحة الإدارة
         const gradeSubjects = {
             primary: [
                 { id: 'ar', name: 'اللغة العربية' },
@@ -229,7 +228,6 @@
             return gradeSubjects.primary;
         }
 
-        // إجبار ظهور شاشة تسجيل الدخول في كل مرة يتم فتح الصفحة أو تحديثها
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('parentLoginOverlay').style.display = 'flex';
             document.getElementById('mainContent').style.display = 'none';
@@ -237,8 +235,7 @@
 
         async function handleParentLogin(e) {
             e.preventDefault();
-            const seatNo = document.getElementById('loginSeatNo').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
+            const inputName = document.getElementById('loginStudentName').value.trim();
             const alertBox = document.getElementById('loginAlert');
 
             db.ref('students').once('value', (snapshot) => {
@@ -254,14 +251,13 @@
 
                 Object.keys(data).forEach(key => {
                     const s = data[key];
-                    if (s.seatNo == seatNo) {
+                    if (s.name && s.name.toLowerCase() === inputName.toLowerCase()) {
                         foundKey = key;
                         foundStudent = s;
                     }
                 });
 
                 if (foundStudent) {
-                    // التحقق من الرقم السري (يمكن اعتباره الرقم القومي أو الهاتف لو مسجلين، أو افتراضي لو مش موجود)
                     currentStudentData = foundStudent;
                     currentStudentKey = foundKey;
 
@@ -270,7 +266,7 @@
                     renderStudentData();
                     loadParentTickets(foundStudent.name);
                 } else {
-                    alertBox.textContent = '❌ رقم الجلوس غير صحيح، يرجى التأكد من الإدارة!';
+                    alertBox.textContent = '❌ اسم الطالب غير صحيح، يرجى التأكد من كتابته بشكل صحيح!';
                     alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
                 }
             });
@@ -285,7 +281,6 @@
             document.getElementById('viewName').textContent = s.name || '-';
             document.getElementById('viewGrade').textContent = s.grade || '-';
             document.getElementById('viewClass').textContent = s.classRoom || '-';
-            document.getElementById('viewSeat').textContent = s.seatNo || '-';
             document.getElementById('viewAttendance').textContent = s.attendance || 'منتظم';
             document.getElementById('viewAbsence').textContent = s.absenceDays || '0';
             document.getElementById('viewBehavior').textContent = s.behavior || 'ممتاز';
@@ -326,7 +321,6 @@
                 parentEmail,
                 studentName: currentStudentData.name,
                 studentGrade: currentStudentData.grade,
-                studentSeat: currentStudentData.seatNo,
                 ticketType,
                 ticketContent,
                 adminReply: 'قيد المراجعة من الإدارة...',
