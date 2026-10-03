@@ -13,70 +13,56 @@
         :root {
             --primary-color: #0284C7;
             --primary-dark: #0369A1;
+            --bg-color: #F8FAFC;
             --border-color: #CBD5E1;
-            --radius: 12px;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --radius: 10px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        
-        /* خلفية أنيميشن متحركة واحترافية */
-        body {
-            background: linear-gradient(-45deg, #0f172a, #0284c7, #38bdf8, #0369a1);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #1E293B;
-            min-height: 100vh;
-            line-height: 1.7;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        body { background: var(--bg-color); color: #1E293B; line-height: 1.7; }
 
-        header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .nav-container { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 18px; font-weight: 900; color: var(--primary-color); text-decoration: none; }
         .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
-        .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; transition: 0.2s; }
+        .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; }
         .nav-links a.active { color: var(--primary-color); }
 
         .container { max-width: 1100px; margin: 40px auto; padding: 0 24px; }
-        .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.4); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 30px; }
         .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; }
 
-        /* شاشة تسجيل الدخول المحدثة */
-        #adminLoginOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.85); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-        .login-card { background: white; padding: 40px; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: right; }
+        /* شاشة تسجيل الدخول */
+        #adminLoginOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: right; }
         
         .form-group { margin-bottom: 14px; text-align: right; }
         .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #334155; }
-        .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #FFFFFF; outline: none; transition: 0.2s; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); }
+        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #FFFFFF; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
         
-        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 14px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
         .btn-primary:hover { background: var(--primary-dark); }
 
-        /* تنسيق كروت الرسائل والردود والمسح في لوحة الإدارة */
-        .chat-ticket-item { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #F1F5F9; padding-bottom: 10px; }
+        .chat-ticket-item { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #F1F5F9; padding-bottom: 8px; }
         
-        .msg-bubble { background: #F8FAFC; border-right: 4px solid var(--primary-color); padding: 14px 18px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; color: #334155; }
-        .reply-bubble { background: #F0FDF4; border-right: 4px solid #16A34A; padding: 14px 18px; border-radius: 10px; font-size: 13px; color: #166534; margin-bottom: 12px; }
+        .msg-bubble { background: #F8FAFC; border-right: 4px solid var(--primary-color); padding: 12px 16px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; color: #334155; }
+        .reply-bubble { background: #F0FDF4; border-right: 4px solid #16A34A; padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #166534; margin-bottom: 12px; }
         
         .reply-box { display: flex; gap: 10px; margin-top: 10px; }
-        .reply-box input { flex: 1; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 13px; outline: none; }
-        .btn-reply { background: #16A34A; color: white; border: none; padding: 0 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .reply-box input { flex: 1; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; }
+        .btn-reply { background: #16A34A; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; }
         .btn-reply:hover { background: #15803D; }
 
-        .btn-delete-admin { background: #FEE2E2; color: #B91C1C; border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-delete-admin { background: #FEE2E2; color: #B91C1C; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; }
         .btn-delete-admin:hover { background: #EF4444; color: white; }
 
         .form-row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 12px; }
         .form-row-grades { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         
-        .student-admin-card { background: #F8FAFC; border: 1px solid var(--border-color); padding: 22px; border-radius: 16px; margin-bottom: 20px; }
-        .grades-container { background: #FFFFFF; padding: 16px; border-radius: 12px; margin-bottom: 14px; border: 1px solid #E2E8F0; }
+        .student-admin-card { background: #F8FAFC; border: 1px solid var(--border-color); padding: 22px; border-radius: 14px; margin-bottom: 20px; }
+        .grades-container { background: #FFFFFF; padding: 16px; border-radius: 10px; margin-bottom: 14px; border: 1px solid #E2E8F0; }
         .subject-block { margin-bottom: 12px; border-bottom: 1px dashed #F1F5F9; padding-bottom: 10px; }
         .subject-title { font-size: 13px; font-weight: 800; color: #0284C7; margin-bottom: 6px; }
     </style>
@@ -137,7 +123,7 @@
                         <input type="password" id="newAdminPass" placeholder="••••••••" required>
                     </div>
                 </div>
-                <button type="submit" style="background: #0284C7; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer;">حفظ بيانات الدخول 🔒</button>
+                <button type="submit" style="background: #0284C7; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer;">حفظ بيانات الدخول 🔒</button>
             </form>
         </div>
 
@@ -149,7 +135,7 @@
             </div>
         </div>
 
-        <!-- الشكاوى والرسائل مع إمكانية الحذف والمسح -->
+        <!-- الشكاوى والرسائل -->
         <div class="card">
             <h2>📥 شكاوى وطلبات أولياء الأمور الواردة</h2>
             <div id="adminTicketsList">
@@ -270,7 +256,7 @@
             const p = document.getElementById('newAdminPass').value.trim();
 
             if (!u || p.length < 6) {
-                alert('⚠️ يرجى إدخال اسم مستخدم وكلمة مرور لا تقل عن 6 أحرف!');
+                alert('⚠️️ يرجى إدخال اسم مستخدم وكلمة مرور لا تقل عن 6 أحرف!');
                 return;
             }
 
@@ -380,8 +366,8 @@
                             </div>
 
                             <div style="display: flex; gap: 10px;">
-                                <button type="submit" style="background: #16A34A; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; flex: 1;">حفظ وتحديث بيانات الطالب 💾</button>
-                                <button type="button" onclick="deleteStudent('${key}')" style="background: #EF4444; color: white; border: none; padding: 12px 16px; border-radius: 10px; font-weight: 800; cursor: pointer;">حذف 🗑️</button>
+                                <button type="submit" style="background: #16A34A; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1;">حفظ وتحديث بيانات الطالب 💾</button>
+                                <button type="button" onclick="deleteStudent('${key}')" style="background: #EF4444; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 800; cursor: pointer;">حذف 🗑️</button>
                             </div>
                         </form>
                     </div>
@@ -443,14 +429,14 @@
                                 <span style="font-size: 11px; color: #64748B; display: block;">للتواصل: ${t.parentEmail} | الطالب: ${t.studentName} (${t.studentGrade})</span>
                             </div>
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="background: #E0F2FE; color: #0369A1; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800;">${t.ticketType}</span>
+                                <span style="background: #E0F2FE; color: #0369A1; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800;">${t.ticketType}</span>
                                 <button class="btn-delete-admin" onclick="deleteAdminTicket('${key}')">حذف 🗑️</button>
                             </div>
                         </div>
 
                         <div class="msg-bubble">
                             <b>رسالة ولي الأمر:</b><br>${t.ticketContent}
-                            <span style="font-size: 10px; color: #94A3B8; margin-top: 6px; display: block;">${dateFormatted}</span>
+                            <span style="font-size: 10px; color: #94A3B8; margin-top: 4px; display: block;">${dateFormatted}</span>
                         </div>
 
                         <div class="reply-bubble">
