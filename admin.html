@@ -6,29 +6,13 @@
     <title>لوحة الإدارة الشاملة | مدرسة اللغات الرسمية الجديدة</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-    <script>
-        const adminAuth = sessionStorage.getItem('isAdminAuth');
-        if (adminAuth !== 'true') {
-            const savedAdminUser = localStorage.getItem('adminUser') || "admin";
-            const savedAdminPass = localStorage.getItem('adminPassword') || "Admin2026@School";
-
-            const inputUser = prompt("👤 يرجى إدخال اسم مستخدم الإدارة:");
-            const inputPass = prompt("🔑 يرجى إدخال كلمة المرور الخاصة بالإدارة:");
-
-            if (inputUser === savedAdminUser && inputPass === savedAdminPass) {
-                sessionStorage.setItem('isAdminAuth', 'true');
-            } else {
-                alert("❌ اسم المستخدم أو كلمة المرور غير صحيحة! سيتم إعادتك للصفحة الرئيسية.");
-                window.location.href = "index.html";
-            }
-        }
-    </script>
 
     <style>
         :root {
             --primary-color: #0284C7;
+            --primary-dark: #0369A1;
             --bg-color: #F8FAFC;
             --border-color: #E2E8F0;
             --radius: 12px;
@@ -48,20 +32,55 @@
         .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 30px; }
         .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #0F172A; }
 
+        /* شاشة تسجيل الدخول الاحترافية (Modal) */
+        #adminLoginOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: right; }
+        
+        .form-group { margin-bottom: 16px; text-align: right; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #475569; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; background: #F8FAFC; outline: none; }
+        
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; }
+        .btn-primary:hover { background: var(--primary-dark); }
+
         .ticket-item { background: #F8FAFC; border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 16px; }
         .reply-box { margin-top: 12px; display: flex; gap: 10px; }
         .reply-box input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; }
         .btn-reply { background: #16A34A; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-
+        
         .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 15px; }
         .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #475569; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
-        
         .student-admin-card { background: #F8FAFC; border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
+
+    <!-- شاشة تسجيل الدخول الاحترافية الخاصة بالإدارة -->
+    <div id="adminLoginOverlay">
+        <div class="login-card">
+            <h2 id="adminModalTitle" style="font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #0F172A;">🔐 تسجیل دخول الإدارة</h2>
+            <p id="adminModalDesc" style="font-size: 13px; color: #64748B; margin-bottom: 20px;">أدخل بيانات الاعتماد الخاصة بمدير النظام للتحكم الكامل.</p>
+            
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="form-group" id="userFieldGroup">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="adminUserField" placeholder="admin" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="adminPassField" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary" id="adminSubmitBtn">تسجيل الدخول 🚀</button>
+            </form>
+
+            <div id="adminAlert" style="padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 700;"></div>
+
+            <div style="margin-top: 18px; text-align: center; font-size: 13px;">
+                <span id="adminSwitchToggle" style="color: #EF4444; font-weight: 800; cursor: pointer;" onclick="toggleAdminMode('forgot')">نسيت كلمة المرور؟</span>
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo">⚙️ لوحة إدارة المدرسة الشاملة</a>
@@ -97,7 +116,6 @@
         <!-- قسم إدارة ورصد درجات وتفاصيل الطلاب المسجلين -->
         <div class="card">
             <h2>👥 قائمة الطلاب المسجلين والتحكم في أدق تفاصيلهم</h2>
-            <p style="font-size: 13px; color: #64748B; margin-bottom: 20px;">الطلاب الذين يسجلون عبر بوابة أولياء الأمور يظهرون هنا تلقائياً. يمكنك تعديل درجاتهم، السلوك، والحضور والضغط على تحديث ليراها ولي الأمر فوراً.</p>
             <div id="adminStudentsList">
                 <p style="color: #64748B; text-align: center;">جاري تحميل الطلاب...</p>
             </div>
@@ -126,9 +144,78 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
+        let adminLoginMode = 'login';
+
+        // التحقق مما إذا كان الأدمن مسجل الدخول مسبقاً في الجلسة الحالية
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isAdminAuth') === 'true') {
+                document.getElementById('adminLoginOverlay').style.display = 'none';
+            } else {
+                document.getElementById('adminLoginOverlay').style.display = 'flex';
+            }
+        });
+
+        function toggleAdminMode(mode) {
+            adminLoginMode = mode;
+            const alertBox = document.getElementById('adminAlert');
+            alertBox.style.display = 'none';
+            const userFieldGroup = document.getElementById('userFieldGroup');
+            const title = document.getElementById('adminModalTitle');
+            const desc = document.getElementById('adminModalDesc');
+            const btn = document.getElementById('adminSubmitBtn');
+            const toggleText = document.getElementById('adminSwitchToggle');
+
+            if (mode === 'forgot') {
+                title.textContent = '🔄 استعادة كلمة مرور الأدمن';
+                desc.textContent = 'أدخل اسم المستخدم لاستعادة بيانات الافتراضية.';
+                userFieldGroup.style.display = 'block';
+                btn.textContent = 'إعادة الضبط للافتراضي';
+                toggleText.textContent = 'العودة لتسجيل الدخول';
+                toggleText.setAttribute('onclick', "toggleAdminMode('login')");
+            } else {
+                title.textContent = '🔐 تسجيل دخول الإدارة';
+                desc.textContent = 'أدخل بيانات الاعتماد الخاصة بمدير النظام للتحكم الكامل.';
+                userFieldGroup.style.display = 'block';
+                btn.textContent = 'تسجيل الدخول 🚀';
+                toggleText.textContent = 'نسيت كلمة المرور؟';
+                toggleText.setAttribute('onclick', "toggleAdminMode('forgot')");
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const uInput = document.getElementById('adminUserField').value.trim();
+            const pInput = document.getElementById('adminPassField').value.trim();
+            const alertBox = document.getElementById('adminAlert');
+
+            const savedUser = localStorage.getItem('adminUser') || "admin";
+            const savedPass = localStorage.getItem('adminPassword') || "Admin2026@School";
+
+            if (adminLoginMode === 'login') {
+                if (uInput === savedUser && pInput === savedPass) {
+                    sessionStorage.setItem('isAdminAuth', 'true');
+                    document.getElementById('adminLoginOverlay').style.display = 'none';
+                } else {
+                    alertBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة!';
+                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                }
+            } else if (adminLoginMode === 'forgot') {
+                if (uInput === savedUser) {
+                    localStorage.setItem('adminUser', 'admin');
+                    localStorage.setItem('adminPassword', 'Admin2026@School');
+                    alertBox.textContent = '✅ تم استعادة بيانات الدخول الافتراضية: admin / Admin2026@School';
+                    alertBox.style.background = '#DCFCE7'; alertBox.style.color = '#166534'; alertBox.style.display = 'block';
+                    setTimeout(() => { toggleAdminMode('login'); }, 2000);
+                } else {
+                    alertBox.textContent = '⚠️ اسم المستخدم غير صحيح!';
+                    alertBox.style.background = '#FEE2E2'; alertBox.style.color = '#B91C1C'; alertBox.style.display = 'block';
+                }
+            }
+        }
+
         function logoutAdmin() {
             sessionStorage.removeItem('isAdminAuth');
-            window.location.href = "index.html";
+            location.reload();
         }
 
         function updateAdminCredentials(e) {
@@ -148,7 +235,7 @@
             document.getElementById('newAdminPass').value = '';
         }
 
-        // جلب وعرض الطلاب للتعديل الدقيق
+        // جلب وعرض الطلاب
         db.ref('students').on('value', (snapshot) => {
             const list = document.getElementById('adminStudentsList');
             list.innerHTML = '';
@@ -209,30 +296,30 @@
                             </div>
 
                             <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-color);">
-                                <h4 style="font-size: 13px; font-weight: 800; color: #0284C7; margin-bottom: 8px;">درجات المواد الدراسية (أعمال سنة + شهور + نهائي):</h4>
+                                <h4 style="font-size: 13px; font-weight: 800; color: #0284C7; margin-bottom: 8px;">درجات المواد الدراسية:</h4>
                                 
-                                <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">اللغة العربية (أعمال سنة / شهر 1 / شهر 2 / نهائي)</div>
+                                <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">اللغة العربية (أعمال / شهر 1 / شهر 2 / نهائي)</div>
                                 <div class="form-row" style="margin-bottom: 8px;">
-                                    <input type="number" id="ar_work_${key}" value="${s.ar_work || 0}" placeholder="أعمال">
-                                    <input type="number" id="ar_m1_${key}" value="${s.ar_m1 || 0}" placeholder="شهر 1">
-                                    <input type="number" id="ar_m2_${key}" value="${s.ar_m2 || 0}" placeholder="شهر 2">
-                                    <input type="number" id="ar_final_${key}" value="${s.ar_final || 0}" placeholder="نهائي">
+                                    <input type="number" id="ar_work_${key}" value="${s.ar_work || 0}">
+                                    <input type="number" id="ar_m1_${key}" value="${s.ar_m1 || 0}">
+                                    <input type="number" id="ar_m2_${key}" value="${s.ar_m2 || 0}">
+                                    <input type="number" id="ar_final_${key}" value="${s.ar_final || 0}">
                                 </div>
 
                                 <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">اللغة الإنجليزية (أعمال / شهر 1 / شهر 2 / نهائي)</div>
                                 <div class="form-row" style="margin-bottom: 8px;">
-                                    <input type="number" id="en_work_${key}" value="${s.en_work || 0}" placeholder="أعمال">
-                                    <input type="number" id="en_m1_${key}" value="${s.en_m1 || 0}" placeholder="شهر 1">
-                                    <input type="number" id="en_m2_${key}" value="${s.en_m2 || 0}" placeholder="شهر 2">
-                                    <input type="number" id="en_final_${key}" value="${s.en_final || 0}" placeholder="نهائي">
+                                    <input type="number" id="en_work_${key}" value="${s.en_work || 0}">
+                                    <input type="number" id="en_m1_${key}" value="${s.en_m1 || 0}">
+                                    <input type="number" id="en_m2_${key}" value="${s.en_m2 || 0}">
+                                    <input type="number" id="en_final_${key}" value="${s.en_final || 0}">
                                 </div>
 
                                 <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">الرياضيات (أعمال / شهر 1 / شهر 2 / نهائي)</div>
                                 <div class="form-row" style="margin-bottom: 8px;">
-                                    <input type="number" id="math_work_${key}" value="${s.math_work || 0}" placeholder="أعمال">
-                                    <input type="number" id="math_m1_${key}" value="${s.math_m1 || 0}" placeholder="شهر 1">
-                                    <input type="number" id="math_m2_${key}" value="${s.math_m2 || 0}" placeholder="شهر 2">
-                                    <input type="number" id="math_final_${key}" value="${s.math_final || 0}" placeholder="نهائي">
+                                    <input type="number" id="math_work_${key}" value="${s.math_work || 0}">
+                                    <input type="number" id="math_m1_${key}" value="${s.math_m1 || 0}">
+                                    <input type="number" id="math_m2_${key}" value="${s.math_m2 || 0}">
+                                    <input type="number" id="math_final_${key}" value="${s.math_final || 0}">
                                 </div>
                             </div>
 
@@ -285,11 +372,11 @@
                 math_work, math_m1, math_m2, math_final
             });
 
-            alert('✅ تم تحديث كافة تفاصيل ودرجات الطالب بنجاح وظهرت لدى ولي الأمر فوراً!');
+            alert('✅ تم تحديث كافة تفاصيل ودرجات الطالب بنجاح!');
         }
 
         async function deleteStudent(key) {
-            if (confirm('هل أنت متأكد من حذف هذا الطالب من السجل؟')) {
+            if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
                 await db.ref('students/' + key).remove();
                 alert('🗑️ تم الحذف بنجاح.');
             }
@@ -298,7 +385,7 @@
         // جلب الشكاوى
         db.ref('tickets').on('value', (snapshot) => {
             const list = document.getElementById('adminTicketsList');
-            list.innerHTML = '';
+            list.innerHTML = ``;
             const data = snapshot.val();
             if (!data) {
                 list.innerHTML = '<p style="color: #64748B; text-align: center;">لا توجد شكاوى جديدة حالياً.</p>';
@@ -331,16 +418,13 @@
 
         async function sendReply(ticketId) {
             const replyText = document.getElementById('reply_' + ticketId).value.trim();
-            if (!replyText) {
-                alert('⚠ يرجى كتابة الرد أولاً!');
-                return;
-            }
+            if (!replyText) { alert('⚠ يرجى كتابة الرد أولاً!'); return; }
 
             await db.ref('tickets/' + ticketId).update({
                 adminReply: replyText,
                 status: 'تم الرد'
             });
-            alert('✅ تم إرسال الرد لولي الأمر وتحديث حالته في الأرشيف!');
+            alert('✅ تم إرسال الرد بنجاح!');
         }
     </script>
 </body>
