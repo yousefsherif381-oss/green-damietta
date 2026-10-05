@@ -55,31 +55,33 @@
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo-area">
-                <img src="image_2462d9.jpg" alt="الشعار" class="logo-img">
+                <img src="image_2462d9.jpg" alt="شعار المدرسة" class="logo-img">[cite: 4]
                 <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
             </a>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">الرئيسية</a></li>
-                <li><a onclick="checkAuthAndScroll('gradesSection')">الدرجات والتقييمات</a></li>
-                <li><a onclick="checkAuthAndScroll('ticketsSection')">شكاوى وطلبات الإدارة</a></li>
+                <li><a onclick="tryAccessSection('gradesCard')">درجات الطلاب</a></li>
+                <li><a onclick="tryAccessSection('ticketsCard')">شكاوى وطلبات الإدارة</a></li>
                 <li><a href="admin.html">لوحة الإدارة</a></li>
             </ul>
         </div>
     </header>
 
     <div class="container">
-        <!-- قسم الترحيب العام بالموقع (يظهر للجميع فور الدخول) -->
+        <!-- الواجهة الرئيسية للزوار -->
         <div class="card" style="text-align: center; padding: 40px 20px;">
-            <img src="image_2462d9.jpg" alt="Logo" style="width: 80px; height: 80px; object-fit: contain; border-radius: 50%; border: 3px solid var(--primary-color); padding: 4px; background: #fff; margin-bottom: 15px;">
+            <img src="image_2462d9.jpg" alt="شعار المدرسة" style="width: 80px; height: 80px; object-fit: contain; border-radius: 50%; border: 3px solid var(--primary-color); padding: 4px; background: #fff; margin-bottom: 15px;">[cite: 4]
             <h1 style="font-size: 24px; font-weight: 900; color: #0F172A; margin-bottom: 10px;">أهلاً بكم في مدرسة اللغات الرسمية الجديدة</h1>
             <p style="color: #64748B; font-size: 15px; max-width: 600px; margin: 0 auto 25px;">منصة متابعة الطلاب، درجات التقييمات، والتواصل المباشر مع إدارة المدرسة بكل سهولة ويسر.</p>
-            <button onclick="scrollToLogin()" class="btn-primary" style="max-width: 250px; margin: auto;">تسجيل الدخول لمتابعة الطالب 🔐</button>
+            <div style="display: flex; gap: 10px; justify-content: center; max-width: 400px; margin: auto;">
+                <button onclick="scrollToLogin()" class="btn-primary">تسجيل الدخول 🔐</button>
+            </div>
         </div>
 
-        <!-- قسم تسجيل دخول ولي الأمر -->
+        <!-- صندوق تسجيل الدخول -->
         <div class="card" id="loginCard">
             <div style="text-align: center; margin-bottom: 15px;">
-                <img src="image_2462d9.jpg" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; background: #fff;">
+                <img src="image_2462d9.jpg" alt="شعار المدرسة" style="width: 50px; height: 50px; object-fit: contain; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; background: #fff;">[cite: 4]
             </div>
             <h2>🔐 تسجيل دخول ولي الأمر</h2>
             <form onsubmit="handleParentLogin(event)">
@@ -97,87 +99,85 @@
             </form>
         </div>
 
-        <!-- قسم لوحة متابعة الطالب والدرجات (مخفي لحين تسجيل الدخول) -->
-        <div id="studentDashboard" style="display: none;">
-            <div class="card" id="gradesSection">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; margin-bottom: 20px;">
-                    <h2 id="welcomeStudentTitle" style="margin: 0; border: none; padding: 0;">مرحباً بك</h2>
-                    <button onclick="logoutParent()" style="background: #EF4444; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer;">تسجيل خروج 🚪</button>
+        <!-- قسم درجات الطالب (محمي) -->
+        <div class="card" id="gradesCard" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 id="welcomeStudentTitle" style="margin: 0; border: none; padding: 0;">مرحباً بك</h2>
+                <button onclick="logoutParent()" style="background: #EF4444; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer;">تسجيل خروج 🚪</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
+                    <span style="font-size: 12px; color: #64748B; display: block;">الصف الدراسي</span>
+                    <b id="lblGrade" style="font-size: 14px; color: #0F172A;">-</b>
                 </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                    <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
-                        <span style="font-size: 12px; color: #64748B; display: block;">الصف الدراسي</span>
-                        <b id="lblGrade" style="font-size: 14px; color: #0F172A;">-</b>
-                    </div>
-                    <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
-                        <span style="font-size: 12px; color: #64748B; display: block;">الفصل</span>
-                        <b id="lblClassRoom" style="font-size: 14px; color: #0F172A;">-</b>
-                    </div>
-                    <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
-                        <span style="font-size: 12px; color: #64748B; display: block;">الحالة والغياب</span>
-                        <b id="lblAttendance" style="font-size: 14px; color: #0F172A;">-</b>
-                    </div>
+                <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
+                    <span style="font-size: 12px; color: #64748B; display: block;">الفصل</span>
+                    <b id="lblClassRoom" style="font-size: 14px; color: #0F172A;">-</b>
                 </div>
-
-                <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 12px; color: #0284C7;">درجات التقييمات والأعمال</h3>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>المادة الدراسية</th>
-                                <th>أعمال السنة</th>
-                                <th>التقييم الأسبوعي</th>
-                                <th>الامتحان النهائي</th>
-                                <th>المجموع الكلي</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gradesTableBody">
-                            <!-- توليد الدرجات -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div style="margin-top: 20px; background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
-                    <h4 style="font-size: 13px; font-weight: 800; color: #0F172A; margin-bottom: 5px;">ملاحظات المعلمين:</h4>
-                    <p id="lblNotes" style="font-size: 13px; color: #334155;">لا توجد ملاحظات حالياً.</p>
+                <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
+                    <span style="font-size: 12px; color: #64748B; display: block;">الحالة والغياب</span>
+                    <b id="lblAttendance" style="font-size: 14px; color: #0F172A;">-</b>
                 </div>
             </div>
 
-            <!-- قسم الشكاوى والطلبات الموجهة للإدارة -->
-            <div class="card" id="ticketsSection">
-                <h2>📨 إرسال استفسار أو شكوى لإدارة المدرسة</h2>
-                <form onsubmit="submitParentTicket(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                        <div class="form-group">
-                            <label>اسم ولي الأمر</label>
-                            <input type="text" id="ticketParentName" placeholder="اسم ولي الأمر بالكامل" required>
-                        </div>
-                        <div class="form-group">
-                            <label>البريد أو رقم التواصل</label>
-                            <input type="text" id="ticketParentEmail" placeholder="رقم الهاتف أو البريد" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>نوع الطلب</label>
-                        <select id="ticketType">
-                            <option value="استفسار عن مستوى الطالب">استفسار عن مستوى الطالب</option>
-                            <option value="شكوى إدارية أو تعليمية">شكوى إدارية أو تعليمية</option>
-                            <option value="طلب مقابلة أو تعديل بيانات">طلب مقابلة أو تعديل بيانات</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>تفاصيل الشكوى أو الطلب</label>
-                        <textarea id="ticketContent" rows="4" placeholder="اكتب تفاصيل طلبك هنا بوضوح..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary">إرسال الطلب للإدارة 🚀</button>
-                </form>
+            <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 12px; color: #0284C7;">درجات التقييمات والأعمال</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المادة الدراسية</th>
+                            <th>أعمال السنة</th>
+                            <th>التقييم الأسبوعي</th>
+                            <th>الامتحان النهائي</th>
+                            <th>المجموع الكلي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gradesTableBody">
+                        <!-- الدرجات -->
+                    </tbody>
+                </table>
+            </div>
 
-                <div style="margin-top: 25px;">
-                    <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 12px; color: #0284C7;">متابعة ردود الإدارة على طلباتك</h3>
-                    <div id="parentTicketsList">
-                        <p style="font-size: 13px; color: #64748B;">لا توجد طلبات سابقة.</p>
+            <div style="margin-top: 20px; background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
+                <h4 style="font-size: 13px; font-weight: 800; color: #0F172A; margin-bottom: 5px;">ملاحظات المعلمين:</h4>
+                <p id="lblNotes" style="font-size: 13px; color: #334155;">لا توجد ملاحظات حالياً.</p>
+            </div>
+        </div>
+
+        <!-- قسم الشكاوى (محمي) -->
+        <div class="card" id="ticketsCard" style="display: none;">
+            <h2>📨 إرسال استفسار أو شكوى لإدارة المدرسة</h2>
+            <form onsubmit="submitParentTicket(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="form-group">
+                        <label>اسم ولي الأمر</label>
+                        <input type="text" id="ticketParentName" placeholder="اسم ولي الأمر بالكامل" required>
                     </div>
+                    <div class="form-group">
+                        <label>البريد أو رقم التواصل</label>
+                        <input type="text" id="ticketParentEmail" placeholder="رقم الهاتف أو البريد" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>نوع الطلب</label>
+                    <select id="ticketType">
+                        <option value="استفسار عن مستوى الطالب">استفسار عن مستوى الطالب</option>
+                        <option value="شكوى إدارية أو تعليمية">شكوى إدارية أو تعليمية</option>
+                        <option value="طلب مقابلة أو تعديل بيانات">طلب مقابلة أو تعديل بيانات</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>تفاصيل الشكوى أو الطلب</label>
+                    <textarea id="ticketContent" rows="4" placeholder="اكتب تفاصيل طلبك هنا بوضوح..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">إرسال الطلب للإدارة 🚀</button>
+            </form>
+
+            <div style="margin-top: 25px;">
+                <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 12px; color: #0284C7;">متابعة ردود الإدارة على طلباتك</h3>
+                <div id="parentTicketsList">
+                    <p style="font-size: 13px; color: #64748B;">لا توجد طلبات سابقة.</p>
                 </div>
             </div>
         </div>
@@ -252,9 +252,9 @@
             document.getElementById('loginCard').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function checkAuthAndScroll(sectionId) {
+        function tryAccessSection(sectionId) {
             if (!activeStudentKey) {
-                alert('⚠️ عذراً، يجب تسجيل الدخول أولاً برقم سري الطالب لعرض الدرجات أو الشكاوى!');
+                alert('⚠️ يرجى تسجيل الدخول أولاً برقم سري الطالب لتصفح هذا القسم!');
                 scrollToLogin();
             } else {
                 document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
@@ -274,11 +274,12 @@
             const student = allStudentsCache[key];
             if (student.password === pass) {
                 activeStudentKey = key;
-                document.getElementById('loginCard').style.display = 'none';
-                document.getElementById('studentDashboard').style.display = 'block';
+                document.getElementById('gradesCard').style.display = 'block';
+                document.getElementById('ticketsCard').style.display = 'block';
                 renderStudentData(student);
                 loadParentTickets(student.name);
-                alert('✅ تم تسجيل الدخول بنجاح!');
+                alert('✅ تم تسجيل الدخول بنجاح! يمكنك الآن تصفح الدرجات والشكاوى.');
+                document.getElementById('gradesCard').scrollIntoView({ behavior: 'smooth' });
             } else {
                 alert('❌ الرقم السري غير صحيح!');
             }
@@ -316,8 +317,8 @@
         function logoutParent() {
             activeStudentKey = null;
             document.getElementById('loginPassword').value = '';
-            document.getElementById('studentDashboard').style.display = 'none';
-            document.getElementById('loginCard').style.display = 'flex';
+            document.getElementById('gradesCard').style.display = 'none';
+            document.getElementById('ticketsCard').style.display = 'none';
             scrollToLogin();
         }
 
