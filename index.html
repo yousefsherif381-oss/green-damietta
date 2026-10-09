@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة ولي الأمر | مدرسة اللغات الرسمية الجديدة</title>
+    <title>مدرسة اللغات الرسمية الجديدة | البوابة الرئيسية</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -24,9 +24,9 @@
         header { background: #FFFFFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .nav-container { max-width: 1200px; margin: auto; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
         
-        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; }
         .logo-img { width: 45px; height: 45px; object-fit: contain; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; background: #fff; }
-        .logo-text { font-size: 16px; font-weight: 900; color: #0F172A; }
+        .logo-text { font-size: 16px; font-weight: 900; color: #0F172A; user-select: none; }
 
         .nav-links { display: flex; list-style: none; gap: 24px; align-items: center; }
         .nav-links a { text-decoration: none; color: #64748B; font-weight: 700; font-size: 14px; cursor: pointer; }
@@ -43,63 +43,122 @@
         
         .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; font-size: 14px; margin-top: 5px; }
         .btn-primary:hover { background: var(--primary-dark); }
+        
+        .toggle-auth { margin-top: 15px; text-align: center; font-size: 13px; color: #64748B; font-weight: 600; cursor: pointer; }
+        .toggle-auth span { color: var(--primary-color); font-weight: 800; text-decoration: underline; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; text-align: right; }
         th, td { padding: 12px; border: 1px solid var(--border-color); }
         th { background: #F1F5F9; color: #0F172A; font-weight: 800; }
         td { background: #FFFFFF; }
+
+        /* نافذة دخول الإدارة السرية بالضغط المزدوج */
+        #secretAdminModal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.85); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .admin-login-card { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: right; }
     </style>
 </head>
 <body>
 
+    <!-- نافذة دخول الإدارة السرية عند الضغط المزدوج على اسم المدرسة -->
+    <div id="secretAdminModal">
+        <div class="admin-login-card">
+            <div style="text-align: center; margin-bottom: 12px;">
+                <img src="image_2462d9.jpg" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; background: #fff;">[cite: 4]
+            </div>
+            <h3 style="font-size: 18px; font-weight: 900; margin-bottom: 6px; color: #0F172A; text-align: center;">🔐 دخول لوحة الإدارة</h3>
+            <p style="font-size: 12px; color: #64748B; margin-bottom: 15px; text-align: center;">أدخل كلمة مرور الإدارة للمتابعة.</p>
+            <form onsubmit="handleSecretAdminLogin(event)">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="adminUserInput" placeholder="admin" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="adminPassInput" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary">دخول الإدارة 🚀</button>
+            </form>
+            <button type="button" onclick="closeSecretAdmin()" style="background: #E2E8F0; color: #334155; border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px;">إلغاء</button>
+            <div id="adminAlertMsg" style="font-size: 11px; font-weight: bold; margin-top: 10px; text-align: center; display: none;"></div>
+        </div>
+    </div>
+
     <header>
         <div class="nav-container">
-            <a href="index.html" class="logo-area">
+            <!-- الضغط المزدوج هنا يفتح لوحة الإدارة -->
+            <a class="logo-area" ondblclick="openSecretAdminModal()" title="انقر مرتين للوصول للوحة الإدارة">
                 <img src="image_2462d9.jpg" alt="شعار المدرسة" class="logo-img">[cite: 4]
                 <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
             </a>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">الرئيسية</a></li>
-                <li><a onclick="tryAccessSection('gradesCard')">درجات الطلاب</a></li>
-                <li><a onclick="tryAccessSection('ticketsCard')">شكاوى وطلبات الإدارة</a></li>
-                <li><a href="admin.html">لوحة الإدارة</a></li>
+                <li><a onclick="scrollToSection('authCard')">تسجيل الدخول / الحساب</a></li>
+                <li><a onclick="tryAccessSection('gradesCard')">درجات الطالب</a></li>
             </ul>
         </div>
     </header>
 
     <div class="container">
-        <!-- الواجهة الرئيسية للزوار -->
+        <!-- الواجهة الرئيسية الترحيبية -->
         <div class="card" style="text-align: center; padding: 40px 20px;">
-            <img src="image_2462d9.jpg" alt="شعار المدرسة" style="width: 80px; height: 80px; object-fit: contain; border-radius: 50%; border: 3px solid var(--primary-color); padding: 4px; background: #fff; margin-bottom: 15px;">[cite: 4]
-            <h1 style="font-size: 24px; font-weight: 900; color: #0F172A; margin-bottom: 10px;">أهلاً بكم في مدرسة اللغات الرسمية الجديدة</h1>
-            <p style="color: #64748B; font-size: 15px; max-width: 600px; margin: 0 auto 25px;">منصة متابعة الطلاب، درجات التقييمات، والتواصل المباشر مع إدارة المدرسة بكل سهولة ويسر.</p>
-            <div style="display: flex; gap: 10px; justify-content: center; max-width: 400px; margin: auto;">
-                <button onclick="scrollToLogin()" class="btn-primary">تسجيل الدخول 🔐</button>
+            <img src="image_2462d9.jpg" alt="شعار المدرسة" style="width: 85px; height: 85px; object-fit: contain; border-radius: 50%; border: 3px solid var(--primary-color); padding: 4px; background: #fff; margin-bottom: 15px;">[cite: 4]
+            <h1 style="font-size: 24px; font-weight: 900; color: #0F172A; margin-bottom: 10px;">مرحباً بكم في مدرسة اللغات الرسمية الجديدة</h1>
+            <p style="color: #64748B; font-size: 15px; max-width: 650px; margin: 0 auto 25px;">البوابة الرسمية لمتابعة المستوى الدراسي للطلاب، تقييمات الأعمال الأسبوعية والنهائية، والتواصل المباشر مع الإدارة.</p>
+            <div style="display: flex; gap: 12px; justify-content: center; max-width: 400px; margin: auto;">
+                <button onclick="scrollToSection('authCard')" class="btn-primary">تسجيل الدخول أو إنشاء حساب 🔐</button>
             </div>
         </div>
 
-        <!-- صندوق تسجيل الدخول -->
-        <div class="card" id="loginCard">
+        <!-- صندوق تسجيل الدخول أو إنشاء حساب (يتغير بالزر) -->
+        <div class="card" id="authCard">
             <div style="text-align: center; margin-bottom: 15px;">
                 <img src="image_2462d9.jpg" alt="شعار المدرسة" style="width: 50px; height: 50px; object-fit: contain; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; background: #fff;">[cite: 4]
             </div>
-            <h2>🔐 تسجيل دخول ولي الأمر</h2>
-            <form onsubmit="handleParentLogin(event)">
-                <div class="form-group">
+            <h2 id="authTitle" style="text-align: center; border: none; padding: 0;">🔐 تسجيل دخول ولي الأمر</h2>
+            <p id="authDesc" style="font-size: 12px; color: #64748B; margin-bottom: 20px; text-align: center;">اختر اسم الطالب وأدخل الرقم السري للمتابعة.</p>
+
+            <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
+                <div class="form-group" id="selectStudentGroup">
                     <label>اختر اسم الطالب</label>
                     <select id="loginStudentSelect" required>
                         <option value="">جارٍ تحميل الطلاب...</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>الرقم السري الخاص بولي الأمر</label>
-                    <input type="password" id="loginPassword" placeholder="أدخل الرقم السري" required>
+
+                <!-- حقول إضافية تظهر عند إنشاء حساب جديد (Sign Up) -->
+                <div class="form-group" id="newNameGroup" style="display: none;">
+                    <label>اسم الطالب الرباعي الجديد</label>
+                    <input type="text" id="newStudentNameInput" placeholder="أدخل اسم الطالب الكامل">
                 </div>
-                <button type="submit" class="btn-primary">دخول وعرض بيانات الطالب 📊</button>
+                <div class="form-group" id="newGradeGroup" style="display: none;">
+                    <label>الصف الدراسي</label>
+                    <select id="newStudentGradeSelect">
+                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
+                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>الرقم السري (رقم القومي أو الهاتف)</label>
+                    <input type="password" id="authPasswordInput" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="btn-primary">دخول وعرض بيانات الطالب 📊</button>
             </form>
+
+            <div class="toggle-auth" onclick="toggleAuthMode()">
+                <span id="toggleAuthText">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
+            </div>
         </div>
 
-        <!-- قسم درجات الطالب (محمي) -->
+        <!-- قسم درجات وطالب الطالب (محمي ولا يظهر إلا بعد تسجيل الدخول) -->
         <div class="card" id="gradesCard" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; margin-bottom: 20px;">
                 <h2 id="welcomeStudentTitle" style="margin: 0; border: none; padding: 0;">مرحباً بك</h2>
@@ -108,8 +167,18 @@
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                 <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
-                    <span style="font-size: 12px; color: #64748B; display: block;">الصف الدراسي</span>
-                    <b id="lblGrade" style="font-size: 14px; color: #0F172A;">-</b>
+                    <span style="font-size: 12px; color: #64748B; display: block;">الصف الدراسي (قابل للتعديل)</span>
+                    <select id="editGradeSelect" onchange="updateStudentGradeLive()" style="margin-top: 5px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; font-weight: bold; background: #FFF;">
+                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
+                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                    </select>
                 </div>
                 <div style="background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);">
                     <span style="font-size: 12px; color: #64748B; display: block;">الفصل</span>
@@ -145,7 +214,7 @@
             </div>
         </div>
 
-        <!-- قسم الشكاوى (محمي) -->
+        <!-- قسم الشكاوى والطلبات (محمي) -->
         <div class="card" id="ticketsCard" style="display: none;">
             <h2>📨 إرسال استفسار أو شكوى لإدارة المدرسة</h2>
             <form onsubmit="submitParentTicket(event)">
@@ -199,6 +268,7 @@
 
         let allStudentsCache = {};
         let activeStudentKey = null;
+        let isSignUpMode = false;
 
         const gradeSubjects = {
             primary: [
@@ -248,46 +318,153 @@
             });
         }
 
-        function scrollToLogin() {
-            document.getElementById('loginCard').scrollIntoView({ behavior: 'smooth' });
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
         }
 
         function tryAccessSection(sectionId) {
             if (!activeStudentKey) {
-                alert('⚠️ يرجى تسجيل الدخول أولاً برقم سري الطالب لتصفح هذا القسم!');
-                scrollToLogin();
+                alert('⚠️ يرجى تسجيل الدخول أولاً لعرض درجات الطالب!');
+                scrollToSection('authCard');
             } else {
                 document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
             }
         }
 
-        function handleParentLogin(e) {
+        /* دوال الوصول السري للوحة الإدارة بالضغط المزدوج */
+        function openSecretAdminModal() {
+            document.getElementById('secretAdminModal').style.display = 'flex';
+        }
+        function closeSecretAdmin() {
+            document.getElementById('secretAdminModal').style.display = 'none';
+        }
+        async function handleSecretAdminLogin(e) {
             e.preventDefault();
-            const key = document.getElementById('loginStudentSelect').value;
-            const pass = document.getElementById('loginPassword').value.trim();
+            const u = document.getElementById('adminUserInput').value.trim();
+            const p = document.getElementById('adminPassInput').value.trim();
+            const alertBox = document.getElementById('adminAlertMsg');
 
-            if (!key || !allStudentsCache[key]) {
-                alert('⚠️ يرجى اختيار الطالب أولاً!');
-                return;
+            db.ref('adminConfig').once('value', async (snapshot) => {
+                let adminData = snapshot.val();
+                if (!adminData) {
+                    adminData = { user: "admin", pass: "Admin2026@School" };
+                    await db.ref('adminConfig').set(adminData);
+                }
+
+                if (u === adminData.user && p === adminData.pass) {
+                    window.location.href = 'admin.html';
+                } else {
+                    alertBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة!';
+                    alertBox.style.color = '#B91C1C';
+                    alertBox.style.display = 'block';
+                }
+            });
+        }
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const title = document.getElementById('authTitle');
+            const desc = document.getElementById('authDesc');
+            const btn = document.getElementById('authSubmitBtn');
+            const toggleText = document.getElementById('toggleAuthText');
+            
+            const selectGroup = document.getElementById('selectStudentGroup');
+            const nameGroup = document.getElementById('newNameGroup');
+            const gradeGroup = document.getElementById('newGradeGroup');
+
+            if (isSignUpMode) {
+                title.textContent = '📝 إنشاء حساب طالب جديد (Sign Up)';
+                desc.textContent = 'أدخل اسم الطالب، الصف الدراسي، والرقم السري لحفظ حساب جديد.';
+                btn.textContent = 'إنشاء الحساب والتسجيل ✨';
+                toggleText.textContent = 'لديك حساب بالفعل؟ تسجيل الدخول';
+                
+                selectGroup.style.display = 'none';
+                nameGroup.style.display = 'block';
+                gradeGroup.style.display = 'block';
+                document.getElementById('newStudentNameInput').setAttribute('required', 'true');
+                document.getElementById('loginStudentSelect').removeAttribute('required');
+            } else {
+                title.textContent = '🔐 تسجيل دخول ولي الأمر';
+                desc.textContent = 'اختر اسم الطالب وأدخل الرقم السري للمتابعة.';
+                btn.textContent = 'دخول وعرض بيانات الطالب 📊';
+                toggleText.textContent = 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
+                
+                selectGroup.style.display = 'block';
+                nameGroup.style.display = 'none';
+                gradeGroup.style.display = 'none';
+                document.getElementById('loginStudentSelect').setAttribute('required', 'true');
+                document.getElementById('newStudentNameInput').removeAttribute('required');
             }
+        }
 
-            const student = allStudentsCache[key];
-            if (student.password === pass) {
-                activeStudentKey = key;
+        async function handleAuthAction(e) {
+            e.preventDefault();
+            const pass = document.getElementById('authPasswordInput').value.trim();
+
+            if (isSignUpMode) {
+                const name = document.getElementById('newStudentNameInput').value.trim();
+                const grade = document.getElementById('newStudentGradeSelect').value;
+
+                let exists = false;
+                Object.keys(allStudentsCache).forEach(k => {
+                    if (allStudentsCache[k].name && allStudentsCache[k].name.toLowerCase() === name.toLowerCase()) {
+                        exists = true;
+                    }
+                });
+
+                if (exists) {
+                    alert('⚠️ اسم الطالب مسجل مسبقاً، يرجى تسجيل الدخول مباشرة!');
+                    return;
+                }
+
+                const newRef = db.ref('students').push();
+                const newStudentData = {
+                    name,
+                    grade,
+                    password: pass,
+                    classRoom: 'الفصل 1',
+                    attendance: 'منتظم',
+                    absenceDays: '0',
+                    behavior: 'ممتاز',
+                    notes: 'تم إنشاء الحساب بنجاح عبر البوابة.'
+                };
+
+                await newRef.set(newStudentData);
+                activeStudentKey = newRef.key;
+                allStudentsCache[activeStudentKey] = newStudentData;
+
+                document.getElementById('authCard').style.display = 'none';
                 document.getElementById('gradesCard').style.display = 'block';
                 document.getElementById('ticketsCard').style.display = 'block';
-                renderStudentData(student);
-                loadParentTickets(student.name);
-                alert('✅ تم تسجيل الدخول بنجاح! يمكنك الآن تصفح الدرجات والشكاوى.');
-                document.getElementById('gradesCard').scrollIntoView({ behavior: 'smooth' });
+                renderStudentData(newStudentData);
+                loadParentTickets(name);
+                alert('✅ تم إنشاء الحساب وتسجيل الدخول بنجاح!');
+
             } else {
-                alert('❌ الرقم السري غير صحيح!');
+                const key = document.getElementById('loginStudentSelect').value;
+                if (!key || !allStudentsCache[key]) {
+                    alert('⚠️ يرجى اختيار الطالب أولاً!');
+                    return;
+                }
+
+                const student = allStudentsCache[key];
+                if (student.password === pass) {
+                    activeStudentKey = key;
+                    document.getElementById('authCard').style.display = 'none';
+                    document.getElementById('gradesCard').style.display = 'block';
+                    document.getElementById('ticketsCard').style.display = 'block';
+                    renderStudentData(student);
+                    loadParentTickets(student.name);
+                    alert('✅ تم تسجيل الدخول بنجاح!');
+                } else {
+                    alert('❌ الرقم السري غير صحيح!');
+                }
             }
         }
 
         function renderStudentData(s) {
             document.getElementById('welcomeStudentTitle').textContent = 'مرحباً بك، ولي أمر الطالب: ' + s.name;
-            document.getElementById('lblGrade').textContent = s.grade || '-';
+            document.getElementById('editGradeSelect').value = s.grade || 'الصف الأول الابتدائي';
             document.getElementById('lblClassRoom').textContent = s.classRoom || 'الفصل 1';
             document.getElementById('lblAttendance').textContent = `${s.attendance || 'منتظم'} (أيام الغياب: ${s.absenceDays || 0})`;
             document.getElementById('lblNotes').textContent = s.notes || 'لا توجد ملاحظات مسجلة حالياً.';
@@ -314,20 +491,28 @@
             });
         }
 
+        async function updateStudentGradeLive() {
+            const newGrade = document.getElementById('editGradeSelect').value;
+            if (!activeStudentKey) return;
+
+            await db.ref('students/' + activeStudentKey).update({ grade: newGrade });
+            allStudentsCache[activeStudentKey].grade = newGrade;
+            renderStudentData(allStudentsCache[activeStudentKey]);
+            alert('✅ تم تحديث الصف الدراسي بنجاح!');
+        }
+
         function logoutParent() {
             activeStudentKey = null;
-            document.getElementById('loginPassword').value = '';
+            document.getElementById('authPasswordInput').value = '';
             document.getElementById('gradesCard').style.display = 'none';
             document.getElementById('ticketsCard').style.display = 'none';
-            scrollToLogin();
+            document.getElementById('authCard').style.display = 'block';
+            scrollToSection('authCard');
         }
 
         async function submitParentTicket(e) {
             e.preventDefault();
-            if (!activeStudentKey) {
-                alert('⚠️ يجب تسجيل الدخول أولاً!');
-                return;
-            }
+            if (!activeStudentKey) return;
             const student = allStudentsCache[activeStudentKey];
 
             const parentName = document.getElementById('ticketParentName').value.trim();
@@ -349,7 +534,7 @@
                 timestamp: Date.now()
             });
 
-            alert('✅ تم إرسال طلبك بنجاح إلى إدارة المدرسة!');
+            alert('✅ تم إرسال طلبك بنجاح إلى الإدارة!');
             document.getElementById('ticketContent').value = '';
             loadParentTickets(student.name);
         }
