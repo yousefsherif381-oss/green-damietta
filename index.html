@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدرسة اللغات الرسمية الجديدة | البوابة الإلكترونية الموحدة</title>
+    <title>مدرسة اللغات الرسمية الجديدة | البوابة الإلكترونية</title>
     <!-- خط Cairo المميز -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
@@ -83,6 +83,35 @@
             letter-spacing: -0.3px;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-header {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-header-outline {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-header-outline:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .btn-header-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-header-primary:hover {
+            background: var(--primary-hover);
+        }
+
         .main-wrapper {
             flex: 1;
             max-width: 900px;
@@ -94,15 +123,15 @@
         .hero-card {
             background: var(--card-bg);
             border-radius: 24px;
-            padding: 35px 25px;
+            padding: 40px 30px;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
             margin-bottom: 25px;
         }
         .hero-logo {
-            width: 85px;
-            height: 85px;
-            margin: 0 auto 14px;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 16px;
             border-radius: 50%;
             background: #fff;
             padding: 4px;
@@ -111,14 +140,16 @@
             overflow: hidden;
         }
         .hero-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .hero-title { font-size: 24px; font-weight: 900; color: var(--text-dark); margin-bottom: 6px; }
-        .hero-desc { font-size: 13.5px; color: var(--text-muted); max-width: 600px; margin: auto; }
+        .hero-title { font-size: 25px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
+        .hero-desc { font-size: 14px; color: var(--text-muted); max-width: 600px; margin: 0 auto 25px; }
 
         .auth-card {
             background: var(--card-bg);
             border-radius: 24px;
             padding: 35px 30px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            display: none; /* مخفي حتى يختار المستخدم */
+            margin-bottom: 25px;
         }
 
         .role-tabs {
@@ -155,7 +186,6 @@
         }
 
         .form-group { margin-bottom: 14px; text-align: right; }
-        .form-group.full-width { grid-column: 1 / -1; }
         .form-group label { display: block; font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 5px; }
         .form-control {
             width: 100%;
@@ -262,7 +292,7 @@
         </div>
     </div>
 
-    <!-- الهيدر -->
+    <!-- الهيدر الأنيق بدون عبارة وزارة التربية والتعليم -->
     <header>
         <div class="nav-container">
             <a class="logo-area" ondblclick="openSecretAdminModal()" title="انقر مرتين للوصول السرّي للإدارة">
@@ -271,7 +301,11 @@
                 </div>
                 <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
             </a>
-            <div style="color: #fff; font-size: 13px; font-weight: 700;">بوابة وزارة التربية والتعليم 🇪🇬</div>
+            
+            <div class="header-actions">
+                <button onclick="openAuthBox(false)" class="btn-header btn-header-outline">تسجيل الدخول 🔑</button>
+                <button onclick="openAuthBox(true)" class="btn-header btn-header-primary">إنشاء حساب جديد ✨</button>
+            </div>
         </div>
     </header>
 
@@ -282,10 +316,14 @@
                 <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
             </div>
             <h1 class="hero-title">مرحباً بكم في مدرسة اللغات الرسمية الجديدة</h1>
-            <p class="hero-desc">النظام الموحد للخدمات التعليمية - متابعة تقييمات الطلاب، نتائج الاختبارات، والتواصل مع إدارة المدرسة.</p>
+            <p class="hero-desc">البوابة الإلكترونية لمتابعة تقييمات الطلاب، النتائج الأسبوعية والنهائية، والتواصل المباشر مع إدارة المدرسة.</p>
+            <div style="display: flex; gap: 12px; justify-content: center; max-width: 420px; margin: auto;">
+                <button onclick="openAuthBox(false)" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔐</button>
+                <button onclick="openAuthBox(true)" class="btn-submit" style="margin: 0; flex: 1; background: #0EA5E9;">حساب جديد 📝</button>
+            </div>
         </div>
 
-        <!-- صندوق التسجيل والدخول المطابق للوزارة -->
+        <!-- صندوق التسجيل والدخول (يظهر فقط عند الضغط) -->
         <div class="auth-card" id="authCard">
             <!-- تبويب اختيار الصفة -->
             <div class="role-tabs">
@@ -298,7 +336,7 @@
 
             <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
                 
-                <!-- === حالة تسجيل الدخول (Sign In) === -->
+                <!-- === حالة تسجيل الدخول === -->
                 <div id="signInFields">
                     <div class="form-group">
                         <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
@@ -306,7 +344,7 @@
                     </div>
                 </div>
 
-                <!-- === حالة إنشاء حساب جديد (Sign Up) === -->
+                <!-- === حالة إنشاء حساب جديد === -->
                 <div id="signUpFields" style="display: none;">
                     <div class="form-grid">
                         
@@ -530,7 +568,7 @@
 
         let allUsersCache = {};
         let activeUserKey = null;
-        let selectedRole = 'student'; // student OR parent
+        let selectedRole = 'student';
         let isSignUpMode = false;
 
         const gradeSubjects = {
@@ -568,6 +606,18 @@
             });
         }
 
+        function openAuthBox(signUp) {
+            isSignUpMode = signUp;
+            document.getElementById('authCard').style.display = 'block';
+            document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
+            document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
+            document.getElementById('toggleAuthText').textContent = isSignUpMode ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
+            document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'إنشاء الحساب والتسجيل ✨' : 'تسجيل الدخول 📊';
+            
+            updateAuthTitles();
+            document.getElementById('authCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
         function switchRole(role) {
             selectedRole = role;
             document.getElementById('tabStudent').classList.toggle('active', role === 'student');
@@ -591,13 +641,7 @@
         }
 
         function toggleAuthMode() {
-            isSignUpMode = !isSignUpMode;
-            document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
-            document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
-            document.getElementById('toggleAuthText').textContent = isSignUpMode ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
-            document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'إنشاء الحساب والتسجيل ✨' : 'تسجيل الدخول 📊';
-            
-            updateAuthTitles();
+            openAuthBox(!isSignUpMode);
         }
 
         function updateAuthTitles() {
@@ -670,7 +714,7 @@
                 allUsersCache[activeUserKey] = userData;
 
                 renderDashboardForRole(userData);
-                alert('✅ تم إنشاء الحساب بنجاح طبقاً لمعايير وزارة التربية والتعليم!');
+                alert('✅ تم إنشاء الحساب بنجاح!');
 
             } else {
                 const idInput = document.getElementById('loginIdentifierInput').value.trim();
@@ -694,7 +738,7 @@
                     renderDashboardForRole(foundUser);
                     alert('✅ تم تسجيل الدخول بنجاح!');
                 } else {
-                    alert('❌ بيانات الدخول أو الرقم القومي غير صحيحة!');
+                    alert('❌ بيانات الدخول غير صحيحة!');
                 }
             }
         }
@@ -762,7 +806,7 @@
             document.getElementById('authPasswordInput').value = '';
             document.getElementById('studentDashboardCard').style.display = 'none';
             document.getElementById('parentDashboardContainer').style.display = 'none';
-            document.getElementById('authCard').style.display = 'block';
+            document.getElementById('authCard').style.display = 'none';
         }
 
         async function submitParentTicket(e) {
