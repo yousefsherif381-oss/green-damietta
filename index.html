@@ -32,6 +32,7 @@
             color: var(--text-dark);
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* الهيدر وشريط التنقل */
@@ -51,6 +52,30 @@
             justify-content: space-between;
             align-items: center;
         }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* زر فتح القائمة الجانبية (السلايدر) */
+        .btn-sidebar-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
         .logo-area {
             display: flex;
             align-items: center;
@@ -105,43 +130,79 @@
         .btn-header-primary { background: var(--primary); color: #fff; }
         .btn-header-primary:hover { background: var(--primary-hover); }
 
-        /* الهيكل الأساسي للصفحة: شريط جانبي + محتوى رئيسي */
-        .layout-container {
-            display: flex;
-            gap: 24px;
-            max-width: 1250px;
-            width: 100%;
-            margin: 25px auto;
-            padding: 0 20px;
-            flex: 1;
+        /* السلايدر الجانبي (Off-Canvas Side Drawer) */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        /* الشريط الجانبي الأيمن */
-        .sidebar {
-            width: 280px;
+        .sliding-sidebar {
+            position: fixed;
+            top: 0;
+            right: -320px; /* مطوي افتراضياً خارج الشاشة */
+            width: 300px;
+            height: 100vh;
             background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px 16px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            height: fit-content;
+            z-index: 1001;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sliding-sidebar.active {
+            right: 0; /* فتح السلايدر */
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
         }
         .sidebar-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 900;
-            color: var(--text-muted);
-            margin-bottom: 14px;
-            padding: 0 8px;
+            color: var(--text-dark);
         }
+        .btn-close-sidebar {
+            background: #F1F5F9;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .btn-close-sidebar:hover {
+            background: #E2E8F0;
+            color: #000;
+        }
+
         .sidebar-menu {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         .sidebar-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 13px 16px;
+            gap: 14px;
+            padding: 14px 16px;
             border-radius: 14px;
             background: #F8FAFC;
             border: 1px solid var(--border);
@@ -153,14 +214,16 @@
             border-color: var(--primary);
             transform: translateX(-4px);
         }
-        .sidebar-icon { font-size: 20px; }
-        .sidebar-label { font-size: 13.5px; font-weight: 800; color: var(--text-dark); }
+        .sidebar-icon { font-size: 22px; }
+        .sidebar-label { font-size: 14px; font-weight: 800; color: var(--text-dark); }
 
         /* منطقة المحتوى الرئيسية */
-        .content-area {
+        .main-wrapper {
+            max-width: 1000px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 0 20px;
             flex: 1;
-            display: flex;
-            flex-direction: column;
         }
 
         /* البطاقة الرئيسية للزائر */
@@ -187,7 +250,7 @@
         .hero-title { font-size: 26px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
         .hero-desc { font-size: 14.5px; color: var(--text-muted); max-width: 620px; margin: 0 auto 28px; line-height: 1.6; }
 
-        /* الصفحة المخصصة للتسجيل والدخول (Full Page View) */
+        /* صفحة التسجيل والدخول المخصصة (Full Page View) */
         .auth-page-view {
             background: var(--card-bg);
             border-radius: 24px;
@@ -333,16 +396,36 @@
             from { transform: scale(0.85); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
-
-        @media (max-width: 850px) {
-            .layout-container { flex-direction: column; }
-            .sidebar { width: 100%; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- نافذة التنبيه المخصصة والمتناسقة مع التصميم -->
+    <!-- التغطية والخلفية المظلمة عند فتح السلايدر -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- السلايدر الجانبي القابل للفتح والإغلاق -->
+    <aside class="sliding-sidebar" id="slidingSidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">📌 الأقسام والخدمات</span>
+            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="sidebar-item" onclick="closeSidebar(); requireLogin('الدرجات والتقييمات');">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-label">الدرجات والتقييمات</span>
+            </div>
+            <div class="sidebar-item" onclick="closeSidebar(); requireLogin('جدول الحضور والغياب');">
+                <span class="sidebar-icon">📅</span>
+                <span class="sidebar-label">الحضور والغياب</span>
+            </div>
+            <div class="sidebar-item" onclick="closeSidebar(); requireLogin('الشكاوى والطلبات');">
+                <span class="sidebar-icon">📨</span>
+                <span class="sidebar-label">الشكاوى والاستفسارات</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- نافذة التنبيه المخصصة ومتناسقة مع التصميم -->
     <div id="customAlertModal" class="custom-modal-overlay">
         <div class="custom-modal-card">
             <div style="width: 60px; height: 60px; background: #FEF3C7; color: #D97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px;">
@@ -387,12 +470,18 @@
     <!-- الهيدر الأنيق -->
     <header>
         <div class="nav-container">
-            <a class="logo-area" ondblclick="openSecretAdminModal()" title="انقر مرتين للوصول السرّي للإدارة">
-                <div class="logo-box">
-                    <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
-                </div>
-                <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
-            </a>
+            <div class="header-left">
+                <!-- زر السلايدر الجانبي -->
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح الأقسام">
+                    ☰ <span style="font-size: 13px; font-weight: bold;">الأقسام</span>
+                </button>
+                <a class="logo-area" ondblclick="openSecretAdminModal()" title="انقر مرتين للوصول السرّي للإدارة">
+                    <div class="logo-box">
+                        <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
+                    </div>
+                    <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
+                </a>
+            </div>
 
             <div class="header-actions">
                 <button onclick="openAuthPage(false)" class="btn-header btn-header-outline">تسجيل الدخول 🔑</button>
@@ -401,153 +490,177 @@
         </div>
     </header>
 
-    <!-- الهيكل العام -->
-    <div class="layout-container">
+    <!-- منطقة المحتوى الرئيسية -->
+    <main class="main-wrapper">
         
-        <!-- الشريط الجانبي الأيمن (Sidebar) -->
-        <aside class="sidebar">
-            <div class="sidebar-title">📌 الأقسام والخدمات</div>
-            <div class="sidebar-menu">
-                <div class="sidebar-item" onclick="requireLogin('الدرجات والتقييمات')">
-                    <span class="sidebar-icon">📊</span>
-                    <span class="sidebar-label">الدرجات والتقييمات</span>
-                </div>
-                <div class="sidebar-item" onclick="requireLogin('جدول الحضور والغياب')">
-                    <span class="sidebar-icon">📅</span>
-                    <span class="sidebar-label">الحضور والغياب</span>
-                </div>
-                <div class="sidebar-item" onclick="requireLogin('الشكاوى والطلبات')">
-                    <span class="sidebar-icon">📨</span>
-                    <span class="sidebar-label">الشكاوى والاستفسارات</span>
-                </div>
+        <!-- الواجهة الترحيبية الأساسية للزائر -->
+        <div class="hero-card" id="heroCard">
+            <div class="hero-logo">
+                <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
             </div>
-        </aside>
+            <h1 class="hero-title">مرحباً بكم في مدرسة اللغات الرسمية الجديدة</h1>
+            <p class="hero-desc">البوابة الإلكترونية الموحدة لمتابعة تقييمات الطلاب، نتائج الاختبارات الأسبوعية والنهائية، والتواصل المباشر مع إدارة المدرسة.</p>
+            <div style="display: flex; gap: 14px; justify-content: center; max-width: 440px; margin: auto;">
+                <button onclick="openAuthPage(false)" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔐</button>
+                <button onclick="openAuthPage(true)" class="btn-submit" style="margin: 0; flex: 1; background: #0EA5E9;">حساب جديد 📝</button>
+            </div>
+        </div>
 
-        <!-- منطقة المحتوى الرئيسية -->
-        <main class="content-area">
+        <!-- صفحة التسجيل والدخول المخصصة (Full Page View) -->
+        <div class="auth-page-view" id="authPageView">
+            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             
-            <!-- الواجهة الترحيبية الأساسية للزائر -->
-            <div class="hero-card" id="heroCard">
-                <div class="hero-logo">
-                    <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
-                </div>
-                <h1 class="hero-title">مرحباً بكم في مدرسة اللغات الرسمية الجديدة</h1>
-                <p class="hero-desc">البوابة الإلكترونية الموحدة لمتابعة تقييمات الطلاب، نتائج الاختبارات الأسبوعية والنهائية، والتواصل المباشر مع إدارة المدرسة.</p>
-                <div style="display: flex; gap: 14px; justify-content: center; max-width: 440px; margin: auto;">
-                    <button onclick="openAuthPage(false)" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔐</button>
-                    <button onclick="openAuthPage(true)" class="btn-submit" style="margin: 0; flex: 1; background: #0EA5E9;">حساب جديد 📝</button>
-                </div>
+            <!-- تبويب اختيار الصفة -->
+            <div class="role-tabs">
+                <button class="role-tab active" id="tabStudent" onclick="switchRole('student')">🎓 حساب الطالب</button>
+                <button class="role-tab" id="tabParent" onclick="switchRole('parent')">👨‍👩‍👦 حساب ولي الأمر</button>
             </div>
 
-            <!-- صفحة التسجيل والدخول المخصصة (Full Page View) -->
-            <div class="auth-page-view" id="authPageView">
-                <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
+            <h2 id="authTitle" style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 4px;">🎓 تسجيل دخول الطالب</h2>
+            <p id="authDesc" style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل الرقم القومي أو كود الطالب للوصول للنتائج.</p>
+
+            <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
                 
-                <!-- تبويب اختيار الصفة -->
-                <div class="role-tabs">
-                    <button class="role-tab active" id="tabStudent" onclick="switchRole('student')">🎓 حساب الطالب</button>
-                    <button class="role-tab" id="tabParent" onclick="switchRole('parent')">👨‍👩‍👦 حساب ولي الأمر</button>
+                <!-- === حالة تسجيل الدخول === -->
+                <div id="signInFields">
+                    <div class="form-group">
+                        <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
+                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود" required>
+                    </div>
                 </div>
 
-                <h2 id="authTitle" style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 4px;">🎓 تسجيل دخول الطالب</h2>
-                <p id="authDesc" style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل الرقم القومي أو كود الطالب للوصول للنتائج.</p>
+                <!-- === حالة إنشاء حساب جديد === -->
+                <div id="signUpFields" style="display: none;">
+                    <div class="form-grid">
+                        
+                        <!-- حقول الطالب -->
+                        <div class="form-group student-only">
+                            <label>اسم الطالب الرباعي (كما في شهادة الميلاد)</label>
+                            <input type="text" id="studentFullName" class="form-control" placeholder="مثال: أحمد محمد علي حسن">
+                        </div>
+                        <div class="form-group student-only">
+                            <label>الرقم القومي للطالب (14 رقم)</label>
+                            <input type="text" id="studentNationalId" class="form-control" maxlength="14" placeholder="20000000000000">
+                        </div>
+                        <div class="form-group student-only">
+                            <label>كود الطالب المدرسي</label>
+                            <input type="text" id="studentCode" class="form-control" placeholder="مثال: 12345678">
+                        </div>
 
-                <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
-                    
-                    <!-- === حالة تسجيل الدخول === -->
-                    <div id="signInFields">
+                        <!-- حقول ولي الأمر -->
+                        <div class="form-group parent-only" style="display: none;">
+                            <label>اسم ولي الأمر الرباعي</label>
+                            <input type="text" id="parentFullName" class="form-control" placeholder="مثال: محمد علي حسن أحمد">
+                        </div>
+                        <div class="form-group parent-only" style="display: none;">
+                            <label>الرقم القومي لولي الأمر (14 رقم)</label>
+                            <input type="text" id="parentNationalId" class="form-control" maxlength="14" placeholder="28000000000000">
+                        </div>
+                        <div class="form-group parent-only" style="display: none;">
+                            <label>صلة القرابة</label>
+                            <select id="parentRelation" class="form-control">
+                                <option value="أب">أب</option>
+                                <option value="أم">أم</option>
+                                <option value="ولي أمر قانوني">ولي أمر قانوني</option>
+                            </select>
+                        </div>
+                        <div class="form-group parent-only" style="display: none;">
+                            <label>اسم الطالب التابع له</label>
+                            <input type="text" id="parentStudentName" class="form-control" placeholder="اسم الطالب الكامل">
+                        </div>
+
+                        <!-- حقول مشتركة -->
                         <div class="form-group">
-                            <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
-                            <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود" required>
+                            <label>الصف الدراسي</label>
+                            <select id="gradeSelect" class="form-control">
+                                <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                                <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                                <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                                <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                                <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                                <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                                <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
+                                <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                                <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم المحمول (للتواصل والتحقق)</label>
+                            <input type="tel" id="phoneInput" class="form-control" placeholder="01000000000">
                         </div>
                     </div>
+                </div>
 
-                    <!-- === حالة إنشاء حساب جديد === -->
-                    <div id="signUpFields" style="display: none;">
-                        <div class="form-grid">
-                            
-                            <!-- حقول الطالب -->
-                            <div class="form-group student-only">
-                                <label>اسم الطالب الرباعي (كما في شهادة الميلاد)</label>
-                                <input type="text" id="studentFullName" class="form-control" placeholder="مثال: أحمد محمد علي حسن">
-                            </div>
-                            <div class="form-group student-only">
-                                <label>الرقم القومي للطالب (14 رقم)</label>
-                                <input type="text" id="studentNationalId" class="form-control" maxlength="14" placeholder="20000000000000">
-                            </div>
-                            <div class="form-group student-only">
-                                <label>كود الطالب المدرسي</label>
-                                <input type="text" id="studentCode" class="form-control" placeholder="مثال: 12345678">
-                            </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="authPasswordInput" class="form-control" placeholder="••••••••" required>
+                </div>
 
-                            <!-- حقول ولي الأمر -->
-                            <div class="form-group parent-only" style="display: none;">
-                                <label>اسم ولي الأمر الرباعي</label>
-                                <input type="text" id="parentFullName" class="form-control" placeholder="مثال: محمد علي حسن أحمد">
-                            </div>
-                            <div class="form-group parent-only" style="display: none;">
-                                <label>الرقم القومي لولي الأمر (14 رقم)</label>
-                                <input type="text" id="parentNationalId" class="form-control" maxlength="14" placeholder="28000000000000">
-                            </div>
-                            <div class="form-group parent-only" style="display: none;">
-                                <label>صلة القرابة</label>
-                                <select id="parentRelation" class="form-control">
-                                    <option value="أب">أب</option>
-                                    <option value="أم">أم</option>
-                                    <option value="ولي أمر قانوني">ولي أمر قانوني</option>
-                                </select>
-                            </div>
-                            <div class="form-group parent-only" style="display: none;">
-                                <label>اسم الطالب التابع له</label>
-                                <input type="text" id="parentStudentName" class="form-control" placeholder="اسم الطالب الكامل">
-                            </div>
+                <button type="submit" id="authSubmitBtn" class="btn-submit">تسجيل الدخول 📊</button>
+            </form>
 
-                            <!-- حقول مشتركة -->
-                            <div class="form-group">
-                                <label>الصف الدراسي</label>
-                                <select id="gradeSelect" class="form-control">
-                                    <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                                    <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                                    <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                                    <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                                    <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                                    <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                                    <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                                    <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                                    <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>رقم المحمول (للتواصل والتحقق)</label>
-                                <input type="tel" id="phoneInput" class="form-control" placeholder="01000000000">
-                            </div>
-                        </div>
-                    </div>
+            <div class="toggle-link" onclick="toggleAuthMode()">
+                <span id="toggleAuthText">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
+            </div>
+        </div>
 
-                    <div class="form-group">
-                        <label>كلمة المرور</label>
-                        <input type="password" id="authPasswordInput" class="form-control" placeholder="••••••••" required>
-                    </div>
-
-                    <button type="submit" id="authSubmitBtn" class="btn-submit">تسجيل الدخول 📊</button>
-                </form>
-
-                <div class="toggle-link" onclick="toggleAuthMode()">
-                    <span id="toggleAuthText">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
+        <!-- لوحة الطالب -->
+        <div class="dashboard-card" id="studentDashboardCard">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="studentWelcomeTitle" style="font-size: 18px; font-weight: 900;">🎓 أهلاً بك يا بطل</h2>
+                <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                    <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي (تعديل مباشر)</span>
+                    <select id="studentEditGradeSelect" onchange="updateStudentGradeLive('studentEditGradeSelect')" class="form-control" style="margin-top: 5px;">
+                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
+                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                    </select>
+                </div>
+                <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                    <span style="font-size: 12px; color: var(--text-muted); display: block;">الكود المدرسي</span>
+                    <b id="studentLblCode" style="font-size: 15px; color: var(--text-dark); display: block; margin-top: 8px;">-</b>
                 </div>
             </div>
 
-            <!-- لوحة الطالب -->
-            <div class="dashboard-card" id="studentDashboardCard">
+            <h3 style="font-size: 15px; font-weight: 800; color: var(--primary);">📊 نتائجك وتقييماتك في المواد</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المادة الدراسية</th>
+                            <th>أعمال السنة</th>
+                            <th>التقييم الأسبوعي</th>
+                            <th>الامتحان النهائي</th>
+                            <th>المجموع الكلي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentGradesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- لوحة ولي الأمر والشكاوى -->
+        <div id="parentDashboardContainer" style="display: none;">
+            <div class="dashboard-card" id="gradesCard" style="display: block;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 id="studentWelcomeTitle" style="font-size: 18px; font-weight: 900;">🎓 أهلاً بك يا بطل</h2>
+                    <h2 id="parentWelcomeTitle" style="font-size: 18px; font-weight: 900;">👨‍👩‍👦 لوحة متابعة ولي الأمر</h2>
                     <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                        <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي (تعديل مباشر)</span>
-                        <select id="studentEditGradeSelect" onchange="updateStudentGradeLive('studentEditGradeSelect')" class="form-control" style="margin-top: 5px;">
+                        <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي للطالب</span>
+                        <select id="parentEditGradeSelect" onchange="updateStudentGradeLive('parentEditGradeSelect')" class="form-control" style="margin-top: 5px;">
                             <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
                             <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
                             <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
@@ -560,12 +673,16 @@
                         </select>
                     </div>
                     <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                        <span style="font-size: 12px; color: var(--text-muted); display: block;">الكود المدرسي</span>
-                        <b id="studentLblCode" style="font-size: 15px; color: var(--text-dark); display: block; margin-top: 8px;">-</b>
+                        <span style="font-size: 12px; color: var(--text-muted); display: block;">صلة القرابة</span>
+                        <b id="parentLblRelation" style="font-size: 14px; color: var(--text-dark); display: block; margin-top: 8px;">-</b>
+                    </div>
+                    <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                        <span style="font-size: 12px; color: var(--text-muted); display: block;">الحالة والغياب</span>
+                        <b id="parentLblAttendance" style="font-size: 14px; color: var(--text-dark); display: block; margin-top: 8px;">منتظم</b>
                     </div>
                 </div>
 
-                <h3 style="font-size: 15px; font-weight: 800; color: var(--primary);">📊 نتائجك وتقييماتك في المواد</h3>
+                <h3 style="font-size: 15px; font-weight: 800; color: var(--primary);">درجات التقييمات والأعمال للطالب</h3>
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
@@ -577,100 +694,49 @@
                                 <th>المجموع الكلي</th>
                             </tr>
                         </thead>
-                        <tbody id="studentGradesTableBody"></tbody>
+                        <tbody id="parentGradesTableBody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- لوحة ولي الأمر والشكاوى -->
-            <div id="parentDashboardContainer" style="display: none;">
-                <div class="dashboard-card" id="gradesCard" style="display: block;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 id="parentWelcomeTitle" style="font-size: 18px; font-weight: 900;">👨‍👩‍👦 لوحة متابعة ولي الأمر</h2>
-                        <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                            <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي للطالب</span>
-                            <select id="parentEditGradeSelect" onchange="updateStudentGradeLive('parentEditGradeSelect')" class="form-control" style="margin-top: 5px;">
-                                <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                                <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                                <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                                <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                                <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                                <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                                <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                                <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                                <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
-                            </select>
-                        </div>
-                        <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                            <span style="font-size: 12px; color: var(--text-muted); display: block;">صلة القرابة</span>
-                            <b id="parentLblRelation" style="font-size: 14px; color: var(--text-dark); display: block; margin-top: 8px;">-</b>
-                        </div>
-                        <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                            <span style="font-size: 12px; color: var(--text-muted); display: block;">الحالة والغياب</span>
-                            <b id="parentLblAttendance" style="font-size: 14px; color: var(--text-dark); display: block; margin-top: 8px;">منتظم</b>
-                        </div>
-                    </div>
-
-                    <h3 style="font-size: 15px; font-weight: 800; color: var(--primary);">درجات التقييمات والأعمال للطالب</h3>
-                    <div style="overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>المادة الدراسية</th>
-                                    <th>أعمال السنة</th>
-                                    <th>التقييم الأسبوعي</th>
-                                    <th>الامتحان النهائي</th>
-                                    <th>المجموع الكلي</th>
-                                </tr>
-                            </thead>
-                            <tbody id="parentGradesTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="dashboard-card" id="ticketsCard" style="display: block;">
-                    <h2 style="font-size: 17px; font-weight: 800; margin-bottom: 15px;">📨 إرسال استفسار أو شكوى لإدارة المدرسة</h2>
-                    <form onsubmit="submitParentTicket(event)">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                            <div class="form-group">
-                                <label>اسم ولي الأمر</label>
-                                <input type="text" id="ticketParentName" class="form-control" placeholder="اسم ولي الأمر بالكامل" required>
-                            </div>
-                            <div class="form-group">
-                                <label>رقم التواصل المحمول</label>
-                                <input type="text" id="ticketParentEmail" class="form-control" placeholder="رقم الهاتف" required>
-                            </div>
+            <div class="dashboard-card" id="ticketsCard" style="display: block;">
+                <h2 style="font-size: 17px; font-weight: 800; margin-bottom: 15px;">📨 إرسال استفسار أو شكوى لإدارة المدرسة</h2>
+                <form onsubmit="submitParentTicket(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group">
+                            <label>اسم ولي الأمر</label>
+                            <input type="text" id="ticketParentName" class="form-control" placeholder="اسم ولي الأمر بالكامل" required>
                         </div>
                         <div class="form-group">
-                            <label>نوع الطلب</label>
-                            <select id="ticketType" class="form-control">
-                                <option value="استفسار عن مستوى الطالب">استفسار عن مستوى الطالب</option>
-                                <option value="شكوى إدارية أو تعليمية">شكوى إدارية أو تعليمية</option>
-                                <option value="طلب مقابلة أو تعديل بيانات">طلب مقابلة أو تعديل بيانات</option>
-                            </select>
+                            <label>رقم التواصل المحمول</label>
+                            <input type="text" id="ticketParentEmail" class="form-control" placeholder="رقم الهاتف" required>
                         </div>
-                        <div class="form-group">
-                            <label>تفاصيل الشكوى أو الطلب</label>
-                            <textarea id="ticketContent" class="form-control" rows="4" placeholder="اكتب تفاصيل طلبك هنا بوضوح..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit">إرسال الطلب للإدارة 🚀</button>
-                    </form>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع الطلب</label>
+                        <select id="ticketType" class="form-control">
+                            <option value="استفسار عن مستوى الطالب">استفسار عن مستوى الطالب</option>
+                            <option value="شكوى إدارية أو تعليمية">شكوى إدارية أو تعليمية</option>
+                            <option value="طلب مقابلة أو تعديل بيانات">طلب مقابلة أو تعديل بيانات</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>تفاصيل الشكوى أو الطلب</label>
+                        <textarea id="ticketContent" class="form-control" rows="4" placeholder="اكتب تفاصيل طلبك هنا بوضوح..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">إرسال الطلب للإدارة 🚀</button>
+                </form>
 
-                    <div style="margin-top: 25px;">
-                        <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
-                        <div id="parentTicketsList">
-                            <p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p>
-                        </div>
+                <div style="margin-top: 25px;">
+                    <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
+                    <div id="parentTicketsList">
+                        <p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-        </main>
-    </div>
+    </main>
 
     <script>
         const firebaseConfig = {
@@ -724,6 +790,17 @@
             db.ref('students').on('value', (snapshot) => {
                 allUsersCache = snapshot.val() || {};
             });
+        }
+
+        /* دوال تحكم السلايدر الجانبي */
+        function toggleSidebar() {
+            document.getElementById('slidingSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('slidingSidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
         /* دوال التنقل بين الواجهات */
