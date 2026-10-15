@@ -34,7 +34,7 @@
             flex-direction: column;
         }
 
-        /* الهيدر الأنيق */
+        /* الهيدر وشريط التنقل */
         header {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
@@ -83,6 +83,22 @@
             letter-spacing: -0.3px;
         }
 
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-links a:hover { color: #FFF; }
+
         .header-actions {
             display: flex;
             gap: 10px;
@@ -101,25 +117,19 @@
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .btn-header-outline:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-        .btn-header-primary {
-            background: var(--primary);
-            color: #fff;
-        }
-        .btn-header-primary:hover {
-            background: var(--primary-hover);
-        }
+        .btn-header-outline:hover { background: rgba(255, 255, 255, 0.25); }
+        .btn-header-primary { background: var(--primary); color: #fff; }
+        .btn-header-primary:hover { background: var(--primary-hover); }
 
         .main-wrapper {
             flex: 1;
-            max-width: 900px;
+            max-width: 1000px;
             width: 100%;
             margin: 30px auto;
             padding: 0 20px;
         }
 
+        /* البطاقة الرئيسية للزائر */
         .hero-card {
             background: var(--card-bg);
             border-radius: 24px;
@@ -143,12 +153,37 @@
         .hero-title { font-size: 25px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
         .hero-desc { font-size: 14px; color: var(--text-muted); max-width: 600px; margin: 0 auto 25px; }
 
+        /* كروت الخدمات السريعة */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .service-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 22px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.2);
+        }
+        .service-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+        .service-title { font-size: 15px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+        .service-desc { font-size: 12px; color: var(--text-muted); }
+
+        /* صندوق التسجيل والدخول */
         .auth-card {
             background: var(--card-bg);
             border-radius: 24px;
             padding: 35px 30px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            display: none; /* مخفي حتى يختار المستخدم */
+            display: none;
             margin-bottom: 25px;
         }
 
@@ -242,7 +277,8 @@
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: #0F172A; font-weight: 800; }
 
-        #secretAdminModal {
+        /* مودال الإدارة السري ونوافذ التنبيه */
+        .custom-modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.82);
@@ -253,22 +289,43 @@
             z-index: 9999;
             padding: 20px;
         }
-        .admin-box {
+        .custom-modal-card {
             background: #FFFFFF;
             border-radius: 24px;
             padding: 32px;
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            text-align: right;
+            text-align: center;
+            animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
+    <!-- نافذة التنبيه المخصصة والمتناسقة مع التصميم -->
+    <div id="customAlertModal" class="custom-modal-overlay">
+        <div class="custom-modal-card">
+            <div style="width: 60px; height: 60px; background: #FEF3C7; color: #D97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px;">
+                🔐
+            </div>
+            <h3 id="alertModalTitle" style="font-size: 18px; font-weight: 900; color: #0F172A; margin-bottom: 8px;">تنبيه هـام</h3>
+            <p id="alertModalDesc" style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closeAlertModal(); openAuthBox(false);" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔑</button>
+                <button onclick="closeAlertModal(); openAuthBox(true);" class="btn-submit" style="margin: 0; flex: 1; background: #0EA5E9;">حساب جديد ✨</button>
+            </div>
+            <button onclick="closeAlertModal()" style="background: transparent; color: #94A3B8; border: none; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 14px;">إلغاء الإجراء</button>
+        </div>
+    </div>
+
     <!-- نافذة دخول الإدارة السرية عند الضغط المزدوج -->
-    <div id="secretAdminModal">
-        <div class="admin-box">
+    <div id="secretAdminModal" class="custom-modal-overlay">
+        <div class="custom-modal-card" style="text-align: right;">
             <div style="text-align: center; margin-bottom: 12px;">
                 <div class="logo-box" style="margin: auto; width: 55px; height: 55px;">
                     <img src="image_2462d9.jpg" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
@@ -292,7 +349,7 @@
         </div>
     </div>
 
-    <!-- الهيدر الأنيق بدون عبارة وزارة التربية والتعليم -->
+    <!-- الهيدر الأنيق -->
     <header>
         <div class="nav-container">
             <a class="logo-area" ondblclick="openSecretAdminModal()" title="انقر مرتين للوصول السرّي للإدارة">
@@ -302,6 +359,12 @@
                 <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
             </a>
             
+            <ul class="nav-links">
+                <li><a onclick="requireLogin('نتائج درجات الطلاب')">درجات الطلاب</a></li>
+                <li><a onclick="requireLogin('التقييمات الأسبوعية')">التقييم الأسبوعي</a></li>
+                <li><a onclick="requireLogin('الشكاوى والطلبات')">الشكاوى والطلبات</a></li>
+            </ul>
+
             <div class="header-actions">
                 <button onclick="openAuthBox(false)" class="btn-header btn-header-outline">تسجيل الدخول 🔑</button>
                 <button onclick="openAuthBox(true)" class="btn-header btn-header-primary">إنشاء حساب جديد ✨</button>
@@ -310,20 +373,39 @@
     </header>
 
     <div class="main-wrapper">
-        <!-- الواجهة الترحيبية -->
+        <!-- الواجهة الترحيبية الأساسية -->
         <div class="hero-card">
             <div class="hero-logo">
                 <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
             </div>
             <h1 class="hero-title">مرحباً بكم في مدرسة اللغات الرسمية الجديدة</h1>
-            <p class="hero-desc">البوابة الإلكترونية لمتابعة تقييمات الطلاب، النتائج الأسبوعية والنهائية، والتواصل المباشر مع إدارة المدرسة.</p>
+            <p class="hero-desc">البوابة الإلكترونية الموحدة لمتابعة تقييمات الطلاب، نتائج الاختبارات، والتواصل المباشر مع إدارة المدرسة.</p>
             <div style="display: flex; gap: 12px; justify-content: center; max-width: 420px; margin: auto;">
                 <button onclick="openAuthBox(false)" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔐</button>
                 <button onclick="openAuthBox(true)" class="btn-submit" style="margin: 0; flex: 1; background: #0EA5E9;">حساب جديد 📝</button>
             </div>
         </div>
 
-        <!-- صندوق التسجيل والدخول (يظهر فقط عند الضغط) -->
+        <!-- خدمات الموقع التي تطلب تسجيل الدخول عند الضغط -->
+        <div class="services-grid">
+            <div class="service-card" onclick="requireLogin('نتائج التقييمات والاختبارات')">
+                <span class="service-icon">📊</span>
+                <div class="service-title">الدرجات والتقييمات</div>
+                <div class="service-desc">استعراض تقييمات أعمال السنة والامتحانات.</div>
+            </div>
+            <div class="service-card" onclick="requireLogin('جدول الحضور والغياب')">
+                <span class="service-icon">📅</span>
+                <div class="service-title">الحضور والغياب</div>
+                <div class="service-desc">متابعة انضباط الطالب وأيام الغياب.</div>
+            </div>
+            <div class="service-card" onclick="requireLogin('نظام الشكاوى والمقترحات')">
+                <span class="service-icon">📨</span>
+                <div class="service-title">الشكاوى والاستفسارات</div>
+                <div class="service-desc">التواصل المباشر والمشفر مع الإدارة.</div>
+            </div>
+        </div>
+
+        <!-- صندوق التسجيل والدخول (مخفي افتراضياً) -->
         <div class="auth-card" id="authCard">
             <!-- تبويب اختيار الصفة -->
             <div class="role-tabs">
@@ -606,6 +688,18 @@
             });
         }
 
+        /* دوال التنبيه العصرية والمتناسقة مع الواجهة */
+        function requireLogin(sectionName) {
+            if (!activeUserKey) {
+                document.getElementById('alertModalDesc').textContent = `لعرض واستخدام قسم (${sectionName})، يرجى تسجيل الدخول بحسابك أو إنشاء حساب جديد على البوابة.`;
+                document.getElementById('customAlertModal').style.display = 'flex';
+            }
+        }
+
+        function closeAlertModal() {
+            document.getElementById('customAlertModal').style.display = 'none';
+        }
+
         function openAuthBox(signUp) {
             isSignUpMode = signUp;
             document.getElementById('authCard').style.display = 'block';
@@ -714,7 +808,6 @@
                 allUsersCache[activeUserKey] = userData;
 
                 renderDashboardForRole(userData);
-                alert('✅ تم إنشاء الحساب بنجاح!');
 
             } else {
                 const idInput = document.getElementById('loginIdentifierInput').value.trim();
@@ -736,7 +829,6 @@
                 if (foundUser && foundUser.password === pass) {
                     activeUserKey = foundUser.key;
                     renderDashboardForRole(foundUser);
-                    alert('✅ تم تسجيل الدخول بنجاح!');
                 } else {
                     alert('❌ بيانات الدخول غير صحيحة!');
                 }
@@ -798,7 +890,6 @@
             await db.ref('students/' + activeUserKey).update({ grade: newGrade });
             allUsersCache[activeUserKey].grade = newGrade;
             renderDashboardForRole(allUsersCache[activeUserKey]);
-            alert('✅ تم تحديث الصف الدراسي بنجاح!');
         }
 
         function logoutUser() {
@@ -833,7 +924,6 @@
                 timestamp: Date.now()
             });
 
-            alert('✅ تم إرسال طلبك بنجاح إلى الإدارة!');
             document.getElementById('ticketContent').value = '';
             loadParentTickets(u.name);
         }
