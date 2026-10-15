@@ -32,7 +32,7 @@
             overflow-x: hidden;
         }
 
-        /* 🔒 نافذة حماية وتسجيل دخول الإدارة المحسنة بالكامل */
+        /* 🔒 نافذة حماية وتسجيل دخول الإدارة الفورية المحسنة */
         .admin-auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -215,7 +215,7 @@
                 <span>📊</span> رصد الدرجات والتقييمات
             </div>
             <div class="admin-menu-item" onclick="switchAdminTab('attendanceTab', this)">
-                <span>📅</span> الحضور والغياب
+                <span>📅</span> الحضور والغياب والملاحظات
             </div>
             <div class="admin-menu-item" onclick="switchAdminTab('ticketsTab', this)">
                 <span>📨</span> ردود الشكاوى والطلبات
@@ -259,7 +259,7 @@
             <div id="adminNewsListContainer"><p style="color: var(--text-muted);">جاري تحميل الإعلانات...</p></div>
         </div>
 
-        <!-- 2️⃣ قسم رصد الدرجات والتقييمات -->
+        <!-- 2️⃣ قسم رصد الدرجات والتقييمات مخصص بـ المناهج التفصيلية -->
         <div class="admin-card" id="gradesTab">
             <div class="admin-section-header">📊 رصد وتعديل تقييمات الطلاب (تحديث لحظي)</div>
             <div class="form-group">
@@ -279,9 +279,9 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم الحضور والغياب -->
+        <!-- 3️⃣ قسم الحضور والغياب والانضباط السلوكي والملاحظات -->
         <div class="admin-card" id="attendanceTab">
-            <div class="admin-section-header">📅 تسجيل الحضور والانضباط المدرسي</div>
+            <div class="admin-section-header">📅 تسجيل الحضور والانضباط المدرسي والملاحظات</div>
             <div class="form-group">
                 <label>اختر الطالب لتحديث حالة الانضباط</label>
                 <select id="adminAttendanceStudentSelect" class="form-control">
@@ -292,12 +292,17 @@
                 <label>حالة الطالب الحالية</label>
                 <select id="adminAttendanceStatus" class="form-control">
                     <option value="منتظم">منتظم</option>
+                    <option value="مزوغ / هروب من المدرسة">🚨 مزوغ / هروب من المدرسة</option>
                     <option value="غائب بدون عذر">غائب بدون عذر</option>
                     <option value="إجازة مرضية">إجازة مرضية</option>
                     <option value="مستأذن">مستأذن</option>
                 </select>
             </div>
-            <button onclick="saveStudentAttendance()" class="btn-primary-admin">تحديث حالة الحضور 💾</button>
+            <div class="form-group">
+                <label>ملاحظات إدارة المدرسة (سبب الغياب / تفاصيل التزويغ)</label>
+                <textarea id="adminAttendanceNote" class="form-control" rows="3" placeholder="مثال: تم رصد الطالب خارج الفصل في الحصة الرابعة دون إذن إداري..."></textarea>
+            </div>
+            <button onclick="saveStudentAttendance()" class="btn-primary-admin">تحديث حالة الحضور والملاحظات 💾</button>
         </div>
 
         <!-- 4️⃣ قسم ردود الشكاوى والطلبات -->
@@ -374,212 +379,4 @@
         function getSubjectsForGradeName(gradeName) {
             if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
             if (gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
-            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
-            else return gradeSubjectsDetailed.lowerPrimary;
-        }
-
-        async function verifyAdminPassword(e) {
-            e.preventDefault();
-            const u = document.getElementById('adminUserInput').value.trim();
-            const p = document.getElementById('adminPassInput').value.trim();
-            const errBox = document.getElementById('loginAlertError');
-
-            db.ref('adminConfig').once('value', (snapshot) => {
-                let adminData = snapshot.val() || { user: "admin", pass: "Admin2026@School" };
-
-                if (u === adminData.user && p === adminData.pass) {
-                    document.getElementById('adminAuthOverlay').style.display = 'none';
-                    initAdminDashboard();
-                } else {
-                    errBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة!';
-                    errBox.style.display = 'block';
-                }
-            });
-        }
-
-        function handleForgotAdminPass() {
-            alert('🔐 اسم المستخدم الافتراضي: admin \nكلمة المرور الافتراضية: Admin2026@School');
-        }
-
-        function initAdminDashboard() {
-            loadNewsAdmin();
-            loadStudentsDataLive();
-            loadTicketsAdmin();
-        }
-
-        function switchAdminTab(tabId, element) {
-            document.querySelectorAll('.admin-card').forEach(c => c.classList.remove('active-tab'));
-            document.querySelectorAll('.admin-menu-item').forEach(m => m.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active-tab');
-            element.classList.add('active');
-        }
-
-        async function publishAdminNews(e) {
-            e.preventDefault();
-            const title = document.getElementById('adminNewsTitle').value.trim();
-            const badge = document.getElementById('adminNewsBadge').value;
-            const content = document.getElementById('adminNewsContent').value.trim();
-
-            await db.ref('news').push().set({ title, badge, content, timestamp: Date.now() });
-            document.getElementById('adminNewsTitle').value = '';
-            document.getElementById('adminNewsContent').value = '';
-            alert('✅ تم نشر الإعلان بنجاح!');
-        }
-
-        function loadNewsAdmin() {
-            db.ref('news').on('value', (snapshot) => {
-                const container = document.getElementById('adminNewsListContainer');
-                container.innerHTML = '';
-                const data = snapshot.val();
-                if (!data) { container.innerHTML = '<p style="color: var(--text-muted);">لا توجد أخبار منشورة.</p>'; return; }
-
-                let html = '';
-                Object.keys(data).reverse().forEach(key => {
-                    const item = data[key];
-                    html += `
-                        <div class="news-item-row">
-                            <div>
-                                <b>[${item.badge}] ${item.title}</b>
-                                <p style="font-size: 12px; color: var(--text-muted);">${item.content}</p>
-                            </div>
-                            <button onclick="deleteAdminNews('${key}')" style="background:#EF4444; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer;">حذف 🗑️</button>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            });
-        }
-
-        async function deleteAdminNews(key) {
-            if (confirm('حذف هذا الإعلان؟')) await db.ref('news/' + key).remove();
-        }
-
-        function loadStudentsDataLive() {
-            db.ref('students').on('value', (snapshot) => {
-                studentsCache = snapshot.val() || {};
-                const sel1 = document.getElementById('adminStudentSelect');
-                const sel2 = document.getElementById('adminAttendanceStudentSelect');
-
-                const selectedVal1 = sel1.value;
-                const selectedVal2 = sel2.value;
-
-                sel1.innerHTML = '<option value="">-- اختر الطالب --</option>';
-                sel2.innerHTML = '<option value="">-- اختر الطالب --</option>';
-
-                Object.keys(studentsCache).reverse().forEach(k => {
-                    const u = studentsCache[k];
-                    const label = `${u.name || 'طالب جديد'} - (${u.grade || 'غير محدد'})`;
-                    sel1.innerHTML += `<option value="${k}">${label}</option>`;
-                    sel2.innerHTML += `<option value="${k}">${label}</option>`;
-                });
-
-                if (selectedVal1 && studentsCache[selectedVal1]) sel1.value = selectedVal1;
-                if (selectedVal2 && studentsCache[selectedVal2]) sel2.value = selectedVal2;
-            });
-        }
-
-        function loadStudentGradesForEdit() {
-            const key = document.getElementById('adminStudentSelect').value;
-            const container = document.getElementById('subjectsInputsContainer');
-            const form = document.getElementById('studentGradesEditForm');
-
-            if (!key) { form.style.display = 'none'; return; }
-
-            const u = studentsCache[key];
-            document.getElementById('editingStudentName').textContent = 'رصد درجات الطالب: ' + (u.name || 'طالب بدون اسم');
-            document.getElementById('editingStudentGradeBadge').textContent = 'الصف: ' + (u.grade || 'الصف الأول الابتدائي');
-            container.innerHTML = '';
-
-            const subs = getSubjectsForGradeName(u.grade);
-
-            subs.forEach(s => {
-                const work = u[s.id + '_work'] || 0;
-                const weekly = u[s.id + '_weekly'] || 0;
-                const final = u[s.id + '_final'] || 0;
-
-                container.innerHTML += `
-                    <div style="background:#F8FAFC; padding:12px; border-radius:12px; border:1px solid var(--border);">
-                        <b style="display:block; margin-bottom:8px; color:var(--primary);">${s.name}</b>
-                        <div class="form-group"><label>أعمال السنة</label><input type="number" id="${s.id}_work" class="form-control" value="${work}"></div>
-                        <div class="form-group"><label>التقييم الأسبوعي</label><input type="number" id="${s.id}_weekly" class="form-control" value="${weekly}"></div>
-                        <div class="form-group"><label>الاختبار النهائي</label><input type="number" id="${s.id}_final" class="form-control" value="${final}"></div>
-                    </div>
-                `;
-            });
-
-            form.style.display = 'block';
-        }
-
-        async function saveStudentGrades() {
-            const key = document.getElementById('adminStudentSelect').value;
-            if (!key) return;
-
-            const u = studentsCache[key];
-            const subs = getSubjectsForGradeName(u.grade);
-            let updates = {};
-
-            subs.forEach(s => {
-                updates[s.id + '_work'] = parseFloat(document.getElementById(s.id + '_work').value || 0);
-                updates[s.id + '_weekly'] = parseFloat(document.getElementById(s.id + '_weekly').value || 0);
-                updates[s.id + '_final'] = parseFloat(document.getElementById(s.id + '_final').value || 0);
-            });
-
-            await db.ref('students/' + key).update(updates);
-            alert('✅ تم حفظ الدرجات والتقييمات بنجاح!');
-        }
-
-        async function saveStudentAttendance() {
-            const key = document.getElementById('adminAttendanceStudentSelect').value;
-            const status = document.getElementById('adminAttendanceStatus').value;
-
-            if (!key) { alert('يرجى اختيار طالب أولاً!'); return; }
-            await db.ref('students/' + key).update({ attendance: status });
-            alert('✅ تم تحديث حالة انضباط الطالب بنجاح!');
-        }
-
-        function loadTicketsAdmin() {
-            db.ref('tickets').on('value', (snapshot) => {
-                const container = document.getElementById('adminTicketsListContainer');
-                container.innerHTML = '';
-                const data = snapshot.val();
-                if (!data) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد شكاوى أو استفسارات حالياً.</p>'; return; }
-
-                let html = '';
-                Object.keys(data).reverse().forEach(k => {
-                    const t = data[k];
-                    html += `
-                        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:12px;">
-                            <b>📌 [${t.ticketType}] - الطالب: ${t.studentName} (${t.studentGrade})</b>
-                            <p style="font-size:13px; margin:6px 0;"><b>تفاصيل الطلب:</b> ${t.ticketContent}</p>
-                            <p style="font-size:12px; color:var(--text-muted);">ولي الأمر: ${t.parentName} (${t.parentEmail})</p>
-                            
-                            <div style="margin-top:10px;">
-                                <input type="text" id="reply_${k}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}" style="margin-bottom:8px;">
-                                <button onclick="sendTicketReply('${k}')" class="btn-primary-admin" style="padding:8px 16px; font-size:12px;">إرسال الرد 📩</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            });
-        }
-
-        async function sendTicketReply(key) {
-            const reply = document.getElementById('reply_' + key).value.trim();
-            if (!reply) return;
-
-            await db.ref('tickets/' + key).update({ adminReply: reply, status: 'تم الرد' });
-            alert('✅ تم إرسال رد الإدارة لولي الأمر بنجاح!');
-        }
-
-        async function changeAdminCredentials(e) {
-            e.preventDefault();
-            const newUser = document.getElementById('newAdminUser').value.trim();
-            const newPass = document.getElementById('newAdminPass').value.trim();
-
-            await db.ref('adminConfig').set({ user: newUser, pass: newPass });
-            alert('✅ تم تحديث بيانات تسجيل دخول الإدارة بنجاح!');
-        }
-    </script>
-</body>
-</html>
+            else if (gradeName.includes
