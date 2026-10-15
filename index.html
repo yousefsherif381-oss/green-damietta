@@ -331,7 +331,7 @@
         <!-- قسم الشكاوى العام -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى والاستفسارات</h2>
+            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى واستفسارات أولياء الأمور</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يمكن لأولياء الأمور تقديم طلبات الاستفسار أو الشكاوى لإدارة المدرسة.</p>
             <button onclick="triggerAuthAction('إرسال شكوى جديدة أو متابعة الطلبات الحالية')" class="btn-submit" style="background: #6366F1;">إرسال شكوى / استفسار جديد 📝</button>
         </div>
@@ -421,8 +421,9 @@
                 <button type="submit" id="authSubmitBtn" class="btn-submit">تسجيل الدخول 📊</button>
             </form>
 
-            <div class="toggle-link" onclick="toggleAuthMode()" style="text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; color: #2563EB; font-weight: bold;">
-                <span id="toggleAuthText">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 13px; font-weight: bold;">
+                <span id="toggleAuthText" onclick="toggleAuthMode()" style="cursor: pointer; color: #2563EB;">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
+                <span id="forgotPassBtn" onclick="handleForgotPassword()" style="cursor: pointer; color: #D97706;">نسيت كلمة المرور؟ 🔑</span>
             </div>
         </div>
 
@@ -707,6 +708,7 @@
             document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
             document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
             document.getElementById('toggleAuthText').textContent = isSignUpMode ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
+            document.getElementById('forgotPassBtn').style.display = isSignUpMode ? 'none' : 'inline-block';
             document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'إنشاء الحساب والتسجيل ✨' : 'تسجيل الدخول 📊';
             
             updateAuthTitles();
@@ -738,6 +740,35 @@
         }
 
         function toggleAuthMode() { openAuthPage(!isSignUpMode); }
+
+        function handleForgotPassword() {
+            const promptMsg = selectedRole === 'student' 
+                ? 'أدخل الرقم القومي للطالب أو كود الطالب لاستعادة كلمة المرور:'
+                : 'أدخل الرقم القومي لولي الأمر لاستعادة كلمة المرور:';
+                
+            const inputVal = prompt(promptMsg);
+            if (!inputVal) return;
+
+            let foundUser = null;
+            Object.keys(allUsersCache).forEach(k => {
+                const u = allUsersCache[k];
+                if (selectedRole === 'student') {
+                    if (u.nationalId === inputVal.trim() || u.code === inputVal.trim() || u.name === inputVal.trim()) {
+                        foundUser = u;
+                    }
+                } else {
+                    if (u.parentNationalId === inputVal.trim() || u.nationalId === inputVal.trim()) {
+                        foundUser = u;
+                    }
+                }
+            });
+
+            if (foundUser && foundUser.password) {
+                alert(`🔑 كلمة المرور المسجلة لحسابك هي:\n[ ${foundUser.password} ]`);
+            } else {
+                alert('❌ لم يتم العثور على حساب مسجل بهذه البيانات. يرجى التأكد من الرقم القومي أو مراجعة إدارة المدرسة.');
+            }
+        }
 
         function updateAuthTitles() {
             const title = document.getElementById('authTitle');
