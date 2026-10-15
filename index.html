@@ -268,13 +268,13 @@
     <div id="customAlertModal" class="custom-modal-overlay">
         <div class="custom-modal-card">
             <div style="width: 60px; height: 60px; background: #FEF3C7; color: #D97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px;">🔐</div>
-            <h3 style="font-size: 18px; font-weight: 900; color: #0F172A; margin-bottom: 8px;">تنبيه هـام</h3>
+            <h3 style="font-size: 18px; font-weight: 900; color: #0F172A; margin-bottom: 8px;">يجب تسجيل الدخول أولاً</h3>
             <p id="alertModalDesc" style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.6;"></p>
             <div style="display: flex; gap: 10px;">
                 <button onclick="closeAlertModal(); openAuthPage(false);" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔑</button>
                 <button onclick="closeAlertModal(); openAuthPage(true);" class="btn-submit" style="margin: 0; flex: 1; background: #0EA5E9;">حساب جديد ✨</button>
             </div>
-            <button onclick="closeAlertModal()" style="background: transparent; color: #94A3B8; border: none; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 14px;">إلغاء الإجراء</button>
+            <button onclick="closeAlertModal()" style="background: transparent; color: #94A3B8; border: none; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 14px;">إلغاء</button>
         </div>
     </div>
 
@@ -317,7 +317,7 @@
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #2563EB;">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">تتيح البوابة استعراض نتائج المواد المقررة لكافة المراحل الدراسية.</p>
-            <button onclick="triggerAuthAction('عرض كشف الدرجات التفصيلي الخاص بالطالب')" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
+            <button onclick="checkAccessAndOpen('grades')" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
         </div>
 
         <!-- قسم الحضور والغياب العام -->
@@ -325,15 +325,15 @@
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #0EA5E9;">📅 سجل انضباط الحضور والغياب</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان والملاحظات السلوكية.</p>
-            <button onclick="triggerAuthAction('استعراض تقرير الحضور والغياب للطالب')" class="btn-submit" style="background: #0EA5E9;">طلب تقرير الحضور والغياب 🔐</button>
+            <button onclick="checkAccessAndOpen('attendance')" class="btn-submit" style="background: #0EA5E9;">طلب تقرير الحضور والغياب 🔐</button>
         </div>
 
         <!-- قسم الشكاوى العام -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى واستفسارات أولياء الأمور</h2>
+            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى والاستفسارات</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يمكن لأولياء الأمور تقديم طلبات الاستفسار أو الشكاوى لإدارة المدرسة.</p>
-            <button onclick="triggerAuthAction('إرسال شكوى جديدة أو متابعة الطلبات الحالية')" class="btn-submit" style="background: #6366F1;">إرسال شكوى / استفسار جديد 📝</button>
+            <button onclick="checkAccessAndOpen('tickets')" class="btn-submit" style="background: #6366F1;">إرسال شكوى / استفسار جديد 📝</button>
         </div>
 
         <!-- صفحة التسجيل والدخول المخصصة -->
@@ -693,9 +693,11 @@
             }
         }
 
-        function triggerAuthAction(actionTitle) {
-            if (!activeUserKey) {
-                document.getElementById('alertModalDesc').textContent = `لتنفيذ (${actionTitle})، يتوجب عليك تسجيل الدخول بحسابك أو إنشاء حساب جديد على البوابة.`;
+        function checkAccessAndOpen(sectionType) {
+            if (activeUserKey) {
+                renderDashboardForRole(allUsersCache[activeUserKey]);
+            } else {
+                document.getElementById('alertModalDesc').textContent = 'يتوجب عليك تسجيل الدخول أو إنشاء حساب لاستعراض هذه الخدمة.';
                 document.getElementById('customAlertModal').style.display = 'flex';
             }
         }
@@ -749,24 +751,24 @@
             const inputVal = prompt(promptMsg);
             if (!inputVal) return;
 
-            let foundUser = null;
+            let foundPass = null;
             Object.keys(allUsersCache).forEach(k => {
                 const u = allUsersCache[k];
                 if (selectedRole === 'student') {
-                    if (u.nationalId === inputVal.trim() || u.code === inputVal.trim() || u.name === inputVal.trim()) {
-                        foundUser = u;
+                    if (u.nationalId === inputVal.trim() || u.code === inputVal.trim()) {
+                        foundPass = u.password;
                     }
                 } else {
                     if (u.parentNationalId === inputVal.trim() || u.nationalId === inputVal.trim()) {
-                        foundUser = u;
+                        foundPass = u.password;
                     }
                 }
             });
 
-            if (foundUser && foundUser.password) {
-                alert(`🔑 كلمة المرور المسجلة لحسابك هي:\n[ ${foundUser.password} ]`);
+            if (foundPass) {
+                alert(`🔑 كلمة المرور الخاصة بك هي:\n[ ${foundPass} ]`);
             } else {
-                alert('❌ لم يتم العثور على حساب مسجل بهذه البيانات. يرجى التأكد من الرقم القومي أو مراجعة إدارة المدرسة.');
+                alert('❌ لم يتم العثور على حساب بهذه البيانات. يرجى التحقق من الرقم المدخل.');
             }
         }
 
@@ -815,29 +817,32 @@
                     alert('✅ تم إنشاء الحساب بنجاح!');
                     renderDashboardForRole(userData);
                 } catch (err) {
-                    alert('❌ حدث خطأ أثناء الاتصال بقاعدة البيانات، يرجى المحاولة مرة أخرى.');
+                    alert('❌ حدث خطأ في الاتصال بقاعدة البيانات.');
                 }
 
             } else {
                 const idInput = document.getElementById('loginIdentifierInput').value.trim();
-                let foundUser = null;
+                let foundUserKey = null;
+                let foundUserObj = null;
 
                 Object.keys(allUsersCache).forEach(k => {
                     const u = allUsersCache[k];
                     if (selectedRole === 'student') {
                         if (u.nationalId === idInput || u.code === idInput || u.name === idInput) {
-                            foundUser = { ...u, key: k };
+                            foundUserKey = k;
+                            foundUserObj = u;
                         }
                     } else {
                         if (u.parentNationalId === idInput || u.nationalId === idInput || u.name === idInput) {
-                            foundUser = { ...u, key: k };
+                            foundUserKey = k;
+                            foundUserObj = u;
                         }
                     }
                 });
 
-                if (foundUser && foundUser.password === pass) {
-                    activeUserKey = foundUser.key;
-                    renderDashboardForRole(foundUser);
+                if (foundUserObj && foundUserObj.password === pass) {
+                    activeUserKey = foundUserKey;
+                    renderDashboardForRole(foundUserObj);
                 } else {
                     alert('❌ بيانات الدخول غير صحيحة!');
                 }
