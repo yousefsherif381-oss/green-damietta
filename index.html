@@ -257,7 +257,7 @@
                 </button>
                 <div class="logo-area" onclick="showHomePage()">
                     <div class="logo-box">
-                        <img src="https://cdn-icons-png.flaticon.com/512/167/167707.png" alt="شعار المدرسة">
+                        <img src="https://share.google/4uatBPu6RZ8mMf16W" alt="شعار مدرسة اللغات الرسمية الجديدة">
                     </div>
                     <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
                 </div>
@@ -821,7 +821,7 @@
 
             await db.ref('students/' + activeUserKey).update({ grade: newGrade });
             allUsersCache[activeUserKey].grade = newGrade;
-            renderDashboardForRole(allUsersCard || allUsersCache[activeUserKey]);
+            renderDashboardForRole(allUsersCache[activeUserKey]);
         }
 
         function logoutUser() {
