@@ -35,7 +35,6 @@
             overflow-x: hidden;
         }
 
-        /* الهيدر وشريط التنقل */
         header {
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(12px);
@@ -110,7 +109,6 @@
         .btn-header-primary { background: #2563EB; color: #fff; }
         .btn-header-primary:hover { background: #1D4ED8; }
 
-        /* السلايدر الجانبي للمستخدمين */
         .sidebar-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -125,27 +123,17 @@
 
         .sliding-sidebar {
             position: fixed;
-            top: 0;
-            right: -320px;
-            width: 300px;
-            height: 100vh;
-            background: var(--card-bg);
-            z-index: 1001;
+            top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--card-bg); z-index: 1001;
             box-shadow: -10px 0 30px rgba(0,0,0,0.3);
-            padding: 24px 20px;
-            display: flex;
-            flex-direction: column;
+            padding: 24px 20px; display: flex; flex-direction: column;
             transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sliding-sidebar.active { right: 0; }
 
         .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid var(--border);
         }
         .sidebar-title { font-size: 16px; font-weight: 900; color: var(--text-dark); }
         .btn-close-sidebar {
@@ -163,66 +151,35 @@
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 14px; font-weight: 800; color: var(--text-dark); }
 
-        /* المحتوى الرئيسي للمنصة */
         .main-wrapper {
-            max-width: 950px;
-            width: 100%;
-            margin: 30px auto;
-            padding: 0 20px;
-            flex: 1;
+            max-width: 950px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1;
         }
 
-        /* شريط وإحصائيات الأخبار */
-        .news-header-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            color: white;
-        }
+        .news-header-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; color: white; }
         .news-header-title { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
 
         .news-feed { display: flex; flex-direction: column; gap: 20px; }
         .news-card {
-            background: var(--card-bg);
-            border-radius: 22px;
-            padding: 28px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
+            background: var(--card-bg); border-radius: 22px; padding: 28px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); transition: transform 0.2s;
         }
         .news-card-badge {
-            display: inline-block;
-            background: #DBEAFE;
-            color: #2563EB;
-            font-size: 12px;
-            font-weight: 800;
-            padding: 4px 12px;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            display: inline-block; background: #DBEAFE; color: #2563EB;
+            font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 8px; margin-bottom: 12px;
         }
         .news-card-title { font-size: 18px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
         .news-card-desc { font-size: 14px; color: #334155; line-height: 1.7; margin-bottom: 16px; white-space: pre-line; }
         .news-card-date { font-size: 11.5px; color: var(--text-muted); font-weight: 700; }
 
-        /* الأقسام العامة من السلايدر */
         .view-section {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            display: none;
-            margin-bottom: 25px;
+            background: var(--card-bg); border-radius: 24px; padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: none; margin-bottom: 25px;
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* صفحة التسجيل والدخول المخصصة */
         .auth-page-view {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
+            background: var(--card-bg); border-radius: 24px; padding: 30px 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: none; animation: fadeIn 0.3s ease-in-out;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -246,7 +203,7 @@
         }
         .role-tab.active { background: #FFFFFF; color: #2563EB; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
         .form-group { margin-bottom: 16px; text-align: right; }
         .form-group label { display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px; }
         .form-control {
@@ -307,7 +264,7 @@
         </div>
     </aside>
 
-    <!-- نافذة التنبيه المخصصة للإجراءات التفاعلية -->
+    <!-- نافذة التنبيه المخصصة -->
     <div id="customAlertModal" class="custom-modal-overlay">
         <div class="custom-modal-card">
             <div style="width: 60px; height: 60px; background: #FEF3C7; color: #D97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px;">🔐</div>
@@ -345,12 +302,11 @@
 
     <main class="main-wrapper">
         
-        <!-- الواجهة الرئيسية التي تفتح فوراً (شريط الأخبار والإعلانات السحابية المحدثة من الإدارة) -->
+        <!-- الواجهة الرئيسية -->
         <div id="newsHomeContainer">
             <div class="news-header-box">
                 <div class="news-header-title">📢 أحدث الأخبار والإعلانات المدرسية</div>
             </div>
-
             <div class="news-feed" id="newsFeedList">
                 <p style="color: #94A3B8; text-align: center; padding: 30px;">جاري تحميل الأخبار والتنبيهات المدرسية...</p>
             </div>
@@ -396,14 +352,14 @@
                 <div id="signInFields">
                     <div class="form-group">
                         <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
-                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود" required>
+                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود">
                     </div>
                 </div>
 
                 <div id="signUpFields" style="display: none;">
                     <div class="form-grid">
                         <div class="form-group student-only">
-                            <label>اسم الطالب الرباعي (كما في شهادة الميلاد)</label>
+                            <label>اسم الطالب الرباعي</label>
                             <input type="text" id="studentFullName" class="form-control" placeholder="مثال: أحمد محمد علي حسن">
                         </div>
                         <div class="form-group student-only">
@@ -451,7 +407,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>رقم المحمول (للتواصل والتحقق)</label>
+                            <label>رقم المحمول</label>
                             <input type="tel" id="phoneInput" class="form-control" placeholder="01000000000">
                         </div>
                     </div>
@@ -810,22 +766,26 @@
                 };
 
                 if (selectedRole === 'student') {
-                    userData.name = document.getElementById('studentFullName').value.trim();
-                    userData.nationalId = document.getElementById('studentNationalId').value.trim();
-                    userData.code = document.getElementById('studentCode').value.trim();
+                    userData.name = document.getElementById('studentFullName').value.trim() || 'طالب جديد';
+                    userData.nationalId = document.getElementById('studentNationalId').value.trim() || '00000000000000';
+                    userData.code = document.getElementById('studentCode').value.trim() || '123456';
                 } else {
-                    userData.parentName = document.getElementById('parentFullName').value.trim();
-                    userData.parentNationalId = document.getElementById('parentNationalId').value.trim();
+                    userData.parentName = document.getElementById('parentFullName').value.trim() || 'ولي أمر';
+                    userData.parentNationalId = document.getElementById('parentNationalId').value.trim() || '00000000000000';
                     userData.relation = document.getElementById('parentRelation').value;
-                    userData.name = document.getElementById('parentStudentName').value.trim();
+                    userData.name = document.getElementById('parentStudentName').value.trim() || 'طالب جديد';
                 }
 
-                const newRef = db.ref('students').push();
-                await newRef.set(userData);
-                activeUserKey = newRef.key;
-                allUsersCache[activeUserKey] = userData;
-
-                renderDashboardForRole(userData);
+                try {
+                    const newRef = db.ref('students').push();
+                    await newRef.set(userData);
+                    activeUserKey = newRef.key;
+                    allUsersCache[activeUserKey] = userData;
+                    alert('✅ تم إنشاء الحساب بنجاح!');
+                    renderDashboardForRole(userData);
+                } catch (err) {
+                    alert('❌ حدث خطأ أثناء الاتصال بقاعدة البيانات، يرجى المحاولة مرة أخرى.');
+                }
 
             } else {
                 const idInput = document.getElementById('loginIdentifierInput').value.trim();
