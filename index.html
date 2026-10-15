@@ -58,7 +58,6 @@
             gap: 12px;
         }
 
-        /* زر فتح القائمة الجانبية (السلايدر) */
         .btn-sidebar-toggle {
             background: rgba(255, 255, 255, 0.15);
             color: #fff;
@@ -72,9 +71,7 @@
             align-items: center;
             gap: 6px;
         }
-        .btn-sidebar-toggle:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
+        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.25); }
 
         .logo-area {
             display: flex;
@@ -95,23 +92,10 @@
             justify-content: center;
             overflow: hidden;
         }
-        .logo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 50%;
-        }
-        .logo-text {
-            font-size: 17px;
-            font-weight: 900;
-            color: #FFFFFF;
-            letter-spacing: -0.3px;
-        }
+        .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+        .logo-text { font-size: 17px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.3px; }
 
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
+        .header-actions { display: flex; gap: 10px; }
         .btn-header {
             padding: 9px 18px;
             border-radius: 10px;
@@ -130,7 +114,7 @@
         .btn-header-primary { background: var(--primary); color: #fff; }
         .btn-header-primary:hover { background: var(--primary-hover); }
 
-        /* السلايدر الجانبي (Off-Canvas Side Drawer) */
+        /* السلايدر الجانبي */
         .sidebar-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -141,15 +125,12 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
         }
-        .sidebar-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
         .sliding-sidebar {
             position: fixed;
             top: 0;
-            right: -320px; /* مطوي افتراضياً خارج الشاشة */
+            right: -320px;
             width: 300px;
             height: 100vh;
             background: var(--card-bg);
@@ -160,9 +141,7 @@
             flex-direction: column;
             transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sliding-sidebar.active {
-            right: 0; /* فتح السلايدر */
-        }
+        .sliding-sidebar.active { right: 0; }
 
         .sidebar-header {
             display: flex;
@@ -172,91 +151,89 @@
             padding-bottom: 12px;
             border-bottom: 2px solid var(--border);
         }
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--text-dark);
-        }
+        .sidebar-title { font-size: 16px; font-weight: 900; color: var(--text-dark); }
         .btn-close-sidebar {
-            background: #F1F5F9;
-            border: none;
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--text-muted);
-        }
-        .btn-close-sidebar:hover {
-            background: #E2E8F0;
-            color: #000;
+            background: #F1F5F9; border: none; width: 34px; height: 34px; border-radius: 50%;
+            font-size: 16px; font-weight: bold; cursor: pointer; color: var(--text-muted);
         }
 
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; }
         .sidebar-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 16px;
-            border-radius: 14px;
-            background: #F8FAFC;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+            border-radius: 14px; background: #F8FAFC; border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.2s ease;
         }
-        .sidebar-item:hover {
-            background: #EFF6FF;
-            border-color: var(--primary);
-            transform: translateX(-4px);
-        }
+        .sidebar-item:hover { background: #EFF6FF; border-color: var(--primary); transform: translateX(-4px); }
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 14px; font-weight: 800; color: var(--text-dark); }
 
-        /* منطقة المحتوى الرئيسية */
+        /* المحتوى الرئيسي */
         .main-wrapper {
-            max-width: 1000px;
+            max-width: 1050px;
             width: 100%;
             margin: 30px auto;
             padding: 0 20px;
             flex: 1;
         }
 
-        /* البطاقة الرئيسية للزائر */
-        .hero-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 45px 35px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        /* لوحة الخدمات والإحصائيات السريعة */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
             margin-bottom: 25px;
         }
-        .hero-logo {
-            width: 95px;
-            height: 95px;
-            margin: 0 auto 16px;
-            border-radius: 50%;
-            background: #fff;
-            padding: 4px;
-            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
-            border: 3px solid var(--primary);
-            overflow: hidden;
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.18);
         }
-        .hero-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .hero-title { font-size: 26px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
-        .hero-desc { font-size: 14.5px; color: var(--text-muted); max-width: 620px; margin: 0 auto 28px; line-height: 1.6; }
+        .stat-icon { font-size: 30px; display: block; margin-bottom: 6px; }
+        .stat-number { font-size: 22px; font-weight: 900; color: var(--primary); }
+        .stat-label { font-size: 12.5px; font-weight: 700; color: var(--text-muted); }
 
-        /* صفحة التسجيل والدخول المخصصة (Full Page View) */
+        .services-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .quick-service-card {
+            background: var(--card-bg);
+            border-radius: 22px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .service-card-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .service-card-icon {
+            width: 50px; height: 50px; border-radius: 14px; background: #DBEAFE;
+            color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 24px;
+        }
+        .service-card-title { font-size: 16px; font-weight: 900; color: var(--text-dark); }
+        .service-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+
+        /* الأقسام العامة التي تفتح مباشرة دون حجب */
+        .view-section {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            display: none;
+            margin-bottom: 25px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* صفحة التسجيل والدخول المخصصة */
         .auth-page-view {
             background: var(--card-bg);
             border-radius: 24px;
             padding: 40px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            display: none; /* مخفية حتى يتم اختيار التسجيل */
+            display: none;
             animation: fadeIn 0.3s ease-in-out;
         }
         @keyframes fadeIn {
@@ -265,173 +242,88 @@
         }
 
         .btn-back-home {
-            background: #F1F5F9;
-            color: #334155;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            margin-bottom: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            background: #F1F5F9; color: #334155; border: none; padding: 8px 16px;
+            border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer;
+            margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;
         }
-        .btn-back-home:hover { background: #E2E8F0; }
 
         .role-tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            background: #F1F5F9;
-            padding: 6px;
-            border-radius: 16px;
-            margin-bottom: 25px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            background: #F1F5F9; padding: 6px; border-radius: 16px; margin-bottom: 25px;
         }
         .role-tab {
-            padding: 13px;
-            text-align: center;
-            font-weight: 800;
-            font-size: 14.5px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            color: var(--text-muted);
-            border: none;
-            background: transparent;
+            padding: 13px; text-align: center; font-weight: 800; font-size: 14.5px;
+            border-radius: 12px; cursor: pointer; transition: all 0.25s ease;
+            color: var(--text-muted); border: none; background: transparent;
         }
-        .role-tab.active {
-            background: #FFFFFF;
-            color: var(--primary);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
+        .role-tab.active { background: #FFFFFF; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-        }
-
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
         .form-group { margin-bottom: 16px; text-align: right; }
         .form-group label { display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px; }
         .form-control {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            outline: none;
-            transition: all 0.2s;
-            background: #FFFFFF;
+            width: 100%; padding: 12px 14px; border: 2px solid var(--border);
+            border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
         }
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
 
         .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 15.5px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            width: 100%; padding: 14px; background: var(--primary); color: white;
+            border: none; border-radius: 12px; font-size: 15.5px; font-weight: 800;
+            cursor: pointer; transition: all 0.2s; margin-top: 10px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
-        .btn-submit:hover { background: var(--primary-hover); }
-
-        .toggle-link {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 13.5px;
-            color: var(--text-muted);
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .toggle-link span { color: var(--primary); text-decoration: underline; }
 
         .dashboard-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            display: none;
-            margin-bottom: 25px;
+            background: var(--card-bg); border-radius: 24px; padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: none; margin-bottom: 25px;
         }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: #0F172A; font-weight: 800; }
 
-        /* مودال الإدارة السري ونوافذ التنبيه */
         .custom-modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.82);
-            backdrop-filter: blur(8px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 20px;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(8px); display: none;
+            justify-content: center; align-items: center; z-index: 9999; padding: 20px;
         }
         .custom-modal-card {
-            background: #FFFFFF;
-            border-radius: 24px;
-            padding: 32px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            text-align: center;
-            animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes modalPop {
-            from { transform: scale(0.85); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            background: #FFFFFF; border-radius: 24px; padding: 32px; width: 100%;
+            max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <!-- التغطية والخلفية المظلمة عند فتح السلايدر -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- السلايدر الجانبي القابل للفتح والإغلاق -->
+    <!-- السلايدر الجانبي -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 الأقسام والخدمات</span>
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
         <div class="sidebar-menu">
-            <div class="sidebar-item" onclick="closeSidebar(); requireLogin('الدرجات والتقييمات');">
+            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('gradesSection');">
                 <span class="sidebar-icon">📊</span>
                 <span class="sidebar-label">الدرجات والتقييمات</span>
             </div>
-            <div class="sidebar-item" onclick="closeSidebar(); requireLogin('جدول الحضور والغياب');">
+            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('attendanceSection');">
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-label">الحضور والغياب</span>
             </div>
-            <div class="sidebar-item" onclick="closeSidebar(); requireLogin('الشكاوى والطلبات');">
+            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('ticketsSection');">
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">الشكاوى والاستفسارات</span>
             </div>
         </div>
     </aside>
 
-    <!-- نافذة التنبيه المخصصة ومتناسقة مع التصميم -->
+    <!-- نافذة التنبيه المخصصة للإجراءات التفاعلية -->
     <div id="customAlertModal" class="custom-modal-overlay">
         <div class="custom-modal-card">
-            <div style="width: 60px; height: 60px; background: #FEF3C7; color: #D97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px;">
-                🔐
-            </div>
-            <h3 id="alertModalTitle" style="font-size: 18px; font-weight: 900; color: #0F172A; margin-bottom: 8px;">تنبيه هـام</h3>
+            <div style="width: 60px; height: 60px; background: #FEF3C7; color: #D97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px;">🔐</div>
+            <h3 style="font-size: 18px; font-weight: 900; color: #0F172A; margin-bottom: 8px;">تنبيه هـام</h3>
             <p id="alertModalDesc" style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.6;"></p>
             <div style="display: flex; gap: 10px;">
                 <button onclick="closeAlertModal(); openAuthPage(false);" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔑</button>
@@ -441,37 +333,23 @@
         </div>
     </div>
 
-    <!-- نافذة دخول الإدارة السرية عند الضغط المزدوج -->
+    <!-- دخول الإدارة السرّي -->
     <div id="secretAdminModal" class="custom-modal-overlay">
         <div class="custom-modal-card" style="text-align: right;">
-            <div style="text-align: center; margin-bottom: 12px;">
-                <div class="logo-box" style="margin: auto; width: 55px; height: 55px;">
-                    <img src="image_2462d9.jpg" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
-                </div>
-            </div>
             <h3 style="font-size: 18px; font-weight: 900; text-align: center; margin-bottom: 4px;">🔐 دخول لوحة الإدارة</h3>
-            <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 18px;">أدخل كلمة مرور الإدارة الموحدة.</p>
             <form onsubmit="handleSecretAdminLogin(event)">
-                <div class="form-group">
-                    <label>اسم المستخدم</label>
-                    <input type="text" id="adminUserInput" class="form-control" placeholder="admin" required>
-                </div>
-                <div class="form-group">
-                    <label>كلمة المرور</label>
-                    <input type="password" id="adminPassInput" class="form-control" placeholder="••••••••" required>
-                </div>
+                <div class="form-group"><label>اسم المستخدم</label><input type="text" id="adminUserInput" class="form-control" placeholder="admin" required></div>
+                <div class="form-group"><label>كلمة المرور</label><input type="password" id="adminPassInput" class="form-control" placeholder="••••••••" required></div>
                 <button type="submit" class="btn-submit">دخول الإدارة 🚀</button>
             </form>
             <button type="button" onclick="closeSecretAdmin()" style="background: #F1F5F9; color: #334155; border: none; padding: 11px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px;">إلغاء</button>
-            <div id="adminAlertMsg" style="font-size: 11.5px; font-weight: bold; margin-top: 10px; text-align: center; display: none;"></div>
         </div>
     </div>
 
-    <!-- الهيدر الأنيق -->
+    <!-- الهيدر -->
     <header>
         <div class="nav-container">
             <div class="header-left">
-                <!-- زر السلايدر الجانبي -->
                 <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح الأقسام">
                     ☰ <span style="font-size: 13px; font-weight: bold;">الأقسام</span>
                 </button>
@@ -490,27 +368,92 @@
         </div>
     </header>
 
-    <!-- منطقة المحتوى الرئيسية -->
     <main class="main-wrapper">
         
-        <!-- الواجهة الترحيبية الأساسية للزائر -->
-        <div class="hero-card" id="heroCard">
-            <div class="hero-logo">
-                <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
+        <!-- الواجهة الرئيسية عند فتح الموقع (لوحة الخدمات والإحصائيات السريعة) -->
+        <div id="homeOverview">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon">🎓</span>
+                    <div class="stat-number">1,250+</div>
+                    <div class="stat-label">طالب وطالبة مسجلين</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🏫</span>
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">فصل دراسي ذكي</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🏆</span>
+                    <div class="stat-number">98.5%</div>
+                    <div class="stat-label">نسبة النجاح والتفوق</div>
+                </div>
             </div>
-            <h1 class="hero-title">مرحباً بكم في مدرسة اللغات الرسمية الجديدة</h1>
-            <p class="hero-desc">البوابة الإلكترونية الموحدة لمتابعة تقييمات الطلاب، نتائج الاختبارات الأسبوعية والنهائية، والتواصل المباشر مع إدارة المدرسة.</p>
-            <div style="display: flex; gap: 14px; justify-content: center; max-width: 440px; margin: auto;">
-                <button onclick="openAuthPage(false)" class="btn-submit" style="margin: 0; flex: 1;">تسجيل الدخول 🔐</button>
-                <button onclick="openAuthPage(true)" class="btn-submit" style="margin: 0; flex: 1; background: #0EA5E9;">حساب جديد 📝</button>
+
+            <div class="services-overview-grid">
+                <div class="quick-service-card">
+                    <div>
+                        <div class="service-card-head">
+                            <div class="service-card-icon">📊</div>
+                            <div class="service-card-title">الدرجات والتقييمات</div>
+                        </div>
+                        <p class="service-card-desc">استعراض تقييمات أعمال السنة، التقييمات الأسبوعية، ونتائج امتحانات منتصف ونهاية العام.</p>
+                    </div>
+                    <button onclick="navigateToSection('gradesSection')" class="btn-submit" style="margin: 0;">استعراض القسم ⬅️</button>
+                </div>
+
+                <div class="quick-service-card">
+                    <div>
+                        <div class="service-card-head">
+                            <div class="service-card-icon">📅</div>
+                            <div class="service-card-title">الحضور والغياب</div>
+                        </div>
+                        <p class="service-card-desc">متابعة دقيقة لانضباط الطالب وسجل الغياب والتأخيرات اليومية بشكل مباشر.</p>
+                    </div>
+                    <button onclick="navigateToSection('attendanceSection')" class="btn-submit" style="margin: 0; background: #0EA5E9;">استعراض القسم ⬅️</button>
+                </div>
+
+                <div class="quick-service-card">
+                    <div>
+                        <div class="service-card-head">
+                            <div class="service-card-icon">📨</div>
+                            <div class="service-card-title">الشكاوى والاستفسارات</div>
+                        </div>
+                        <p class="service-card-desc">مركز التواصل المشفر لإرسال المقترحات والطلبات ومتابعة ردود إدارة المدرسة.</p>
+                    </div>
+                    <button onclick="navigateToSection('ticketsSection')" class="btn-submit" style="margin: 0; background: #6366F1;">استعراض القسم ⬅️</button>
+                </div>
             </div>
         </div>
 
-        <!-- صفحة التسجيل والدخول المخصصة (Full Page View) -->
+        <!-- قسم الدرجات العامة -->
+        <div class="view-section" id="gradesSection">
+            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
+            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary);">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">تتيح البوابة استعراض نتائج المواد المقررة لكافة المراحل الدراسية.</p>
+            <button onclick="triggerAuthAction('عرض كشف الدرجات التفصيلي الخاص بالطالب')" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
+        </div>
+
+        <!-- قسم الحضور والغياب العام -->
+        <div class="view-section" id="attendanceSection">
+            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
+            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #0EA5E9;">📅 سجل انضباط الحضور والغياب</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان.</p>
+            <button onclick="triggerAuthAction('استعراض تقرير الحضور والغياب للطالب')" class="btn-submit" style="background: #0EA5E9;">طلب تقرير الحضور والغياب 🔐</button>
+        </div>
+
+        <!-- قسم الشكاوى العام -->
+        <div class="view-section" id="ticketsSection">
+            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
+            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى والاستفسارات</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يمكن لأولياء الأمور تقديم طلبات الاستفسار أو الشكاوى لإدارة المدرسة.</p>
+            <button onclick="triggerAuthAction('إرسال شكوى جديدة أو متابعة الطلبات الحالية')" class="btn-submit" style="background: #6366F1;">إرسال شكوى / استفسار جديد 📝</button>
+        </div>
+
+        <!-- صفحة التسجيل والدخول المخصصة -->
         <div class="auth-page-view" id="authPageView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             
-            <!-- تبويب اختيار الصفة -->
             <div class="role-tabs">
                 <button class="role-tab active" id="tabStudent" onclick="switchRole('student')">🎓 حساب الطالب</button>
                 <button class="role-tab" id="tabParent" onclick="switchRole('parent')">👨‍👩‍👦 حساب ولي الأمر</button>
@@ -520,8 +463,6 @@
             <p id="authDesc" style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل الرقم القومي أو كود الطالب للوصول للنتائج.</p>
 
             <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
-                
-                <!-- === حالة تسجيل الدخول === -->
                 <div id="signInFields">
                     <div class="form-group">
                         <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
@@ -529,11 +470,8 @@
                     </div>
                 </div>
 
-                <!-- === حالة إنشاء حساب جديد === -->
                 <div id="signUpFields" style="display: none;">
                     <div class="form-grid">
-                        
-                        <!-- حقول الطالب -->
                         <div class="form-group student-only">
                             <label>اسم الطالب الرباعي (كما في شهادة الميلاد)</label>
                             <input type="text" id="studentFullName" class="form-control" placeholder="مثال: أحمد محمد علي حسن">
@@ -547,7 +485,6 @@
                             <input type="text" id="studentCode" class="form-control" placeholder="مثال: 12345678">
                         </div>
 
-                        <!-- حقول ولي الأمر -->
                         <div class="form-group parent-only" style="display: none;">
                             <label>اسم ولي الأمر الرباعي</label>
                             <input type="text" id="parentFullName" class="form-control" placeholder="مثال: محمد علي حسن أحمد">
@@ -569,7 +506,6 @@
                             <input type="text" id="parentStudentName" class="form-control" placeholder="اسم الطالب الكامل">
                         </div>
 
-                        <!-- حقول مشتركة -->
                         <div class="form-group">
                             <label>الصف الدراسي</label>
                             <select id="gradeSelect" class="form-control">
@@ -649,7 +585,7 @@
             </div>
         </div>
 
-        <!-- لوحة ولي الأمر والشكاوى -->
+        <!-- لوحة ولي الأمر -->
         <div id="parentDashboardContainer" style="display: none;">
             <div class="dashboard-card" id="gradesCard" style="display: block;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -703,14 +639,8 @@
                 <h2 style="font-size: 17px; font-weight: 800; margin-bottom: 15px;">📨 إرسال استفسار أو شكوى لإدارة المدرسة</h2>
                 <form onsubmit="submitParentTicket(event)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                        <div class="form-group">
-                            <label>اسم ولي الأمر</label>
-                            <input type="text" id="ticketParentName" class="form-control" placeholder="اسم ولي الأمر بالكامل" required>
-                        </div>
-                        <div class="form-group">
-                            <label>رقم التواصل المحمول</label>
-                            <input type="text" id="ticketParentEmail" class="form-control" placeholder="رقم الهاتف" required>
-                        </div>
+                        <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="ticketParentName" class="form-control" required></div>
+                        <div class="form-group"><label>رقم التواصل المحمول</label><input type="text" id="ticketParentEmail" class="form-control" required></div>
                     </div>
                     <div class="form-group">
                         <label>نوع الطلب</label>
@@ -722,16 +652,14 @@
                     </div>
                     <div class="form-group">
                         <label>تفاصيل الشكوى أو الطلب</label>
-                        <textarea id="ticketContent" class="form-control" rows="4" placeholder="اكتب تفاصيل طلبك هنا بوضوح..." required></textarea>
+                        <textarea id="ticketContent" class="form-control" rows="4" required></textarea>
                     </div>
                     <button type="submit" class="btn-submit">إرسال الطلب للإدارة 🚀</button>
                 </form>
 
                 <div style="margin-top: 25px;">
                     <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
-                    <div id="parentTicketsList">
-                        <p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p>
-                    </div>
+                    <div id="parentTicketsList"><p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p></div>
                 </div>
             </div>
         </div>
@@ -782,17 +710,12 @@
             return gradeSubjects.primary;
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAllUsers();
-        });
+        window.addEventListener('DOMContentLoaded', () => { loadAllUsers(); });
 
         function loadAllUsers() {
-            db.ref('students').on('value', (snapshot) => {
-                allUsersCache = snapshot.val() || {};
-            });
+            db.ref('students').on('value', (snapshot) => { allUsersCache = snapshot.val() || {}; });
         }
 
-        /* دوال تحكم السلايدر الجانبي */
         function toggleSidebar() {
             document.getElementById('slidingSidebar').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -803,15 +726,45 @@
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
-        /* دوال التنقل بين الواجهات */
-        function showHomePage() {
-            document.getElementById('heroCard').style.display = 'block';
+        function hideAllSections() {
+            document.getElementById('homeOverview').style.display = 'none';
+            document.querySelectorAll('.view-section').forEach(sec => sec.style.display = 'none');
             document.getElementById('authPageView').style.display = 'none';
+            document.getElementById('studentDashboardCard').style.display = 'none';
+            document.getElementById('parentDashboardContainer').style.display = 'none';
+        }
+
+        function showHomePage() {
+            hideAllSections();
+            document.getElementById('homeOverview').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* دالة فتح أي قسم فوراً من السلايدر دون حجب الملاحة */
+        function navigateToSection(sectionId) {
+            if (activeUserKey) {
+                renderDashboardForRole(allUsersCache[activeUserKey]);
+                return;
+            }
+            hideAllSections();
+            const targetSec = document.getElementById(sectionId);
+            if (targetSec) {
+                targetSec.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        /* دالة حجب الإجراءات التفاعلية كإرسال الشكوى أو طلب كشف حساب */
+        function triggerAuthAction(actionTitle) {
+            if (!activeUserKey) {
+                document.getElementById('alertModalDesc').textContent = `لتنفيذ (${actionTitle})، يتوجب عليك تسجيل الدخول أولاً أو إنشاء حساب جديد على المنصة.`;
+                document.getElementById('customAlertModal').style.display = 'flex';
+            }
         }
 
         function openAuthPage(signUp) {
             isSignUpMode = signUp;
-            document.getElementById('heroCard').style.display = 'none';
+            hideAllSections();
             document.getElementById('authPageView').style.display = 'block';
             
             document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
@@ -823,16 +776,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function requireLogin(sectionName) {
-            if (!activeUserKey) {
-                document.getElementById('alertModalDesc').textContent = `لعرض واستخدام قسم (${sectionName})، يرجى تسجيل الدخول بحسابك أو إنشاء حساب جديد على البوابة.`;
-                document.getElementById('customAlertModal').style.display = 'flex';
-            }
-        }
-
-        function closeAlertModal() {
-            document.getElementById('customAlertModal').style.display = 'none';
-        }
+        function closeAlertModal() { document.getElementById('customAlertModal').style.display = 'none'; }
 
         function switchRole(role) {
             selectedRole = role;
@@ -856,9 +800,7 @@
             updateAuthTitles();
         }
 
-        function toggleAuthMode() {
-            openAuthPage(!isSignUpMode);
-        }
+        function toggleAuthMode() { openAuthPage(!isSignUpMode); }
 
         function updateAuthTitles() {
             const title = document.getElementById('authTitle');
@@ -880,7 +822,6 @@
             e.preventDefault();
             const u = document.getElementById('adminUserInput').value.trim();
             const p = document.getElementById('adminPassInput').value.trim();
-            const alertBox = document.getElementById('adminAlertMsg');
 
             db.ref('adminConfig').once('value', async (snapshot) => {
                 let adminData = snapshot.val();
@@ -892,9 +833,7 @@
                 if (u === adminData.user && p === adminData.pass) {
                     window.location.href = 'admin.html';
                 } else {
-                    alertBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة!';
-                    alertBox.style.color = '#B91C1C';
-                    alertBox.style.display = 'block';
+                    alert('❌ اسم المستخدم أو كلمة المرور غير صحيحة!');
                 }
             });
         }
@@ -958,12 +897,10 @@
         }
 
         function renderDashboardForRole(u) {
-            document.getElementById('heroCard').style.display = 'none';
-            document.getElementById('authPageView').style.display = 'none';
+            hideAllSections();
 
             if (selectedRole === 'student') {
                 document.getElementById('studentDashboardCard').style.display = 'block';
-                document.getElementById('parentDashboardContainer').style.display = 'none';
                 
                 document.getElementById('studentWelcomeTitle').textContent = '🎓 أهلاً بك الطالب: ' + (u.name || '');
                 document.getElementById('studentEditGradeSelect').value = u.grade || 'الصف الأول الابتدائي';
@@ -972,7 +909,6 @@
                 renderGradesTable('studentGradesTableBody', u);
             } else {
                 document.getElementById('parentDashboardContainer').style.display = 'block';
-                document.getElementById('studentDashboardCard').style.display = 'none';
 
                 document.getElementById('parentWelcomeTitle').textContent = '👨‍👩‍👦 مرحباً ولي أمر الطالب: ' + (u.name || '');
                 document.getElementById('parentEditGradeSelect').value = u.grade || 'الصف الأول الابتدائي';
@@ -1018,8 +954,6 @@
         function logoutUser() {
             activeUserKey = null;
             document.getElementById('authPasswordInput').value = '';
-            document.getElementById('studentDashboardCard').style.display = 'none';
-            document.getElementById('parentDashboardContainer').style.display = 'none';
             showHomePage();
         }
 
