@@ -110,7 +110,7 @@
         .btn-header-primary { background: #2563EB; color: #fff; }
         .btn-header-primary:hover { background: #1D4ED8; }
 
-        /* السلايدر الجانبي */
+        /* السلايدر الجانبي للمستخدمين */
         .sidebar-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -285,7 +285,7 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- السلايدر الجانبي -->
+    <!-- السلايدر الجانبي للمستخدمين -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 الأقسام والخدمات</span>
@@ -321,29 +321,16 @@
         </div>
     </div>
 
-    <!-- دخول الإدارة السرّي -->
-    <div id="secretAdminModal" class="custom-modal-overlay">
-        <div class="custom-modal-card" style="text-align: right;">
-            <h3 style="font-size: 18px; font-weight: 900; text-align: center; margin-bottom: 4px;">🔐 دخول لوحة الإدارة</h3>
-            <form onsubmit="handleSecretAdminLogin(event)">
-                <div class="form-group"><label>اسم المستخدم</label><input type="text" id="adminUserInput" class="form-control" placeholder="admin" required></div>
-                <div class="form-group"><label>كلمة المرور</label><input type="password" id="adminPassInput" class="form-control" placeholder="••••••••" required></div>
-                <button type="submit" class="btn-submit">دخول الإدارة 🚀</button>
-            </form>
-            <button type="button" onclick="closeSecretAdmin()" style="background: #F1F5F9; color: #334155; border: none; padding: 11px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px;">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- الهيدر الرسمى -->
+    <!-- الهيدر الرسمي -->
     <header>
         <div class="nav-container">
             <div class="header-left">
                 <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح الأقسام">
                     ☰ <span style="font-size: 13px; font-weight: bold;">الأقسام</span>
                 </button>
-                <a class="logo-area" ondblclick="openSecretAdminModal()" title="انقر مرتين للوصول السرّي للإدارة">
+                <a class="logo-area" onclick="window.location.href='admin.html'" title="الانتقال إلى لوحة التحكم والإدارة">
                     <div class="logo-box">
-                        <img src="image_2462d9.jpg" alt="شعار المدرسة" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167707.png'">
+                        <img src="https://cdn-icons-png.flaticon.com/512/167/167707.png" alt="شعار المدرسة">
                     </div>
                     <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
                 </a>
@@ -381,7 +368,7 @@
         <div class="view-section" id="attendanceSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #0EA5E9;">📅 سجل انضباط الحضور والغياب</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان والملاحظات السلوكية.</p>
             <button onclick="triggerAuthAction('استعراض تقرير الحضور والغياب للطالب')" class="btn-submit" style="background: #0EA5E9;">طلب تقرير الحضور والغياب 🔐</button>
         </div>
 
@@ -478,7 +465,7 @@
                 <button type="submit" id="authSubmitBtn" class="btn-submit">تسجيل الدخول 📊</button>
             </form>
 
-            <div class="toggle-link" onclick="toggleAuthMode()">
+            <div class="toggle-link" onclick="toggleAuthMode()" style="text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; color: #2563EB; font-weight: bold;">
                 <span id="toggleAuthText">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
             </div>
         </div>
@@ -490,7 +477,7 @@
                 <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                 <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
                     <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي (تعديل مباشر)</span>
                     <select id="studentEditGradeSelect" onchange="updateStudentGradeLive('studentEditGradeSelect')" class="form-control" style="margin-top: 5px;">
@@ -508,6 +495,10 @@
                 <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
                     <span style="font-size: 12px; color: var(--text-muted); display: block;">الكود المدرسي</span>
                     <b id="studentLblCode" style="font-size: 15px; color: var(--text-dark); display: block; margin-top: 8px;">-</b>
+                </div>
+                <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                    <span style="font-size: 12px; color: var(--text-muted); display: block;">حالة الحضور والانضباط</span>
+                    <div id="studentLblAttendance" style="font-size: 14px; color: var(--text-dark); font-weight: bold; margin-top: 8px;">منتظم</div>
                 </div>
             </div>
 
@@ -556,8 +547,8 @@
                         <b id="parentLblRelation" style="font-size: 14px; color: var(--text-dark); display: block; margin-top: 8px;">-</b>
                     </div>
                     <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                        <span style="font-size: 12px; color: var(--text-muted); display: block;">الحالة والغياب</span>
-                        <b id="parentLblAttendance" style="font-size: 14px; color: var(--text-dark); display: block; margin-top: 8px;">منتظم</b>
+                        <span style="font-size: 12px; color: var(--text-muted); display: block;">حالة الحضور والانضباط</span>
+                        <div id="parentLblAttendance" style="font-size: 14px; color: var(--text-dark); font-weight: bold; margin-top: 8px;">منتظم</div>
                     </div>
                 </div>
 
@@ -628,29 +619,40 @@
         let selectedRole = 'student';
         let isSignUpMode = false;
 
-        const gradeSubjects = {
-            primary: [
+        const gradeSubjectsDetailed = {
+            lowerPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية (Connect / Connect Plus)' },
+                { id: 'math', name: 'الرياضيات بالإنجليزية (Math)' },
+                { id: 'discover', name: 'Discover / اكتشف (متعدد التخصصات)' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            upperPrimary: [
                 { id: 'ar', name: 'اللغة العربية' },
                 { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات' },
-                { id: 'science', name: 'العلوم' },
-                { id: 'social', name: 'الدراسات الاجتماعية' }
+                { id: 'math', name: 'الرياضيات بالإنجليزية (Math)' },
+                { id: 'science', name: 'العلوم بالإنجليزية (Science)' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'ict', name: 'تكنولوجيا المعلومات (ICT)' },
+                { id: 'skills', name: 'المهارات المهنية' },
+                { id: 'religion', name: 'التربية الدينية' }
             ],
             prep: [
                 { id: 'ar', name: 'اللغة العربية' },
                 { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات' },
-                { id: 'science', name: 'العلوم' },
+                { id: 'math', name: 'الرياضيات بالإنجليزية (Math)' },
+                { id: 'science', name: 'العلوم بالإنجليزية (Science)' },
                 { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'computer', name: 'الحاسب الآلي' }
+                { id: 'computer', name: 'الحاسب الآلي وتكنولوجيا المعلومات' },
+                { id: 'religion', name: 'التربية الدينية' }
             ]
         };
 
-        function getSubjectsForGrade(gradeName) {
-            if (gradeName && gradeName.includes('الاعدادي')) {
-                return gradeSubjects.prep;
-            }
-            return gradeSubjects.primary;
+        function getSubjectsForGradeName(gradeName) {
+            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
+            if (gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
+            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
+            else return gradeSubjectsDetailed.lowerPrimary;
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
@@ -662,7 +664,6 @@
             db.ref('students').on('value', (snapshot) => { allUsersCache = snapshot.val() || {}; });
         }
 
-        /* جلب الأخبار الحية من قاعدة البيانات */
         function loadSchoolNewsLive() {
             db.ref('news').on('value', (snapshot) => {
                 const container = document.getElementById('newsFeedList');
@@ -795,29 +796,6 @@
             }
         }
 
-        function openSecretAdminModal() { document.getElementById('secretAdminModal').style.display = 'flex'; }
-        function closeSecretAdmin() { document.getElementById('secretAdminModal').style.display = 'none'; }
-        
-        async function handleSecretAdminLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('adminUserInput').value.trim();
-            const p = document.getElementById('adminPassInput').value.trim();
-
-            db.ref('adminConfig').once('value', async (snapshot) => {
-                let adminData = snapshot.val();
-                if (!adminData) {
-                    adminData = { user: "admin", pass: "Admin2026@School" };
-                    await db.ref('adminConfig').set(adminData);
-                }
-
-                if (u === adminData.user && p === adminData.pass) {
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('❌ اسم المستخدم أو كلمة المرور غير صحيحة!');
-                }
-            });
-        }
-
         async function handleAuthAction(e) {
             e.preventDefault();
             const pass = document.getElementById('authPasswordInput').value.trim();
@@ -828,7 +806,6 @@
                     password: pass,
                     grade: document.getElementById('gradeSelect').value,
                     phone: document.getElementById('phoneInput').value.trim(),
-                    classRoom: 'الفصل 1',
                     attendance: 'منتظم'
                 };
 
@@ -879,12 +856,20 @@
         function renderDashboardForRole(u) {
             hideAllSections();
 
+            const attendanceHtml = `
+                <span style="${u.attendance && u.attendance.includes('مزوغ') ? 'color:#EF4444;' : ''}">
+                    ${u.attendance || 'منتظم'}
+                </span>
+                ${u.attendanceNote ? `<br><small style="font-size:11px; color:#64748B; font-weight:normal;">📝 ملاحظة: ${u.attendanceNote}</small>` : ''}
+            `;
+
             if (selectedRole === 'student') {
                 document.getElementById('studentDashboardCard').style.display = 'block';
 
                 document.getElementById('studentWelcomeTitle').textContent = '🎓 أهلاً بك الطالب: ' + (u.name || '');
                 document.getElementById('studentEditGradeSelect').value = u.grade || 'الصف الأول الابتدائي';
                 document.getElementById('studentLblCode').textContent = u.code || u.nationalId || 'مسجل سحابياً';
+                document.getElementById('studentLblAttendance').innerHTML = attendanceHtml;
 
                 renderGradesTable('studentGradesTableBody', u);
             } else {
@@ -893,6 +878,7 @@
                 document.getElementById('parentWelcomeTitle').textContent = '👨‍👩‍👦 مرحباً ولي أمر الطالب: ' + (u.name || '');
                 document.getElementById('parentEditGradeSelect').value = u.grade || 'الصف الأول الابتدائي';
                 document.getElementById('parentLblRelation').textContent = u.relation || 'ولي أمر';
+                document.getElementById('parentLblAttendance').innerHTML = attendanceHtml;
 
                 renderGradesTable('parentGradesTableBody', u);
                 loadParentTickets(u.name);
@@ -900,7 +886,7 @@
         }
 
         function renderGradesTable(tbodyId, u) {
-            const subjects = getSubjectsForGrade(u.grade);
+            const subjects = getSubjectsForGradeName(u.grade);
             const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
 
