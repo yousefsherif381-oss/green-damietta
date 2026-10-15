@@ -13,9 +13,9 @@
 
     <style>
         :root {
-            --primary: #2563EB;
-            --primary-hover: #1D4ED8;
-            --accent: #0EA5E9;
+            --primary: #1E3A8A;
+            --primary-hover: #1E40AF;
+            --accent: #0284C7;
             --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
             --card-bg: rgba(255, 255, 255, 0.96);
             --text-dark: #0F172A;
@@ -37,7 +37,7 @@
 
         /* الهيدر وشريط التنقل */
         header {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             position: sticky;
@@ -52,11 +52,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
 
         .btn-sidebar-toggle {
             background: rgba(255, 255, 255, 0.15);
@@ -64,7 +60,7 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 10px;
             padding: 8px 14px;
-            font-size: 18px;
+            font-size: 17px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -111,8 +107,8 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
         .btn-header-outline:hover { background: rgba(255, 255, 255, 0.25); }
-        .btn-header-primary { background: var(--primary); color: #fff; }
-        .btn-header-primary:hover { background: var(--primary-hover); }
+        .btn-header-primary { background: #2563EB; color: #fff; }
+        .btn-header-primary:hover { background: #1D4ED8; }
 
         /* السلايدر الجانبي */
         .sidebar-overlay {
@@ -163,60 +159,52 @@
             border-radius: 14px; background: #F8FAFC; border: 1px solid var(--border);
             cursor: pointer; transition: all 0.2s ease;
         }
-        .sidebar-item:hover { background: #EFF6FF; border-color: var(--primary); transform: translateX(-4px); }
+        .sidebar-item:hover { background: #EFF6FF; border-color: #2563EB; transform: translateX(-4px); }
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 14px; font-weight: 800; color: var(--text-dark); }
 
-        /* المحتوى الرئيسي */
+        /* المحتوى الرئيسي للمنصة */
         .main-wrapper {
-            max-width: 1050px;
+            max-width: 950px;
             width: 100%;
             margin: 30px auto;
             padding: 0 20px;
             flex: 1;
         }
 
-        /* لوحة الخدمات والإحصائيات السريعة */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 25px;
+        /* شريط وإحصائيات الأخبار */
+        .news-header-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: white;
         }
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-        }
-        .stat-icon { font-size: 30px; display: block; margin-bottom: 6px; }
-        .stat-number { font-size: 22px; font-weight: 900; color: var(--primary); }
-        .stat-label { font-size: 12.5px; font-weight: 700; color: var(--text-muted); }
+        .news-header-title { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
 
-        .services-overview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .quick-service-card {
+        .news-feed { display: flex; flex-direction: column; gap: 20px; }
+        .news-card {
             background: var(--card-bg);
             border-radius: 22px;
-            padding: 25px;
+            padding: 28px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            transition: transform 0.2s;
         }
-        .service-card-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-        .service-card-icon {
-            width: 50px; height: 50px; border-radius: 14px; background: #DBEAFE;
-            color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 24px;
+        .news-card-badge {
+            display: inline-block;
+            background: #DBEAFE;
+            color: #2563EB;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
         }
-        .service-card-title { font-size: 16px; font-weight: 900; color: var(--text-dark); }
-        .service-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+        .news-card-title { font-size: 18px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
+        .news-card-desc { font-size: 14px; color: #334155; line-height: 1.7; margin-bottom: 16px; white-space: pre-line; }
+        .news-card-date { font-size: 11.5px; color: var(--text-muted); font-weight: 700; }
 
-        /* الأقسام العامة التي تفتح مباشرة دون حجب */
+        /* الأقسام العامة من السلايدر */
         .view-section {
             background: var(--card-bg);
             border-radius: 24px;
@@ -256,7 +244,7 @@
             border-radius: 12px; cursor: pointer; transition: all 0.25s ease;
             color: var(--text-muted); border: none; background: transparent;
         }
-        .role-tab.active { background: #FFFFFF; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .role-tab.active { background: #FFFFFF; color: #2563EB; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
         .form-group { margin-bottom: 16px; text-align: right; }
@@ -265,10 +253,10 @@
             width: 100%; padding: 12px 14px; border: 2px solid var(--border);
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
         }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .form-control:focus { border-color: #2563EB; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
 
         .btn-submit {
-            width: 100%; padding: 14px; background: var(--primary); color: white;
+            width: 100%; padding: 14px; background: #2563EB; color: white;
             border: none; border-radius: 12px; font-size: 15.5px; font-weight: 800;
             cursor: pointer; transition: all 0.2s; margin-top: 10px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
@@ -346,7 +334,7 @@
         </div>
     </div>
 
-    <!-- الهيدر -->
+    <!-- الهيدر الرسمى -->
     <header>
         <div class="nav-container">
             <div class="header-left">
@@ -370,66 +358,21 @@
 
     <main class="main-wrapper">
         
-        <!-- الواجهة الرئيسية عند فتح الموقع (لوحة الخدمات والإحصائيات السريعة) -->
-        <div id="homeOverview">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-icon">🎓</span>
-                    <div class="stat-number">1,250+</div>
-                    <div class="stat-label">طالب وطالبة مسجلين</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">🏫</span>
-                    <div class="stat-number">24</div>
-                    <div class="stat-label">فصل دراسي ذكي</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">🏆</span>
-                    <div class="stat-number">98.5%</div>
-                    <div class="stat-label">نسبة النجاح والتفوق</div>
-                </div>
+        <!-- الواجهة الرئيسية التي تفتح فوراً (شريط الأخبار والإعلانات السحابية المحدثة من الإدارة) -->
+        <div id="newsHomeContainer">
+            <div class="news-header-box">
+                <div class="news-header-title">📢 أحدث الأخبار والإعلانات المدرسية</div>
             </div>
 
-            <div class="services-overview-grid">
-                <div class="quick-service-card">
-                    <div>
-                        <div class="service-card-head">
-                            <div class="service-card-icon">📊</div>
-                            <div class="service-card-title">الدرجات والتقييمات</div>
-                        </div>
-                        <p class="service-card-desc">استعراض تقييمات أعمال السنة، التقييمات الأسبوعية، ونتائج امتحانات منتصف ونهاية العام.</p>
-                    </div>
-                    <button onclick="navigateToSection('gradesSection')" class="btn-submit" style="margin: 0;">استعراض القسم ⬅️</button>
-                </div>
-
-                <div class="quick-service-card">
-                    <div>
-                        <div class="service-card-head">
-                            <div class="service-card-icon">📅</div>
-                            <div class="service-card-title">الحضور والغياب</div>
-                        </div>
-                        <p class="service-card-desc">متابعة دقيقة لانضباط الطالب وسجل الغياب والتأخيرات اليومية بشكل مباشر.</p>
-                    </div>
-                    <button onclick="navigateToSection('attendanceSection')" class="btn-submit" style="margin: 0; background: #0EA5E9;">استعراض القسم ⬅️</button>
-                </div>
-
-                <div class="quick-service-card">
-                    <div>
-                        <div class="service-card-head">
-                            <div class="service-card-icon">📨</div>
-                            <div class="service-card-title">الشكاوى والاستفسارات</div>
-                        </div>
-                        <p class="service-card-desc">مركز التواصل المشفر لإرسال المقترحات والطلبات ومتابعة ردود إدارة المدرسة.</p>
-                    </div>
-                    <button onclick="navigateToSection('ticketsSection')" class="btn-submit" style="margin: 0; background: #6366F1;">استعراض القسم ⬅️</button>
-                </div>
+            <div class="news-feed" id="newsFeedList">
+                <p style="color: #94A3B8; text-align: center; padding: 30px;">جاري تحميل الأخبار والتنبيهات المدرسية...</p>
             </div>
         </div>
 
         <!-- قسم الدرجات العامة -->
         <div class="view-section" id="gradesSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary);">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
+            <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #2563EB;">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">تتيح البوابة استعراض نتائج المواد المقررة لكافة المراحل الدراسية.</p>
             <button onclick="triggerAuthAction('عرض كشف الدرجات التفصيلي الخاص بالطالب')" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
         </div>
@@ -568,7 +511,7 @@
                 </div>
             </div>
 
-            <h3 style="font-size: 15px; font-weight: 800; color: var(--primary);">📊 نتائجك وتقييماتك في المواد</h3>
+            <h3 style="font-size: 15px; font-weight: 800; color: #2563EB;">📊 نتائجك وتقييماتك في المواد</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -618,7 +561,7 @@
                     </div>
                 </div>
 
-                <h3 style="font-size: 15px; font-weight: 800; color: var(--primary);">درجات التقييمات والأعمال للطالب</h3>
+                <h3 style="font-size: 15px; font-weight: 800; color: #2563EB;">درجات التقييمات والأعمال للطالب</h3>
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
@@ -658,7 +601,7 @@
                 </form>
 
                 <div style="margin-top: 25px;">
-                    <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
+                    <h3 style="font-size: 14px; font-weight: 800; color: #2563EB; margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
                     <div id="parentTicketsList"><p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p></div>
                 </div>
             </div>
@@ -710,10 +653,49 @@
             return gradeSubjects.primary;
         }
 
-        window.addEventListener('DOMContentLoaded', () => { loadAllUsers(); });
+        window.addEventListener('DOMContentLoaded', () => { 
+            loadAllUsers(); 
+            loadSchoolNewsLive();
+        });
 
         function loadAllUsers() {
             db.ref('students').on('value', (snapshot) => { allUsersCache = snapshot.val() || {}; });
+        }
+
+        /* جلب الأخبار الحية من قاعدة البيانات */
+        function loadSchoolNewsLive() {
+            db.ref('news').on('value', (snapshot) => {
+                const container = document.getElementById('newsFeedList');
+                container.innerHTML = '';
+                const newsData = snapshot.val();
+
+                if (!newsData) {
+                    container.innerHTML = `
+                        <div class="news-card">
+                            <span class="news-card-badge">📢 إعلان افتراضي</span>
+                            <h3 class="news-card-title">مرحباً بكم في البوابة الإلكترونية لمدرسة اللغات الرسمية الجديدة</h3>
+                            <p class="news-card-desc">يمكنكم متابعة أحدث أخبار المدرسة والتقييمات الأسبوعية فور صدورها من لوحة الإدارة.</p>
+                            <div class="news-card-date">تاريخ النشر: ${new Date().toLocaleDateString('ar-EG')}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                const keys = Object.keys(newsData).reverse();
+                keys.forEach(k => {
+                    const item = newsData[k];
+                    html += `
+                        <div class="news-card">
+                            <span class="news-card-badge">📢 ${item.badge || 'تنبيه مدرسي'}</span>
+                            <h3 class="news-card-title">${item.title}</h3>
+                            <p class="news-card-desc">${item.content}</p>
+                            <div class="news-card-date">تاريخ النشر: ${new Date(item.timestamp || Date.now()).toLocaleDateString('ar-EG')}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            });
         }
 
         function toggleSidebar() {
@@ -727,7 +709,7 @@
         }
 
         function hideAllSections() {
-            document.getElementById('homeOverview').style.display = 'none';
+            document.getElementById('newsHomeContainer').style.display = 'none';
             document.querySelectorAll('.view-section').forEach(sec => sec.style.display = 'none');
             document.getElementById('authPageView').style.display = 'none';
             document.getElementById('studentDashboardCard').style.display = 'none';
@@ -736,11 +718,10 @@
 
         function showHomePage() {
             hideAllSections();
-            document.getElementById('homeOverview').style.display = 'block';
+            document.getElementById('newsHomeContainer').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        /* دالة فتح أي قسم فوراً من السلايدر دون حجب الملاحة */
         function navigateToSection(sectionId) {
             if (activeUserKey) {
                 renderDashboardForRole(allUsersCache[activeUserKey]);
@@ -754,10 +735,9 @@
             }
         }
 
-        /* دالة حجب الإجراءات التفاعلية كإرسال الشكوى أو طلب كشف حساب */
         function triggerAuthAction(actionTitle) {
             if (!activeUserKey) {
-                document.getElementById('alertModalDesc').textContent = `لتنفيذ (${actionTitle})، يتوجب عليك تسجيل الدخول أولاً أو إنشاء حساب جديد على المنصة.`;
+                document.getElementById('alertModalDesc').textContent = `لتنفيذ (${actionTitle})، يتوجب عليك تسجيل الدخول بحسابك أو إنشاء حساب جديد على البوابة.`;
                 document.getElementById('customAlertModal').style.display = 'flex';
             }
         }
@@ -901,7 +881,7 @@
 
             if (selectedRole === 'student') {
                 document.getElementById('studentDashboardCard').style.display = 'block';
-                
+
                 document.getElementById('studentWelcomeTitle').textContent = '🎓 أهلاً بك الطالب: ' + (u.name || '');
                 document.getElementById('studentEditGradeSelect').value = u.grade || 'الصف الأول الابتدائي';
                 document.getElementById('studentLblCode').textContent = u.code || u.nationalId || 'مسجل سحابياً';
