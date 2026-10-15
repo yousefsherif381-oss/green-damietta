@@ -217,12 +217,6 @@
             border: none; border-radius: 12px; font-size: 15.5px; font-weight: 800;
             cursor: pointer; transition: all 0.2s; margin-top: 10px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
-
-        .dashboard-card {
-            background: var(--card-bg); border-radius: 24px; padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: none; margin-bottom: 25px;
-        }
-
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: #0F172A; font-weight: 800; }
@@ -261,12 +255,12 @@
                 <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح الأقسام">
                     ☰ <span style="font-size: 13px; font-weight: bold;">الأقسام</span>
                 </button>
-                <a class="logo-area" onclick="window.location.href='admin.html'" title="الانتقال إلى لوحة التحكم والإدارة">
+                <div class="logo-area" onclick="showHomePage()">
                     <div class="logo-box">
                         <img src="https://cdn-icons-png.flaticon.com/512/167/167707.png" alt="شعار المدرسة">
                     </div>
                     <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
-                </a>
+                </div>
             </div>
 
             <div class="header-actions">
@@ -288,41 +282,33 @@
             </div>
         </div>
 
-        <!-- 1️⃣ قسم الدرجات والتقييمات العام -->
+        <!-- 1️⃣ قسم الدرجات والتقييمات -->
         <div class="view-section" id="gradesSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            
-            <!-- في حالة عدم تسجيل الدخول -->
             <div id="unauthGradesBox">
                 <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #2563EB;">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
                 <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">تتيح البوابة استعراض نتائج المواد المقررة لكافة المراحل الدراسية.</p>
                 <button onclick="openAuthPage(false)" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
             </div>
-
-            <!-- في حالة تسجيل الدخول (عرض الدرجات فقط) -->
             <div id="authGradesBox" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 id="gradesWelcomeTitle" style="font-size: 18px; font-weight: 900; color: #2563EB;">📊 كشف درجات الطالب</h2>
                     <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                    <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                        <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي</span>
-                        <select id="gradeSectionSelect" onchange="updateStudentGradeLive('gradeSectionSelect')" class="form-control" style="margin-top: 5px;">
-                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                            <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                            <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                            <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
-                        </select>
-                    </div>
+                <div style="margin-bottom: 20px;">
+                    <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي</span>
+                    <select id="gradeSectionSelect" onchange="updateStudentGradeLive('gradeSectionSelect')" class="form-control" style="margin-top: 5px; max-width: 250px;">
+                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
+                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                    </select>
                 </div>
-
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
@@ -340,24 +326,19 @@
             </div>
         </div>
 
-        <!-- 2️⃣ قسم الحضور والغياب العام -->
+        <!-- 2️⃣ قسم الحضور والغياب -->
         <div class="view-section" id="attendanceSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            
-            <!-- في حالة عدم تسجيل الدخول -->
             <div id="unauthAttendanceBox">
                 <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #0EA5E9;">📅 سجل انضباط الحضور والغياب</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان والملاحظات السلوكية.</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان.</p>
                 <button onclick="openAuthPage(false)" class="btn-submit" style="background: #0EA5E9;">طلب تقرير الحضور والغياب 🔐</button>
             </div>
-
-            <!-- في حالة تسجيل الدخول (عرض الحضور فقط) -->
             <div id="authAttendanceBox" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 id="attendanceWelcomeTitle" style="font-size: 18px; font-weight: 900; color: #0EA5E9;">📅 سجل انضباط الطالب</h2>
                     <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
-
                 <div style="background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
                     <span style="font-size: 13px; color: var(--text-muted); display: block;">الحالة السلوكية وحضور الطالب</span>
                     <div id="lblAttendanceStatus" style="font-size: 20px; font-weight: 900; margin-top: 10px; color: #0F172A;">منتظم</div>
@@ -365,24 +346,19 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم الشكاوى والاستفسارات المنفصل -->
+        <!-- 3️⃣ قسم الشكاوى والاستفسارات -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            
-            <!-- في حالة عدم تسجيل الدخول -->
             <div id="unauthTicketsBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى واستفسارات أولياء الأمور</h2>
+                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى والاستفسارات</h2>
                 <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يمكن لأولياء الأمور تقديم طلبات الاستفسار أو الشكاوى لإدارة المدرسة.</p>
                 <button onclick="openAuthPage(false)" class="btn-submit" style="background: #6366F1;">إرسال شكوى / استفسار جديد 📝</button>
             </div>
-
-            <!-- في حالة تسجيل الدخول (عرض الشكاوى فقط) -->
             <div id="authTicketsBox" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="font-size: 17px; font-weight: 800; color: #6366F1;">📨 إرسال استفسار أو شكوى جديد</h2>
                     <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
-
                 <form onsubmit="submitParentTicket(event)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                         <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="ticketParentName" class="form-control" required></div>
@@ -402,7 +378,6 @@
                     </div>
                     <button type="submit" class="btn-submit" style="background: #6366F1;">إرسال الطلب للإدارة 🚀</button>
                 </form>
-
                 <div style="margin-top: 25px;">
                     <h3 style="font-size: 14px; font-weight: 800; color: #2563EB; margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
                     <div id="parentTicketsList"><p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p></div>
@@ -413,7 +388,6 @@
         <!-- صفحة التسجيل والدخول المخصصة -->
         <div class="auth-page-view" id="authPageView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            
             <div class="role-tabs">
                 <button class="role-tab active" id="tabStudent" onclick="switchRole('student')">🎓 حساب الطالب</button>
                 <button class="role-tab" id="tabParent" onclick="switchRole('parent')">👨‍👩‍👦 حساب ولي الأمر</button>
@@ -426,7 +400,7 @@
                 <div id="signInFields">
                     <div class="form-group">
                         <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
-                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود">
+                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود" oninput="checkSecretAdminCode(this.value)">
                     </div>
                 </div>
 
@@ -601,6 +575,13 @@
                 });
                 container.innerHTML = html;
             });
+        }
+
+        // ميزة الكود السري للانتقال التلقائي للوحة الإدارة
+        function checkSecretAdminCode(val) {
+            if (val.trim() === 'ADMIN2026') {
+                window.location.href = 'admin.html';
+            }
         }
 
         function toggleSidebar() {
@@ -784,7 +765,6 @@
         }
 
         function renderDashboardForRole(u) {
-            // إخفاء الصناديق غير المسجلة وإظهار البيانات الخاصة بالقسم المفتوح
             if (document.getElementById('gradesSection').style.display === 'block') {
                 document.getElementById('unauthGradesBox').style.display = 'none';
                 document.getElementById('authGradesBox').style.display = 'block';
@@ -841,7 +821,7 @@
 
             await db.ref('students/' + activeUserKey).update({ grade: newGrade });
             allUsersCache[activeUserKey].grade = newGrade;
-            renderDashboardForRole(allUsersCache[activeUserKey]);
+            renderDashboardForRole(allUsersCard || allUsersCache[activeUserKey]);
         }
 
         function logoutUser() {
