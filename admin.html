@@ -26,7 +26,6 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 
-        /* خلفية أمواج البحر المتحركة بالسلاسة */
         body {
             background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
             background-size: 400% 400%;
@@ -125,7 +124,6 @@
         }
         .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
 
-        /* القائمة الجانبية (السلايدر) الزجاجية */
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
@@ -176,7 +174,6 @@
             max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1;
         }
 
-        /* تنسيقات الأقسام */
         .admin-section {
             background: var(--card-bg); border-radius: 24px; padding: 30px;
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; margin-bottom: 25px;
@@ -204,8 +201,8 @@
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); }
 
         .btn {
-            padding: 12px 20px; border-radius: 12px; border: none;
-            font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s;
+            padding: 10px 18px; border-radius: 12px; border: none;
+            font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.2s;
         }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
@@ -221,7 +218,6 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- القائمة الجانبية (السلايدر) للأقسام -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
@@ -247,7 +243,6 @@
         </div>
     </aside>
 
-    <!-- الهيدر العلوي -->
     <header>
         <div class="nav-container">
             <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح أقسام الإدارة">
@@ -362,6 +357,7 @@
         const db = firebase.database();
 
         let usersCache = {};
+        let ticketsCache = {};
 
         const gradeSubjectsDetailed = {
             lowerPrimary: [
@@ -400,10 +396,18 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadUsersLive();
-            loadNewsLive();
-            loadTicketsLive();
+            loadAllData();
         });
+
+        function loadAllData() {
+            // تحميل الطلاب أولاً ثم الشكاوى لضمان التحقق السليم
+            db.ref('students').on('value', (snapshot) => {
+                usersCache = snapshot.val() || {};
+                renderUsersTable();
+                loadTicketsLive(); // تحديث الشكاوى بناءً على الطلاب الموجودين حالياً
+            });
+            loadNewsLive();
+        }
 
         function toggleSidebar() {
             document.getElementById('slidingSidebar').classList.toggle('active');
@@ -426,43 +430,40 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function loadUsersLive() {
-            db.ref('students').on('value', (snapshot) => {
-                usersCache = snapshot.val() || {};
-                const tbody = document.getElementById('adminUsersTableBody');
-                const selectBox = document.getElementById('studentSelectForGrades');
-                tbody.innerHTML = '';
-                selectBox.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
+        function renderUsersTable() {
+            const tbody = document.getElementById('adminUsersTableBody');
+            const selectBox = document.getElementById('studentSelectForGrades');
+            tbody.innerHTML = '';
+            selectBox.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
 
-                const keys = Object.keys(usersCache);
-                if (keys.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
-                    return;
+            const keys = Object.keys(usersCache);
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
+                return;
+            }
+
+            keys.forEach(k => {
+                const u = usersCache[k];
+                const isStudent = u.role !== 'parent';
+                const name = isStudent ? u.name : (u.parentName || u.name);
+                const idVal = u.nationalId || u.parentNationalId || u.code || '---';
+
+                if (isStudent) {
+                    selectBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
                 }
 
-                keys.forEach(k => {
-                    const u = usersCache[k];
-                    const isStudent = u.role !== 'parent';
-                    const name = isStudent ? u.name : (u.parentName || u.name);
-                    const idVal = u.nationalId || u.parentNationalId || u.code || '---';
-
-                    if (isStudent) {
-                        selectBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
-                    }
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><b>${name}</b></td>
-                            <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
-                            <td>${u.grade || 'غير محدد'}</td>
-                            <td>${idVal}</td>
-                            <td><span style="font-weight:bold; color:${u.attendance && u.attendance.includes('مزوغ') ? '#EF4444' : '#10B981'}">${u.attendance || 'منتظم'}</span></td>
-                            <td>
-                                ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 12px; font-size: 12px;">📊 رصد درجاته</button>` : '---'}
-                            </td>
-                        </tr>
-                    `;
-                });
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${name}</b></td>
+                        <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
+                        <td>${u.grade || 'غير محدد'}</td>
+                        <td>${idVal}</td>
+                        <td><span style="font-weight:bold; color:${u.attendance && u.attendance.includes('مزوغ') ? '#EF4444' : '#10B981'}">${u.attendance || 'منتظم'}</span></td>
+                        <td>
+                            ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 12px; font-size: 12px;">📊 رصد درجاته</button>` : '---'}
+                        </td>
+                    </tr>
+                `;
             });
         }
 
@@ -573,20 +574,40 @@
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
                 container.innerHTML = '';
-                const ticketsData = snapshot.val();
+                ticketsCache = snapshot.val() || {};
 
-                if (!ticketsData) {
+                const keys = Object.keys(ticketsCache);
+                if (keys.length === 0) {
                     container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
                     return;
                 }
 
-                Object.keys(ticketsData).reverse().forEach(key => {
-                    const t = ticketsData[key];
-                    container.innerHTML += `
+                let html = '';
+                let visibleCount = 0;
+
+                keys.reverse().forEach(key => {
+                    const t = ticketsCache[key];
+                    
+                    // التحقق مما إذا كان الطالب صاحب الشكوى ما زال موجوداً في النظام
+                    let studentExists = false;
+                    Object.keys(usersCache).forEach(uKey => {
+                        if (usersCache[uKey].name === t.studentName) {
+                            studentExists = true;
+                        }
+                    });
+
+                    // إذا تم حذف الطالب، لا تعرض الشكوى القديمة الخاصة به
+                    if (!studentExists) return;
+
+                    visibleCount++;
+                    html += `
                         <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;">
                                 <b>👨‍👩‍👦 ولي الأمر: ${t.parentName} (الطالب: ${t.studentName} - ${t.studentGrade || ''})</b>
-                                <span style="font-size: 12px; color: var(--text-muted);">📱 ${t.parentEmail || 'بدون رقم'}</span>
+                                <div>
+                                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 10px;">📱 ${t.parentEmail || 'بدون رقم'}</span>
+                                    <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">حذف الطلب 🗑️</button>
+                                </div>
                             </div>
                             <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب (${t.ticketType}):</b> ${t.ticketContent}</p>
                             
@@ -597,6 +618,12 @@
                         </div>
                     `;
                 });
+
+                if (visibleCount === 0) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات نشطة حالياً.</p>';
+                } else {
+                    container.innerHTML = html;
+                }
             });
         }
 
@@ -610,6 +637,13 @@
             });
 
             alert('✅ تم إرسال رد الإدارة بنجاح!');
+        }
+
+        async function deleteTicket(key) {
+            if (confirm('⚠️ هل أنت تأكد من رغبتك في حذف هذه الشكوى/الطلب نهائياً؟')) {
+                await db.ref('tickets/' + key).remove();
+                alert('🗑️ تم حذف الطلب بنجاح.');
+            }
         }
     </script>
 </body>
