@@ -201,6 +201,20 @@
         .news-card-desc { font-size: 14px; color: #334155; line-height: 1.7; margin-bottom: 16px; white-space: pre-line; }
         .news-card-date { font-size: 11.5px; color: var(--text-muted); font-weight: 700; }
 
+        .media-container {
+            margin-top: 15px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .media-container img, .media-container video {
+            width: 100%;
+            max-height: 420px;
+            object-fit: contain;
+            display: block;
+        }
+
         .view-section {
             background: var(--card-bg); border-radius: 24px; padding: 30px;
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; margin-bottom: 25px;
@@ -264,7 +278,6 @@
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
 
-        /* نافذة الإشعارات الاحترافية الجاهزة (Toast/Modal Notification) */
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
@@ -277,7 +290,6 @@
 </head>
 <body>
 
-    <!-- نافذة الرسائل الاحترافية الموحدة -->
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
@@ -320,7 +332,7 @@
 
             <div class="logo-area" onclick="showHomePage()">
                 <div class="logo-box">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار المدرس">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار المدرسة">
                 </div>
                 <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
             </div>
@@ -329,7 +341,6 @@
                 <button onclick="openAuthPage(false)" class="btn-header btn-header-outline">تسجيل الدخول 🔑</button>
                 <button onclick="openAuthPage(true)" class="btn-header btn-header-primary">إنشاء حساب جديد ✨</button>
             </div>
-            <!-- زر الخروج الوحيد والرئيسي المعتمد في أعلى الصفحة -->
             <div class="header-actions" id="headerUserActions" style="display: none;">
                 <button onclick="navigateToSection('profileSection')" class="btn-header btn-header-outline">👤 البروفايل</button>
                 <button onclick="logoutUser()" class="btn-header btn-header-primary" style="background: #EF4444;">خروج 🚪</button>
@@ -348,7 +359,7 @@
             </div>
         </div>
 
-        <!-- 0️⃣ قسم البروفايل الشخصي -->
+        <!-- قسم البروفايل الشخصي -->
         <div class="view-section" id="profileSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthProfileBox">
@@ -357,17 +368,11 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">تسجيل الدخول للحساب 🔐</button>
             </div>
             <div id="authProfileBox" style="display: none;">
-                <div style="margin-bottom: 15px;">
-                    <h2 style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">👤 الملف الشخصي بالحساب</h2>
-                </div>
-
                 <div class="profile-card">
                     <div class="profile-avatar-box" id="profileAvatar">🎓</div>
                     <h3 id="profileName" style="text-align: center; font-size: 18px; font-weight: 900; color: var(--text-dark);">اسم المستخدم</h3>
                     <p id="profileRoleBadge" style="text-align: center; font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 4px;">حساب طالب</p>
-                    
                     <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
-
                     <form onsubmit="saveProfileChanges(event)">
                         <div class="form-grid">
                             <div class="form-group">
@@ -393,7 +398,7 @@
             </div>
         </div>
 
-        <!-- 1️⃣ قسم الدرجات والتقييمات -->
+        <!-- قسم الدرجات والتقييمات -->
         <div class="view-section" id="gradesSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthGradesBox">
@@ -402,23 +407,7 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
             </div>
             <div id="authGradesBox" style="display: none;">
-                <div style="margin-bottom: 20px;">
-                    <h2 id="gradesWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">📊 كشف درجات الطالب</h2>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي</span>
-                    <select id="gradeSectionSelect" onchange="updateStudentGradeLive('gradeSectionSelect')" class="form-control" style="margin-top: 5px; max-width: 250px;">
-                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                        <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                        <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                        <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
-                    </select>
-                </div>
+                <h2 id="gradesWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 15px;">📊 كشف درجات الطالب</h2>
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
@@ -436,7 +425,7 @@
             </div>
         </div>
 
-        <!-- 2️⃣ قسم الحضور والغياب -->
+        <!-- قسم الحضور والغياب -->
         <div class="view-section" id="attendanceSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthAttendanceBox">
@@ -445,9 +434,7 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">طلب تقرير الحضور والغياب 🔐</button>
             </div>
             <div id="authAttendanceBox" style="display: none;">
-                <div style="margin-bottom: 20px;">
-                    <h2 id="attendanceWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">📅 سجل انضباط الطالب</h2>
-                </div>
+                <h2 id="attendanceWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 15px;">📅 سجل انضباط الطالب</h2>
                 <div style="background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
                     <span style="font-size: 13px; color: var(--text-muted); display: block;">الحالة السلوكية وحضور الطالب</span>
                     <div id="lblAttendanceStatus" style="font-size: 20px; font-weight: 900; margin-top: 10px; color: #0F172A;">منتظم</div>
@@ -455,7 +442,7 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم الشكاوى والاستفسارات -->
+        <!-- قسم الشكاوى والاستفسارات -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthTicketsBox">
@@ -464,9 +451,7 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">إرسال شكوى / استفسار جديد 📝</button>
             </div>
             <div id="authTicketsBox" style="display: none;">
-                <div style="margin-bottom: 20px;">
-                    <h2 style="font-size: 17px; font-weight: 800; color: var(--primary-dark);">📨 إرسال استفسار أو شكوى جديد</h2>
-                </div>
+                <h2 style="font-size: 17px; font-weight: 800; color: var(--primary-dark); margin-bottom: 15px;">📨 إرسال استفسار أو شكوى جديد</h2>
                 <form onsubmit="submitParentTicket(event)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                         <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="ticketParentName" class="form-control" required></div>
@@ -486,13 +471,10 @@
                     </div>
                     <button type="submit" class="btn-submit">إرسال الطلب للإدارة 🚀</button>
                 </form>
-                <div style="margin-top: 25px;">
-                    <h3 style="font-size: 14px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
-                    <div id="parentTicketsList"><p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p></div>
-                </div>
             </div>
         </div>
 
+        <!-- صفحة تسجيل الدخول / إنشاء حساب -->
         <div class="auth-page-view" id="authPageView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div class="role-tabs">
@@ -507,7 +489,7 @@
                 <div id="signInFields">
                     <div class="form-group">
                         <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
-                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود" oninput="checkSecretAdminCode(this.value)">
+                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود">
                     </div>
                 </div>
 
@@ -533,14 +515,6 @@
                         <div class="form-group parent-only" style="display: none;">
                             <label>الرقم القومي لولي الأمر (14 رقم)</label>
                             <input type="text" id="parentNationalId" class="form-control" maxlength="14" placeholder="28000000000000">
-                        </div>
-                        <div class="form-group parent-only" style="display: none;">
-                            <label>صلة القرابة</label>
-                            <select id="parentRelation" class="form-control">
-                                <option value="أب">أب</option>
-                                <option value="أم">أم</option>
-                                <option value="ولي أمر قانوني">ولي أمر قانوني</option>
-                            </select>
                         </div>
                         <div class="form-group parent-only" style="display: none;">
                             <label>اسم الطالب التابع له</label>
@@ -576,7 +550,7 @@
                 <button type="submit" id="authSubmitBtn" class="btn-submit">تسجيل الدخول 📊</button>
             </form>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 13px; font-weight: bold;">
+            <div style="text-align: center; margin-top: 15px; font-size: 13px; font-weight: bold;">
                 <span id="toggleAuthText" onclick="toggleAuthMode()" style="cursor: pointer; color: var(--primary-dark);">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
             </div>
         </div>
@@ -597,105 +571,16 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        let allUsersCache = {};
-        let activeUserKey = null;
-        let selectedRole = 'student';
+        let currentUser = null;
         let isSignUpMode = false;
-        let currentTargetSection = 'gradesSection';
+        let currentRole = 'student';
 
-        // دالة الرسائل الاحترافية الموحدة
-        function showToast(message, icon = "✅") {
+        function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
             document.getElementById('toastMessage').textContent = message;
             toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3500);
-        }
-
-        const gradeSubjectsDetailed = {
-            lowerPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'discover', name: 'Discover / اكتشف' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            upperPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
-                { id: 'skills', name: 'المهارات المهنية' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            prep: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'computer', name: 'الحاسب الآلي' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ]
-        };
-
-        function getSubjectsForGradeName(gradeName) {
-            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
-            if (gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
-            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
-            else return gradeSubjectsDetailed.lowerPrimary;
-        }
-
-        window.addEventListener('DOMContentLoaded', () => { 
-            loadAllUsers(); 
-            loadSchoolNewsLive();
-        });
-
-        function loadAllUsers() {
-            db.ref('students').on('value', (snapshot) => { allUsersCache = snapshot.val() || {}; });
-        }
-
-        function loadSchoolNewsLive() {
-            db.ref('news').on('value', (snapshot) => {
-                const container = document.getElementById('newsFeedList');
-                container.innerHTML = '';
-                const newsData = snapshot.val();
-
-                if (!newsData) {
-                    container.innerHTML = `
-                        <div class="news-card">
-                            <span class="news-card-badge">📢 إعلان افتراضي</span>
-                            <h3 class="news-card-title">مرحباً بكم في البوابة الإلكترونية لمدرسة اللغات الرسمية الجديدة</h3>
-                            <p class="news-card-desc">يمكنكم متابعة أحدث أخبار المدرسة والتقييمات الأسبوعية فور صدورها من لوحة الإدارة.</p>
-                            <div class="news-card-date">تاريخ النشر: ${new Date().toLocaleDateString('ar-EG')}</div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                const keys = Object.keys(newsData).reverse();
-                keys.forEach(k => {
-                    const item = newsData[k];
-                    html += `
-                        <div class="news-card">
-                            <span class="news-card-badge">📢 ${item.badge || 'تنبيه مدرسي'}</span>
-                            <h3 class="news-card-title">${item.title}</h3>
-                            <p class="news-card-desc">${item.content}</p>
-                            <div class="news-card-date">تاريخ النشر: ${new Date(item.timestamp || Date.now()).toLocaleDateString('ar-EG')}</div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            });
-        }
-
-        function checkSecretAdminCode(val) {
-            if (val.trim() === 'ADMIN2026') {
-                window.location.href = 'admin.html';
-            }
+            if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
 
         function toggleSidebar() {
@@ -708,330 +593,298 @@
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
-        function hideAllSections() {
-            document.getElementById('newsHomeContainer').style.display = 'none';
-            document.querySelectorAll('.view-section').forEach(sec => sec.style.display = 'none');
-            document.getElementById('authPageView').style.display = 'none';
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPublicNews();
+            checkStoredUser();
+        });
+
+        function loadPublicNews() {
+            db.ref('news').on('value', (snapshot) => {
+                const container = document.getElementById('newsFeedList');
+                container.innerHTML = '';
+                const newsData = snapshot.val();
+                
+                if (!newsData) {
+                    container.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 30px;">لا توجد إعلانات منشورة حالياً.</p>';
+                    return;
+                }
+
+                Object.keys(newsData).reverse().forEach(key => {
+                    const item = newsData[key];
+                    
+                    let mediaHtml = '';
+                    if (item.image) {
+                        mediaHtml += `<div class="media-container"><img src="${item.image}" alt="صورة الإعلان"></div>`;
+                    }
+                    if (item.video) {
+                        mediaHtml += `
+                            <div class="media-container" style="margin-top: 10px;">
+                                <video controls preload="metadata">
+                                    <source src="${item.video}" type="video/mp4">
+                                    متصفحك لا يدعم عرض الفيديو
+                                </video>
+                            </div>`;
+                    }
+
+                    container.innerHTML += `
+                        <div class="news-card">
+                            <span class="news-card-badge">📌 ${item.badge || 'إعلان'}</span>
+                            <div class="news-card-title">${item.title}</div>
+                            <p class="news-card-desc">${item.content}</p>
+                            ${mediaHtml}
+                        </div>
+                    `;
+                });
+            });
         }
 
         function showHomePage() {
-            hideAllSections();
             document.getElementById('newsHomeContainer').style.display = 'block';
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            closeSidebar();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function navigateToSection(sectionId) {
-            hideAllSections();
-            currentTargetSection = sectionId;
-            const targetSec = document.getElementById(sectionId);
-            if (targetSec) {
-                targetSec.style.display = 'block';
-                if (activeUserKey) {
-                    renderDashboardForRole(allUsersCache[activeUserKey]);
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (!currentUser && sectionId !== 'newsHomeContainer') {
+                showToast("يرجى تسجيل الدخول أولاً للوصول لهذه الخدمة", "⚠️");
+                openAuthPage(false);
+                return;
             }
-        }
-
-        function openAuthPage(signUp) {
-            isSignUpMode = signUp;
-            hideAllSections();
-            document.getElementById('authPageView').style.display = 'block';
-            
-            document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
-            document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
-            document.getElementById('toggleAuthText').textContent = isSignUpMode ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
-            document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'إنشاء الحساب والتسجيل ✨' : 'تسجيل الدخول 📊';
-            
-            updateAuthTitles();
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            document.getElementById(sectionId).style.display = 'block';
+            closeSidebar();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function switchRole(role) {
-            selectedRole = role;
-            document.getElementById('tabStudent').classList.toggle('active', role === 'student');
-            document.getElementById('tabParent').classList.toggle('active', role === 'parent');
-
-            const lblIdentifier = document.getElementById('lblLoginIdentifier');
-            const studentFields = document.querySelectorAll('.student-only');
-            const parentFields = document.querySelectorAll('.parent-only');
-
-            if (role === 'student') {
-                lblIdentifier.textContent = 'الرقم القومي للطالب / كود الطالب';
-                studentFields.forEach(el => el.style.display = 'block');
-                parentFields.forEach(el => el.style.display = 'none');
-            } else {
-                lblIdentifier.textContent = 'الرقم القومي لولي الأمر';
-                studentFields.forEach(el => el.style.display = 'none');
-                parentFields.forEach(el => el.style.display = 'block');
-            }
-
-            updateAuthTitles();
+        function openAuthPage(signUp = false) {
+            isSignUpMode = signUp;
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+            document.getElementById('authPageView').style.display = 'block';
+            updateAuthFormUI();
+            closeSidebar();
         }
 
-        function toggleAuthMode() { openAuthPage(!isSignUpMode); }
+        function switchRole(role) {
+            currentRole = role;
+            document.getElementById('tabStudent').classList.toggle('active', role === 'student');
+            document.getElementById('tabParent').classList.toggle('active', role === 'parent');
+            
+            document.querySelectorAll('.student-only').forEach(el => el.style.display = role === 'student' ? 'block' : 'none');
+            document.querySelectorAll('.parent-only').forEach(el => el.style.display = role === 'parent' ? 'block' : 'none');
+            
+            updateAuthFormUI();
+        }
 
-        function updateAuthTitles() {
+        function updateAuthFormUI() {
             const title = document.getElementById('authTitle');
             const desc = document.getElementById('authDesc');
-
-            if (selectedRole === 'student') {
-                title.textContent = isSignUpMode ? '📝 إنشاء حساب طالب جديد' : '🎓 تسجيل دخول الطالب';
-                desc.textContent = isSignUpMode ? 'أدخل بيانات الطالب الرقمية طبقاً لشهادة الميلاد.' : 'أدخل الرقم القومي أو كود الطالب للوصول للنتائج.';
+            const btn = document.getElementById('authSubmitBtn');
+            const toggleText = document.getElementById('toggleAuthText');
+            
+            if (currentRole === 'student') {
+                title.textContent = isSignUpMode ? '🎓 إنشاء حساب طالب جديد' : '🎓 تسجيل دخول الطالب';
+                desc.textContent = isSignUpMode ? 'أدخل بياناتك الشخصية لإنشاء حساب بالبوابة.' : 'أدخل الرقم القومي أو الكود للوصول للنتائج.';
             } else {
-                title.textContent = isSignUpMode ? '📝 إنشاء حساب ولي أمر' : '👨‍👩‍👦 تسجيل دخول ولي الأمر';
-                desc.textContent = isSignUpMode ? 'أدخل بيانات الرقم القومي لولي الأمر والطالب التابع له.' : 'أدخل الرقم القومي الخاص بولي الأمر للمتابعة.';
+                title.textContent = isSignUpMode ? '👨‍👩‍👦 إنشاء حساب ولي أمر جديد' : '👨‍👩‍👦 تسجيل دخول ولي الأمر';
+                desc.textContent = isSignUpMode ? 'أدخل بيانات ولي الأمر ومتابعة الطالب.' : 'أدخل الرقم القومي لولي الأمر للدخول.';
             }
+
+            document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
+            document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
+            btn.textContent = isSignUpMode ? 'إتمام التسجيل 🚀' : 'تسجيل الدخول 📊';
+            toggleText.textContent = isSignUpMode ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
+        }
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            updateAuthFormUI();
         }
 
         async function handleAuthAction(e) {
             e.preventDefault();
-            const pass = document.getElementById('authPasswordInput').value.trim();
+            const password = document.getElementById('authPasswordInput').value.trim();
 
-            if (isSignUpMode) {
-                let userData = {
-                    role: selectedRole,
-                    password: pass,
-                    grade: document.getElementById('gradeSelect').value,
-                    phone: document.getElementById('phoneInput').value.trim(),
-                    attendance: 'منتظم'
-                };
+            if (!isSignUpMode) {
+                const identifier = document.getElementById('loginIdentifierInput').value.trim();
+                if (!identifier) return showToast("يرجى إدخال الرقم القومي أو الكود", "⚠️");
 
-                if (selectedRole === 'student') {
-                    userData.name = document.getElementById('studentFullName').value.trim() || 'طالب جديد';
-                    userData.nationalId = document.getElementById('studentNationalId').value.trim() || '00000000000000';
-                    userData.code = document.getElementById('studentCode').value.trim() || '123456';
-                } else {
-                    userData.parentName = document.getElementById('parentFullName').value.trim() || 'ولي أمر';
-                    userData.parentNationalId = document.getElementById('parentNationalId').value.trim() || '00000000000000';
-                    userData.relation = document.getElementById('parentRelation').value;
-                    userData.name = document.getElementById('parentStudentName').value.trim() || 'طالب جديد';
-                }
+                db.ref('students').once('value', (snapshot) => {
+                    const users = snapshot.val() || {};
+                    let foundKey = null;
+                    let foundData = null;
 
-                try {
-                    const newRef = db.ref('students').push();
-                    await newRef.set(userData);
-                    activeUserKey = newRef.key;
-                    allUsersCache[activeUserKey] = userData;
-                    showToast("تم إنشاء الحساب بنجاح! مرحباً بك", "🎉");
-                    onUserLoggedIn();
-                    navigateToSection(currentTargetSection);
-                } catch (err) {
-                    showToast("حدث خطأ في الاتصال بقاعدة البيانات", "❌");
-                }
-
-            } else {
-                const idInput = document.getElementById('loginIdentifierInput').value.trim();
-                let foundUserKey = null;
-                let foundUserObj = null;
-
-                Object.keys(allUsersCache).forEach(k => {
-                    const u = allUsersCache[k];
-                    if (selectedRole === 'student') {
-                        if (u.nationalId === idInput || u.code === idInput || u.name === idInput) {
-                            foundUserKey = k;
-                            foundUserObj = u;
+                    Object.keys(users).forEach(k => {
+                        const u = users[k];
+                        if (
+                            u.nationalId === identifier || 
+                            u.code === identifier || 
+                            u.parentNationalId === identifier
+                        ) {
+                            foundKey = k;
+                            foundData = u;
                         }
-                    } else {
-                        if (u.parentNationalId === idInput || u.nationalId === idInput || u.name === idInput) {
-                            foundUserKey = k;
-                            foundUserObj = u;
-                        }
+                    });
+
+                    if (!foundData || foundData.password !== password) {
+                        showToast("بيانات الدخول غير صحيحة، تأكد من الرقم وكلمة المرور", "❌");
+                        return;
                     }
+
+                    currentUser = { key: foundKey, ...foundData };
+                    localStorage.setItem('school_user_key', foundKey);
+                    showToast("تم تسجيل الدخول بنجاح أهلاً بك!", "🎉");
+                    applyUserSessionUI();
+                    showHomePage();
                 });
 
-                if (foundUserObj && foundUserObj.password === pass) {
-                    activeUserKey = foundUserKey;
-                    showToast("تم تسجيل الدخول بنجاح", "🔐");
-                    onUserLoggedIn();
-                    navigateToSection(currentTargetSection);
+            } else {
+                let name = '', nationalId = '', code = '', grade = '', phone = '', parentName = '', parentNationalId = '', parentStudentName = '';
+                
+                if (currentRole === 'student') {
+                    name = document.getElementById('studentFullName').value.trim();
+                    nationalId = document.getElementById('studentNationalId').value.trim();
+                    code = document.getElementById('studentCode').value.trim();
+                    if (!name || !nationalId) return showToast("يرجى إدخال اسم الطالب والرقم القومي", "⚠️");
                 } else {
-                    showToast("بيانات الدخول غير صحيحة!", "❌");
+                    parentName = document.getElementById('parentFullName').value.trim();
+                    parentNationalId = document.getElementById('parentNationalId').value.trim();
+                    parentStudentName = document.getElementById('parentStudentName').value.trim();
+                    name = parentName;
+                    if (!parentName || !parentNationalId) return showToast("يرجى إدخال بيانات ولي الأمر والرقم القومي", "⚠️");
                 }
+
+                grade = document.getElementById('gradeSelect').value;
+                phone = document.getElementById('phoneInput').value.trim();
+
+                const newUserRef = db.ref('students').push();
+                const newUserData = {
+                    role: currentRole,
+                    name,
+                    nationalId,
+                    code,
+                    grade,
+                    phone,
+                    password,
+                    parentName,
+                    parentNationalId,
+                    parentStudentName,
+                    attendance: 'منتظم',
+                    attendanceNote: 'لا توجد ملاحظات'
+                };
+
+                await newUserRef.set(newUserData);
+                currentUser = { key: newUserRef.key, ...newUserData };
+                localStorage.setItem('school_user_key', newUserRef.key);
+                showToast("تم إنشاء الحساب بنجاح!", "🚀");
+                applyUserSessionUI();
+                showHomePage();
             }
         }
 
-        function onUserLoggedIn() {
-            document.getElementById('sidebarProfileBtn').style.display = 'flex';
+        function checkStoredUser() {
+            const storedKey = localStorage.getItem('school_user_key');
+            if (storedKey) {
+                db.ref('students/' + storedKey).once('value', (snapshot) => {
+                    const u = snapshot.val();
+                    if (u) {
+                        currentUser = { key: storedKey, ...u };
+                        applyUserSessionUI();
+                    }
+                });
+            }
+        }
+
+        function applyUserSessionUI() {
+            if (!currentUser) return;
             document.getElementById('headerAuthActions').style.display = 'none';
             document.getElementById('headerUserActions').style.display = 'flex';
+            document.getElementById('sidebarProfileBtn').style.display = 'flex';
+
+            document.getElementById('unauthProfileBox').style.display = 'none';
+            document.getElementById('authProfileBox').style.display = 'block';
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileRoleBadge').textContent = currentUser.role === 'parent' ? 'حساب ولي أمر' : 'حساب طالب';
+            document.getElementById('profileGrade').value = currentUser.grade || 'غير محدد';
+            document.getElementById('profileNationalId').value = currentUser.nationalId || currentUser.parentNationalId || '---';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profilePassword').value = currentUser.password || '';
+
+            document.getElementById('unauthGradesBox').style.display = 'none';
+            document.getElementById('authGradesBox').style.display = 'block';
+            renderStudentGradesTable();
+
+            document.getElementById('unauthAttendanceBox').style.display = 'none';
+            document.getElementById('authAttendanceBox').style.display = 'block';
+            document.getElementById('lblAttendanceStatus').textContent = currentUser.attendance || 'منتظم';
+
+            document.getElementById('unauthTicketsBox').style.display = 'none';
+            document.getElementById('authTicketsBox').style.display = 'block';
         }
 
-        function renderDashboardForRole(u) {
-            if (document.getElementById('profileSection').style.display === 'block') {
-                document.getElementById('unauthProfileBox').style.display = 'none';
-                document.getElementById('authProfileBox').style.display = 'block';
-                
-                const displayName = u.role === 'parent' ? (u.parentName || 'ولي أمر') : (u.name || 'طالب');
-                document.getElementById('profileName').textContent = displayName;
-                document.getElementById('profileRoleBadge').textContent = u.role === 'parent' ? '👨‍👩‍👦 حساب ولي أمر' : '🎓 حساب طالب';
-                document.getElementById('profileAvatar').textContent = u.role === 'parent' ? '👨‍👩‍👦' : '🎓';
-                document.getElementById('profileGrade').value = u.grade || 'غير محدد';
-                document.getElementById('profileNationalId').value = u.nationalId || u.parentNationalId || u.code || '---';
-                document.getElementById('profilePhone').value = u.phone || '';
-                document.getElementById('profilePassword').value = u.password || '';
-            }
-
-            if (document.getElementById('gradesSection').style.display === 'block') {
-                document.getElementById('unauthGradesBox').style.display = 'none';
-                document.getElementById('authGradesBox').style.display = 'block';
-                document.getElementById('gradesWelcomeTitle').textContent = '📊 كشف درجات الطالب: ' + (u.name || '');
-                document.getElementById('gradeSectionSelect').value = u.grade || 'الصف الأول الابتدائي';
-                renderGradesTable('gradesTableBody', u);
-            }
-
-            if (document.getElementById('attendanceSection').style.display === 'block') {
-                document.getElementById('unauthAttendanceBox').style.display = 'none';
-                document.getElementById('authAttendanceBox').style.display = 'block';
-                document.getElementById('attendanceWelcomeTitle').textContent = '📅 سجل انضباط الطالب: ' + (u.name || '');
-                document.getElementById('lblAttendanceStatus').innerHTML = `
-                    <span style="${u.attendance && u.attendance.includes('مزوغ') ? 'color:#EF4444;' : ''}">
-                        ${u.attendance || 'منتظم'}
-                    </span>
-                    ${u.attendanceNote ? `<br><small style="font-size:12px; color:#64748B;">📝 ملاحظة: ${u.attendanceNote}</small>` : ''}
-                `;
-            }
-
-            if (document.getElementById('ticketsSection').style.display === 'block') {
-                document.getElementById('unauthTicketsBox').style.display = 'none';
-                document.getElementById('authTicketsBox').style.display = 'block';
-                loadParentTickets(u.name);
-            }
+        function logoutUser() {
+            localStorage.removeItem('school_user_key');
+            currentUser = null;
+            document.getElementById('headerAuthActions').style.display = 'flex';
+            document.getElementById('headerUserActions').style.display = 'none';
+            document.getElementById('sidebarProfileBtn').style.display = 'none';
+            showToast("تم تسجيل الخروج بنجاح", "👋");
+            showHomePage();
         }
 
-        async function saveProfileChanges(e) {
-            e.preventDefault();
-            if (!activeUserKey) return;
-
-            const newPhone = document.getElementById('profilePhone').value.trim();
-            const newPassword = document.getElementById('profilePassword').value.trim();
-
-            await db.ref('students/' + activeUserKey).update({
-                phone: newPhone,
-                password: newPassword
-            });
-
-            allUsersCache[activeUserKey].phone = newPhone;
-            allUsersCache[activeUserKey].password = newPassword;
-
-            showToast("تم تحديث بيانات البروفايل بنجاح", "💾");
-        }
-
-        function renderGradesTable(tbodyId, u) {
-            const subjects = getSubjectsForGradeName(u.grade);
-            const tbody = document.getElementById(tbodyId);
+        function renderStudentGradesTable() {
+            if (!currentUser) return;
+            const tbody = document.getElementById('gradesTableBody');
             tbody.innerHTML = '';
+            
+            const subjects = [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم / Discover' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ];
 
             subjects.forEach(sub => {
-                const work = parseFloat(u[sub.id + '_work'] || 0);
-                const weekly = parseFloat(u[sub.id + '_weekly'] || 0);
-                const final = parseFloat(u[sub.id + '_final'] || 0);
+                const work = currentUser[sub.id + '_work'] || 0;
+                const weekly = currentUser[sub.id + '_weekly'] || 0;
+                const final = currentUser[sub.id + '_final'] || 0;
                 const total = work + weekly + final;
-
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${sub.name}</b></td>
                         <td>${work}</td>
                         <td>${weekly}</td>
                         <td>${final}</td>
-                        <td><b>${total}</b></td>
+                        <td><b style="color: var(--primary);">${total}</b></td>
                     </tr>
                 `;
             });
         }
 
-        async function updateStudentGradeLive(selectId) {
-            const newGrade = document.getElementById(selectId).value;
-            if (!activeUserKey) return;
-
-            await db.ref('students/' + activeUserKey).update({ grade: newGrade });
-            allUsersCache[activeUserKey].grade = newGrade;
-            renderDashboardForRole(allUsersCache[activeUserKey]);
-            showToast("تم تغيير الصف الدراسي بنجاح", "🔄");
-        }
-
-        function logoutUser() {
-            activeUserKey = null;
-            document.getElementById('authPasswordInput').value = '';
-            document.getElementById('sidebarProfileBtn').style.display = 'none';
-            document.getElementById('headerAuthActions').style.display = 'flex';
-            document.getElementById('headerUserActions').style.display = 'none';
-
-            document.getElementById('unauthProfileBox').style.display = 'block';
-            document.getElementById('authProfileBox').style.display = 'none';
-            document.getElementById('unauthGradesBox').style.display = 'block';
-            document.getElementById('authGradesBox').style.display = 'none';
-            document.getElementById('unauthAttendanceBox').style.display = 'block';
-            document.getElementById('authAttendanceBox').style.display = 'none';
-            document.getElementById('unauthTicketsBox').style.display = 'block';
-            document.getElementById('authTicketsBox').style.display = 'none';
-            
-            showToast("تم تسجيل الخروج بنجاح", "👋");
-            showHomePage();
-        }
-
         async function submitParentTicket(e) {
             e.preventDefault();
-            if (!activeUserKey) return;
-            const u = allUsersCache[activeUserKey];
-
             const parentName = document.getElementById('ticketParentName').value.trim();
             const parentEmail = document.getElementById('ticketParentEmail').value.trim();
             const ticketType = document.getElementById('ticketType').value;
             const ticketContent = document.getElementById('ticketContent').value.trim();
 
-            const newTicketRef = db.ref('tickets').push();
-            await newTicketRef.set({
-                studentKey: activeUserKey,
-                studentName: u.name,
-                studentGrade: u.grade,
+            await db.ref('tickets').push({
                 parentName,
                 parentEmail,
                 ticketType,
                 ticketContent,
+                studentName: currentUser.name,
+                studentGrade: currentUser.grade,
                 status: 'قيد المراجعة',
-                adminReply: '',
                 timestamp: Date.now()
             });
 
-            document.getElementById('ticketContent').value = '';
             showToast("تم إرسال الشكوى للإدارة بنجاح", "🚀");
-            loadParentTickets(u.name);
-        }
-
-        function loadParentTickets(studentName) {
-            db.ref('tickets').on('value', (snapshot) => {
-                const container = document.getElementById('parentTicketsList');
-                container.innerHTML = '';
-                const data = snapshot.val();
-
-                if (!data) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p>';
-                    return;
-                }
-
-                let html = '';
-                Object.keys(data).forEach(key => {
-                    const t = data[key];
-                    if (t.studentName === studentName) {
-                        const replySection = t.adminReply 
-                            ? `<div style="background: #E0F2FE; padding: 10px; border-radius: 8px; margin-top: 8px; font-size: 12px; color: #0369A1;"><b>رد الإدارة:</b> ${t.adminReply}</div>`
-                            : `<div style="background: #FEF3C7; padding: 8px; border-radius: 8px; margin-top: 8px; font-size: 12px; color: #92400E;"><b>حالة الطلب:</b> ${t.status} (في انتظار رد الإدارة)</div>`;
-
-                        html += `
-                            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; font-size: 13px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                                    <b>📌 ${t.ticketType}</b>
-                                    <span style="font-size: 11px; color: var(--text-muted);">${new Date(t.timestamp || Date.now()).toLocaleDateString('ar-EG')}</span>
-                                </div>
-                                <p style="color: #334155; margin-bottom: 6px;"><b>طلبك:</b> ${t.ticketContent}</p>${replySection}
-                            </div>
-                        `;
-                    }
-                });
-
-                container.innerHTML = html || '<p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات مسجلة لهذا الطالب.</p>';
-            });
+            document.getElementById('ticketContent').value = '';
         }
     </script>
 </body>
