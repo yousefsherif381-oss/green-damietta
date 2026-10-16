@@ -109,16 +109,6 @@
 
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
-
-        .grade-input-group {
-            display: flex;
-            gap: 6px;
-        }
-        .grade-input-group input {
-            width: 70px;
-            text-align: center;
-            padding: 6px;
-        }
     </style>
 </head>
 <body>
@@ -173,7 +163,7 @@
                             </tr>
                         </thead>
                         <tbody id="adminGradesEditTableBody">
-                            <!-- سيتم التعبئة ديناميكياً حسب مرحلة الطالب -->
+                            <!-- التعبئة ديناميكياً -->
                         </tbody>
                     </table>
                 </div>
@@ -273,7 +263,6 @@
             loadTicketsLive();
         });
 
-        // 1. تحميل كافة المستخدمين
         function loadUsersLive() {
             db.ref('students').on('value', (snapshot) => {
                 usersCache = snapshot.val() || {};
@@ -371,7 +360,6 @@
             alert('✅ تم رصد وتحديث درجات وتقييمات الطالب بنجاح!');
         }
 
-        // 2. تحميل الأخبار ونشرها
         function loadNewsLive() {
             db.ref('news').on('value', (snapshot) => {
                 const container = document.getElementById('adminNewsList');
@@ -418,7 +406,6 @@
             }
         }
 
-        // 3. تحميل واستجابة الشكاوى
         function loadTicketsLive() {
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
