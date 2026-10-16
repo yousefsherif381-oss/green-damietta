@@ -234,9 +234,14 @@
                         <input type="file" id="newsImageFile" class="form-control" accept="image/*" style="padding: 8px;">
                     </div>
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 إرفاق فيديو الإعلان من الجهاز (اختياري):</label>
-                        <input type="file" id="newsVideoFile" class="form-control" accept="video/mp4,video/webm,video/ogg" style="padding: 8px;">
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (YouTube / Google Drive) (اختياري):</label>
+                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)">
                     </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز (أقل من 2 دقيقة):</label>
+                    <input type="file" id="newsVideoFile" class="form-control" accept="video/mp4,video/webm,video/ogg" style="padding: 8px;">
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
@@ -555,10 +560,11 @@
             const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
             const content = document.getElementById('newsContent').value.trim();
             const imageFile = document.getElementById('newsImageFile').files[0];
+            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
             const videoFile = document.getElementById('newsVideoFile').files[0];
 
             let imageData = '';
-            let videoData = '';
+            let videoData = videoUrl; // إعطاء الأولوية للرابط مباشرة
 
             showToast("جاري معالجة ورفع الملفات...", "⏳", false);
 
@@ -574,7 +580,8 @@
                 if (imageFile) {
                     imageData = await readFile(imageFile);
                 }
-                if (videoFile) {
+                // لو المدمين متحطش رابط، يرفع الملف المباشر من الموبايل
+                if (!videoData && videoFile) {
                     videoData = await readFile(videoFile);
                 }
 
@@ -593,10 +600,11 @@
                 document.getElementById('newsBadge').value = '';
                 document.getElementById('newsContent').value = '';
                 document.getElementById('newsImageFile').value = '';
+                document.getElementById('newsVideoUrl').value = '';
                 document.getElementById('newsVideoFile').value = '';
 
             } catch (error) {
-                showToast("حدث خطأ أثناء رفع الملفات، تأكد أن حجم الفيديو مناسب", "❌", true, 4000);
+                showToast("حدث خطأ أثناء رفع الملفات، يفضل استخدام رابط الفيديو بدلاً من رفع الملف المباشر", "❌", true, 4000);
             }
         }
 
@@ -615,35 +623,34 @@
                     container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
                     return;
                 }
-                let html = '';
-                keys.reverse().forEach(key => {
-                    const t = ticketsCache[key];
-                    html += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;">
-                                <b>👨‍👩‍👦 ولي الأمر: ${t.parentName || 'ولي أمر'} (الطالب: ${t.studentName || 'طالب'})</b>
-                                <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">حذف الطلب 🗑️</button>
+                keys.reverse().forEach(k => {
+                    const t = ticketsCache[k];
+                    container.innerHTML += `
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 15px; border-radius: 14px; margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <b>👤 ${t.parentName} (${t.studentName || ''})</b>
+                                <span style="font-size: 12px; font-weight: bold; color: var(--primary);">${t.ticketType}</span>
                             </div>
-                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب:</b> ${t.ticketContent || t.content || ''}</p>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="reply_${key}" class="form-control" placeholder="أدخل رد الإدارة هنا..." value="${t.adminReply || ''}">
-                                <button onclick="sendTicketReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 🚀</button>
+                            <p style="font-size: 13px; color: #334155; margin-bottom: 10px;">${t.ticketContent}</p>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <input type="text" id="reply_${k}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}">
+                                <button onclick="saveTicketReply('${k}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 💬</button>
+                                <button onclick="deleteTicketAdmin('${k}')" class="btn btn-danger">حذف 🗑️</button>
                             </div>
                         </div>
                     `;
                 });
-                container.innerHTML = html;
             });
         }
 
-        async function sendTicketReply(key) {
-            const replyInput = document.getElementById('reply_' + key).value.trim();
-            if (!replyInput) return showToast("يرجى كتابة الرد أولاً", "⚠️");
-            await db.ref('tickets/' + key).update({ adminReply: replyInput, status: 'تم الرد' });
-            showToast("تم إرسال رد الإدارة بنجاح", "🚀");
+        async function saveTicketReply(key) {
+            const reply = document.getElementById('reply_' + key).value.trim();
+            if (!reply) return showToast("يرجى كتابة نص الرد أولاً", "⚠️");
+            await db.ref('tickets/' + key).update({ adminReply: reply, status: 'تم الرد' });
+            showToast("تم إرسال الرد لولي الأمر بنجاح", "✅");
         }
 
-        async function deleteTicket(key) {
+        async function deleteTicketAdmin(key) {
             await db.ref('tickets/' + key).remove();
             showToast("تم حذف الطلب بنجاح", "🗑️");
         }
