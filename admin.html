@@ -165,14 +165,11 @@
             background: rgba(2, 132, 199, 0.35); 
             border-color: var(--accent); 
             transform: translateX(-6px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
         }
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
 
-        .main-wrapper {
-            max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1;
-        }
+        .main-wrapper { max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
         .admin-section {
             background: var(--card-bg); border-radius: 24px; padding: 30px;
@@ -187,10 +184,7 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .card-title {
-            font-size: 19px; font-weight: 900; color: var(--primary-dark);
-            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-        }
+        .card-title { font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
         .form-control {
@@ -198,27 +192,37 @@
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
             transition: all 0.3s ease;
         }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); }
 
-        .btn {
-            padding: 10px 18px; border-radius: 12px; border: none;
-            font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.2s;
-        }
+        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.2s; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-success { background: var(--success); color: white; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
+
+        /* نافذة الإشعارات الاحترافية الجاهزة للـ Admin */
+        .custom-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
+            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
+            z-index: 2000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+        }
+        .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
 
+    <!-- نافذة الرسائل الاحترافية للوحة التحكم -->
+    <div id="customToast" class="custom-toast">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">تمت العملية بنجاح</span>
+    </div>
+
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- السلايدر الجانبي بعد إضافة قسم الغياب -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
@@ -393,6 +397,15 @@
         let usersCache = {};
         let ticketsCache = {};
 
+        // دالة الرسائل المنبثقة للـ Admin
+        function showToast(message, icon = "✅") {
+            const toast = document.getElementById('customToast');
+            document.getElementById('toastIcon').textContent = icon;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3500);
+        }
+
         const gradeSubjectsDetailed = {
             lowerPrimary: [
                 { id: 'ar', name: 'اللغة العربية' },
@@ -429,9 +442,7 @@
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAllData();
-        });
+        window.addEventListener('DOMContentLoaded', () => { loadAllData(); });
 
         function loadAllData() {
             db.ref('students').on('value', (snapshot) => {
@@ -516,7 +527,7 @@
 
         async function saveStudentAttendance() {
             const key = document.getElementById('studentAttendanceSelect').value;
-            if (!key || !usersCache[key]) return alert('يرجى تحديد الطالب أولاً.');
+            if (!key || !usersCache[key]) return showToast("يرجى تحديد الطالب أولاً", "⚠️");
 
             const status = document.getElementById('attendanceStatusSelect').value;
             const note = document.getElementById('attendanceNoteInput').value.trim();
@@ -526,7 +537,7 @@
                 attendanceNote: note
             });
 
-            alert('✅ تم حفظ حالة الحضور والملاحظة بنجاح!');
+            showToast("تم حفظ حالة الحضور والملاحظة بنجاح", "💾");
         }
 
         function quickSelectStudent(key) {
@@ -558,153 +569,4 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${sub.name}</b></td>
-                        <td><input type="number" id="edit_${sub.id}_work" class="form-control" style="width: 100px; margin: auto;" value="${work}" min="0" max="30"></td>
-                        <td><input type="number" id="edit_${sub.id}_weekly" class="form-control" style="width: 100px; margin: auto;" value="${weekly}" min="0" max="20"></td>
-                        <td><input type="number" id="edit_${sub.id}_final" class="form-control" style="width: 100px; margin: auto;" value="${final}" min="0" max="50"></td>
-                    </tr>
-                `;
-            });
-
-            container.style.display = 'block';
-        }
-
-        async function saveStudentGradesDirect() {
-            const key = document.getElementById('studentSelectForGrades').value;
-            if (!key || !usersCache[key]) return;
-
-            const u = usersCache[key];
-            const subjects = getSubjectsForGradeName(u.grade);
-            let updates = {};
-
-            subjects.forEach(sub => {
-                updates[sub.id + '_work'] = parseFloat(document.getElementById(`edit_${sub.id}_work`).value || 0);
-                updates[sub.id + '_weekly'] = parseFloat(document.getElementById(`edit_${sub.id}_weekly`).value || 0);
-                updates[sub.id + '_final'] = parseFloat(document.getElementById(`edit_${sub.id}_final`).value || 0);
-            });
-
-            await db.ref('students/' + key).update(updates);
-            alert('✅ تم رصد وتحديث درجات وتقييمات الطالب بنجاح!');
-        }
-
-        function loadNewsLive() {
-            db.ref('news').on('value', (snapshot) => {
-                const container = document.getElementById('adminNewsList');
-                container.innerHTML = '';
-                const newsData = snapshot.val();
-
-                if (!newsData) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد أخبار منشورة حالياً.</p>';
-                    return;
-                }
-
-                Object.keys(newsData).reverse().forEach(key => {
-                    const item = newsData[key];
-                    container.innerHTML += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 14px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <b>📌 ${item.title}</b> <small style="color: var(--accent); font-weight: bold;">(${item.badge})</small>
-                                <p style="font-size: 13px; color: #334155; margin-top: 4px;">${item.content}</p>
-                            </div>
-                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">حذف 🗑️</button>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        async function postNews(e) {
-            e.preventDefault();
-            const title = document.getElementById('newsTitle').value.trim();
-            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
-            const content = document.getElementById('newsContent').value.trim();
-
-            await db.ref('news').push({ title, badge, content, timestamp: Date.now() });
-
-            alert('✅ تم نشر الخبر على البوابة بنجاح!');
-            document.getElementById('newsTitle').value = '';
-            document.getElementById('newsBadge').value = '';
-            document.getElementById('newsContent').value = '';
-        }
-
-        async function deleteNews(key) {
-            if (confirm('هل أنت تأكد من حذف هذا الإعلان؟')) {
-                await db.ref('news/' + key).remove();
-            }
-        }
-
-        function loadTicketsLive() {
-            db.ref('tickets').on('value', (snapshot) => {
-                const container = document.getElementById('adminTicketsList');
-                container.innerHTML = '';
-                ticketsCache = snapshot.val() || {};
-
-                const keys = Object.keys(ticketsCache);
-                if (keys.length === 0) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
-                    return;
-                }
-
-                let html = '';
-                let visibleCount = 0;
-
-                keys.reverse().forEach(key => {
-                    const t = ticketsCache[key];
-                    
-                    let studentExists = false;
-                    Object.keys(usersCache).forEach(uKey => {
-                        if (usersCache[uKey].name === t.studentName) {
-                            studentExists = true;
-                        }
-                    });
-
-                    if (!studentExists) return;
-
-                    visibleCount++;
-                    html += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;">
-                                <b>👨‍👩‍👦 ولي الأمر: ${t.parentName} (الطالب: ${t.studentName} - ${t.studentGrade || ''})</b>
-                                <div>
-                                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 10px;">📱 ${t.parentEmail || 'بدون رقم'}</span>
-                                    <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">حذف الطلب 🗑️</button>
-                                </div>
-                            </div>
-                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب (${t.ticketType}):</b> ${t.ticketContent}</p>
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="reply_${key}" class="form-control" placeholder="أدخل رد الإدارة هنا..." value="${t.adminReply || ''}">
-                                <button onclick="sendTicketReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 🚀</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                if (visibleCount === 0) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات نشطة حالياً.</p>';
-                } else {
-                    container.innerHTML = html;
-                }
-            });
-        }
-
-        async function sendTicketReply(key) {
-            const replyInput = document.getElementById('reply_' + key).value.trim();
-            if (!replyInput) return alert('يرجى كتابة الرد أولاً.');
-
-            await db.ref('tickets/' + key).update({
-                adminReply: replyInput,
-                status: 'تم الرد'
-            });
-
-            alert('✅ تم إرسال رد الإدارة بنجاح!');
-        }
-
-        async function deleteTicket(key) {
-            if (confirm('⚠️ هل أنت تأكد من رغبتك في حذف هذه الشكوى/الطلب نهائياً؟')) {
-                await db.ref('tickets/' + key).remove();
-                alert('🗑️ تم حذف الطلب بنجاح.');
-            }
-        }
-    </script>
-</body>
-</html>
+                        <td><input type="number" id="edit_${sub.id}_work" class="form-control"
