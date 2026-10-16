@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
+    <title>لوحة التحكم والإدارة الشاملة | مدرسة اللغات الرسمية الجديدة</title>
     <!-- خط Cairo المميز -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
@@ -16,6 +16,7 @@
             --primary-dark: #0369A1;
             --accent: #F59E0B;
             --danger: #EF4444;
+            --success: #10B981;
             --bg-dark: #0F172A;
             --card-bg: #FFFFFF;
             --text-dark: #0F172A;
@@ -96,6 +97,7 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-accent { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; }
 
         table {
             width: 100%;
@@ -107,6 +109,16 @@
 
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
+
+        .grade-input-group {
+            display: flex;
+            gap: 6px;
+        }
+        .grade-input-group input {
+            width: 70px;
+            text-align: center;
+            padding: 6px;
+        }
     </style>
 </head>
 <body>
@@ -115,8 +127,8 @@
         <!-- الهيدر الرئيسي -->
         <div class="admin-header">
             <div>
-                <h2>🔐 لوحة إدارة البوابة المدرسية</h2>
-                <p style="font-size: 12px; color: #94A3B8;">مدرسة اللغات الرسمية الجديدة - التحكم الكامل</p>
+                <h2>🔐 لوحة إدارة البوابة المدرسية (الشاملة)</h2>
+                <p style="font-size: 12px; color: #94A3B8;">مدرسة اللغات الرسمية الجديدة - إدارة النتائج والتقييمات والمستخدمين</p>
             </div>
             <button onclick="window.location.href='index.html'" class="btn btn-accent">العودة للموقع الرئيسي ➡️</button>
         </div>
@@ -137,9 +149,45 @@
             <div id="adminNewsList" style="margin-top: 10px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2️⃣ قسم إدارة الطلاب وأولياء الأمور -->
+        <!-- 2️⃣ قسم إدارة الطلاب والتقييمات/الدرجات -->
         <div class="admin-card">
-            <div class="card-title">👥 إدارة الطلاب وأولياء الأمور</div>
+            <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
+            <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: center;">
+                <label style="font-weight: bold; font-size: 14px;">اختر الطالب لرصد/تعديل الدرجات:</label>
+                <select id="studentSelectForGrades" class="form-control" style="max-width: 350px;" onchange="loadStudentGradesToEdit()">
+                    <option value="">-- حدد الطالب --</option>
+                </select>
+            </div>
+
+            <div id="gradesEditFormContainer" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px;">رصد الدرجات للطالب: </h4>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المادة الدراسية</th>
+                                <th>أعمال السنة (30)</th>
+                                <th>التقييم الأسبوعي (20)</th>
+                                <th>الامتحان النهائي (50)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminGradesEditTableBody">
+                            <!-- سيتم التعبئة ديناميكياً حسب مرحلة الطالب -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button onclick="saveStudentGradesDirect()" class="btn btn-success">حفظ وتقييم الدرجات 💾</button>
+                    <button onclick="document.getElementById('gradesEditFormContainer').style.display='none'" class="btn btn-danger">إلغاء ✕</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3️⃣ قسم جدول حسابات الطلاب وأولياء الأمور -->
+        <div class="admin-card">
+            <div class="card-title">👥 سجل الحسابات المسجلة بالبوابة</div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -148,16 +196,18 @@
                             <th>نوع الحساب</th>
                             <th>الصف الدراسي</th>
                             <th>الرقم القومي / الكود</th>
+                            <th>حالة الحضور</th>
+                            <th>الإجراء السريع</th>
                         </tr>
                     </thead>
                     <tbody id="adminUsersTableBody">
-                        <tr><td colspan="4" style="text-align: center;">جاري تحميل البيانات...</td></tr>
+                        <tr><td colspan="6" style="text-align: center;">جاري تحميل البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 3️⃣ قسم متابعة والرد على الشكاوى والطلبات -->
+        <!-- 4️⃣ قسم متابعة والرد على الشكاوى والطلبات -->
         <div class="admin-card">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
@@ -179,6 +229,44 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
+        let usersCache = {};
+
+        const gradeSubjectsDetailed = {
+            lowerPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'discover', name: 'Discover / اكتشف' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            upperPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
+                { id: 'skills', name: 'المهارات المهنية' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            prep: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'computer', name: 'الحاسب الآلي' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ]
+        };
+
+        function getSubjectsForGradeName(gradeName) {
+            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
+            if (gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
+            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
+            else return gradeSubjectsDetailed.lowerPrimary;
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             loadUsersLive();
             loadNewsLive();
@@ -188,13 +276,15 @@
         // 1. تحميل كافة المستخدمين
         function loadUsersLive() {
             db.ref('students').on('value', (snapshot) => {
-                const usersCache = snapshot.val() || {};
+                usersCache = snapshot.val() || {};
                 const tbody = document.getElementById('adminUsersTableBody');
+                const selectBox = document.getElementById('studentSelectForGrades');
                 tbody.innerHTML = '';
+                selectBox.innerHTML = '<option value="">-- حدد الطالب --</option>';
 
                 const keys = Object.keys(usersCache);
                 if (keys.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
                     return;
                 }
 
@@ -204,16 +294,81 @@
                     const name = isStudent ? u.name : (u.parentName || u.name);
                     const idVal = u.nationalId || u.parentNationalId || u.code || '---';
 
+                    if (isStudent) {
+                        selectBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
+                    }
+
                     tbody.innerHTML += `
                         <tr>
                             <td><b>${name}</b></td>
                             <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
                             <td>${u.grade || 'غير محدد'}</td>
                             <td>${idVal}</td>
+                            <td><span style="font-weight:bold; color:${u.attendance && u.attendance.includes('مزوغ') ? '#EF4444' : '#10B981'}">${u.attendance || 'منتظم'}</span></td>
+                            <td>
+                                ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;">📊 الدرجات</button>` : '---'}
+                            </td>
                         </tr>
                     `;
                 });
             });
+        }
+
+        function quickSelectStudent(key) {
+            document.getElementById('studentSelectForGrades').value = key;
+            loadStudentGradesToEdit();
+            window.scrollTo({ top: 400, behavior: 'smooth' });
+        }
+
+        function loadStudentGradesToEdit() {
+            const key = document.getElementById('studentSelectForGrades').value;
+            const container = document.getElementById('gradesEditFormContainer');
+            if (!key || !usersCache[key]) {
+                container.style.display = 'none';
+                return;
+            }
+
+            const u = usersCache[key];
+            document.getElementById('editingStudentNameTitle').textContent = `رصد وتعديل تقييمات الطالب: ${u.name} (${u.grade || ''})`;
+            
+            const subjects = getSubjectsForGradeName(u.grade);
+            const tbody = document.getElementById('adminGradesEditTableBody');
+            tbody.innerHTML = '';
+
+            subjects.forEach(sub => {
+                const work = u[sub.id + '_work'] || 0;
+                const weekly = u[sub.id + '_weekly'] || 0;
+                const final = u[sub.id + '_final'] || 0;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${sub.name}</b></td>
+                        <td><input type="number" id="edit_${sub.id}_work" class="form-control" style="width: 100px;" value="${work}" min="0" max="30"></td>
+                        <td><input type="number" id="edit_${sub.id}_weekly" class="form-control" style="width: 100px;" value="${weekly}" min="0" max="20"></td>
+                        <td><input type="number" id="edit_${sub.id}_final" class="form-control" style="width: 100px;" value="${final}" min="0" max="50"></td>
+                    </tr>
+                `;
+            });
+
+            container.style.display = 'block';
+        }
+
+        async function saveStudentGradesDirect() {
+            const key = document.getElementById('studentSelectForGrades').value;
+            if (!key || !usersCache[key]) return;
+
+            const u = usersCache[key];
+            const subjects = getSubjectsForGradeName(u.grade);
+            let updates = {};
+
+            subjects.forEach(sub => {
+                updates[sub.id + '_work'] = parseFloat(document.getElementById(`edit_${sub.id}_work`).value || 0);
+                updates[sub.id + '_weekly'] = parseFloat(document.getElementById(`edit_${sub.id}_weekly`).value || 0);
+                updates[sub.id + '_final'] = parseFloat(document.getElementById(`edit_${sub.id}_final`).value || 0);
+            });
+
+            await db.ref('students/' + key).update(updates);
+            alert('✅ تم رصد وتحديث درجات وتقييمات الطالب بنجاح!');
         }
 
         // 2. تحميل الأخبار ونشرها
