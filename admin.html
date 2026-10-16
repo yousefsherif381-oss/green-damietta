@@ -172,7 +172,7 @@
 </head>
 <body>
 
-    <!-- نافذة الإشعارات الاحترافية -->
+    <!-- نافذة الإشعارات الاحترافية والتفاعلية للرفع -->
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
@@ -230,7 +230,7 @@
 
     <main class="main-wrapper">
         
-        <!-- 1️⃣ قسم نشر وإدارة الأخبار (يدعم الصور والفيديوهات) -->
+        <!-- 1️⃣ قسم نشر وإدارة الأخبار (يدعم الصور والفيديوهات وحساب نسبة الرفع) -->
         <div class="admin-section active" id="newsSection">
             <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة (مع إمكانية إرفاق صورة أو فيديو)</div>
             <form onsubmit="postNews(event)">
@@ -368,12 +368,16 @@
         let usersCache = {};
         let ticketsCache = {};
 
-        function showToast(message, icon = "✅") {
+        // دالة التوست المحدثة للنسبة المئوية
+        function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
             document.getElementById('toastMessage').textContent = message;
             toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3500);
+            
+            if (autoHide) {
+                setTimeout(() => { toast.classList.remove('show'); }, duration);
+            }
         }
 
         const gradeSubjectsDetailed = {
@@ -577,6 +581,7 @@
             });
         }
 
+        // دالة نشر الإعلان المحدثة بحساب شريط التحميل المئوي
         async function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
@@ -589,34 +594,55 @@
             let imageData = '';
             let videoData = '';
 
-            showToast("جاري تجهيز ورفع المرفقات...", "⏳");
+            showToast("جاري تجهيز ورفع المرفقات...", "⏳", false);
 
-            const readFile = (file) => {
-                return new Promise((resolve) => {
+            const readFileWithProgress = (file, labelName) => {
+                return new Promise((resolve, reject) => {
                     const reader = new FileReader();
+
+                    reader.onprogress = (event) => {
+                        if (event.lengthComputable) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            showToast(`جاري رفع ${labelName}... %${percent}`, "📤", false);
+                        }
+                    };
+
                     reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (err) => reject(err);
                     reader.readAsDataURL(file);
                 });
             };
 
-            if (imageFile) imageData = await readFile(imageFile);
-            if (videoFile) videoData = await readFile(videoFile);
+            try {
+                if (imageFile) {
+                    imageData = await readFileWithProgress(imageFile, "الصورة");
+                }
+                if (videoFile) {
+                    videoData = await readFileWithProgress(videoFile, "الفيديو");
+                }
 
-            await db.ref('news').push({
-                title,
-                badge,
-                content,
-                image: imageData,
-                video: videoData,
-                timestamp: Date.now()
-            });
+                showToast("جاري حفظ البيانات في السيرفر...", "☁️", false);
 
-            showToast("تم نشر الإعلان مع المرفقات بنجاح!", "🚀");
-            document.getElementById('newsTitle').value = '';
-            document.getElementById('newsBadge').value = '';
-            document.getElementById('newsContent').value = '';
-            document.getElementById('newsImageFile').value = '';
-            document.getElementById('newsVideoFile').value = '';
+                await db.ref('news').push({
+                    title,
+                    badge,
+                    content,
+                    image: imageData,
+                    video: videoData,
+                    timestamp: Date.now()
+                });
+
+                showToast("تم نشر الإعلان مع المرفقات بنجاح!", "🚀", true, 3500);
+
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsBadge').value = '';
+                document.getElementById('newsContent').value = '';
+                document.getElementById('newsImageFile').value = '';
+                document.getElementById('newsVideoFile').value = '';
+
+            } catch (error) {
+                showToast("حدث خطأ أثناء رفع الملفات، حاول مجدداً", "❌", true, 4000);
+            }
         }
 
         async function deleteNews(key) {
