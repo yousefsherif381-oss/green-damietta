@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة الكاملة | مدرسة اللغات الرسمية الجديدة</title>
+    <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
     <!-- خط Cairo المميز -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
@@ -109,7 +109,7 @@
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
 
-        /* نافذة البروفايل المكتملة (Modal) */
+        /* نافذة بروفايل الطالب (Modal) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px);
@@ -131,18 +131,18 @@
 <body>
 
     <div class="admin-container">
-        <!-- الهيدر الرئيسي -->
+        <!-- الهيدر -->
         <div class="admin-header">
             <div>
-                <h2>🔐 لوحة إدارة البوابة المدرسية الكاملة</h2>
-                <p style="font-size: 12px; color: #94A3B8;">مدرسة اللغات الرسمية الجديدة - التحكم الشامل بالموقع</p>
+                <h2>🔐 لوحة إدارة البوابة المدرسية</h2>
+                <p style="font-size: 12px; color: #94A3B8;">مدرسة اللغات الرسمية الجديدة - التحكم الكامل</p>
             </div>
             <button onclick="window.location.href='index.html'" class="btn btn-accent">العودة للموقع الرئيسي ➡️</button>
         </div>
 
-        <!-- 1️⃣ قسم إدارة ونشر الأخبار -->
+        <!-- 1️⃣ نشر إعلان أو خبر جديد -->
         <div class="admin-card">
-            <div class="card-title">📢 نشر الأخبار والإعلانات المدرسية</div>
+            <div class="card-title">📢 نشر إعلان أو خبر جديد</div>
             <form onsubmit="postNews(event)">
                 <div class="form-grid">
                     <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر" required>
@@ -151,14 +151,14 @@
                 <textarea id="newsContent" class="form-control" rows="3" placeholder="تفاصيل الخبر..." required style="margin-bottom: 15px;"></textarea>
                 <button type="submit" class="btn btn-primary">نشر الإعلان للجميع 🚀</button>
             </form>
-            
-            <h4 style="margin-top: 20px; font-size: 14px;">قائمة الأخبار المنشورة حالياً:</h4>
+
+            <h4 style="margin-top: 20px; font-size: 14px;">الإعلانات المنشورة حالياً:</h4>
             <div id="adminNewsList" style="margin-top: 10px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2️⃣ قسم إدارة الحسابات، البروفايلات، والدرجات -->
+        <!-- 2️⃣ إدارة الطلاب وأولياء الأمور -->
         <div class="admin-card">
-            <div class="card-title">👥 إدارة حسابات الطلاب وأولياء الأمور والدرجات</div>
+            <div class="card-title">👥 إدارة الطلاب وأولياء الأمور</div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -167,7 +167,7 @@
                             <th>نوع الحساب</th>
                             <th>الصف الدراسي</th>
                             <th>الرقم القومي / الكود</th>
-                            <th>رصد الدرجات والبروفايل</th>
+                            <th>الإجراءات والبروفايل</th>
                         </tr>
                     </thead>
                     <tbody id="adminUsersTableBody">
@@ -177,29 +177,29 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم متابعة الشكاوى والاستفسارات -->
+        <!-- 3️⃣ متابعة الشكاوى والاستفسارات -->
         <div class="admin-card">
-            <div class="card-title">📨 مركز الشكاوى واستفسارات أولياء الأمور</div>
+            <div class="card-title">📨 مركز الشكاوى والاستفسارات</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
     </div>
 
-    <!-- نافذة استعراض وتعديل البروفايل والدرجات المكتملة -->
+    <!-- نافذة استعراض وتعديل بروفايل الطالب -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: var(--primary-dark);">👤 بروفايل وتعديل درجات المستخدم</h3>
+                <h3 style="color: var(--primary-dark);">🎓 بروفايل وتعديل بيانات الطالب</h3>
                 <button onclick="closeProfileModal()" style="background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
             </div>
 
             <!-- تعديل البروفايل -->
-            <form onsubmit="saveUserProfileByAdmin(event)">
-                <input type="hidden" id="modalUserKey">
+            <form onsubmit="saveStudentProfileByAdmin(event)">
+                <input type="hidden" id="modalStudentKey">
                 
                 <div class="form-grid">
                     <div style="grid-column: 1 / -1;">
-                        <label style="font-size: 12px; font-weight: bold;">اسم المستخدم / الطالب</label>
+                        <label style="font-size: 12px; font-weight: bold;">اسم الطالب الرباعي</label>
                         <input type="text" id="modalName" class="form-control" required>
                     </div>
                     <div>
@@ -236,7 +236,7 @@
 
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">حفظ تعديلات البروفايل 💾</button>
-                    <button type="button" onclick="deleteUserByAdmin()" class="btn btn-danger">حذف الحساب نهائياً 🗑️</button>
+                    <button type="button" onclick="deleteStudentByAdmin()" class="btn btn-danger">حذف الطالب نهائياً 🗑️</button>
                 </div>
             </form>
 
@@ -244,11 +244,11 @@
 
             <!-- تعديل درجات الطالب -->
             <div class="grades-edit-box">
-                <h4 style="margin-bottom: 10px; color: var(--primary-dark);">📊 تعديل درجات الطالب المواد المقررة:</h4>
+                <h4 style="margin-bottom: 10px; color: var(--primary-dark);">📊 رصد وتقييم درجات الطالب:</h4>
                 <div id="modalGradesForm">
-                    <!-- يتم بناؤها ديناميكياً بناءً على صف الطالب -->
+                    <!-- يتم بناؤها ديناميكياً -->
                 </div>
-                <button onclick="saveStudentGradesByAdmin()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ درجات المواد 📊</button>
+                <button onclick="saveStudentGradesByAdmin()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتقييم الدرجات 📊</button>
             </div>
         </div>
     </div>
@@ -311,7 +311,7 @@
             loadTicketsLive();
         });
 
-        // 1. تحميل قائمة المستخدمين والطلاب
+        // 1. تحميل كافه المستخدمين وعرض زر البروفايل للطلبة فقط
         function loadUsersLive() {
             db.ref('students').on('value', (snapshot) => {
                 usersCache = snapshot.val() || {};
@@ -326,17 +326,21 @@
 
                 keys.forEach(k => {
                     const u = usersCache[k];
-                    const name = u.role === 'parent' ? (u.parentName || u.name) : u.name;
+                    const isStudent = u.role !== 'parent';
+                    const name = isStudent ? u.name : (u.parentName || u.name);
                     const idVal = u.nationalId || u.parentNationalId || u.code || '---';
 
                     tbody.innerHTML += `
                         <tr>
                             <td><b>${name}</b></td>
-                            <td>${u.role === 'parent' ? '👨‍👩‍👦 ولي أمر' : '🎓 طالب'}</td>
+                            <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
                             <td>${u.grade || 'غير محدد'}</td>
                             <td>${idVal}</td>
                             <td>
-                                <button onclick="openProfileModal('${k}')" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">👁️ البروفايل والدرجات</button>
+                                ${isStudent 
+                                    ? `<button onclick="openStudentModal('${k}')" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">👁️ بروفايل الطالب</button>` 
+                                    : `<span style="font-size: 12px; color: #64748B;">حساب ولي أمر</span>`
+                                }
                             </td>
                         </tr>
                     `;
@@ -344,13 +348,13 @@
             });
         }
 
-        // 2. فتح نافذة البروفايل والدرجات
-        function openProfileModal(key) {
+        // 2. فتح نافذة بروفايل الطالب حصراً
+        function openStudentModal(key) {
             const u = usersCache[key];
             if (!u) return;
 
-            document.getElementById('modalUserKey').value = key;
-            document.getElementById('modalName').value = u.role === 'parent' ? (u.parentName || u.name) : u.name;
+            document.getElementById('modalStudentKey').value = key;
+            document.getElementById('modalName').value = u.name || '';
             document.getElementById('modalGrade').value = u.grade || 'الصف الأول الابتدائي';
             document.getElementById('modalPhone').value = u.phone || '';
             document.getElementById('modalPassword').value = u.password || '';
@@ -385,33 +389,26 @@
             document.getElementById('profileModal').style.display = 'none';
         }
 
-        // حفظ البروفايل
-        async function saveUserProfileByAdmin(e) {
+        // حفظ بروفايل الطالب
+        async function saveStudentProfileByAdmin(e) {
             e.preventDefault();
-            const key = document.getElementById('modalUserKey').value;
+            const key = document.getElementById('modalStudentKey').value;
             if (!key) return;
 
-            const u = usersCache[key];
-            const updatedData = {
+            await db.ref('students/' + key).update({
+                name: document.getElementById('modalName').value.trim(),
                 grade: document.getElementById('modalGrade').value,
                 phone: document.getElementById('modalPhone').value.trim(),
                 password: document.getElementById('modalPassword').value.trim(),
                 attendance: document.getElementById('modalAttendance').value
-            };
+            });
 
-            if (u.role === 'parent') {
-                updatedData.parentName = document.getElementById('modalName').value.trim();
-            } else {
-                updatedData.name = document.getElementById('modalName').value.trim();
-            }
-
-            await db.ref('students/' + key).update(updatedData);
-            alert('✅ تم تحديث بيانات البروفايل بنجاح!');
+            alert('✅ تم تحديث بروفايل الطالب بنجاح!');
         }
 
         // حفظ درجات الطالب
         async function saveStudentGradesByAdmin() {
-            const key = document.getElementById('modalUserKey').value;
+            const key = document.getElementById('modalStudentKey').value;
             if (!key) return;
 
             const u = usersCache[key];
@@ -428,19 +425,19 @@
             alert('✅ تم حفظ وتقييم درجات الطالب بنجاح!');
         }
 
-        // حذف المستخدم
-        async function deleteUserByAdmin() {
-            const key = document.getElementById('modalUserKey').value;
+        // حذف الطالب
+        async function deleteStudentByAdmin() {
+            const key = document.getElementById('modalStudentKey').value;
             if (!key) return;
 
-            if (confirm('⚠️ هل أنت تأكد من رغبتك في حذف هذا الحساب نهائياً؟')) {
+            if (confirm('⚠️ هل أنت تأكد من رغبتك في حذف هذا الطالب نهائياً؟')) {
                 await db.ref('students/' + key).remove();
-                alert('🗑️ تم حذف الحساب بنجاح.');
+                alert('🗑️ تم حذف حساب الطالب بنجاح.');
                 closeProfileModal();
             }
         }
 
-        // 3. تحميل الأخبار وإدارتها
+        // 3. إدارة ونشر الأخبار
         function loadNewsLive() {
             db.ref('news').on('value', (snapshot) => {
                 const container = document.getElementById('adminNewsList');
@@ -487,7 +484,7 @@
             }
         }
 
-        // 4. تحميل الشكاوى والرد عليها
+        // 4. الشكاوى والاستفسارات
         function loadTicketsLive() {
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
