@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة الشاملة | مدرسة اللغات الرسمية الجديدة</title>
+    <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
     <!-- خط Cairo المميز -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
@@ -15,142 +15,286 @@
             --primary: #0284C7;
             --primary-dark: #0369A1;
             --accent: #F59E0B;
+            --accent-hover: #D97706;
             --danger: #EF4444;
             --success: #10B981;
-            --bg-dark: #0F172A;
-            --card-bg: #FFFFFF;
+            --card-bg: rgba(255, 255, 255, 0.98);
             --text-dark: #0F172A;
+            --text-muted: #64748B;
             --border: #E2E8F0;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 
+        /* خلفية أمواج البحر المتحركة بالسلاسة */
         body {
-            background: #F1F5F9;
+            background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
+            background-size: 400% 400%;
+            animation: oceanWaves 16s ease infinite;
             min-height: 100vh;
             color: var(--text-dark);
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .admin-container {
-            max-width: 1250px;
-            margin: 0 auto;
+        @keyframes oceanWaves {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .admin-header {
-            background: var(--bg-dark);
-            color: white;
-            padding: 20px;
-            border-radius: 20px;
+        header {
+            background: rgba(12, 74, 110, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 3px solid var(--accent);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        .nav-container {
+            max-width: 1300px;
+            margin: auto;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .admin-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
+        .btn-sidebar-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 9px 16px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-sidebar-toggle:hover { 
+            background: rgba(255, 255, 255, 0.25); 
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            cursor: pointer;
+            margin: auto;
+        }
+
+        .logo-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #ffffff;
+            padding: 3px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+        .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+
+        .btn-header-home {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+            transition: all 0.3s ease;
+        }
+        .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
+
+        /* القائمة الجانبية (السلايدر) الزجاجية */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
+            z-index: 1000; opacity: 0; pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .sliding-sidebar {
+            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
+            z-index: 1001; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+            border-left: 2px solid rgba(245, 158, 11, 0.4);
+            padding: 24px 20px; display: flex; flex-direction: column;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sliding-sidebar.active { right: 0; }
+
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
+        .btn-close-sidebar {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); 
+            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
+            transition: all 0.2s ease;
+        }
+        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
+
+        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+            border-radius: 16px; background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-item:hover, .sidebar-item.active { 
+            background: rgba(2, 132, 199, 0.35); 
+            border-color: var(--accent); 
+            transform: translateX(-6px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+        .sidebar-icon { font-size: 22px; }
+        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
+
+        .main-wrapper {
+            max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1;
+        }
+
+        /* تنسيقات الأقسام */
+        .admin-section {
+            background: var(--card-bg); border-radius: 24px; padding: 30px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; margin-bottom: 25px;
+            border-top: 5px solid var(--accent);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .admin-section.active { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .card-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--primary-dark);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 19px; font-weight: 900; color: var(--primary-dark);
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
         .form-control {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 13.5px;
-            outline: none;
+            width: 100%; padding: 12px 14px; border: 2px solid var(--border);
+            border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
+            transition: all 0.3s ease;
         }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); }
 
         .btn {
-            padding: 9px 18px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 12px 20px; border-radius: 12px; border: none;
+            font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s;
         }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
         .btn-danger { background: var(--danger); color: white; }
-        .btn-accent { background: var(--accent); color: white; }
         .btn-success { background: var(--success); color: white; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            text-align: right;
-            font-size: 13px;
-        }
-
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
     </style>
 </head>
 <body>
 
-    <div class="admin-container">
-        <!-- الهيدر الرئيسي -->
-        <div class="admin-header">
-            <div>
-                <h2>🔐 لوحة إدارة البوابة المدرسية (الشاملة)</h2>
-                <p style="font-size: 12px; color: #94A3B8;">مدرسة اللغات الرسمية الجديدة - إدارة النتائج والتقييمات والمستخدمين</p>
-            </div>
-            <button onclick="window.location.href='index.html'" class="btn btn-accent">العودة للموقع الرئيسي ➡️</button>
-        </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-        <!-- 1️⃣ قسم نشر وتعديل الأخبار -->
-        <div class="admin-card">
-            <div class="card-title">📢 نشر إعلان أو خبر جديد</div>
+    <!-- القائمة الجانبية (السلايدر) للأقسام -->
+    <aside class="sliding-sidebar" id="slidingSidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
+            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="sidebar-item active" id="menuItemNews" onclick="switchAdminSection('newsSection', this)">
+                <span class="sidebar-icon">📢</span>
+                <span class="sidebar-label">نشر وإدارة الأخبار</span>
+            </div>
+            <div class="sidebar-item" id="menuItemGrades" onclick="switchAdminSection('gradesSection', this)">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-label">رصد وتقييم الدرجات</span>
+            </div>
+            <div class="sidebar-item" id="menuItemUsers" onclick="switchAdminSection('usersSection', this)">
+                <span class="sidebar-icon">👥</span>
+                <span class="sidebar-label">سجل الحسابات والطلاب</span>
+            </div>
+            <div class="sidebar-item" id="menuItemTickets" onclick="switchAdminSection('ticketsSection', this)">
+                <span class="sidebar-icon">📨</span>
+                <span class="sidebar-label">مركز الشكاوى والردود</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- الهيدر العلوي -->
+    <header>
+        <div class="nav-container">
+            <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح أقسام الإدارة">
+                ☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span>
+            </button>
+
+            <div class="logo-area" onclick="window.location.href='index.html'">
+                <div class="logo-box">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="الشعار">
+                </div>
+                <span class="logo-text">لوحة التحكم والتحكم الكامل</span>
+            </div>
+
+            <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+        
+        <!-- 1️⃣ قسم نشر وإدارة الأخبار -->
+        <div class="admin-section active" id="newsSection">
+            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
             <form onsubmit="postNews(event)">
                 <div class="form-grid">
-                    <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر" required>
+                    <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
                     <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
                 </div>
-                <textarea id="newsContent" class="form-control" rows="3" placeholder="تفاصيل الخبر..." required style="margin-bottom: 15px;"></textarea>
+                <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
                 <button type="submit" class="btn btn-primary">نشر الإعلان للجميع 🚀</button>
             </form>
 
-            <h4 style="margin-top: 20px; font-size: 14px;">الإعلانات المنشورة حالياً:</h4>
-            <div id="adminNewsList" style="margin-top: 10px;">جاري تحميل الأخبار...</div>
+            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
+            <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2️⃣ قسم إدارة الطلاب والتقييمات/الدرجات -->
-        <div class="admin-card">
+        <!-- 2️⃣ قسم رصد وتقييم الدرجات -->
+        <div class="admin-section" id="gradesSection">
             <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
-            <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: center;">
-                <label style="font-weight: bold; font-size: 14px;">اختر الطالب لرصد/تعديل الدرجات:</label>
-                <select id="studentSelectForGrades" class="form-control" style="max-width: 350px;" onchange="loadStudentGradesToEdit()">
-                    <option value="">-- حدد الطالب --</option>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب لرصد أو تعديل الدرجات:</label>
+                <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
+                    <option value="">-- حدد الطالب من القائمة --</option>
                 </select>
             </div>
 
             <div id="gradesEditFormContainer" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
-                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px;">رصد الدرجات للطالب: </h4>
+                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 
                 <div style="overflow-x: auto;">
                     <table>
@@ -162,22 +306,20 @@
                                 <th>الامتحان النهائي (50)</th>
                             </tr>
                         </thead>
-                        <tbody id="adminGradesEditTableBody">
-                            <!-- التعبئة ديناميكياً -->
-                        </tbody>
+                        <tbody id="adminGradesEditTableBody"></tbody>
                     </table>
                 </div>
 
                 <div style="margin-top: 20px; display: flex; gap: 10px;">
                     <button onclick="saveStudentGradesDirect()" class="btn btn-success">حفظ وتقييم الدرجات 💾</button>
-                    <button onclick="document.getElementById('gradesEditFormContainer').style.display='none'" class="btn btn-danger">إلغاء ✕</button>
+                    <button onclick="document.getElementById('gradesEditFormContainer').style.display='none'" class="btn btn-danger">إغلاق ✕</button>
                 </div>
             </div>
         </div>
 
-        <!-- 3️⃣ قسم جدول حسابات الطلاب وأولياء الأمور -->
-        <div class="admin-card">
-            <div class="card-title">👥 سجل الحسابات المسجلة بالبوابة</div>
+        <!-- 3️⃣ قسم سجل الحسابات والطلاب -->
+        <div class="admin-section" id="usersSection">
+            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -187,7 +329,7 @@
                             <th>الصف الدراسي</th>
                             <th>الرقم القومي / الكود</th>
                             <th>حالة الحضور</th>
-                            <th>الإجراء السريع</th>
+                            <th>إجراء سريع</th>
                         </tr>
                     </thead>
                     <tbody id="adminUsersTableBody">
@@ -197,13 +339,13 @@
             </div>
         </div>
 
-        <!-- 4️⃣ قسم متابعة والرد على الشكاوى والطلبات -->
-        <div class="admin-card">
-            <div class="card-title">📨 مركز الشكاوى والاستفسارات</div>
+        <!-- 4️⃣ قسم مركز الشكاوى والردود -->
+        <div class="admin-section" id="ticketsSection">
+            <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-    </div>
+    </main>
 
     <script>
         const firebaseConfig = {
@@ -263,13 +405,34 @@
             loadTicketsLive();
         });
 
+        function toggleSidebar() {
+            document.getElementById('slidingSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('slidingSidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+
+        function switchAdminSection(sectionId, menuEl) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+
+            document.getElementById(sectionId).classList.add('active');
+            if (menuEl) menuEl.classList.add('active');
+
+            closeSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function loadUsersLive() {
             db.ref('students').on('value', (snapshot) => {
                 usersCache = snapshot.val() || {};
                 const tbody = document.getElementById('adminUsersTableBody');
                 const selectBox = document.getElementById('studentSelectForGrades');
                 tbody.innerHTML = '';
-                selectBox.innerHTML = '<option value="">-- حدد الطالب --</option>';
+                selectBox.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
 
                 const keys = Object.keys(usersCache);
                 if (keys.length === 0) {
@@ -295,7 +458,7 @@
                             <td>${idVal}</td>
                             <td><span style="font-weight:bold; color:${u.attendance && u.attendance.includes('مزوغ') ? '#EF4444' : '#10B981'}">${u.attendance || 'منتظم'}</span></td>
                             <td>
-                                ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;">📊 الدرجات</button>` : '---'}
+                                ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 12px; font-size: 12px;">📊 رصد درجاته</button>` : '---'}
                             </td>
                         </tr>
                     `;
@@ -304,9 +467,9 @@
         }
 
         function quickSelectStudent(key) {
+            switchAdminSection('gradesSection', document.getElementById('menuItemGrades'));
             document.getElementById('studentSelectForGrades').value = key;
             loadStudentGradesToEdit();
-            window.scrollTo({ top: 400, behavior: 'smooth' });
         }
 
         function loadStudentGradesToEdit() {
@@ -332,9 +495,9 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${sub.name}</b></td>
-                        <td><input type="number" id="edit_${sub.id}_work" class="form-control" style="width: 100px;" value="${work}" min="0" max="30"></td>
-                        <td><input type="number" id="edit_${sub.id}_weekly" class="form-control" style="width: 100px;" value="${weekly}" min="0" max="20"></td>
-                        <td><input type="number" id="edit_${sub.id}_final" class="form-control" style="width: 100px;" value="${final}" min="0" max="50"></td>
+                        <td><input type="number" id="edit_${sub.id}_work" class="form-control" style="width: 100px; margin: auto;" value="${work}" min="0" max="30"></td>
+                        <td><input type="number" id="edit_${sub.id}_weekly" class="form-control" style="width: 100px; margin: auto;" value="${weekly}" min="0" max="20"></td>
+                        <td><input type="number" id="edit_${sub.id}_final" class="form-control" style="width: 100px; margin: auto;" value="${final}" min="0" max="50"></td>
                     </tr>
                 `;
             });
@@ -367,19 +530,19 @@
                 const newsData = snapshot.val();
 
                 if (!newsData) {
-                    container.innerHTML = '<p style="font-size: 12px; color: #64748B;">لا توجد أخبار منشورة حالياً.</p>';
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد أخبار منشورة حالياً.</p>';
                     return;
                 }
 
                 Object.keys(newsData).reverse().forEach(key => {
                     const item = newsData[key];
                     container.innerHTML += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 14px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <b>📌 ${item.title}</b> <small style="color: var(--accent);">(${item.badge})</small>
-                                <p style="font-size: 12px; color: #475569; margin-top: 4px;">${item.content}</p>
+                                <b>📌 ${item.title}</b> <small style="color: var(--accent); font-weight: bold;">(${item.badge})</small>
+                                <p style="font-size: 13px; color: #334155; margin-top: 4px;">${item.content}</p>
                             </div>
-                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 5px 10px; font-size: 11px;">حذف 🗑️</button>
+                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">حذف 🗑️</button>
                         </div>
                     `;
                 });
@@ -413,21 +576,21 @@
                 const ticketsData = snapshot.val();
 
                 if (!ticketsData) {
-                    container.innerHTML = '<p style="font-size: 12px; color: #64748B;">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
                     return;
                 }
 
                 Object.keys(ticketsData).reverse().forEach(key => {
                     const t = ticketsData[key];
                     container.innerHTML += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 15px; border-radius: 14px; margin-bottom: 12px;">
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                                <b>👨‍👩‍👦 ${t.parentName} (طالب: ${t.studentName} - ${t.studentGrade || ''})</b>
-                                <span style="font-size: 11px; color: #64748B;">📱 ${t.parentEmail || 'بدون رقم'}</span>
+                                <b>👨‍👩‍👦 ولي الأمر: ${t.parentName} (الطالب: ${t.studentName} - ${t.studentGrade || ''})</b>
+                                <span style="font-size: 12px; color: var(--text-muted);">📱 ${t.parentEmail || 'بدون رقم'}</span>
                             </div>
-                            <p style="font-size: 13px; color: #334155; margin-bottom: 10px;"><b>الطلب (${t.ticketType}):</b> ${t.ticketContent}</p>
+                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب (${t.ticketType}):</b> ${t.ticketContent}</p>
                             
-                            <div style="display: flex; gap: 8px;">
+                            <div style="display: flex; gap: 10px;">
                                 <input type="text" id="reply_${key}" class="form-control" placeholder="أدخل رد الإدارة هنا..." value="${t.adminReply || ''}">
                                 <button onclick="sendTicketReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 🚀</button>
                             </div>
