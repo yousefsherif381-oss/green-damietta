@@ -44,7 +44,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* طبقة التظليل الخلفية للقائمة الجانبية */
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
@@ -53,7 +52,6 @@
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* القائمة الجانبية المنزلقة (السلايدر) مع طبقة z-index أعلى من الهيدر */
         .sliding-sidebar {
             position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
             background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(16px);
@@ -96,79 +94,36 @@
             background: rgba(12, 74, 110, 0.92);
             backdrop-filter: blur(14px);
             border-bottom: 3px solid var(--accent);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         }
 
         .nav-container {
-            max-width: 1300px;
-            margin: auto;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            max-width: 1300px; margin: auto; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
         }
 
         .btn-sidebar-toggle {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 9px 16px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background: rgba(255, 255, 255, 0.15); color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px;
+            padding: 9px 16px; font-size: 15px; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px;
         }
-        .btn-sidebar-toggle:hover { 
-            background: rgba(255, 255, 255, 0.25); 
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
+        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.25); border-color: var(--accent); transform: translateY(-2px); }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            cursor: pointer;
-            margin: auto;
-        }
-
+        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; margin: auto; }
         .logo-box {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: #ffffff;
-            padding: 3px;
-            border: 2px solid var(--accent);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
+            width: 56px; height: 56px; border-radius: 50%; background: #ffffff; padding: 3px;
+            border: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
         }
         .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
         .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
 
         .btn-header-home {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 12px;
-            font-size: 13.5px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
-            transition: all 0.3s ease;
+            background: var(--accent); color: #fff; border: none; padding: 9px 18px;
+            border-radius: 12px; font-size: 13.5px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); transition: all 0.3s ease;
         }
         .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
 
@@ -275,16 +230,28 @@
 
     <main class="main-wrapper">
         
-        <!-- 1️⃣ قسم نشر وإدارة الأخبار -->
+        <!-- 1️⃣ قسم نشر وإدارة الأخبار (يدعم الصور والفيديوهات) -->
         <div class="admin-section active" id="newsSection">
-            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
+            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة (مع إمكانية إرفاق صورة أو فيديو)</div>
             <form onsubmit="postNews(event)">
                 <div class="form-grid">
                     <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
                     <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
                 </div>
                 <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
-                <button type="submit" class="btn btn-primary">نشر الإعلان للجميع 🚀</button>
+                
+                <div class="form-grid" style="margin-bottom: 15px;">
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة (اختياري):</label>
+                        <input type="file" id="newsImageFile" class="form-control" accept="image/*" style="padding: 8px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 إرفاق فيديو (اختياري):</label>
+                        <input type="file" id="newsVideoFile" class="form-control" accept="video/*" style="padding: 8px;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان مع المرفقات للجميع 🚀</button>
             </form>
 
             <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
@@ -325,7 +292,7 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم متابعة وتسجيل الغياب الخصيصي -->
+        <!-- 3️⃣ قسم متابعة وتسجيل الغياب -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">📅 تسجيل ومتابعة انضباط وحضور الطلاب</div>
             <div style="background: #F8FAFC; padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
@@ -347,7 +314,7 @@
                 </div>
                 <div style="margin-top: 10px;">
                     <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظة على الحالة السلوكية أو سبب الغياب:</label>
-                    <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: استئذان بعذر طبي، أو تم تسجيل غياب بدون عذر">
+                    <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: استئذان بعذر طبي...">
                 </div>
                 <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث حالة الحضور والملاحظة 💾</button>
             </div>
@@ -456,12 +423,9 @@
             loadNewsLive();
         }
 
-        // إظهار/إخفاء القائمة الجانبية بدقة
         function toggleSidebar() {
-            const sidebar = document.getElementById('slidingSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
+            document.getElementById('slidingSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
         function closeSidebar() {
@@ -469,19 +433,14 @@
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
-        // التبديل بين أزهار/أقسام الإدارة
         function switchAdminSection(sectionId, menuEl) {
             document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
-
-            const target = document.getElementById(sectionId);
-            if (target) {
-                target.classList.add('active');
-            }
-            if (menuEl) {
-                menuEl.classList.add('active');
-            }
-
+            
+            const targetSec = document.getElementById(sectionId);
+            if (targetSec) targetSec.classList.add('active');
+            if (menuEl) menuEl.classList.add('active');
+            
             closeSidebar();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -490,7 +449,6 @@
             const tbody = document.getElementById('adminUsersTableBody');
             const selectGradesBox = document.getElementById('studentSelectForGrades');
             const selectAttBox = document.getElementById('studentAttendanceSelect');
-            
             tbody.innerHTML = '';
             selectGradesBox.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
             selectAttBox.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
@@ -520,9 +478,7 @@
                         <td>${idVal}</td>
                         <td><span style="font-weight:bold; color:${u.attendance && u.attendance.includes('مزوغ') ? '#EF4444' : '#10B981'}">${u.attendance || 'منتظم'}</span></td>
                         <td>${u.attendanceNote || '---'}</td>
-                        <td>
-                            ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 12px; font-size: 12px;">📊 رصد درجاته</button>` : '---'}
-                        </td>
+                        <td>${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 12px; font-size: 12px;">📊 رصد درجاته</button>` : '---'}</td>
                     </tr>
                 `;
             });
@@ -531,7 +487,6 @@
         function loadStudentAttendanceData() {
             const key = document.getElementById('studentAttendanceSelect').value;
             if (!key || !usersCache[key]) return;
-
             const u = usersCache[key];
             document.getElementById('attendanceStatusSelect').value = u.attendance || 'منتظم';
             document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
@@ -540,15 +495,10 @@
         async function saveStudentAttendance() {
             const key = document.getElementById('studentAttendanceSelect').value;
             if (!key || !usersCache[key]) return showToast("يرجى تحديد الطالب أولاً", "⚠️");
-
             const status = document.getElementById('attendanceStatusSelect').value;
             const note = document.getElementById('attendanceNoteInput').value.trim();
 
-            await db.ref('students/' + key).update({
-                attendance: status,
-                attendanceNote: note
-            });
-
+            await db.ref('students/' + key).update({ attendance: status, attendanceNote: note });
             showToast("تم حفظ حالة الحضور والملاحظة بنجاح", "💾");
         }
 
@@ -561,14 +511,10 @@
         function loadStudentGradesToEdit() {
             const key = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
-            if (!key || !usersCache[key]) {
-                container.style.display = 'none';
-                return;
-            }
+            if (!key || !usersCache[key]) { container.style.display = 'none'; return; }
 
             const u = usersCache[key];
             document.getElementById('editingStudentNameTitle').textContent = `رصد وتعديل تقييمات الطالب: ${u.name} (${u.grade || ''})`;
-            
             const subjects = getSubjectsForGradeName(u.grade);
             const tbody = document.getElementById('adminGradesEditTableBody');
             tbody.innerHTML = '';
@@ -577,7 +523,6 @@
                 const work = u[sub.id + '_work'] || 0;
                 const weekly = u[sub.id + '_weekly'] || 0;
                 const final = u[sub.id + '_final'] || 0;
-
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${sub.name}</b></td>
@@ -587,14 +532,12 @@
                     </tr>
                 `;
             });
-
             container.style.display = 'block';
         }
 
         async function saveStudentGradesDirect() {
             const key = document.getElementById('studentSelectForGrades').value;
             if (!key || !usersCache[key]) return;
-
             const u = usersCache[key];
             const subjects = getSubjectsForGradeName(u.grade);
             let updates = {};
@@ -614,7 +557,6 @@
                 const container = document.getElementById('adminNewsList');
                 container.innerHTML = '';
                 const newsData = snapshot.val();
-
                 if (!newsData) {
                     container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد أخبار منشورة حالياً.</p>';
                     return;
@@ -640,13 +582,41 @@
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
             const content = document.getElementById('newsContent').value.trim();
+            
+            const imageFile = document.getElementById('newsImageFile').files[0];
+            const videoFile = document.getElementById('newsVideoFile').files[0];
 
-            await db.ref('news').push({ title, badge, content, timestamp: Date.now() });
+            let imageData = '';
+            let videoData = '';
 
-            showToast("تم نشر الخبر على البوابة بنجاح", "📢");
+            showToast("جاري تجهيز ورفع المرفقات...", "⏳");
+
+            const readFile = (file) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            if (imageFile) imageData = await readFile(imageFile);
+            if (videoFile) videoData = await readFile(videoFile);
+
+            await db.ref('news').push({
+                title,
+                badge,
+                content,
+                image: imageData,
+                video: videoData,
+                timestamp: Date.now()
+            });
+
+            showToast("تم نشر الإعلان مع المرفقات بنجاح!", "🚀");
             document.getElementById('newsTitle').value = '';
             document.getElementById('newsBadge').value = '';
             document.getElementById('newsContent').value = '';
+            document.getElementById('newsImageFile').value = '';
+            document.getElementById('newsVideoFile').value = '';
         }
 
         async function deleteNews(key) {
@@ -659,7 +629,6 @@
                 const container = document.getElementById('adminTicketsList');
                 container.innerHTML = '';
                 ticketsCache = snapshot.val() || {};
-
                 const keys = Object.keys(ticketsCache);
                 if (keys.length === 0) {
                     container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
@@ -668,17 +637,12 @@
 
                 let html = '';
                 let visibleCount = 0;
-
                 keys.reverse().forEach(key => {
                     const t = ticketsCache[key];
-                    
                     let studentExists = false;
                     Object.keys(usersCache).forEach(uKey => {
-                        if (usersCache[uKey].name === t.studentName) {
-                            studentExists = true;
-                        }
+                        if (usersCache[uKey].name === t.studentName) studentExists = true;
                     });
-
                     if (!studentExists) return;
 
                     visibleCount++;
@@ -692,7 +656,6 @@
                                 </div>
                             </div>
                             <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب (${t.ticketType}):</b> ${t.ticketContent}</p>
-                            
                             <div style="display: flex; gap: 10px;">
                                 <input type="text" id="reply_${key}" class="form-control" placeholder="أدخل رد الإدارة هنا..." value="${t.adminReply || ''}">
                                 <button onclick="sendTicketReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 🚀</button>
@@ -700,24 +663,14 @@
                         </div>
                     `;
                 });
-
-                if (visibleCount === 0) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات نشطة حالياً.</p>';
-                } else {
-                    container.innerHTML = html;
-                }
+                container.innerHTML = visibleCount === 0 ? '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى نشطة حالياً.</p>' : html;
             });
         }
 
         async function sendTicketReply(key) {
             const replyInput = document.getElementById('reply_' + key).value.trim();
             if (!replyInput) return showToast("يرجى كتابة الرد أولاً", "⚠️");
-
-            await db.ref('tickets/' + key).update({
-                adminReply: replyInput,
-                status: 'تم الرد'
-            });
-
+            await db.ref('tickets/' + key).update({ adminReply: replyInput, status: 'تم الرد' });
             showToast("تم إرسال رد الإدارة بنجاح", "🚀");
         }
 
