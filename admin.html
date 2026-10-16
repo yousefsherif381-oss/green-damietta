@@ -218,6 +218,7 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
+    <!-- السلايدر الجانبي بعد إضافة قسم الغياب -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
@@ -231,6 +232,10 @@
             <div class="sidebar-item" id="menuItemGrades" onclick="switchAdminSection('gradesSection', this)">
                 <span class="sidebar-icon">📊</span>
                 <span class="sidebar-label">رصد وتقييم الدرجات</span>
+            </div>
+            <div class="sidebar-item" id="menuItemAttendance" onclick="switchAdminSection('attendanceSection', this)">
+                <span class="sidebar-icon">📅</span>
+                <span class="sidebar-label">متابعة وتسجيل الغياب</span>
             </div>
             <div class="sidebar-item" id="menuItemUsers" onclick="switchAdminSection('usersSection', this)">
                 <span class="sidebar-icon">👥</span>
@@ -312,7 +317,35 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم سجل الحسابات والطلاب -->
+        <!-- 3️⃣ قسم متابعة وتسجيل الغياب الخصيصي -->
+        <div class="admin-section" id="attendanceSection">
+            <div class="card-title">📅 تسجيل ومتابعة انضباط وحضور الطلاب</div>
+            <div style="background: #F8FAFC; padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
+                <div class="form-grid">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
+                        <select id="studentAttendanceSelect" class="form-control" onchange="loadStudentAttendanceData()">
+                            <option value="">-- اختر طالب من القائمة --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والانضباط:</label>
+                        <select id="attendanceStatusSelect" class="form-control">
+                            <option value="منتظم">منتظم ✅</option>
+                            <option value="غائب اليوم">غائب اليوم ❌</option>
+                            <option value="مزوغ / استئذان">مزوغ / استئذان ⚠️</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظة على الحالة السلوكية أو سبب الغياب:</label>
+                    <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: استئذان بعذر طبي، أو تم تسجيل غياب بدون عذر">
+                </div>
+                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث حالة الحضور والملاحظة 💾</button>
+            </div>
+        </div>
+
+        <!-- 4️⃣ قسم سجل الحسابات والطلاب -->
         <div class="admin-section" id="usersSection">
             <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
             <div style="overflow-x: auto;">
@@ -324,17 +357,18 @@
                             <th>الصف الدراسي</th>
                             <th>الرقم القومي / الكود</th>
                             <th>حالة الحضور</th>
+                            <th>ملاحظة الغياب</th>
                             <th>إجراء سريع</th>
                         </tr>
                     </thead>
                     <tbody id="adminUsersTableBody">
-                        <tr><td colspan="6" style="text-align: center;">جاري تحميل البيانات...</td></tr>
+                        <tr><td colspan="7" style="text-align: center;">جاري تحميل البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 4️⃣ قسم مركز الشكاوى والردود -->
+        <!-- 5️⃣ قسم مركز الشكاوى والردود -->
         <div class="admin-section" id="ticketsSection">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
@@ -400,11 +434,10 @@
         });
 
         function loadAllData() {
-            // تحميل الطلاب أولاً ثم الشكاوى لضمان التحقق السليم
             db.ref('students').on('value', (snapshot) => {
                 usersCache = snapshot.val() || {};
                 renderUsersTable();
-                loadTicketsLive(); // تحديث الشكاوى بناءً على الطلاب الموجودين حالياً
+                loadTicketsLive();
             });
             loadNewsLive();
         }
@@ -432,13 +465,16 @@
 
         function renderUsersTable() {
             const tbody = document.getElementById('adminUsersTableBody');
-            const selectBox = document.getElementById('studentSelectForGrades');
+            const selectGradesBox = document.getElementById('studentSelectForGrades');
+            const selectAttBox = document.getElementById('studentAttendanceSelect');
+            
             tbody.innerHTML = '';
-            selectBox.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
+            selectGradesBox.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
+            selectAttBox.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
 
             const keys = Object.keys(usersCache);
             if (keys.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
                 return;
             }
 
@@ -449,7 +485,8 @@
                 const idVal = u.nationalId || u.parentNationalId || u.code || '---';
 
                 if (isStudent) {
-                    selectBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
+                    selectGradesBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
+                    selectAttBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
                 }
 
                 tbody.innerHTML += `
@@ -459,12 +496,37 @@
                         <td>${u.grade || 'غير محدد'}</td>
                         <td>${idVal}</td>
                         <td><span style="font-weight:bold; color:${u.attendance && u.attendance.includes('مزوغ') ? '#EF4444' : '#10B981'}">${u.attendance || 'منتظم'}</span></td>
+                        <td>${u.attendanceNote || '---'}</td>
                         <td>
                             ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 12px; font-size: 12px;">📊 رصد درجاته</button>` : '---'}
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        function loadStudentAttendanceData() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key || !usersCache[key]) return;
+
+            const u = usersCache[key];
+            document.getElementById('attendanceStatusSelect').value = u.attendance || 'منتظم';
+            document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
+        }
+
+        async function saveStudentAttendance() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key || !usersCache[key]) return alert('يرجى تحديد الطالب أولاً.');
+
+            const status = document.getElementById('attendanceStatusSelect').value;
+            const note = document.getElementById('attendanceNoteInput').value.trim();
+
+            await db.ref('students/' + key).update({
+                attendance: status,
+                attendanceNote: note
+            });
+
+            alert('✅ تم حفظ حالة الحضور والملاحظة بنجاح!');
         }
 
         function quickSelectStudent(key) {
@@ -588,7 +650,6 @@
                 keys.reverse().forEach(key => {
                     const t = ticketsCache[key];
                     
-                    // التحقق مما إذا كان الطالب صاحب الشكوى ما زال موجوداً في النظام
                     let studentExists = false;
                     Object.keys(usersCache).forEach(uKey => {
                         if (usersCache[uKey].name === t.studentName) {
@@ -596,7 +657,6 @@
                         }
                     });
 
-                    // إذا تم حذف الطالب، لا تعرض الشكوى القديمة الخاصة به
                     if (!studentExists) return;
 
                     visibleCount++;
