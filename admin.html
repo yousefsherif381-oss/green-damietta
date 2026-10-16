@@ -96,7 +96,6 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-accent { background: var(--accent); color: white; }
-        .btn-success { background: #10B981; color: white; }
 
         table {
             width: 100%;
@@ -108,29 +107,12 @@
 
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-
-        .modal-box {
-            background: white; border-radius: 20px; padding: 25px;
-            max-width: 650px; width: 90%; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-
-        .grades-edit-box {
-            background: #F8FAFC; border: 1px solid var(--border);
-            border-radius: 14px; padding: 15px; margin-top: 15px;
-        }
     </style>
 </head>
 <body>
 
     <div class="admin-container">
-        <!-- الهيدر -->
+        <!-- الهيدر الرئيسي -->
         <div class="admin-header">
             <div>
                 <h2>🔐 لوحة إدارة البوابة المدرسية</h2>
@@ -139,7 +121,7 @@
             <button onclick="window.location.href='index.html'" class="btn btn-accent">العودة للموقع الرئيسي ➡️</button>
         </div>
 
-        <!-- 1️⃣ نشر إعلان أو خبر جديد -->
+        <!-- 1️⃣ قسم نشر وتعديل الأخبار -->
         <div class="admin-card">
             <div class="card-title">📢 نشر إعلان أو خبر جديد</div>
             <form onsubmit="postNews(event)">
@@ -155,7 +137,7 @@
             <div id="adminNewsList" style="margin-top: 10px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2️⃣ إدارة الطلاب وأولياء الأمور -->
+        <!-- 2️⃣ قسم إدارة الطلاب وأولياء الأمور -->
         <div class="admin-card">
             <div class="card-title">👥 إدارة الطلاب وأولياء الأمور</div>
             <div style="overflow-x: auto;">
@@ -166,86 +148,21 @@
                             <th>نوع الحساب</th>
                             <th>الصف الدراسي</th>
                             <th>الرقم القومي / الكود</th>
-                            <th>الإجراءات والبروفايل</th>
                         </tr>
                     </thead>
                     <tbody id="adminUsersTableBody">
-                        <tr><td colspan="5" style="text-align: center;">جاري تحميل البيانات...</td></tr>
+                        <tr><td colspan="4" style="text-align: center;">جاري تحميل البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 3️⃣ متابعة الشكاوى والاستفسارات -->
+        <!-- 3️⃣ قسم متابعة والرد على الشكاوى والطلبات -->
         <div class="admin-card">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-    </div>
-
-    <!-- نافذة استعراض وتعديل بروفايل الطالب -->
-    <div class="modal-overlay" id="profileModal">
-        <div class="modal-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: var(--primary-dark);">🎓 بروفايل وتعديل بيانات الطالب</h3>
-                <button onclick="closeProfileModal()" style="background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
-            </div>
-
-            <form onsubmit="saveStudentProfileByAdmin(event)">
-                <input type="hidden" id="modalStudentKey">
-                
-                <div class="form-grid">
-                    <div style="grid-column: 1 / -1;">
-                        <label style="font-size: 12px; font-weight: bold;">اسم الطالب الرباعي</label>
-                        <input type="text" id="modalName" class="form-control" required>
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; font-weight: bold;">الصف الدراسي</label>
-                        <select id="modalGrade" class="form-control">
-                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                            <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                            <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                            <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; font-weight: bold;">رقم المحمول</label>
-                        <input type="text" id="modalPhone" class="form-control">
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; font-weight: bold;">كلمة المرور</label>
-                        <input type="text" id="modalPassword" class="form-control" required>
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; font-weight: bold;">حالة الحضور والغياب</label>
-                        <select id="modalAttendance" class="form-control">
-                            <option value="منتظم">منتظم</option>
-                            <option value="غائب اليوم">غائب اليوم</option>
-                            <option value="مزوغ / استئذان">مزوغ / استئذان</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">حفظ تعديلات البروفايل 💾</button>
-                    <button type="button" onclick="deleteStudentByAdmin()" class="btn btn-danger">حذف الطالب نهائياً 🗑️</button>
-                </div>
-            </form>
-
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
-
-            <div class="grades-edit-box">
-                <h4 style="margin-bottom: 10px; color: var(--primary-dark);">📊 رصد وتقييم درجات الطالب:</h4>
-                <div id="modalGradesForm"></div>
-                <button onclick="saveStudentGradesByAdmin()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتقييم الدرجات 📊</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -262,59 +179,22 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        let usersCache = {};
-
-        const gradeSubjectsDetailed = {
-            lowerPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'discover', name: 'Discover / اكتشف' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            upperPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
-                { id: 'skills', name: 'المهارات المهنية' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            prep: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'computer', name: 'الحاسب الآلي' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ]
-        };
-
-        function getSubjectsForGradeName(gradeName) {
-            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
-            if (gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
-            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
-            else return gradeSubjectsDetailed.lowerPrimary;
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
             loadUsersLive();
             loadNewsLive();
             loadTicketsLive();
         });
 
+        // 1. تحميل كافة المستخدمين
         function loadUsersLive() {
             db.ref('students').on('value', (snapshot) => {
-                usersCache = snapshot.val() || {};
+                const usersCache = snapshot.val() || {};
                 const tbody = document.getElementById('adminUsersTableBody');
                 tbody.innerHTML = '';
 
                 const keys = Object.keys(usersCache);
                 if (keys.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
                     return;
                 }
 
@@ -330,102 +210,13 @@
                             <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
                             <td>${u.grade || 'غير محدد'}</td>
                             <td>${idVal}</td>
-                            <td>
-                                ${isStudent 
-                                    ? `<button onclick="openStudentModal('${k}')" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">👁️ بروفايل الطالب</button>` 
-                                    : `<span style="font-size: 12px; color: #64748B;">حساب ولي أمر</span>`
-                                }
-                            </td>
                         </tr>
                     `;
                 });
             });
         }
 
-        function openStudentModal(key) {
-            const u = usersCache[key];
-            if (!u) return;
-
-            document.getElementById('modalStudentKey').value = key;
-            document.getElementById('modalName').value = u.name || '';
-            document.getElementById('modalGrade').value = u.grade || 'الصف الأول الابتدائي';
-            document.getElementById('modalPhone').value = u.phone || '';
-            document.getElementById('modalPassword').value = u.password || '';
-            document.getElementById('modalAttendance').value = u.attendance || 'منتظم';
-
-            const subjects = getSubjectsForGradeName(u.grade);
-            const container = document.getElementById('modalGradesForm');
-            container.innerHTML = '';
-
-            subjects.forEach(sub => {
-                const work = u[sub.id + '_work'] || 0;
-                const weekly = u[sub.id + '_weekly'] || 0;
-                const final = u[sub.id + '_final'] || 0;
-
-                container.innerHTML += `
-                    <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border);">
-                        <span style="font-size: 13px; font-weight: bold; color: var(--primary-dark);">${sub.name}</span>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 5px;">
-                            <input type="number" id="${sub.id}_work" class="form-control" placeholder="أعمال سنة" value="${work}">
-                            <input type="number" id="${sub.id}_weekly" class="form-control" placeholder="تقييم أسبوعي" value="${weekly}">
-                            <input type="number" id="${sub.id}_final" class="form-control" placeholder="امتحان نهائي" value="${final}">
-                        </div>
-                    </div>
-                `;
-            });
-
-            document.getElementById('profileModal').style.display = 'flex';
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profileModal').style.display = 'none';
-        }
-
-        async function saveStudentProfileByAdmin(e) {
-            e.preventDefault();
-            const key = document.getElementById('modalStudentKey').value;
-            if (!key) return;
-
-            await db.ref('students/' + key).update({
-                name: document.getElementById('modalName').value.trim(),
-                grade: document.getElementById('modalGrade').value,
-                phone: document.getElementById('modalPhone').value.trim(),
-                password: document.getElementById('modalPassword').value.trim(),
-                attendance: document.getElementById('modalAttendance').value
-            });
-
-            alert('✅ تم تحديث بروفايل الطالب بنجاح!');
-        }
-
-        async function saveStudentGradesByAdmin() {
-            const key = document.getElementById('modalStudentKey').value;
-            if (!key) return;
-
-            const u = usersCache[key];
-            const subjects = getSubjectsForGradeName(u.grade);
-            let gradesUpdates = {};
-
-            subjects.forEach(sub => {
-                gradesUpdates[sub.id + '_work'] = document.getElementById(sub.id + '_work').value || 0;
-                gradesUpdates[sub.id + '_weekly'] = document.getElementById(sub.id + '_weekly').value || 0;
-                gradesUpdates[sub.id + '_final'] = document.getElementById(sub.id + '_final').value || 0;
-            });
-
-            await db.ref('students/' + key).update(gradesUpdates);
-            alert('✅ تم حفظ وتقييم درجات الطالب بنجاح!');
-        }
-
-        async function deleteStudentByAdmin() {
-            const key = document.getElementById('modalStudentKey').value;
-            if (!key) return;
-
-            if (confirm('⚠️ هل أنت تأكد من رغبتك في حذف هذا الطالب نهائياً؟')) {
-                await db.ref('students/' + key).remove();
-                alert('🗑️ تم حذف حساب الطالب بنجاح.');
-                closeProfileModal();
-            }
-        }
-
+        // 2. تحميل الأخبار ونشرها
         function loadNewsLive() {
             db.ref('news').on('value', (snapshot) => {
                 const container = document.getElementById('adminNewsList');
@@ -472,6 +263,7 @@
             }
         }
 
+        // 3. تحميل واستجابة الشكاوى
         function loadTicketsLive() {
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
