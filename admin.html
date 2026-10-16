@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
+    <!-- خط Cairo المميز -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -45,7 +47,8 @@
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
-            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            z-index: 1999; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
@@ -169,13 +172,16 @@
 </head>
 <body>
 
+    <!-- نافذة الإشعارات التفاعلية -->
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
+    <!-- طبقة التظليل الخلفية -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
+    <!-- القائمة الجانبية المنزلقة -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
@@ -226,7 +232,7 @@
         
         <!-- 1️⃣ قسم نشر وإدارة الأخبار -->
         <div class="admin-section active" id="newsSection">
-            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة (تخزين سحابي احترافي للصور والفيديوهات)</div>
+            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
             <form onsubmit="postNews(event)">
                 <div class="form-grid">
                     <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
@@ -236,16 +242,16 @@
                 
                 <div class="form-grid" style="margin-bottom: 15px;">
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة (اختياري):</label>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان (اختياري):</label>
                         <input type="file" id="newsImageFile" class="form-control" accept="image/*" style="padding: 8px;">
                     </div>
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 إرفاق فيديو (اختياري):</label>
-                        <input type="file" id="newsVideoFile" class="form-control" accept="video/*" style="padding: 8px;">
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 رابط الفيديو (Google Drive / YouTube):</label>
+                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="https://..." style="padding: 12px;">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان والتخزين السحابي 🚀</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
             </form>
 
             <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
@@ -358,9 +364,6 @@
         };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
-
-        const CLOUDINARY_CLOUD_NAME = "z15osqo4";
-        const CLOUDINARY_UPLOAD_PRESET = "school_upload";
 
         let usersCache = {};
         let ticketsCache = {};
@@ -572,76 +575,50 @@
             });
         }
 
-        function uploadToCloudinary(file, resourceType, labelName) {
-            return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-                xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`);
-
-                xhr.upload.onprogress = (e) => {
-                    if (e.lengthComputable) {
-                        const percent = Math.round((e.loaded / e.total) * 100);
-                        showToast(`جاري رفع ${labelName} للسحابة... %${percent}`, "📤", false);
-                    }
-                };
-
-                xhr.onload = () => {
-                    if (xhr.status === 200) {
-                        const resp = JSON.parse(xhr.responseText);
-                        resolve(resp.secure_url);
-                    } else {
-                        reject("فشل الرفع للفرع السحابي");
-                    }
-                };
-
-                xhr.onerror = () => reject("خطأ شبكة أثناء الرفع");
-                xhr.send(formData);
-            });
-        }
-
         async function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
             const content = document.getElementById('newsContent').value.trim();
+            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
             const imageFile = document.getElementById('newsImageFile').files[0];
-            const videoFile = document.getElementById('newsVideoFile').files[0];
 
-            let imageUrl = '';
-            let videoUrl = '';
+            let imageData = '';
+
+            showToast("جاري تجهيز ونشر الإعلان...", "⏳", false);
+
+            const readFile = (file) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            };
 
             try {
                 if (imageFile) {
-                    imageUrl = await uploadToCloudinary(imageFile, "image", "الصورة");
+                    imageData = await readFile(imageFile);
                 }
-                if (videoFile) {
-                    videoUrl = await uploadToCloudinary(videoFile, "video", "الفيديو");
-                }
-
-                showToast("جاري حفظ الإعلان بالبوابة...", "☁️", false);
 
                 await db.ref('news').push({
                     title,
                     badge,
                     content,
-                    image: imageUrl,
+                    image: imageData,
                     video: videoUrl,
                     timestamp: Date.now()
                 });
 
-                showToast("تم نشر الإعلان وتخزينه سحابياً بنجاح!", "🚀", true, 3500);
+                showToast("تم نشر الإعلان بنجاح!", "🚀", true, 3500);
 
                 document.getElementById('newsTitle').value = '';
                 document.getElementById('newsBadge').value = '';
                 document.getElementById('newsContent').value = '';
                 document.getElementById('newsImageFile').value = '';
-                document.getElementById('newsVideoFile').value = '';
+                document.getElementById('newsVideoUrl').value = '';
 
             } catch (error) {
-                showToast("حدث خطأ أثناء رفع الملفات، يرجى التحقق من إعدادات Cloudinary", "❌", true, 4000);
+                showToast("حدث خطأ أثناء حفظ الإعلان، حاول مجدداً", "❌", true, 4000);
             }
         }
 
