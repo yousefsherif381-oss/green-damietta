@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
-    <!-- خط Cairo المميز -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -47,8 +45,7 @@
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
-            z-index: 1999; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
+            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
@@ -172,16 +169,13 @@
 </head>
 <body>
 
-    <!-- نافذة الإشعارات التفاعلية -->
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
-    <!-- طبقة التظليل الخلفية -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- القائمة الجانبية المنزلقة -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
@@ -213,24 +207,18 @@
 
     <header>
         <div class="nav-container">
-            <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح أقسام الإدارة">
-                ☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span>
-            </button>
-
+            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
             <div class="logo-area" onclick="window.location.href='index.html'">
                 <div class="logo-box">
                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="الشعار">
                 </div>
-                <span class="logo-text">لوحة التحكم والتحكم الكامل</span>
+                <span class="logo-text">لوحة التحكم والإدارة</span>
             </div>
-
             <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
         </div>
     </header>
 
     <main class="main-wrapper">
-        
-        <!-- 1️⃣ قسم نشر وإدارة الأخبار -->
         <div class="admin-section active" id="newsSection">
             <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
             <form onsubmit="postNews(event)">
@@ -246,8 +234,8 @@
                         <input type="file" id="newsImageFile" class="form-control" accept="image/*" style="padding: 8px;">
                     </div>
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 رابط الفيديو (Google Drive / YouTube):</label>
-                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="https://..." style="padding: 12px;">
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 إرفاق فيديو الإعلان من الجهاز (اختياري):</label>
+                        <input type="file" id="newsVideoFile" class="form-control" accept="video/mp4,video/webm,video/ogg" style="padding: 8px;">
                     </div>
                 </div>
 
@@ -258,7 +246,6 @@
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2️⃣ قسم رصد وتقييم الدرجات -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
             <div style="margin-bottom: 20px;">
@@ -267,10 +254,8 @@
                     <option value="">-- حدد الطالب من القائمة --</option>
                 </select>
             </div>
-
             <div id="gradesEditFormContainer" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
                 <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;">رصد الدرجات للطالب: </h4>
-                
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
@@ -284,7 +269,6 @@
                         <tbody id="adminGradesEditTableBody"></tbody>
                     </table>
                 </div>
-
                 <div style="margin-top: 20px; display: flex; gap: 10px;">
                     <button onclick="saveStudentGradesDirect()" class="btn btn-success">حفظ وتقييم الدرجات 💾</button>
                     <button onclick="document.getElementById('gradesEditFormContainer').style.display='none'" class="btn btn-danger">إغلاق ✕</button>
@@ -292,7 +276,6 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم متابعة وتسجيل الغياب -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">📅 تسجيل ومتابعة انضباط وحضور الطلاب</div>
             <div style="background: #F8FAFC; padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
@@ -320,7 +303,6 @@
             </div>
         </div>
 
-        <!-- 4️⃣ قسم سجل الحسابات والطلاب -->
         <div class="admin-section" id="usersSection">
             <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
             <div style="overflow-x: auto;">
@@ -343,12 +325,10 @@
             </div>
         </div>
 
-        <!-- 5️⃣ قسم مركز الشكاوى والردود -->
         <div class="admin-section" id="ticketsSection">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
-
     </main>
 
     <script>
@@ -495,7 +475,6 @@
             if (!key || !usersCache[key]) return showToast("يرجى تحديد الطالب أولاً", "⚠️");
             const status = document.getElementById('attendanceStatusSelect').value;
             const note = document.getElementById('attendanceNoteInput').value.trim();
-
             await db.ref('students/' + key).update({ attendance: status, attendanceNote: note });
             showToast("تم حفظ حالة الحضور والملاحظة بنجاح", "💾");
         }
@@ -510,13 +489,11 @@
             const key = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
             if (!key || !usersCache[key]) { container.style.display = 'none'; return; }
-
             const u = usersCache[key];
             document.getElementById('editingStudentNameTitle').textContent = `رصد وتعديل تقييمات الطالب: ${u.name} (${u.grade || ''})`;
             const subjects = getSubjectsForGradeName(u.grade);
             const tbody = document.getElementById('adminGradesEditTableBody');
             tbody.innerHTML = '';
-
             subjects.forEach(sub => {
                 const work = u[sub.id + '_work'] || 0;
                 const weekly = u[sub.id + '_weekly'] || 0;
@@ -539,13 +516,11 @@
             const u = usersCache[key];
             const subjects = getSubjectsForGradeName(u.grade);
             let updates = {};
-
             subjects.forEach(sub => {
                 updates[sub.id + '_work'] = parseFloat(document.getElementById(`edit_${sub.id}_work`).value || 0);
                 updates[sub.id + '_weekly'] = parseFloat(document.getElementById(`edit_${sub.id}_weekly`).value || 0);
                 updates[sub.id + '_final'] = parseFloat(document.getElementById(`edit_${sub.id}_final`).value || 0);
             });
-
             await db.ref('students/' + key).update(updates);
             showToast("تم رصد وتحديث درجات الطالب بنجاح", "📊");
         }
@@ -559,7 +534,6 @@
                     container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد أخبار منشورة حالياً.</p>';
                     return;
                 }
-
                 Object.keys(newsData).reverse().forEach(key => {
                     const item = newsData[key];
                     container.innerHTML += `
@@ -580,12 +554,13 @@
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
             const content = document.getElementById('newsContent').value.trim();
-            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
             const imageFile = document.getElementById('newsImageFile').files[0];
+            const videoFile = document.getElementById('newsVideoFile').files[0];
 
             let imageData = '';
+            let videoData = '';
 
-            showToast("جاري تجهيز ونشر الإعلان...", "⏳", false);
+            showToast("جاري معالجة ورفع الملفات...", "⏳", false);
 
             const readFile = (file) => {
                 return new Promise((resolve) => {
@@ -599,26 +574,29 @@
                 if (imageFile) {
                     imageData = await readFile(imageFile);
                 }
+                if (videoFile) {
+                    videoData = await readFile(videoFile);
+                }
 
                 await db.ref('news').push({
                     title,
                     badge,
                     content,
                     image: imageData,
-                    video: videoUrl,
+                    video: videoData,
                     timestamp: Date.now()
                 });
 
-                showToast("تم نشر الإعلان بنجاح!", "🚀", true, 3500);
+                showToast("تم نشر الإعلان والفيديو بنجاح!", "🚀", true, 3500);
 
                 document.getElementById('newsTitle').value = '';
                 document.getElementById('newsBadge').value = '';
                 document.getElementById('newsContent').value = '';
                 document.getElementById('newsImageFile').value = '';
-                document.getElementById('newsVideoUrl').value = '';
+                document.getElementById('newsVideoFile').value = '';
 
             } catch (error) {
-                showToast("حدث خطأ أثناء حفظ الإعلان، حاول مجدداً", "❌", true, 4000);
+                showToast("حدث خطأ أثناء رفع الملفات، تأكد أن حجم الفيديو مناسب", "❌", true, 4000);
             }
         }
 
@@ -637,28 +615,16 @@
                     container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
                     return;
                 }
-
                 let html = '';
-                let visibleCount = 0;
                 keys.reverse().forEach(key => {
                     const t = ticketsCache[key];
-                    let studentExists = false;
-                    Object.keys(usersCache).forEach(uKey => {
-                        if (usersCache[uKey].name === t.studentName) studentExists = true;
-                    });
-                    if (!studentExists) return;
-
-                    visibleCount++;
                     html += `
                         <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;">
-                                <b>👨‍👩‍👦 ولي الأمر: ${t.parentName} (الطالب: ${t.studentName} - ${t.studentGrade || ''})</b>
-                                <div>
-                                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 10px;">📱 ${t.parentEmail || 'بدون رقم'}</span>
-                                    <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">حذف الطلب 🗑️</button>
-                                </div>
+                                <b>👨‍👩‍👦 ولي الأمر: ${t.parentName || 'ولي أمر'} (الطالب: ${t.studentName || 'طالب'})</b>
+                                <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">حذف الطلب 🗑️</button>
                             </div>
-                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب (${t.ticketType}):</b> ${t.ticketContent}</p>
+                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب:</b> ${t.ticketContent || t.content || ''}</p>
                             <div style="display: flex; gap: 10px;">
                                 <input type="text" id="reply_${key}" class="form-control" placeholder="أدخل رد الإدارة هنا..." value="${t.adminReply || ''}">
                                 <button onclick="sendTicketReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 🚀</button>
@@ -666,7 +632,7 @@
                         </div>
                     `;
                 });
-                container.innerHTML = visibleCount === 0 ? '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى نشطة حالياً.</p>' : html;
+                container.innerHTML = html;
             });
         }
 
