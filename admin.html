@@ -44,6 +44,54 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* طبقة التظليل الخلفية للقائمة الجانبية */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
+            z-index: 1999; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+        /* القائمة الجانبية المنزلقة (السلايدر) مع طبقة z-index أعلى من الهيدر */
+        .sliding-sidebar {
+            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
+            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(16px);
+            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+            border-left: 2px solid rgba(245, 158, 11, 0.4);
+            padding: 24px 20px; display: flex; flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sliding-sidebar.active { right: 0; }
+
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
+        .btn-close-sidebar {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); 
+            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
+            transition: all 0.2s ease;
+        }
+        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
+
+        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+            border-radius: 16px; background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-item:hover, .sidebar-item.active { 
+            background: rgba(2, 132, 199, 0.4); 
+            border-color: var(--accent); 
+            transform: translateX(-6px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+        .sidebar-icon { font-size: 22px; }
+        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
+
         header {
             background: rgba(12, 74, 110, 0.92);
             backdrop-filter: blur(14px);
@@ -73,7 +121,7 @@
             padding: 9px 16px;
             font-size: 15px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -124,51 +172,6 @@
         }
         .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
 
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
-            z-index: 1000; opacity: 0; pointer-events: none;
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .sliding-sidebar {
-            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
-            z-index: 1001; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
-            border-left: 2px solid rgba(245, 158, 11, 0.4);
-            padding: 24px 20px; display: flex; flex-direction: column;
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .sliding-sidebar.active { right: 0; }
-
-        .sidebar-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
-        .btn-close-sidebar {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); 
-            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
-            transition: all 0.2s ease;
-        }
-        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
-
-        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
-        .sidebar-item {
-            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
-            border-radius: 16px; background: rgba(255, 255, 255, 0.08); 
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sidebar-item:hover, .sidebar-item.active { 
-            background: rgba(2, 132, 199, 0.35); 
-            border-color: var(--accent); 
-            transform: translateX(-6px);
-        }
-        .sidebar-icon { font-size: 22px; }
-        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
-
         .main-wrapper { max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
         .admin-section {
@@ -202,27 +205,28 @@
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
 
-        /* نافذة الإشعارات الاحترافية الجاهزة للـ Admin */
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
             display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
-            z-index: 2000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+            z-index: 3000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
 
-    <!-- نافذة الرسائل الاحترافية للوحة التحكم -->
+    <!-- نافذة الإشعارات الاحترافية -->
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
+    <!-- طبقة التظليل الخلفية -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
+    <!-- القائمة الجانبية المنزلقة -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
@@ -397,7 +401,6 @@
         let usersCache = {};
         let ticketsCache = {};
 
-        // دالة الرسائل المنبثقة للـ Admin
         function showToast(message, icon = "✅") {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
@@ -453,9 +456,12 @@
             loadNewsLive();
         }
 
+        // إظهار/إخفاء القائمة الجانبية بدقة
         function toggleSidebar() {
-            document.getElementById('slidingSidebar').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
+            const sidebar = document.getElementById('slidingSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
 
         function closeSidebar() {
@@ -463,12 +469,18 @@
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
+        // التبديل بين أزهار/أقسام الإدارة
         function switchAdminSection(sectionId, menuEl) {
             document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
 
-            document.getElementById(sectionId).classList.add('active');
-            if (menuEl) menuEl.classList.add('active');
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.add('active');
+            }
+            if (menuEl) {
+                menuEl.classList.add('active');
+            }
 
             closeSidebar();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -569,4 +581,150 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${sub.name}</b></td>
-                        <td><input type="number" id="edit_${sub.id}_work" class="form-control"
+                        <td><input type="number" id="edit_${sub.id}_work" class="form-control" style="width: 100px; margin: auto;" value="${work}" min="0" max="30"></td>
+                        <td><input type="number" id="edit_${sub.id}_weekly" class="form-control" style="width: 100px; margin: auto;" value="${weekly}" min="0" max="20"></td>
+                        <td><input type="number" id="edit_${sub.id}_final" class="form-control" style="width: 100px; margin: auto;" value="${final}" min="0" max="50"></td>
+                    </tr>
+                `;
+            });
+
+            container.style.display = 'block';
+        }
+
+        async function saveStudentGradesDirect() {
+            const key = document.getElementById('studentSelectForGrades').value;
+            if (!key || !usersCache[key]) return;
+
+            const u = usersCache[key];
+            const subjects = getSubjectsForGradeName(u.grade);
+            let updates = {};
+
+            subjects.forEach(sub => {
+                updates[sub.id + '_work'] = parseFloat(document.getElementById(`edit_${sub.id}_work`).value || 0);
+                updates[sub.id + '_weekly'] = parseFloat(document.getElementById(`edit_${sub.id}_weekly`).value || 0);
+                updates[sub.id + '_final'] = parseFloat(document.getElementById(`edit_${sub.id}_final`).value || 0);
+            });
+
+            await db.ref('students/' + key).update(updates);
+            showToast("تم رصد وتحديث درجات الطالب بنجاح", "📊");
+        }
+
+        function loadNewsLive() {
+            db.ref('news').on('value', (snapshot) => {
+                const container = document.getElementById('adminNewsList');
+                container.innerHTML = '';
+                const newsData = snapshot.val();
+
+                if (!newsData) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد أخبار منشورة حالياً.</p>';
+                    return;
+                }
+
+                Object.keys(newsData).reverse().forEach(key => {
+                    const item = newsData[key];
+                    container.innerHTML += `
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 14px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <b>📌 ${item.title}</b> <small style="color: var(--accent); font-weight: bold;">(${item.badge})</small>
+                                <p style="font-size: 13px; color: #334155; margin-top: 4px;">${item.content}</p>
+                            </div>
+                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">حذف 🗑️</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        async function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
+            const content = document.getElementById('newsContent').value.trim();
+
+            await db.ref('news').push({ title, badge, content, timestamp: Date.now() });
+
+            showToast("تم نشر الخبر على البوابة بنجاح", "📢");
+            document.getElementById('newsTitle').value = '';
+            document.getElementById('newsBadge').value = '';
+            document.getElementById('newsContent').value = '';
+        }
+
+        async function deleteNews(key) {
+            await db.ref('news/' + key).remove();
+            showToast("تم حذف الإعلان بنجاح", "🗑️");
+        }
+
+        function loadTicketsLive() {
+            db.ref('tickets').on('value', (snapshot) => {
+                const container = document.getElementById('adminTicketsList');
+                container.innerHTML = '';
+                ticketsCache = snapshot.val() || {};
+
+                const keys = Object.keys(ticketsCache);
+                if (keys.length === 0) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
+                    return;
+                }
+
+                let html = '';
+                let visibleCount = 0;
+
+                keys.reverse().forEach(key => {
+                    const t = ticketsCache[key];
+                    
+                    let studentExists = false;
+                    Object.keys(usersCache).forEach(uKey => {
+                        if (usersCache[uKey].name === t.studentName) {
+                            studentExists = true;
+                        }
+                    });
+
+                    if (!studentExists) return;
+
+                    visibleCount++;
+                    html += `
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;">
+                                <b>👨‍👩‍👦 ولي الأمر: ${t.parentName} (الطالب: ${t.studentName} - ${t.studentGrade || ''})</b>
+                                <div>
+                                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 10px;">📱 ${t.parentEmail || 'بدون رقم'}</span>
+                                    <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">حذف الطلب 🗑️</button>
+                                </div>
+                            </div>
+                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 12px;"><b>الطلب (${t.ticketType}):</b> ${t.ticketContent}</p>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="reply_${key}" class="form-control" placeholder="أدخل رد الإدارة هنا..." value="${t.adminReply || ''}">
+                                <button onclick="sendTicketReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 🚀</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (visibleCount === 0) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات نشطة حالياً.</p>';
+                } else {
+                    container.innerHTML = html;
+                }
+            });
+        }
+
+        async function sendTicketReply(key) {
+            const replyInput = document.getElementById('reply_' + key).value.trim();
+            if (!replyInput) return showToast("يرجى كتابة الرد أولاً", "⚠️");
+
+            await db.ref('tickets/' + key).update({
+                adminReply: replyInput,
+                status: 'تم الرد'
+            });
+
+            showToast("تم إرسال رد الإدارة بنجاح", "🚀");
+        }
+
+        async function deleteTicket(key) {
+            await db.ref('tickets/' + key).remove();
+            showToast("تم حذف الطلب بنجاح", "🗑️");
+        }
+    </script>
+</body>
+</html>
