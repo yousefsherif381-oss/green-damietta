@@ -234,6 +234,27 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        /* كلاس وأنيميشن لحذف الشكاوى بسلاسة */
+        .ticket-card {
+            background: #F8FAFC; 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-bottom: 12px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ticket-card.deleting {
+            opacity: 0;
+            transform: translateX(-30px) scale(0.9);
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            border: none;
+            overflow: hidden;
+        }
+
         .btn-back-home {
             background: #F1F5F9; color: #334155; border: none; padding: 8px 16px;
             border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer;
@@ -918,12 +939,12 @@
                         const statusColor = ticket.status === 'تم الرد' ? '#10B981' : '#F59E0B';
                         
                         container.innerHTML += `
-                            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px;">
+                            <div class="ticket-card" id="ticket-${key}">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                     <span style="font-weight: 800; font-size: 13.5px; color: var(--primary-dark);">${ticket.ticketType}</span>
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <span style="font-size: 11px; font-weight: 700; background: ${statusColor}20; color: ${statusColor}; padding: 3px 10px; border-radius: 20px;">${ticket.status || 'قيد المراجعة'}</span>
-                                        <button onclick="deleteTicket('${key}')" style="background: #EF4444; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">حذف 🗑️</button>
+                                        <button onclick="deleteTicket('${key}')" style="background: #EF4444; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">حذف 🗑️</button>
                                     </div>
                                 </div>
                                 <p style="font-size: 13px; color: #334155; margin-bottom: 8px;"><b>تفاصيل الطلب:</b> ${ticket.ticketContent}</p>
@@ -940,11 +961,20 @@
         }
 
         function deleteTicket(ticketKey) {
-            db.ref('tickets/' + ticketKey).remove().then(() => {
-                showToast("تم حذف الشكوى بنجاح", "🗑️");
-            }).catch(() => {
-                showToast("حدث خطأ أثناء الحذف", "❌");
-            });
+            const ticketCard = document.getElementById('ticket-' + ticketKey);
+            if (ticketCard) {
+                // إضافة أنيميشن الاختفاء بسلاسة قبل مسحه من قاعدة البيانات
+                ticketCard.classList.add('deleting');
+                setTimeout(() => {
+                    db.ref('tickets/' + ticketKey).remove().then(() => {
+                        showToast("تم حذف الشكوى بنجاح", "🗑️");
+                    }).catch(() => {
+                        showToast("حدث خطأ أثناء الحذف", "❌");
+                    });
+                }, 350); // زمن الأنيميشن بالملي ثانية
+            } else {
+                db.ref('tickets/' + ticketKey).remove();
+            }
         }
     </script>
 </body>
