@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
-    <!-- خط Cairo المميز -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -47,8 +45,7 @@
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
-            z-index: 1999; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
+            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
@@ -172,16 +169,13 @@
 </head>
 <body>
 
-    <!-- نافذة الإشعارات الاحترافية والتفاعلية للرفع -->
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
-    <!-- طبقة التظليل الخلفية -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- القائمة الجانبية المنزلقة -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
@@ -230,9 +224,9 @@
 
     <main class="main-wrapper">
         
-        <!-- 1️⃣ قسم نشر وإدارة الأخبار (يدعم الصور والفيديوهات وحساب نسبة الرفع) -->
+        <!-- 1️⃣ قسم نشر وإدارة الأخبار -->
         <div class="admin-section active" id="newsSection">
-            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة (مع إمكانية إرفاق صورة أو فيديو)</div>
+            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة (تخزين سحابي احترافي للصور والفيديوهات)</div>
             <form onsubmit="postNews(event)">
                 <div class="form-grid">
                     <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
@@ -251,7 +245,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان مع المرفقات للجميع 🚀</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان والتخزين السحابي 🚀</button>
             </form>
 
             <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
@@ -365,19 +359,19 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
+        // إعدادات التخزين السحابي (Cloudinary) المضافة مباشرة
+        const CLOUDINARY_CLOUD_NAME = "z15osqo4";[cite: 3]
+        const CLOUDINARY_UPLOAD_PRESET = "school_upload";
+
         let usersCache = {};
         let ticketsCache = {};
 
-        // دالة التوست المحدثة للنسبة المئوية
         function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
             document.getElementById('toastMessage').textContent = message;
             toast.classList.add('show');
-            
-            if (autoHide) {
-                setTimeout(() => { toast.classList.remove('show'); }, duration);
-            }
+            if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
 
         const gradeSubjectsDetailed = {
@@ -440,11 +434,9 @@
         function switchAdminSection(sectionId, menuEl) {
             document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
-            
             const targetSec = document.getElementById(sectionId);
             if (targetSec) targetSec.classList.add('active');
             if (menuEl) menuEl.classList.add('active');
-            
             closeSidebar();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -581,58 +573,67 @@
             });
         }
 
-        // دالة نشر الإعلان المحدثة بحساب شريط التحميل المئوي
+        function uploadToCloudinary(file, resourceType, labelName) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+                xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`);
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        showToast(`جاري رفع ${labelName} للسحابة... %${percent}`, "📤", false);
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const resp = JSON.parse(xhr.responseText);
+                        resolve(resp.secure_url);
+                    } else {
+                        reject("فشل الرفع للفرع السحابي");
+                    }
+                };
+
+                xhr.onerror = () => reject("خطأ شبكة أثناء الرفع");
+                xhr.send(formData);
+            });
+        }
+
         async function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
             const content = document.getElementById('newsContent').value.trim();
-            
             const imageFile = document.getElementById('newsImageFile').files[0];
             const videoFile = document.getElementById('newsVideoFile').files[0];
 
-            let imageData = '';
-            let videoData = '';
-
-            showToast("جاري تجهيز ورفع المرفقات...", "⏳", false);
-
-            const readFileWithProgress = (file, labelName) => {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-
-                    reader.onprogress = (event) => {
-                        if (event.lengthComputable) {
-                            const percent = Math.round((event.loaded / event.total) * 100);
-                            showToast(`جاري رفع ${labelName}... %${percent}`, "📤", false);
-                        }
-                    };
-
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.onerror = (err) => reject(err);
-                    reader.readAsDataURL(file);
-                });
-            };
+            let imageUrl = '';
+            let videoUrl = '';
 
             try {
                 if (imageFile) {
-                    imageData = await readFileWithProgress(imageFile, "الصورة");
+                    imageUrl = await uploadToCloudinary(imageFile, "image", "الصورة");
                 }
                 if (videoFile) {
-                    videoData = await readFileWithProgress(videoFile, "الفيديو");
+                    videoUrl = await uploadToCloudinary(videoFile, "video", "الفيديو");
                 }
 
-                showToast("جاري حفظ البيانات في السيرفر...", "☁️", false);
+                showToast("جاري حفظ الإعلان بالبوابة...", "☁️", false);
 
                 await db.ref('news').push({
                     title,
                     badge,
                     content,
-                    image: imageData,
-                    video: videoData,
+                    image: imageUrl,
+                    video: videoUrl,
                     timestamp: Date.now()
                 });
 
-                showToast("تم نشر الإعلان مع المرفقات بنجاح!", "🚀", true, 3500);
+                showToast("تم نشر الإعلان وتخزينه سحابياً بنجاح!", "🚀", true, 3500);
 
                 document.getElementById('newsTitle').value = '';
                 document.getElementById('newsBadge').value = '';
@@ -641,7 +642,7 @@
                 document.getElementById('newsVideoFile').value = '';
 
             } catch (error) {
-                showToast("حدث خطأ أثناء رفع الملفات، حاول مجدداً", "❌", true, 4000);
+                showToast("حدث خطأ أثناء رفع الملفات، يرجى التحقق من إعدادات Cloudinary", "❌", true, 4000);
             }
         }
 
