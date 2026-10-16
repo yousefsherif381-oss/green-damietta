@@ -13,20 +13,18 @@
 
     <style>
         :root {
-            --primary: #0284C7;         /* أزرق بحري ناصع */
+            --primary: #0284C7;
             --primary-dark: #0369A1;
-            --accent: #F59E0B;          /* ذهبي مرجاني */
+            --accent: #F59E0B;
             --accent-hover: #D97706;
             --card-bg: rgba(255, 255, 255, 0.98);
             --text-dark: #0F172A;
             --text-muted: #64748B;
             --border: #E2E8F0;
-            --radius: 18px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         
-        /* خلفية أمواج البحر المتحركة بالسلاسة */
         body {
             background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
             background-size: 400% 400%;
@@ -53,7 +51,6 @@
             top: 0;
             z-index: 100;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-            transition: all 0.3s ease;
         }
 
         .nav-container {
@@ -86,7 +83,6 @@
             background: rgba(255, 255, 255, 0.25); 
             border-color: var(--accent);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
         }
 
         .logo-area {
@@ -96,9 +92,7 @@
             text-decoration: none;
             cursor: pointer;
             margin: auto;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .logo-area:hover { transform: scale(1.03); }
 
         .logo-box {
             width: 56px;
@@ -113,11 +107,9 @@
             justify-content: center;
             overflow: hidden;
             flex-shrink: 0;
-            transition: transform 0.5s ease;
         }
-        .logo-area:hover .logo-box { transform: rotate(8deg); }
         .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.3px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+        .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
 
         .header-actions { display: flex; gap: 10px; }
         .btn-header {
@@ -145,32 +137,19 @@
             color: #fff; 
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); 
         }
-        .btn-header-primary:hover { 
-            background: var(--accent-hover); 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
-        }
 
-        /* القائمة الجانبية بتأثير البحر الملكي المطور */
         .sidebar-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(12, 74, 110, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
+            z-index: 1000; opacity: 0; pointer-events: none;
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
         .sliding-sidebar {
-            position: fixed;
-            top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(16px);
-            z-index: 1001;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
+            z-index: 1001; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
             border-left: 2px solid rgba(245, 158, 11, 0.4);
             padding: 24px 20px; display: flex; flex-direction: column;
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -184,8 +163,7 @@
         .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
         .btn-close-sidebar {
             background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); 
-            width: 36px; height: 36px; border-radius: 50%;
-            font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
+            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
             transition: all 0.2s ease;
         }
         .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
@@ -201,21 +179,12 @@
             background: rgba(2, 132, 199, 0.35); 
             border-color: var(--accent); 
             transform: translateX(-6px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
         }
-        .sidebar-item.profile-item {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: var(--accent);
-        }
-        .sidebar-item.profile-item:hover {
-            background: rgba(245, 158, 11, 0.3);
-        }
+        .sidebar-item.profile-item { background: rgba(245, 158, 11, 0.15); border-color: var(--accent); }
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
 
-        .main-wrapper {
-            max-width: 950px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1;
-        }
+        .main-wrapper { max-width: 950px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
         .news-header-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; color: white; }
         .news-header-title { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 10px; color: #F8FAFC; }
@@ -224,18 +193,10 @@
         .news-card {
             background: var(--card-bg); border-radius: 22px; padding: 28px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.25); border-top: 5px solid var(--accent);
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .news-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 22px 45px rgba(0,0,0,0.35);
-        }
 
-        .news-card-badge {
-            display: inline-block; background: #FEF3C7; color: #B45309;
-            font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 8px; margin-bottom: 12px;
-        }
+        .news-card-badge { display: inline-block; background: #FEF3C7; color: #B45309; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 8px; margin-bottom: 12px; }
         .news-card-title { font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px; }
         .news-card-desc { font-size: 14px; color: #334155; line-height: 1.7; margin-bottom: 16px; white-space: pre-line; }
         .news-card-date { font-size: 11.5px; color: var(--text-muted); font-weight: 700; }
@@ -286,63 +247,50 @@
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
             transition: all 0.3s ease;
         }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); }
 
         .btn-submit {
             width: 100%; padding: 14px; background: var(--primary); color: white;
             border: none; border-radius: 12px; font-size: 15.5px; font-weight: 800;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 10px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
         }
-        .btn-submit:hover { 
-            background: var(--primary-dark); 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.45);
-        }
 
-        /* تنسيقات كارت البروفايل */
-        .profile-card {
-            background: #F8FAFC; border: 1px solid var(--border); border-radius: 20px;
-            padding: 24px; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        }
+        .profile-card { background: #F8FAFC; border: 1px solid var(--border); border-radius: 20px; padding: 24px; margin-top: 15px; }
         .profile-avatar-box {
             width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white; font-size: 32px; font-weight: 900; display: flex; align-items: center;
-            justify-content: center; margin: 0 auto 15px auto; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+            color: white; font-size: 32px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;
         }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
 
-        @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
-                gap: 12px;
-                padding: 12px;
-            }
-            .header-left, .header-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .logo-area {
-                order: -1;
-                margin-bottom: 4px;
-            }
+        /* نافذة الإشعارات الاحترافية الجاهزة (Toast/Modal Notification) */
+        .custom-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
+            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
+            z-index: 2000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
+        .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
 
+    <!-- نافذة الرسائل الاحترافية الموحدة -->
+    <div id="customToast" class="custom-toast">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">تمت العملية بنجاح</span>
+    </div>
+
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- السلايدر الجانبي المطور للمستخدمين -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 الأقسام والخدمات</span>
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
         <div class="sidebar-menu">
-            <!-- عنصر البروفايل يظهر فور تسجيل الدخول -->
             <div class="sidebar-item profile-item" id="sidebarProfileBtn" style="display: none;" onclick="closeSidebar(); navigateToSection('profileSection');">
                 <span class="sidebar-icon">👤</span>
                 <span class="sidebar-label">البروفايل الشخصي</span>
@@ -362,7 +310,6 @@
         </div>
     </aside>
 
-    <!-- الهيدر الرسمي المحدث باحترافية وسلاسة -->
     <header>
         <div class="nav-container">
             <div class="header-left">
@@ -373,7 +320,7 @@
 
             <div class="logo-area" onclick="showHomePage()">
                 <div class="logo-box">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار مدرسة اللغات الرسمية الجديدة">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار المدرس">
                 </div>
                 <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
             </div>
@@ -382,6 +329,7 @@
                 <button onclick="openAuthPage(false)" class="btn-header btn-header-outline">تسجيل الدخول 🔑</button>
                 <button onclick="openAuthPage(true)" class="btn-header btn-header-primary">إنشاء حساب جديد ✨</button>
             </div>
+            <!-- زر الخروج الوحيد والرئيسي المعتمد في أعلى الصفحة -->
             <div class="header-actions" id="headerUserActions" style="display: none;">
                 <button onclick="navigateToSection('profileSection')" class="btn-header btn-header-outline">👤 البروفايل</button>
                 <button onclick="logoutUser()" class="btn-header btn-header-primary" style="background: #EF4444;">خروج 🚪</button>
@@ -391,7 +339,6 @@
 
     <main class="main-wrapper">
         
-        <!-- الواجهة الرئيسية -->
         <div id="newsHomeContainer">
             <div class="news-header-box">
                 <div class="news-header-title">📢 أحدث الأخبار والإعلانات المدرسية</div>
@@ -410,9 +357,8 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">تسجيل الدخول للحساب 🔐</button>
             </div>
             <div id="authProfileBox" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="margin-bottom: 15px;">
                     <h2 style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">👤 الملف الشخصي بالحساب</h2>
-                    <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">تسجيل الخروج 🚪</button>
                 </div>
 
                 <div class="profile-card">
@@ -456,9 +402,8 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
             </div>
             <div id="authGradesBox" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="margin-bottom: 20px;">
                     <h2 id="gradesWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">📊 كشف درجات الطالب</h2>
-                    <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <span style="font-size: 12px; color: var(--text-muted); display: block;">الصف الدراسي</span>
@@ -500,9 +445,8 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">طلب تقرير الحضور والغياب 🔐</button>
             </div>
             <div id="authAttendanceBox" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="margin-bottom: 20px;">
                     <h2 id="attendanceWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">📅 سجل انضباط الطالب</h2>
-                    <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
                 <div style="background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
                     <span style="font-size: 13px; color: var(--text-muted); display: block;">الحالة السلوكية وحضور الطالب</span>
@@ -520,9 +464,8 @@
                 <button onclick="openAuthPage(false)" class="btn-submit">إرسال شكوى / استفسار جديد 📝</button>
             </div>
             <div id="authTicketsBox" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="margin-bottom: 20px;">
                     <h2 style="font-size: 17px; font-weight: 800; color: var(--primary-dark);">📨 إرسال استفسار أو شكوى جديد</h2>
-                    <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
                 <form onsubmit="submitParentTicket(event)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
@@ -550,7 +493,6 @@
             </div>
         </div>
 
-        <!-- صفحة التسجيل والدخول المخصصة -->
         <div class="auth-page-view" id="authPageView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div class="role-tabs">
@@ -636,7 +578,6 @@
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 13px; font-weight: bold;">
                 <span id="toggleAuthText" onclick="toggleAuthMode()" style="cursor: pointer; color: var(--primary-dark);">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
-                <span id="forgotPassBtn" onclick="handleForgotPassword()" style="cursor: pointer; color: var(--accent);">نسيت كلمة المرور؟ 🔑</span>
             </div>
         </div>
 
@@ -662,31 +603,40 @@
         let isSignUpMode = false;
         let currentTargetSection = 'gradesSection';
 
+        // دالة الرسائل الاحترافية الموحدة
+        function showToast(message, icon = "✅") {
+            const toast = document.getElementById('customToast');
+            document.getElementById('toastIcon').textContent = icon;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3500);
+        }
+
         const gradeSubjectsDetailed = {
             lowerPrimary: [
                 { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية (Connect / Connect Plus)' },
-                { id: 'math', name: 'الرياضيات بالإنجليزية (Math)' },
-                { id: 'discover', name: 'Discover / اكتشف (متعدد التخصصات)' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'discover', name: 'Discover / اكتشف' },
                 { id: 'religion', name: 'التربية الدينية' }
             ],
             upperPrimary: [
                 { id: 'ar', name: 'اللغة العربية' },
                 { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات بالإنجليزية (Math)' },
-                { id: 'science', name: 'العلوم بالإنجليزية (Science)' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
                 { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'ict', name: 'تكنولوجيا المعلومات (ICT)' },
+                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
                 { id: 'skills', name: 'المهارات المهنية' },
                 { id: 'religion', name: 'التربية الدينية' }
             ],
             prep: [
                 { id: 'ar', name: 'اللغة العربية' },
                 { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات بالإنجليزية (Math)' },
-                { id: 'science', name: 'العلوم بالإنجليزية (Science)' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
                 { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'computer', name: 'الحاسب الآلي وتكنولوجيا المعلومات' },
+                { id: 'computer', name: 'الحاسب الآلي' },
                 { id: 'religion', name: 'التربية الدينية' }
             ]
         };
@@ -791,7 +741,6 @@
             document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
             document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
             document.getElementById('toggleAuthText').textContent = isSignUpMode ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
-            document.getElementById('forgotPassBtn').style.display = isSignUpMode ? 'none' : 'inline-block';
             document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'إنشاء الحساب والتسجيل ✨' : 'تسجيل الدخول 📊';
             
             updateAuthTitles();
@@ -821,35 +770,6 @@
         }
 
         function toggleAuthMode() { openAuthPage(!isSignUpMode); }
-
-        function handleForgotPassword() {
-            const promptMsg = selectedRole === 'student' 
-                ? 'أدخل الرقم القومي للطالب أو كود الطالب لاستعادة كلمة المرور:'
-                : 'أدخل الرقم القومي لولي الأمر لاستعادة كلمة المرور:';
-                
-            const inputVal = prompt(promptMsg);
-            if (!inputVal) return;
-
-            let foundPass = null;
-            Object.keys(allUsersCache).forEach(k => {
-                const u = allUsersCache[k];
-                if (selectedRole === 'student') {
-                    if (u.nationalId === inputVal.trim() || u.code === inputVal.trim()) {
-                        foundPass = u.password;
-                    }
-                } else {
-                    if (u.parentNationalId === inputVal.trim() || u.nationalId === inputVal.trim()) {
-                        foundPass = u.password;
-                    }
-                }
-            });
-
-            if (foundPass) {
-                alert(`🔑 كلمة المرور الخاصة بك هي:\n[ ${foundPass} ]`);
-            } else {
-                alert('❌ لم يتم العثور على حساب بهذه البيانات. يرجى التحقق من الرقم المدخل.');
-            }
-        }
 
         function updateAuthTitles() {
             const title = document.getElementById('authTitle');
@@ -893,11 +813,11 @@
                     await newRef.set(userData);
                     activeUserKey = newRef.key;
                     allUsersCache[activeUserKey] = userData;
-                    alert('✅ تم إنشاء الحساب بنجاح!');
+                    showToast("تم إنشاء الحساب بنجاح! مرحباً بك", "🎉");
                     onUserLoggedIn();
                     navigateToSection(currentTargetSection);
                 } catch (err) {
-                    alert('❌ حدث خطأ في الاتصال بقاعدة البيانات.');
+                    showToast("حدث خطأ في الاتصال بقاعدة البيانات", "❌");
                 }
 
             } else {
@@ -922,10 +842,11 @@
 
                 if (foundUserObj && foundUserObj.password === pass) {
                     activeUserKey = foundUserKey;
+                    showToast("تم تسجيل الدخول بنجاح", "🔐");
                     onUserLoggedIn();
                     navigateToSection(currentTargetSection);
                 } else {
-                    alert('❌ بيانات الدخول غير صحيحة!');
+                    showToast("بيانات الدخول غير صحيحة!", "❌");
                 }
             }
         }
@@ -993,7 +914,7 @@
             allUsersCache[activeUserKey].phone = newPhone;
             allUsersCache[activeUserKey].password = newPassword;
 
-            alert('✅ تم تحديث بيانات ملفك الشخصي بنجاح!');
+            showToast("تم تحديث بيانات البروفايل بنجاح", "💾");
         }
 
         function renderGradesTable(tbodyId, u) {
@@ -1026,6 +947,7 @@
             await db.ref('students/' + activeUserKey).update({ grade: newGrade });
             allUsersCache[activeUserKey].grade = newGrade;
             renderDashboardForRole(allUsersCache[activeUserKey]);
+            showToast("تم تغيير الصف الدراسي بنجاح", "🔄");
         }
 
         function logoutUser() {
@@ -1043,6 +965,8 @@
             document.getElementById('authAttendanceBox').style.display = 'none';
             document.getElementById('unauthTicketsBox').style.display = 'block';
             document.getElementById('authTicketsBox').style.display = 'none';
+            
+            showToast("تم تسجيل الخروج بنجاح", "👋");
             showHomePage();
         }
 
@@ -1071,6 +995,7 @@
             });
 
             document.getElementById('ticketContent').value = '';
+            showToast("تم إرسال الشكوى للإدارة بنجاح", "🚀");
             loadParentTickets(u.name);
         }
 
@@ -1099,8 +1024,7 @@
                                     <b>📌 ${t.ticketType}</b>
                                     <span style="font-size: 11px; color: var(--text-muted);">${new Date(t.timestamp || Date.now()).toLocaleDateString('ar-EG')}</span>
                                 </div>
-                                <p style="color: #334155; margin-bottom: 6px;"><b>طلبك:</b> ${t.ticketContent}</p>
-                                ${replySection}
+                                <p style="color: #334155; margin-bottom: 6px;"><b>طلبك:</b> ${t.ticketContent}</p>${replySection}
                             </div>
                         `;
                     }
