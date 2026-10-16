@@ -109,7 +109,6 @@
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
 
-        /* نافذة بروفايل الطالب (Modal) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px);
@@ -193,7 +192,6 @@
                 <button onclick="closeProfileModal()" style="background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
             </div>
 
-            <!-- تعديل البروفايل -->
             <form onsubmit="saveStudentProfileByAdmin(event)">
                 <input type="hidden" id="modalStudentKey">
                 
@@ -242,12 +240,9 @@
 
             <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
 
-            <!-- تعديل درجات الطالب -->
             <div class="grades-edit-box">
                 <h4 style="margin-bottom: 10px; color: var(--primary-dark);">📊 رصد وتقييم درجات الطالب:</h4>
-                <div id="modalGradesForm">
-                    <!-- يتم بناؤها ديناميكياً -->
-                </div>
+                <div id="modalGradesForm"></div>
                 <button onclick="saveStudentGradesByAdmin()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتقييم الدرجات 📊</button>
             </div>
         </div>
@@ -311,7 +306,6 @@
             loadTicketsLive();
         });
 
-        // 1. تحميل كافه المستخدمين وعرض زر البروفايل للطلبة فقط
         function loadUsersLive() {
             db.ref('students').on('value', (snapshot) => {
                 usersCache = snapshot.val() || {};
@@ -348,7 +342,6 @@
             });
         }
 
-        // 2. فتح نافذة بروفايل الطالب حصراً
         function openStudentModal(key) {
             const u = usersCache[key];
             if (!u) return;
@@ -360,7 +353,6 @@
             document.getElementById('modalPassword').value = u.password || '';
             document.getElementById('modalAttendance').value = u.attendance || 'منتظم';
 
-            // بناء خانات إدخال الدرجات للمواد
             const subjects = getSubjectsForGradeName(u.grade);
             const container = document.getElementById('modalGradesForm');
             container.innerHTML = '';
@@ -389,7 +381,6 @@
             document.getElementById('profileModal').style.display = 'none';
         }
 
-        // حفظ بروفايل الطالب
         async function saveStudentProfileByAdmin(e) {
             e.preventDefault();
             const key = document.getElementById('modalStudentKey').value;
@@ -406,7 +397,6 @@
             alert('✅ تم تحديث بروفايل الطالب بنجاح!');
         }
 
-        // حفظ درجات الطالب
         async function saveStudentGradesByAdmin() {
             const key = document.getElementById('modalStudentKey').value;
             if (!key) return;
@@ -425,7 +415,6 @@
             alert('✅ تم حفظ وتقييم درجات الطالب بنجاح!');
         }
 
-        // حذف الطالب
         async function deleteStudentByAdmin() {
             const key = document.getElementById('modalStudentKey').value;
             if (!key) return;
@@ -437,7 +426,6 @@
             }
         }
 
-        // 3. إدارة ونشر الأخبار
         function loadNewsLive() {
             db.ref('news').on('value', (snapshot) => {
                 const container = document.getElementById('adminNewsList');
@@ -484,7 +472,6 @@
             }
         }
 
-        // 4. الشكاوى والاستفسارات
         function loadTicketsLive() {
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
