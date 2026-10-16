@@ -167,7 +167,7 @@
         .sliding-sidebar {
             position: fixed;
             top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(15, 23, 42, 0.95); /* خلفية بحرية داكنة راقية */
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(16px);
             z-index: 1001;
             box-shadow: -10px 0 40px rgba(0,0,0,0.5);
@@ -202,6 +202,13 @@
             border-color: var(--accent); 
             transform: translateX(-6px);
             box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+        .sidebar-item.profile-item {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--accent);
+        }
+        .sidebar-item.profile-item:hover {
+            background: rgba(245, 158, 11, 0.3);
         }
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
@@ -292,6 +299,17 @@
             box-shadow: 0 8px 25px rgba(2, 132, 199, 0.45);
         }
 
+        /* تنسيقات كارت البروفايل */
+        .profile-card {
+            background: #F8FAFC; border: 1px solid var(--border); border-radius: 20px;
+            padding: 24px; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .profile-avatar-box {
+            width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; font-size: 32px; font-weight: 900; display: flex; align-items: center;
+            justify-content: center; margin: 0 auto 15px auto; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
@@ -324,6 +342,11 @@
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
         <div class="sidebar-menu">
+            <!-- عنصر البروفايل يظهر فور تسجيل الدخول -->
+            <div class="sidebar-item profile-item" id="sidebarProfileBtn" style="display: none;" onclick="closeSidebar(); navigateToSection('profileSection');">
+                <span class="sidebar-icon">👤</span>
+                <span class="sidebar-label">البروفايل الشخصي</span>
+            </div>
             <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('gradesSection');">
                 <span class="sidebar-icon">📊</span>
                 <span class="sidebar-label">الدرجات والتقييمات</span>
@@ -355,9 +378,13 @@
                 <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
             </div>
 
-            <div class="header-actions">
+            <div class="header-actions" id="headerAuthActions">
                 <button onclick="openAuthPage(false)" class="btn-header btn-header-outline">تسجيل الدخول 🔑</button>
                 <button onclick="openAuthPage(true)" class="btn-header btn-header-primary">إنشاء حساب جديد ✨</button>
+            </div>
+            <div class="header-actions" id="headerUserActions" style="display: none;">
+                <button onclick="navigateToSection('profileSection')" class="btn-header btn-header-outline">👤 البروفايل</button>
+                <button onclick="logoutUser()" class="btn-header btn-header-primary" style="background: #EF4444;">خروج 🚪</button>
             </div>
         </div>
     </header>
@@ -371,6 +398,52 @@
             </div>
             <div class="news-feed" id="newsFeedList">
                 <p style="color: #94A3B8; text-align: center; padding: 30px;">جاري تحميل الأخبار والتنبيهات المدرسية...</p>
+            </div>
+        </div>
+
+        <!-- 0️⃣ قسم البروفايل الشخصي -->
+        <div class="view-section" id="profileSection">
+            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
+            <div id="unauthProfileBox">
+                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary-dark);">👤 البروفايل الشخصي</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يرجى تسجيل الدخول لعرض وتحديث بيانات حسابك الشخصي.</p>
+                <button onclick="openAuthPage(false)" class="btn-submit">تسجيل الدخول للحساب 🔐</button>
+            </div>
+            <div id="authProfileBox" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">👤 الملف الشخصي بالحساب</h2>
+                    <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">تسجيل الخروج 🚪</button>
+                </div>
+
+                <div class="profile-card">
+                    <div class="profile-avatar-box" id="profileAvatar">🎓</div>
+                    <h3 id="profileName" style="text-align: center; font-size: 18px; font-weight: 900; color: var(--text-dark);">اسم المستخدم</h3>
+                    <p id="profileRoleBadge" style="text-align: center; font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 4px;">حساب طالب</p>
+                    
+                    <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
+
+                    <form onsubmit="saveProfileChanges(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>الصف الدراسي</label>
+                                <input type="text" id="profileGrade" class="form-control" disabled style="background: #E2E8F0;">
+                            </div>
+                            <div class="form-group">
+                                <label id="lblProfileId">الرقم القومي / الكود</label>
+                                <input type="text" id="profileNationalId" class="form-control" disabled style="background: #E2E8F0;">
+                            </div>
+                            <div class="form-group">
+                                <label>رقم المحمول للتواصل</label>
+                                <input type="tel" id="profilePhone" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>تغيير كلمة المرور</label>
+                                <input type="password" id="profilePassword" class="form-control" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" style="background: var(--accent);">حفظ التعديلات 💾</button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -669,7 +742,6 @@
             });
         }
 
-        // ميزة الكود السري للانتقال التلقائي للوحة الإدارة
         function checkSecretAdminCode(val) {
             if (val.trim() === 'ADMIN2026') {
                 window.location.href = 'admin.html';
@@ -822,6 +894,7 @@
                     activeUserKey = newRef.key;
                     allUsersCache[activeUserKey] = userData;
                     alert('✅ تم إنشاء الحساب بنجاح!');
+                    onUserLoggedIn();
                     navigateToSection(currentTargetSection);
                 } catch (err) {
                     alert('❌ حدث خطأ في الاتصال بقاعدة البيانات.');
@@ -849,6 +922,7 @@
 
                 if (foundUserObj && foundUserObj.password === pass) {
                     activeUserKey = foundUserKey;
+                    onUserLoggedIn();
                     navigateToSection(currentTargetSection);
                 } else {
                     alert('❌ بيانات الدخول غير صحيحة!');
@@ -856,7 +930,27 @@
             }
         }
 
+        function onUserLoggedIn() {
+            document.getElementById('sidebarProfileBtn').style.display = 'flex';
+            document.getElementById('headerAuthActions').style.display = 'none';
+            document.getElementById('headerUserActions').style.display = 'flex';
+        }
+
         function renderDashboardForRole(u) {
+            if (document.getElementById('profileSection').style.display === 'block') {
+                document.getElementById('unauthProfileBox').style.display = 'none';
+                document.getElementById('authProfileBox').style.display = 'block';
+                
+                const displayName = u.role === 'parent' ? (u.parentName || 'ولي أمر') : (u.name || 'طالب');
+                document.getElementById('profileName').textContent = displayName;
+                document.getElementById('profileRoleBadge').textContent = u.role === 'parent' ? '👨‍👩‍👦 حساب ولي أمر' : '🎓 حساب طالب';
+                document.getElementById('profileAvatar').textContent = u.role === 'parent' ? '👨‍👩‍👦' : '🎓';
+                document.getElementById('profileGrade').value = u.grade || 'غير محدد';
+                document.getElementById('profileNationalId').value = u.nationalId || u.parentNationalId || u.code || '---';
+                document.getElementById('profilePhone').value = u.phone || '';
+                document.getElementById('profilePassword').value = u.password || '';
+            }
+
             if (document.getElementById('gradesSection').style.display === 'block') {
                 document.getElementById('unauthGradesBox').style.display = 'none';
                 document.getElementById('authGradesBox').style.display = 'block';
@@ -882,6 +976,24 @@
                 document.getElementById('authTicketsBox').style.display = 'block';
                 loadParentTickets(u.name);
             }
+        }
+
+        async function saveProfileChanges(e) {
+            e.preventDefault();
+            if (!activeUserKey) return;
+
+            const newPhone = document.getElementById('profilePhone').value.trim();
+            const newPassword = document.getElementById('profilePassword').value.trim();
+
+            await db.ref('students/' + activeUserKey).update({
+                phone: newPhone,
+                password: newPassword
+            });
+
+            allUsersCache[activeUserKey].phone = newPhone;
+            allUsersCache[activeUserKey].password = newPassword;
+
+            alert('✅ تم تحديث بيانات ملفك الشخصي بنجاح!');
         }
 
         function renderGradesTable(tbodyId, u) {
@@ -919,6 +1031,12 @@
         function logoutUser() {
             activeUserKey = null;
             document.getElementById('authPasswordInput').value = '';
+            document.getElementById('sidebarProfileBtn').style.display = 'none';
+            document.getElementById('headerAuthActions').style.display = 'flex';
+            document.getElementById('headerUserActions').style.display = 'none';
+
+            document.getElementById('unauthProfileBox').style.display = 'block';
+            document.getElementById('authProfileBox').style.display = 'none';
             document.getElementById('unauthGradesBox').style.display = 'block';
             document.getElementById('authGradesBox').style.display = 'none';
             document.getElementById('unauthAttendanceBox').style.display = 'block';
