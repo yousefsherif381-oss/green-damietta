@@ -151,12 +151,12 @@
             box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
         }
 
-        /* القائمة الجانبية بالسلايد */
+        /* القائمة الجانبية بتأثير البحر الملكي المطور */
         .sidebar-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(12, 74, 110, 0.7);
-            backdrop-filter: blur(6px);
+            backdrop-filter: blur(8px);
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
@@ -166,9 +166,12 @@
 
         .sliding-sidebar {
             position: fixed;
-            top: 0; right: -340px; width: 310px; height: 100vh;
-            background: var(--card-bg); z-index: 1001;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+            top: 0; right: -350px; width: 320px; height: 100vh;
+            background: rgba(15, 23, 42, 0.95); /* خلفية بحرية داكنة راقية */
+            backdrop-filter: blur(16px);
+            z-index: 1001;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+            border-left: 2px solid rgba(245, 158, 11, 0.4);
             padding: 24px 20px; display: flex; flex-direction: column;
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -176,30 +179,32 @@
 
         .sidebar-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid var(--border);
+            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
-        .sidebar-title { font-size: 16px; font-weight: 900; color: var(--primary-dark); }
+        .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
         .btn-close-sidebar {
-            background: #F1F5F9; border: none; width: 34px; height: 34px; border-radius: 50%;
-            font-size: 16px; font-weight: bold; cursor: pointer; color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); 
+            width: 36px; height: 36px; border-radius: 50%;
+            font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
             transition: all 0.2s ease;
         }
-        .btn-close-sidebar:hover { background: #E2E8F0; transform: rotate(90deg); }
+        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
 
-        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
         .sidebar-item {
-            display: flex; align-items: center; gap: 14px; padding: 14px 16px;
-            border-radius: 14px; background: #F8FAFC; border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+            border-radius: 16px; background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
             cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar-item:hover { 
-            background: #E0F2FE; 
-            border-color: var(--primary); 
+            background: rgba(2, 132, 199, 0.35); 
+            border-color: var(--accent); 
             transform: translateX(-6px);
-            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.15);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
         }
         .sidebar-icon { font-size: 22px; }
-        .sidebar-label { font-size: 14px; font-weight: 800; color: var(--text-dark); }
+        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
 
         .main-wrapper {
             max-width: 950px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1;
@@ -312,7 +317,7 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- السلايدر الجانبي للمستخدمين -->
+    <!-- السلايدر الجانبي المطور للمستخدمين -->
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">📌 الأقسام والخدمات</span>
