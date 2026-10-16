@@ -940,13 +940,11 @@
         }
 
         function deleteTicket(ticketKey) {
-            if (confirm("هل أنت متأكد من حذف هذه الشكوى أو الاستفسار؟")) {
-                db.ref('tickets/' + ticketKey).remove().then(() => {
-                    showToast("تم حذف الشكوى بنجاح", "🗑️");
-                }).catch(() => {
-                    showToast("حدث خطأ أثناء الحذف", "❌");
-                });
-            }
+            db.ref('tickets/' + ticketKey).remove().then(() => {
+                showToast("تم حذف الشكوى بنجاح", "🗑️");
+            }).catch(() => {
+                showToast("حدث خطأ أثناء الحذف", "❌");
+            });
         }
     </script>
 </body>
