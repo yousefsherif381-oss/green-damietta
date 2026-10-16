@@ -14,20 +14,23 @@
     <style>
         :root {
             --primary: #1E3A8A;
-            --primary-hover: #1E40AF;
-            --accent: #0284C7;
-            --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
-            --card-bg: rgba(255, 255, 255, 0.96);
+            --primary-hover: #172554;
+            --accent: #D97706;
+            --accent-hover: #B45309;
+            --card-bg: rgba(255, 255, 255, 0.98);
             --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border: #CBD5E1;
-            --radius: 16px;
+            --border: #E2E8F0;
+            --radius: 18px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         
+        /* خلفية ديناميكية ملكية متحركة */
         body {
-            background: var(--bg-gradient);
+            background: linear-gradient(-45deg, #0F172A, #1E3A8A, #1E293B, #0F172A);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             min-height: 100vh;
             color: var(--text-dark);
             display: flex;
@@ -35,23 +38,32 @@
             overflow-x: hidden;
         }
 
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         header {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(30, 58, 138, 0.92);
             backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 3px solid var(--accent);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
+
         .nav-container {
             max-width: 1300px;
             margin: auto;
-            padding: 12px 16px;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap; /* لضمان التنسيق التلقائي على الشاشات الصغيرة */
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .header-left { display: flex; align-items: center; }
@@ -60,50 +72,61 @@
             background: rgba(255, 255, 255, 0.15);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            padding: 8px 12px;
+            border-radius: 12px;
+            padding: 9px 16px;
             font-size: 15px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.25); }
+        .btn-sidebar-toggle:hover { 
+            background: rgba(255, 255, 255, 0.25); 
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+        }
 
         .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
             cursor: pointer;
-            margin: auto; /* توسيط تلقائي على كافة الشاشات */
+            margin: auto;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        .logo-area:hover { transform: scale(1.03); }
+
         .logo-box {
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: #ffffff;
-            padding: 2px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 3px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             flex-shrink: 0;
+            transition: transform 0.5s ease;
         }
+        .logo-area:hover .logo-box { transform: rotate(8deg); }
         .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .logo-text { font-size: 16px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.3px; text-align: center; }
+        .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.3px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
-        .header-actions { display: flex; gap: 8px; }
+        .header-actions { display: flex; gap: 10px; }
         .btn-header {
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 12.5px;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
             font-weight: 800;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
         }
         .btn-header-outline {
@@ -111,29 +134,42 @@
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .btn-header-outline:hover { background: rgba(255, 255, 255, 0.25); }
-        .btn-header-primary { background: #2563EB; color: #fff; }
-        .btn-header-primary:hover { background: #1D4ED8; }
+        .btn-header-outline:hover { 
+            background: rgba(255, 255, 255, 0.25); 
+            border-color: var(--accent); 
+            transform: translateY(-2px);
+        }
+        .btn-header-primary { 
+            background: var(--accent); 
+            color: #fff; 
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.35); 
+        }
+        .btn-header-primary:hover { 
+            background: var(--accent-hover); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5);
+        }
 
+        /* القائمة الجانبية بالسلايد */
         .sidebar-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(6px);
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
         .sliding-sidebar {
             position: fixed;
-            top: 0; right: -320px; width: 300px; height: 100vh;
+            top: 0; right: -340px; width: 310px; height: 100vh;
             background: var(--card-bg); z-index: 1001;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+            box-shadow: -10px 0 40px rgba(0,0,0,0.4);
             padding: 24px 20px; display: flex; flex-direction: column;
-            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .sliding-sidebar.active { right: 0; }
 
@@ -141,19 +177,26 @@
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid var(--border);
         }
-        .sidebar-title { font-size: 16px; font-weight: 900; color: var(--text-dark); }
+        .sidebar-title { font-size: 16px; font-weight: 900; color: var(--primary); }
         .btn-close-sidebar {
             background: #F1F5F9; border: none; width: 34px; height: 34px; border-radius: 50%;
             font-size: 16px; font-weight: bold; cursor: pointer; color: var(--text-muted);
+            transition: all 0.2s ease;
         }
+        .btn-close-sidebar:hover { background: #E2E8F0; transform: rotate(90deg); }
 
         .sidebar-menu { display: flex; flex-direction: column; gap: 12px; }
         .sidebar-item {
             display: flex; align-items: center; gap: 14px; padding: 14px 16px;
             border-radius: 14px; background: #F8FAFC; border: 1px solid var(--border);
-            cursor: pointer; transition: all 0.2s ease;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sidebar-item:hover { background: #EFF6FF; border-color: #2563EB; transform: translateX(-4px); }
+        .sidebar-item:hover { 
+            background: #EFF6FF; 
+            border-color: var(--primary); 
+            transform: translateX(-6px);
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.1);
+        }
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 14px; font-weight: 800; color: var(--text-dark); }
 
@@ -162,41 +205,54 @@
         }
 
         .news-header-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; color: white; }
-        .news-header-title { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+        .news-header-title { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 10px; color: #F8FAFC; }
 
         .news-feed { display: flex; flex-direction: column; gap: 20px; }
         .news-card {
             background: var(--card-bg); border-radius: 22px; padding: 28px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); transition: transform 0.2s;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); border-top: 5px solid var(--accent);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .news-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 45px rgba(0,0,0,0.3);
+        }
+
         .news-card-badge {
-            display: inline-block; background: #DBEAFE; color: #2563EB;
+            display: inline-block; background: #FEF3C7; color: #B45309;
             font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 8px; margin-bottom: 12px;
         }
-        .news-card-title { font-size: 18px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
+        .news-card-title { font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 8px; }
         .news-card-desc { font-size: 14px; color: #334155; line-height: 1.7; margin-bottom: 16px; white-space: pre-line; }
         .news-card-date { font-size: 11.5px; color: var(--text-muted); font-weight: 700; }
 
         .view-section {
             background: var(--card-bg); border-radius: 24px; padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: none; margin-bottom: 25px;
-            animation: fadeIn 0.3s ease-in-out;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; margin-bottom: 25px;
+            border-top: 5px solid var(--primary);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .auth-page-view {
             background: var(--card-bg); border-radius: 24px; padding: 30px 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: none; animation: fadeIn 0.3s ease-in-out;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; 
+            border-top: 5px solid var(--accent);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .btn-back-home {
             background: #F1F5F9; color: #334155; border: none; padding: 8px 16px;
             border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer;
             margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.25s ease;
         }
+        .btn-back-home:hover { background: #E2E8F0; transform: translateX(4px); }
 
         .role-tabs {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
@@ -204,10 +260,10 @@
         }
         .role-tab {
             padding: 13px; text-align: center; font-weight: 800; font-size: 14.5px;
-            border-radius: 12px; cursor: pointer; transition: all 0.25s ease;
+            border-radius: 12px; cursor: pointer; transition: all 0.3s ease;
             color: var(--text-muted); border: none; background: transparent;
         }
-        .role-tab.active { background: #FFFFFF; color: #2563EB; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .role-tab.active { background: var(--primary); color: #FFFFFF; box-shadow: 0 4px 15px rgba(30, 58, 138, 0.25); }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
         .form-group { margin-bottom: 16px; text-align: right; }
@@ -215,24 +271,30 @@
         .form-control {
             width: 100%; padding: 12px 14px; border: 2px solid var(--border);
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
+            transition: all 0.3s ease;
         }
-        .form-control:focus { border-color: #2563EB; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.12); }
 
         .btn-submit {
-            width: 100%; padding: 14px; background: #2563EB; color: white;
+            width: 100%; padding: 14px; background: var(--primary); color: white;
             border: none; border-radius: 12px; font-size: 15.5px; font-weight: 800;
-            cursor: pointer; transition: all 0.2s; margin-top: 10px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 10px; box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
         }
+        .btn-submit:hover { 
+            background: var(--primary-hover); 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+        }
+
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
-        th { background: #F8FAFC; color: #0F172A; font-weight: 800; }
+        th { background: #F8FAFC; color: var(--primary); font-weight: 800; }
 
-        /* Media query للهواتف الصغيرة جداً لترتيب الهيدر باحترافية */
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
                 gap: 12px;
-                padding: 10px;
+                padding: 12px;
             }
             .header-left, .header-actions {
                 width: 100%;
@@ -271,7 +333,7 @@
         </div>
     </aside>
 
-    <!-- الهيدر الرسمي المتجاوب -->
+    <!-- الهيدر الرسمي المحدث باحترافية وسلاسة -->
     <header>
         <div class="nav-container">
             <div class="header-left">
@@ -280,7 +342,6 @@
                 </button>
             </div>
 
-            <!-- الشعار واسم المدرسة في المنتصف تماماً ومتجاوب -->
             <div class="logo-area" onclick="showHomePage()">
                 <div class="logo-box">
                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار مدرسة اللغات الرسمية الجديدة">
@@ -311,13 +372,13 @@
         <div class="view-section" id="gradesSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthGradesBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #2563EB;">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
+                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary);">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
                 <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">تتيح البوابة استعراض نتائج المواد المقررة لكافة المراحل الدراسية.</p>
                 <button onclick="openAuthPage(false)" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
             </div>
             <div id="authGradesBox" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 id="gradesWelcomeTitle" style="font-size: 18px; font-weight: 900; color: #2563EB;">📊 كشف درجات الطالب</h2>
+                    <h2 id="gradesWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary);">📊 كشف درجات الطالب</h2>
                     <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
                 <div style="margin-bottom: 20px;">
@@ -355,13 +416,13 @@
         <div class="view-section" id="attendanceSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthAttendanceBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #0EA5E9;">📅 سجل انضباط الحضور والغياب</h2>
+                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary);">📅 سجل انضباط الحضور والغياب</h2>
                 <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان.</p>
-                <button onclick="openAuthPage(false)" class="btn-submit" style="background: #0EA5E9;">طلب تقرير الحضور والغياب 🔐</button>
+                <button onclick="openAuthPage(false)" class="btn-submit">طلب تقرير الحضور والغياب 🔐</button>
             </div>
             <div id="authAttendanceBox" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 id="attendanceWelcomeTitle" style="font-size: 18px; font-weight: 900; color: #0EA5E9;">📅 سجل انضباط الطالب</h2>
+                    <h2 id="attendanceWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary);">📅 سجل انضباط الطالب</h2>
                     <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
                 <div style="background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
@@ -375,13 +436,13 @@
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthTicketsBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #6366F1;">📨 مركز الشكاوى والاستفسارات</h2>
+                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary);">📨 مركز الشكاوى والاستفسارات</h2>
                 <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يمكن لأولياء الأمور تقديم طلبات الاستفسار أو الشكاوى لإدارة المدرسة.</p>
-                <button onclick="openAuthPage(false)" class="btn-submit" style="background: #6366F1;">إرسال شكوى / استفسار جديد 📝</button>
+                <button onclick="openAuthPage(false)" class="btn-submit">إرسال شكوى / استفسار جديد 📝</button>
             </div>
             <div id="authTicketsBox" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="font-size: 17px; font-weight: 800; color: #6366F1;">📨 إرسال استفسار أو شكوى جديد</h2>
+                    <h2 style="font-size: 17px; font-weight: 800; color: var(--primary);">📨 إرسال استفسار أو شكوى جديد</h2>
                     <button onclick="logoutUser()" style="background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج 🚪</button>
                 </div>
                 <form onsubmit="submitParentTicket(event)">
@@ -401,10 +462,10 @@
                         <label>تفاصيل الشكوى أو الطلب</label>
                         <textarea id="ticketContent" class="form-control" rows="4" required></textarea>
                     </div>
-                    <button type="submit" class="btn-submit" style="background: #6366F1;">إرسال الطلب للإدارة 🚀</button>
+                    <button type="submit" class="btn-submit">إرسال الطلب للإدارة 🚀</button>
                 </form>
                 <div style="margin-top: 25px;">
-                    <h3 style="font-size: 14px; font-weight: 800; color: #2563EB; margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
+                    <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
                     <div id="parentTicketsList"><p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p></div>
                 </div>
             </div>
@@ -418,7 +479,7 @@
                 <button class="role-tab" id="tabParent" onclick="switchRole('parent')">👨‍👩‍👦 حساب ولي الأمر</button>
             </div>
 
-            <h2 id="authTitle" style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 4px;">🎓 تسجيل دخول الطالب</h2>
+            <h2 id="authTitle" style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 4px; color: var(--primary);">🎓 تسجيل دخول الطالب</h2>
             <p id="authDesc" style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل الرقم القومي أو كود الطالب للوصول للنتائج.</p>
 
             <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
@@ -495,8 +556,8 @@
             </form>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 13px; font-weight: bold;">
-                <span id="toggleAuthText" onclick="toggleAuthMode()" style="cursor: pointer; color: #2563EB;">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
-                <span id="forgotPassBtn" onclick="handleForgotPassword()" style="cursor: pointer; color: #D97706;">نسيت كلمة المرور؟ 🔑</span>
+                <span id="toggleAuthText" onclick="toggleAuthMode()" style="cursor: pointer; color: var(--primary);">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
+                <span id="forgotPassBtn" onclick="handleForgotPassword()" style="cursor: pointer; color: var(--accent);">نسيت كلمة المرور؟ 🔑</span>
             </div>
         </div>
 
