@@ -762,8 +762,13 @@
                 const identifier = document.getElementById('loginIdentifierInput').value.trim();
                 if (!identifier || !password) return showToast("يرجى إدخال البيانات المطلوبة", "⚠️");
 
-                // التحقق من دخول الأدمن من الصفحة الرئيسية
-                if (identifier === 'admin' && password === '123456') {
+                // ⚡ التحقق من بيانات الأدمن سحابياً من Firebase
+                const adminSnapshot = await db.ref('admin/credentials').once('value');
+                const adminCreds = adminSnapshot.val();
+                const validAdminUser = adminCreds ? adminCreds.username : 'admin';
+                const validAdminPass = adminCreds ? adminCreds.password : '123456';
+
+                if (identifier === validAdminUser && password === validAdminPass) {
                     localStorage.setItem('admin_logged_in', 'true');
                     showToast("أهلاً بك يا أدمن! جاري التحويل للوحة الإدارة... 🚀", "👑");
                     setTimeout(() => {
@@ -772,6 +777,7 @@
                     return;
                 }
 
+                // تسجيل دخول الطلاب وأولياء الأمور العاديين
                 const snapshot = await db.ref('students/' + identifier).once('value');
                 const userData = snapshot.val();
 
