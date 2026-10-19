@@ -233,6 +233,7 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        /* كلاس وأنيميشن لحذف الشكاوى بسلاسة */
         .ticket-card {
             background: #F8FAFC; 
             border: 1px solid var(--border); 
@@ -690,6 +691,7 @@
             switchRole(currentRole);
         }
 
+        // دالة عرض الأخبار والفيديوهات المباشرة بالمشغل الطبيعي العادي
         function loadPublicNews() {
             db.ref('news').on('value', (snapshot) => {
                 const container = document.getElementById('newsFeedList');
@@ -762,22 +764,6 @@
                 const identifier = document.getElementById('loginIdentifierInput').value.trim();
                 if (!identifier || !password) return showToast("يرجى إدخال البيانات المطلوبة", "⚠️");
 
-                // ⚡ التحقق من بيانات الأدمن سحابياً من Firebase
-                const adminSnapshot = await db.ref('admin/credentials').once('value');
-                const adminCreds = adminSnapshot.val();
-                const validAdminUser = adminCreds ? adminCreds.username : 'admin';
-                const validAdminPass = adminCreds ? adminCreds.password : '123456';
-
-                if (identifier === validAdminUser && password === validAdminPass) {
-                    localStorage.setItem('admin_logged_in', 'true');
-                    showToast("أهلاً بك يا أدمن! جاري التحويل للوحة الإدارة... 🚀", "👑");
-                    setTimeout(() => {
-                        window.location.href = 'admin.html';
-                    }, 1000);
-                    return;
-                }
-
-                // تسجيل دخول الطلاب وأولياء الأمور العاديين
                 const snapshot = await db.ref('students/' + identifier).once('value');
                 const userData = snapshot.val();
 
