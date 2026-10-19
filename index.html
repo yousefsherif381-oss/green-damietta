@@ -3,957 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدرسة اللغات الرسمية الجديدة | البوابة الإلكترونية</title>
-    <!-- خط Cairo المميز -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <title>مدرسة جرين دمياط الرسمية للغات</title>
+    
+    <!-- مكتبات Firebase الأساسية -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         :root {
-            --primary: #0284C7;
-            --primary-dark: #0369A1;
-            --accent: #F59E0B;
-            --accent-hover: #D97706;
-            --card-bg: rgba(255, 255, 255, 0.98);
-            --text-dark: #0F172A;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
+            --primary-color: #2e7d32;
+            --accent-color: #4caf50;
+            --bg-color: #f4f7f6;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        
         body {
-            background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
-            background-size: 400% 400%;
-            animation: oceanWaves 16s ease infinite;
-            min-height: 100vh;
-            color: var(--text-dark);
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        @keyframes oceanWaves {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+            color: #333;
         }
 
         header {
-            background: rgba(12, 74, 110, 0.92);
-            backdrop-filter: blur(14px);
-            border-bottom: 3px solid var(--accent);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .nav-container {
-            max-width: 1300px;
-            margin: auto;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+        header h1 {
+            margin: 0;
+            font-size: 24px;
         }
 
-        .header-left { display: flex; align-items: center; }
-
-        .btn-sidebar-toggle {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 9px 16px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-sidebar-toggle:hover { 
-            background: rgba(255, 255, 255, 0.25); 
-            border-color: var(--accent);
-            transform: translateY(-2px);
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
         }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            cursor: pointer;
-            margin: auto;
-        }
-
-        .logo-box {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: #ffffff;
-            padding: 3px;
-            border: 2px solid var(--accent);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
-
-        .header-actions { display: flex; gap: 10px; }
-        .btn-header {
-            padding: 9px 18px;
-            border-radius: 12px;
-            font-size: 13.5px;
-            font-weight: 800;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-        }
-        .btn-header-outline {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .btn-header-outline:hover { 
-            background: rgba(255, 255, 255, 0.25); 
-            border-color: var(--accent); 
-            transform: translateY(-2px);
-        }
-        .btn-header-primary { 
-            background: var(--accent); 
-            color: #fff; 
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); 
-        }
-
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
-            z-index: 1000; opacity: 0; pointer-events: none;
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .sliding-sidebar {
-            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
-            z-index: 1001; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
-            border-left: 2px solid rgba(245, 158, 11, 0.4);
-            padding: 24px 20px; display: flex; flex-direction: column;
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .sliding-sidebar.active { right: 0; }
-
-        .sidebar-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
-        .btn-close-sidebar {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); 
-            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
-            transition: all 0.2s ease;
-        }
-        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
-
-        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
-        .sidebar-item {
-            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
-            border-radius: 16px; background: rgba(255, 255, 255, 0.08); 
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sidebar-item:hover { 
-            background: rgba(2, 132, 199, 0.35); 
-            border-color: var(--accent); 
-            transform: translateX(-6px);
-        }
-        .sidebar-item.profile-item { background: rgba(245, 158, 11, 0.15); border-color: var(--accent); }
-        .sidebar-icon { font-size: 22px; }
-        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
-
-        .main-wrapper { max-width: 950px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
-
-        .news-header-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; color: white; }
-        .news-header-title { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 10px; color: #F8FAFC; }
-
-        .news-feed { display: flex; flex-direction: column; gap: 20px; }
         .news-card {
-            background: var(--card-bg); border-radius: 22px; padding: 28px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25); border-top: 5px solid var(--accent);
-            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-right: 6px solid var(--accent-color);
+            transition: transform 0.2s;
         }
 
-        .news-card-badge { display: inline-block; background: #FEF3C7; color: #B45309; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 8px; margin-bottom: 12px; }
-        .news-card-title { font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px; }
-        .news-card-desc { font-size: 14px; color: #334155; line-height: 1.7; margin-bottom: 16px; white-space: pre-line; }
-
-        .media-container {
-            margin-top: 15px;
-            border-radius: 14px;
-            overflow: hidden;
-            background: #000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        .media-container img, .media-container video {
-            width: 100%;
-            max-height: 420px;
-            object-fit: contain;
-            display: block;
+        .news-card:hover {
+            transform: translateY(-2px);
         }
 
-        .view-section {
-            background: var(--card-bg); border-radius: 24px; padding: 30px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; margin-bottom: 25px;
-            border-top: 5px solid var(--primary);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        .news-title {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+            font-size: 18px;
         }
 
-        .auth-page-view {
-            background: var(--card-bg); border-radius: 24px; padding: 30px 24px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; 
-            border-top: 5px solid var(--accent);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        .news-content {
+            margin: 0 0 10px 0;
+            line-height: 1.6;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        .news-date {
+            font-size: 12px;
+            color: #888;
         }
 
-        /* كلاس وأنيميشن لحذف الشكاوى بسلاسة */
-        .ticket-card {
-            background: #F8FAFC; 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            padding: 15px; 
-            margin-bottom: 12px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+            background: white;
+            border-radius: 10px;
         }
-
-        .ticket-card.deleting {
-            opacity: 0;
-            transform: translateX(-30px) scale(0.9);
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            margin-bottom: 0;
-            border: none;
-            overflow: hidden;
-        }
-
-        .btn-back-home {
-            background: #F1F5F9; color: #334155; border: none; padding: 8px 16px;
-            border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer;
-            margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;
-            transition: all 0.25s ease;
-        }
-        .btn-back-home:hover { background: #E2E8F0; transform: translateX(4px); }
-
-        .role-tabs {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-            background: #F1F5F9; padding: 6px; border-radius: 16px; margin-bottom: 25px;
-        }
-        .role-tab {
-            padding: 13px; text-align: center; font-weight: 800; font-size: 14.5px;
-            border-radius: 12px; cursor: pointer; transition: all 0.3s ease;
-            color: var(--text-muted); border: none; background: transparent;
-        }
-        .role-tab.active { background: var(--primary); color: #FFFFFF; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
-
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-        .form-group { margin-bottom: 16px; text-align: right; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px; }
-        .form-control {
-            width: 100%; padding: 12px 14px; border: 2px solid var(--border);
-            border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
-            transition: all 0.3s ease;
-        }
-
-        .btn-submit {
-            width: 100%; padding: 14px; background: var(--primary); color: white;
-            border: none; border-radius: 12px; font-size: 15.5px; font-weight: 800;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 10px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
-        }
-
-        .profile-card { background: #F8FAFC; border: 1px solid var(--border); border-radius: 20px; padding: 24px; margin-top: 15px; }
-        .profile-avatar-box {
-            width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white; font-size: 32px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;
-        }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
-        th, td { padding: 12px 14px; border: 1px solid var(--border); }
-        th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
-
-        .custom-toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
-            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
-            z-index: 2000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
-        }
-        .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
 
-    <div id="customToast" class="custom-toast">
-        <span id="toastIcon">✨</span>
-        <span id="toastMessage">تمت العملية بنجاح</span>
-    </div>
-
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-    <aside class="sliding-sidebar" id="slidingSidebar">
-        <div class="sidebar-header">
-            <span class="sidebar-title">📌 الأقسام والخدمات</span>
-            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
-        </div>
-        <div class="sidebar-menu">
-            <div class="sidebar-item profile-item" id="sidebarProfileBtn" style="display: none;" onclick="closeSidebar(); navigateToSection('profileSection');">
-                <span class="sidebar-icon">👤</span>
-                <span class="sidebar-label">البروفايل الشخصي</span>
-            </div>
-            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('gradesSection');">
-                <span class="sidebar-icon">📊</span>
-                <span class="sidebar-label">الدرجات والتقييمات</span>
-            </div>
-            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('attendanceSection');">
-                <span class="sidebar-icon">📅</span>
-                <span class="sidebar-label">الحضور والغياب</span>
-            </div>
-            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('ticketsSection');">
-                <span class="sidebar-icon">📨</span>
-                <span class="sidebar-label">الشكاوى والاستفسارات</span>
-            </div>
-            <div class="sidebar-item" onclick="showHomePage()">
-                <span class="sidebar-icon">📢</span>
-                <span class="sidebar-label">الأخبار والإعلانات</span>
-            </div>
-        </div>
-    </aside>
-
     <header>
-        <div class="nav-container">
-            <div class="header-left">
-                <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="فتح الأقسام">
-                    ☰ <span style="font-size: 13px; font-weight: bold;">الأقسام</span>
-                </button>
-            </div>
-
-            <div class="logo-area" onclick="showHomePage()">
-                <div class="logo-box">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار المدرسة">
-                </div>
-                <span class="logo-text">مدرسة اللغات الرسمية الجديدة</span>
-            </div>
-
-            <div class="header-actions" id="headerAuthActions">
-                <button onclick="openAuthPage(false)" class="btn-header btn-header-outline">تسجيل الدخول 🔑</button>
-                <button onclick="openAuthPage(true)" class="btn-header btn-header-primary">إنشاء حساب جديد ✨</button>
-            </div>
-            <div class="header-actions" id="headerUserActions" style="display: none;">
-                <button onclick="navigateToSection('profileSection')" class="btn-header btn-header-outline">👤 البروفايل</button>
-                <button onclick="logoutUser()" class="btn-header btn-header-primary" style="background: #EF4444;">خروج 🚪</button>
-            </div>
-        </div>
+        <h1>مدرسة جرين دمياط الرسمية للغات 🏫</h1>
     </header>
 
-    <main class="main-wrapper">
-        
-        <div id="newsHomeContainer">
-            <div class="news-header-box">
-                <div class="news-header-title">📢 أحدث الأخبار والإعلانات المدرسية</div>
-            </div>
-            <div class="news-feed" id="newsFeedList">
-                <p style="color: #94A3B8; text-align: center; padding: 30px;">جاري تحميل الأخبار والتنبيهات المدرسية...</p>
-            </div>
+    <div class="container">
+        <h3>📢 أحدث الأخبار والتنبيهات:</h3>
+        <div id="news-container">
+            <div class="no-data">جاري تحميل البيانات...</div>
         </div>
-
-        <!-- قسم البروفايل الشخصي -->
-        <div class="view-section" id="profileSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <div id="unauthProfileBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary-dark);">👤 البروفايل الشخصي</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يرجى تسجيل الدخول لعرض وتحديث بيانات حسابك الشخصي.</p>
-                <button onclick="openAuthPage(false)" class="btn-submit">تسجيل الدخول للحساب 🔐</button>
-            </div>
-            <div id="authProfileBox" style="display: none;">
-                <div class="profile-card">
-                    <div class="profile-avatar-box" id="profileAvatar">🎓</div>
-                    <h3 id="profileName" style="text-align: center; font-size: 18px; font-weight: 900; color: var(--text-dark);">اسم المستخدم</h3>
-                    <p id="profileRoleBadge" style="text-align: center; font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 4px;">حساب طالب</p>
-                    <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
-                    <form onsubmit="saveProfileChanges(event)">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>الصف الدراسي</label>
-                                <input type="text" id="profileGrade" class="form-control" disabled style="background: #E2E8F0;">
-                            </div>
-                            <div class="form-group">
-                                <label id="lblProfileId">الرقم القومي / الكود</label>
-                                <input type="text" id="profileNationalId" class="form-control" disabled style="background: #E2E8F0;">
-                            </div>
-                            <div class="form-group">
-                                <label>رقم المحمول للتواصل</label>
-                                <input type="tel" id="profilePhone" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label>تغيير كلمة المرور</label>
-                                <input type="password" id="profilePassword" class="form-control" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-submit" style="background: var(--accent);">حفظ التعديلات 💾</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- قسم الدرجات والتقييمات -->
-        <div class="view-section" id="gradesSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <div id="unauthGradesBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary-dark);">📊 بوابة نتائج والتقييمات الأسبوعية</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">تتيح البوابة استعراض نتائج المواد المقررة لكافة المراحل الدراسية.</p>
-                <button onclick="openAuthPage(false)" class="btn-submit">عرض الدرجات الخاصة بك 🔐</button>
-            </div>
-            <div id="authGradesBox" style="display: none;">
-                <h2 id="gradesWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 15px;">📊 كشف درجات الطالب</h2>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>المادة الدراسية</th>
-                                <th>أعمال السنة</th>
-                                <th>التقييم الأسبوعي</th>
-                                <th>الامتحان النهائي</th>
-                                <th>المجموع الكلي</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gradesTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- قسم الحضور والغياب -->
-        <div class="view-section" id="attendanceSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <div id="unauthAttendanceBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary-dark);">📅 سجل انضباط الحضور والغياب</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">نظام إلكتروني موحد لمتابعة نسبة حضور الطالب وحالات الاستئذان.</p>
-                <button onclick="openAuthPage(false)" class="btn-submit">طلب تقرير الحضور والغياب 🔐</button>
-            </div>
-            <div id="authAttendanceBox" style="display: none;">
-                <h2 id="attendanceWelcomeTitle" style="font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 15px;">📅 سجل انضباط الطالب</h2>
-                <div style="background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
-                    <span style="font-size: 13px; color: var(--text-muted); display: block;">الحالة السلوكية وحضور الطالب</span>
-                    <div id="lblAttendanceStatus" style="font-size: 20px; font-weight: 900; margin-top: 10px; color: #0F172A;">منتظم</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- قسم الشكاوى والاستفسارات -->
-        <div class="view-section" id="ticketsSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <div id="unauthTicketsBox">
-                <h2 style="font-size: 18px; font-weight: 900; margin-bottom: 8px; color: var(--primary-dark);">📨 مركز الشكاوى والاستفسارات</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يمكن لأولياء الأمور تقديم طلبات الاستفسار أو الشكاوى لإدارة المدرسة.</p>
-                <button onclick="openAuthPage(false)" class="btn-submit">إرسال شكوى / استفسار جديد 📝</button>
-            </div>
-            <div id="authTicketsBox" style="display: none;">
-                <h2 style="font-size: 17px; font-weight: 800; color: var(--primary-dark); margin-bottom: 15px;">📨 إرسال استفسار أو شكوى جديد</h2>
-                <form onsubmit="submitParentTicket(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                        <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="ticketParentName" class="form-control" required></div>
-                        <div class="form-group"><label>رقم التواصل المحمول</label><input type="text" id="ticketParentEmail" class="form-control" required></div>
-                    </div>
-                    <div class="form-group">
-                        <label>نوع الطلب</label>
-                        <select id="ticketType" class="form-control">
-                            <option value="استفسار عن مستوى الطالب">استفسار عن مستوى الطالب</option>
-                            <option value="شكوى إدارية أو تعليمية">شكوى إدارية أو تعليمية</option>
-                            <option value="طلب مقابلة أو تعديل بيانات">طلب مقابلة أو تعديل بيانات</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>تفاصيل الشكوى أو الطلب</label>
-                        <textarea id="ticketContent" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <button type="submit" class="btn-submit">إرسال الطلب للإدارة 🚀</button>
-                </form>
-
-                <div style="margin-top: 25px;">
-                    <h3 style="font-size: 14px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">متابعة ردود الإدارة على طلباتك</h3>
-                    <div id="parentTicketsList"><p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- صفحة تسجيل الدخول / إنشاء حساب -->
-        <div class="auth-page-view" id="authPageView">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <div class="role-tabs">
-                <button class="role-tab active" id="tabStudent" onclick="switchRole('student')">🎓 حساب الطالب</button>
-                <button class="role-tab" id="tabParent" onclick="switchRole('parent')">👨‍👩‍👦 حساب ولي الأمر</button>
-            </div>
-
-            <h2 id="authTitle" style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 4px; color: var(--primary-dark);">🎓 تسجيل دخول الطالب</h2>
-            <p id="authDesc" style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل الرقم القومي أو كود الطالب للوصول للنتائج.</p>
-
-            <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
-                <div id="signInFields">
-                    <div class="form-group">
-                        <label id="lblLoginIdentifier">الرقم القومي / كود الطالب</label>
-                        <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الرقم القومي أو الكود">
-                    </div>
-                </div>
-
-                <div id="signUpFields" style="display: none;">
-                    <div class="form-grid">
-                        <div class="form-group student-only">
-                            <label>اسم الطالب الرباعي</label>
-                            <input type="text" id="studentFullName" class="form-control" placeholder="مثال: أحمد محمد علي حسن">
-                        </div>
-                        <div class="form-group student-only">
-                            <label>الرقم القومي للطالب (14 رقم)</label>
-                            <input type="text" id="studentNationalId" class="form-control" maxlength="14" placeholder="20000000000000">
-                        </div>
-                        <div class="form-group student-only">
-                            <label>كود الطالب المدرسي</label>
-                            <input type="text" id="studentCode" class="form-control" placeholder="مثال: 12345678">
-                        </div>
-
-                        <div class="form-group parent-only" style="display: none;">
-                            <label>اسم ولي الأمر الرباعي</label>
-                            <input type="text" id="parentFullName" class="form-control" placeholder="مثال: محمد علي حسن أحمد">
-                        </div>
-                        <div class="form-group parent-only" style="display: none;">
-                            <label>الرقم القومي لولي الأمر (14 رقم)</label>
-                            <input type="text" id="parentNationalId" class="form-control" maxlength="14" placeholder="28000000000000">
-                        </div>
-                        <div class="form-group parent-only" style="display: none;">
-                            <label>اسم الطالب التابع له</label>
-                            <input type="text" id="parentStudentName" class="form-control" placeholder="اسم الطالب الكامل">
-                        </div>
-
-                        <div class="form-group">
-                            <label>الصف الدراسي</label>
-                            <select id="gradeSelect" class="form-control">
-                                <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                                <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                                <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                                <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                                <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                                <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                                <option value="الصف الأول الاعدادي">الصف الأول الاعدادي</option>
-                                <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
-                                <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>رقم المحمول</label>
-                            <input type="tel" id="phoneInput" class="form-control" placeholder="01000000000">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>كلمة المرور</label>
-                    <input type="password" id="authPasswordInput" class="form-control" placeholder="••••••••" required>
-                </div>
-
-                <button type="submit" id="authSubmitBtn" class="btn-submit">تسجيل الدخول 📊</button>
-            </form>
-
-            <div style="text-align: center; margin-top: 15px; font-size: 13px; font-weight: bold;">
-                <span id="toggleAuthText" onclick="toggleAuthMode()" style="cursor: pointer; color: var(--primary-dark);">ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)</span>
-            </div>
-        </div>
-
-    </main>
+    </div>
 
     <script>
+        // إعدادات اتصال Firebase الخاصة بمشروعك
         const firebaseConfig = {
-            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
-            authDomain: "green-damietta-b0a29.firebaseapp.com",
-            databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com",
-            projectId: "green-damietta-b0a29",
-            storageBucket: "green-damietta-b0a29.firebasestorage.app",
-            messagingSenderId: "210935345765",
-            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
-            measurementId: "G-CT9KYEKXML"
+            databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com/"
         };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+
+        // تهيئة فايربيس
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
         const db = firebase.database();
+        const newsContainer = document.getElementById('news-container');
 
-        let currentUser = null;
-        let isSignUpMode = false;
-        let currentRole = 'student';
+        // جلب الأخبار وتحديثها أوتوماتيكياً
+        db.ref('news').on('value', (snapshot) => {
+            newsContainer.innerHTML = '';
+            const data = snapshot.val();
 
-        function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
-            const toast = document.getElementById('customToast');
-            document.getElementById('toastIcon').textContent = icon;
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.add('show');
-            if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
-        }
+            if (data) {
+                // تحويل البيانات لمصفوفة وعرض أحدث الأخبار في الأول
+                const newsList = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                })).reverse();
 
-        function toggleSidebar() {
-            document.getElementById('slidingSidebar').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
-        }
-
-        function closeSidebar() {
-            document.getElementById('slidingSidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            loadPublicNews();
-            checkSavedLogin();
+                newsList.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'news-card';
+                    card.innerHTML = `
+                        <h4 class="news-title">${item.title || 'تنبيه مدرسي'}</h4>
+                        <p class="news-content">${item.content || ''}</p>
+                        <div class="news-date">📅 ${item.date || 'منذ قليل'}</div>
+                    `;
+                    newsContainer.appendChild(card);
+                });
+            } else {
+                newsContainer.innerHTML = '<div class="no-data">لا توجد أخبار أو تنبيهات حالياً.</div>';
+            }
+        }, (error) => {
+            console.error("خطأ في جلب البيانات:", error);
+            newsContainer.innerHTML = '<div class="no-data">حدث خطأ أثناء تحميل الأخبار، يرجى المحاولة لاحقاً.</div>';
         });
-
-        function showHomePage() {
-            closeSidebar();
-            document.querySelectorAll('.view-section, .auth-page-view').forEach(sec => sec.style.display = 'none');
-            document.getElementById('newsHomeContainer').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function navigateToSection(sectionId) {
-            closeSidebar();
-            if (!currentUser && sectionId !== 'newsHomeContainer') {
-                showToast("يرجى تسجيل الدخول أولاً للوصول لهذه الخدمة", "🔒");
-                openAuthPage(false);
-                return;
-            }
-            document.querySelectorAll('.view-section, .auth-page-view, #newsHomeContainer').forEach(sec => sec.style.display = 'none');
-            document.getElementById(sectionId).style.display = 'block';
-            
-            if (sectionId === 'profileSection') renderProfileData();
-            if (sectionId === 'gradesSection') renderGradesData();
-            if (sectionId === 'attendanceSection') renderAttendanceData();
-            if (sectionId === 'ticketsSection') loadParentTickets();
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function openAuthPage(signUp = false) {
-            closeSidebar();
-            isSignUpMode = signUp;
-            document.querySelectorAll('.view-section, #newsHomeContainer').forEach(sec => sec.style.display = 'none');
-            document.getElementById('authPageView').style.display = 'block';
-            updateAuthFormUI();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function switchRole(role) {
-            currentRole = role;
-            document.getElementById('tabStudent').classList.toggle('active', role === 'student');
-            document.getElementById('tabParent').classList.toggle('active', role === 'parent');
-            
-            document.querySelectorAll('.student-only').forEach(el => el.style.display = (role === 'student' && isSignUpMode) ? 'block' : 'none');
-            document.querySelectorAll('.parent-only').forEach(el => el.style.display = (role === 'parent' && isSignUpMode) ? 'block' : 'none');
-            
-            if (role === 'student') {
-                document.getElementById('authTitle').textContent = isSignUpMode ? '🎓 إنشاء حساب طالب جديد' : '🎓 تسجيل دخول الطالب';
-                document.getElementById('lblLoginIdentifier').textContent = 'الرقم القومي / كود الطالب';
-            } else {
-                document.getElementById('authTitle').textContent = isSignUpMode ? '👨‍👩‍👦 إنشاء حساب ولي أمر جديد' : '👨‍👩‍👦 تسجيل دخول ولي الأمر';
-                document.getElementById('lblLoginIdentifier').textContent = 'الرقم القومي لولي الأمر';
-            }
-        }
-
-        function toggleAuthMode() {
-            isSignUpMode = !isSignUpMode;
-            updateAuthFormUI();
-        }
-
-        function updateAuthFormUI() {
-            document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
-            document.getElementById('signInFields').style.display = isSignUpMode ? 'none' : 'block';
-            document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'إتمام التسجيل 🚀' : 'تسجيل الدخول 📊';
-            document.getElementById('toggleAuthText').textContent = isSignUpMode ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد (Sign Up)';
-            switchRole(currentRole);
-        }
-
-        // دالة عرض الأخبار والفيديوهات المباشرة بالمشغل الطبيعي العادي
-        function loadPublicNews() {
-            db.ref('news').on('value', (snapshot) => {
-                const container = document.getElementById('newsFeedList');
-                container.innerHTML = '';
-                const newsData = snapshot.val();
-                
-                if (!newsData) {
-                    container.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 30px;">لا توجد إعلانات منشورة حالياً.</p>';
-                    return;
-                }
-
-                Object.keys(newsData).reverse().forEach(key => {
-                    const item = newsData[key];
-                    
-                    let mediaHtml = '';
-                    if (item.image) {
-                        mediaHtml += `<div class="media-container"><img src="${item.image}" alt="صورة الإعلان"></div>`;
-                    }
-                    if (item.video) {
-                        mediaHtml += `
-                            <div class="media-container" style="margin-top: 10px;">
-                                <video controls preload="metadata" style="width: 100%; border-radius: 12px; background: #000;">
-                                    <source src="${item.video}" type="video/mp4">
-                                    متصفحك لا يدعم عرض الفيديو المباشر
-                                </video>
-                            </div>`;
-                    }
-
-                    container.innerHTML += `
-                        <div class="news-card">
-                            <span class="news-card-badge">📌 ${item.badge || 'إعلان'}</span>
-                            <div class="news-card-title">${item.title}</div>
-                            <p class="news-card-desc">${item.content}</p>
-                            ${mediaHtml}
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        async function handleAuthAction(e) {
-            e.preventDefault();
-            const password = document.getElementById('authPasswordInput').value.trim();
-
-            if (isSignUpMode) {
-                let data = { role: currentRole, password, grade: document.getElementById('gradeSelect').value, phone: document.getElementById('phoneInput').value.trim() };
-                let pushKey = '';
-
-                if (currentRole === 'student') {
-                    data.name = document.getElementById('studentFullName').value.trim();
-                    data.nationalId = document.getElementById('studentNationalId').value.trim();
-                    data.code = document.getElementById('studentCode').value.trim();
-                    if (!data.name || !data.nationalId) return showToast("يرجى إكمال بيانات الطالب الأساسية", "⚠️");
-                    pushKey = data.nationalId;
-                } else {
-                    data.parentName = document.getElementById('parentFullName').value.trim();
-                    data.parentNationalId = document.getElementById('parentNationalId').value.trim();
-                    data.parentStudentName = document.getElementById('parentStudentName').value.trim();
-                    if (!data.parentName || !data.parentNationalId) return showToast("يرجى إكمال بيانات ولي الأمر الأساسية", "⚠️");
-                    pushKey = data.parentNationalId;
-                }
-
-                await db.ref('students/' + pushKey).set(data);
-                currentUser = data;
-                localStorage.setItem('school_user_key', pushKey);
-                showToast("تم إنشاء الحساب بنجاح!", "🎉");
-                handleSuccessfulLogin();
-
-            } else {
-                const identifier = document.getElementById('loginIdentifierInput').value.trim();
-                if (!identifier || !password) return showToast("يرجى إدخال البيانات المطلوبة", "⚠️");
-
-                const snapshot = await db.ref('students/' + identifier).once('value');
-                const userData = snapshot.val();
-
-                if (!userData || userData.password !== password) {
-                    return showToast("بيانات الدخول غير صحيحة، تأكد من الرقم وكلمة المرور", "❌");
-                }
-
-                currentUser = userData;
-                localStorage.setItem('school_user_key', identifier);
-                showToast("تم تسجيل الدخول بنجاح أهلاً بك!", "👋");
-                handleSuccessfulLogin();
-            }
-        }
-
-        function handleSuccessfulLogin() {
-            document.getElementById('headerAuthActions').style.display = 'none';
-            document.getElementById('headerUserActions').style.display = 'flex';
-            document.getElementById('sidebarProfileBtn').style.display = 'flex';
-            showHomePage();
-        }
-
-        async function checkSavedLogin() {
-            const savedKey = localStorage.getItem('school_user_key');
-            if (savedKey) {
-                const snapshot = await db.ref('students/' + savedKey).once('value');
-                if (snapshot.exists()) {
-                    currentUser = snapshot.val();
-                    handleSuccessfulLogin();
-                }
-            }
-        }
-
-        function logoutUser() {
-            localStorage.removeItem('school_user_key');
-            currentUser = null;
-            document.getElementById('headerAuthActions').style.display = 'flex';
-            document.getElementById('headerUserActions').style.display = 'none';
-            document.getElementById('sidebarProfileBtn').style.display = 'none';
-            showHomePage();
-            showToast("تم تسجيل الخروج بنجاح", "🚪");
-        }
-
-        function renderProfileData() {
-            if (!currentUser) return;
-            const isStudent = currentUser.role !== 'parent';
-            document.getElementById('profileName').textContent = isStudent ? currentUser.name : currentUser.parentName;
-            document.getElementById('profileRoleBadge').textContent = isStudent ? 'حساب طالب 🎓' : 'حساب ولي أمر 👨‍👩‍👦';
-            document.getElementById('profileGrade').value = currentUser.grade || 'غير محدد';
-            document.getElementById('profileNationalId').value = currentUser.nationalId || currentUser.parentNationalId || currentUser.code || '---';
-            document.getElementById('profilePhone').value = currentUser.phone || '';
-            document.getElementById('profilePassword').value = currentUser.password || '';
-        }
-
-        async function saveProfileChanges(e) {
-            e.preventDefault();
-            const phone = document.getElementById('profilePhone').value.trim();
-            const password = document.getElementById('profilePassword').value.trim();
-            const key = currentUser.nationalId || currentUser.parentNationalId;
-            
-            await db.ref('students/' + key).update({ phone, password });
-            currentUser.phone = phone;
-            currentUser.password = password;
-            showToast("تم حفظ التعديلات بنجاح", "💾");
-        }
-
-        const gradeSubjectsDetailed = {
-            lowerPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'discover', name: 'Discover / اكتشف' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            upperPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
-                { id: 'skills', name: 'المهارات المهنية' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            prep: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'computer', name: 'الحاسب الآلي' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ]
-        };
-
-        function getSubjectsForGradeName(gradeName) {
-            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
-            if (gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
-            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
-            else return gradeSubjectsDetailed.lowerPrimary;
-        }
-
-        function renderGradesData() {
-            if (!currentUser) return;
-            const tbody = document.getElementById('gradesTableBody');
-            tbody.innerHTML = '';
-            const subjects = getSubjectsForGradeName(currentUser.grade);
-            
-            subjects.forEach(sub => {
-                const work = currentUser[sub.id + '_work'] || 0;
-                const weekly = currentUser[sub.id + '_weekly'] || 0;
-                const final = currentUser[sub.id + '_final'] || 0;
-                const total = work + weekly + final;
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub.name}</b></td>
-                        <td>${work}</td>
-                        <td>${weekly}</td>
-                        <td>${final}</td>
-                        <td><b>${total}</b></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderAttendanceData() {
-            if (!currentUser) return;
-            document.getElementById('lblAttendanceStatus').textContent = currentUser.attendance || 'منتظم ✅';
-        }
-
-        async function submitParentTicket(e) {
-            e.preventDefault();
-            const parentName = document.getElementById('ticketParentName').value.trim();
-            const email = document.getElementById('ticketParentEmail').value.trim();
-            const ticketType = document.getElementById('ticketType').value;
-            const content = document.getElementById('ticketContent').value.trim();
-
-            await db.ref('tickets').push({
-                parentName,
-                email,
-                ticketType,
-                ticketContent: content,
-                studentName: currentUser.name || currentUser.parentStudentName || 'ولي أمر',
-                status: 'قيد المراجعة',
-                timestamp: Date.now()
-            });
-
-            showToast("تم إرسال الشكوى للإدارة بنجاح", "🚀");
-            document.getElementById('ticketContent').value = '';
-            loadParentTickets();
-        }
-
-        function loadParentTickets() {
-            db.ref('tickets').on('value', (snapshot) => {
-                const container = document.getElementById('parentTicketsList');
-                container.innerHTML = '';
-                const tickets = snapshot.val();
-                if (!tickets) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد طلبات سابقة.</p>';
-                    return;
-                }
-
-                Object.keys(tickets).reverse().forEach(k => {
-                    const t = tickets[k];
-                    container.innerHTML += `
-                        <div class="ticket-card" id="ticket_${k}">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                                <b>📌 ${t.ticketType}</b>
-                                <button onclick="deleteParentTicket('${k}')" style="background:none; border:none; color:#EF4444; font-weight:bold; cursor:pointer;">حذف 🗑️</button>
-                            </div>
-                            <p style="font-size: 13px; color: #334155; margin-bottom: 8px;">${t.ticketContent}</p>
-                            <div style="background: #E2E8F0; padding: 8px 12px; border-radius: 8px; font-size: 12.5px; color: var(--primary-dark);">
-                                <b>💬 رد الإدارة:</b> ${t.adminReply || 'جارٍ مراجعة الطلب من الإدارة...'}
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        async function deleteParentTicket(key) {
-            const card = document.getElementById('ticket_' + key);
-            if (card) {
-                card.classList.add('deleting');
-                setTimeout(async () => {
-                    await db.ref('tickets/' + key).remove();
-                    showToast("تم حذف الطلب بنجاح", "🗑️");
-                }, 400);
-            }
-        }
     </script>
 </body>
 </html>
