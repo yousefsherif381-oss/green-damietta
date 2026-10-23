@@ -42,20 +42,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* شاشة تسجيل الدخول للأدمن */
-        .admin-login-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(12, 74, 110, 0.95); backdrop-filter: blur(12px);
-            z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .login-card {
-            background: var(--card-bg); border-radius: 24px; padding: 35px 28px;
-            width: 100%; max-width: 420px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-            border-top: 5px solid var(--accent); text-align: center;
-        }
-        .login-card h2 { font-size: 22px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px; }
-        .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 25px; }
-
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
@@ -176,7 +162,7 @@
             background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
             display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
-            z-index: 6000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+            z-index: 3000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
@@ -186,25 +172,6 @@
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
-    </div>
-
-    <!-- شاشة تسجيل دخول الأدمن سحابياً -->
-    <div class="admin-login-overlay" id="adminLoginOverlay">
-        <div class="login-card">
-            <h2>🔐 تسجيل دخول الإدارة</h2>
-            <p>أدخل اسم المستخدم وكلمة المرور للوصول للوحة التحكم</p>
-            <form onsubmit="handleAdminLogin(event)">
-                <div style="margin-bottom: 15px; text-align: right;">
-                    <label style="font-size: 13px; font-weight: 800; display: block; margin-bottom: 5px;">اسم المستخدم</label>
-                    <input type="text" id="adminUsernameInput" class="form-control" placeholder="admin" required>
-                </div>
-                <div style="margin-bottom: 20px; text-align: right;">
-                    <label style="font-size: 13px; font-weight: 800; display: block; margin-bottom: 5px;">كلمة المرور</label>
-                    <input type="password" id="adminPasswordInput" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px;">دخول لوحة التحكم 🚀</button>
-            </form>
-        </div>
     </div>
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -235,10 +202,6 @@
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
             </div>
-            <div class="sidebar-item" id="menuItemProfile" onclick="switchAdminSection('profileSection', this)" style="border-color: var(--accent); background: rgba(245, 158, 11, 0.15);">
-                <span class="sidebar-icon">👤</span>
-                <span class="sidebar-label">بروفايل الإدارة وإعدادات الحساب</span>
-            </div>
         </div>
     </aside>
 
@@ -251,10 +214,7 @@
                 </div>
                 <span class="logo-text">لوحة التحكم والإدارة</span>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="adminLogout()" class="btn btn-danger" style="padding: 8px 14px;">خروج 🚪</button>
-                <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
-            </div>
+            <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
         </div>
     </header>
 
@@ -274,9 +234,14 @@
                         <input type="file" id="newsImageFile" class="form-control" accept="image/*" style="padding: 8px;">
                     </div>
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (اختياري):</label>
-                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="https://youtu.be/xxx">
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (YouTube / Google Drive) (اختياري):</label>
+                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)">
                     </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز (أقل من 2 دقيقة):</label>
+                    <input type="file" id="newsVideoFile" class="form-control" accept="video/mp4,video/webm,video/ogg" style="padding: 8px;">
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
@@ -369,28 +334,6 @@
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
-
-        <!-- بروفايل الإدارة وإعدادات الحساب سحابياً -->
-        <div class="admin-section" id="profileSection">
-            <div class="card-title">👤 بروفايل الإدارة وإعدادات الحساب سحابياً</div>
-            <div style="background: #F8FAFC; padding: 25px; border-radius: 18px; border: 1px solid var(--border); max-width: 500px; margin: auto;">
-                <form onsubmit="updateAdminCredentials(event)">
-                    <div style="margin-bottom: 16px; text-align: right;">
-                        <label style="font-weight: 800; font-size: 13.5px; display: block; margin-bottom: 6px;">اسم المستخدم الجديد</label>
-                        <input type="text" id="newAdminUser" class="form-control" required>
-                    </div>
-                    <div style="margin-bottom: 16px; text-align: right;">
-                        <label style="font-weight: 800; font-size: 13.5px; display: block; margin-bottom: 6px;">كلمة المرور الجديدة</label>
-                        <input type="password" id="newAdminPass" class="form-control" placeholder="أدخل كلمة المرور الجديدة" required>
-                    </div>
-                    <div style="margin-bottom: 20px; text-align: right;">
-                        <label style="font-weight: 800; font-size: 13.5px; display: block; margin-bottom: 6px;">تأكيد كلمة المرور</label>
-                        <input type="password" id="confirmAdminPass" class="form-control" placeholder="أعد كتابة كلمة المرور" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px;">حفظ بيانات الدخول سحابياً ☁️</button>
-                </form>
-            </div>
-        </div>
     </main>
 
     <script>
@@ -416,39 +359,6 @@
             document.getElementById('toastMessage').textContent = message;
             toast.classList.add('show');
             if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('admin_logged_in') === 'true') {
-                document.getElementById('adminLoginOverlay').style.display = 'none';
-                loadAllData();
-            }
-        });
-
-        async function handleAdminLogin(e) {
-            e.preventDefault();
-            const user = document.getElementById('adminUsernameInput').value.trim();
-            const pass = document.getElementById('adminPasswordInput').value.trim();
-
-            const snapshot = await db.ref('admin/credentials').once('value');
-            const creds = snapshot.val();
-            const validUser = creds ? creds.username : 'admin';
-            const validPass = creds ? creds.password : '123456';
-
-            if (user === validUser && pass === validPass) {
-                localStorage.setItem('admin_logged_in', 'true');
-                document.getElementById('adminLoginOverlay').style.display = 'none';
-                showToast("أهلاً بك في لوحة التحكم!", "🎉");
-                loadAllData();
-            } else {
-                showToast("اسم المستخدم أو كلمة المرور غير صحيحة!", "❌");
-            }
-        }
-
-        function adminLogout() {
-            localStorage.removeItem('admin_logged_in');
-            document.getElementById('adminLoginOverlay').style.display = 'flex';
-            showToast("تم تسجيل الخروج بنجاح", "🚪");
         }
 
         const gradeSubjectsDetailed = {
@@ -487,13 +397,15 @@
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
+        window.addEventListener('DOMContentLoaded', () => { loadAllData(); });
+
         function loadAllData() {
             db.ref('students').on('value', (snapshot) => {
                 usersCache = snapshot.val() || {};
                 renderUsersTable();
+                loadTicketsLive();
             });
             loadNewsLive();
-            loadTicketsLive();
         }
 
         function toggleSidebar() {
@@ -506,34 +418,14 @@
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
-        async function switchAdminSection(sectionId, menuEl) {
+        function switchAdminSection(sectionId, menuEl) {
             document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             const targetSec = document.getElementById(sectionId);
             if (targetSec) targetSec.classList.add('active');
             if (menuEl) menuEl.classList.add('active');
             closeSidebar();
-
-            if (sectionId === 'profileSection') {
-                const snapshot = await db.ref('admin/credentials').once('value');
-                const creds = snapshot.val();
-                document.getElementById('newAdminUser').value = creds ? creds.username : 'admin';
-            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function updateAdminCredentials(e) {
-            e.preventDefault();
-            const newUser = document.getElementById('newAdminUser').value.trim();
-            const newPass = document.getElementById('newAdminPass').value.trim();
-            const confirmPass = document.getElementById('confirmAdminPass').value.trim();
-
-            if (newPass !== confirmPass) return showToast("كلمات المرور غير متطابقة!", "⚠️");
-
-            await db.ref('admin/credentials').set({ username: newUser, password: newPass });
-            showToast("تم تحديث وحفظ بيانات الدخول سحابياً بنجاح! ☁️", "✅");
-            document.getElementById('newAdminPass').value = '';
-            document.getElementById('confirmAdminPass').value = '';
         }
 
         function renderUsersTable() {
@@ -669,9 +561,12 @@
             const content = document.getElementById('newsContent').value.trim();
             const imageFile = document.getElementById('newsImageFile').files[0];
             const videoUrl = document.getElementById('newsVideoUrl').value.trim();
+            const videoFile = document.getElementById('newsVideoFile').files[0];
 
             let imageData = '';
-            showToast("جاري نشر الإعلان...", "⏳", false);
+            let videoData = videoUrl; // إعطاء الأولوية للرابط مباشرة
+
+            showToast("جاري معالجة ورفع الملفات...", "⏳", false);
 
             const readFile = (file) => {
                 return new Promise((resolve) => {
@@ -681,42 +576,66 @@
                 });
             };
 
-            if (imageFile) imageData = await readFile(imageFile);
+            try {
+                if (imageFile) {
+                    imageData = await readFile(imageFile);
+                }
+                // لو المدمين متحطش رابط، يرفع الملف المباشر من الموبايل
+                if (!videoData && videoFile) {
+                    videoData = await readFile(videoFile);
+                }
 
-            await db.ref('news').push({
-                title, badge, content, image: imageData, video: videoUrl, timestamp: Date.now()
-            });
+                await db.ref('news').push({
+                    title,
+                    badge,
+                    content,
+                    image: imageData,
+                    video: videoData,
+                    timestamp: Date.now()
+                });
 
-            showToast("تم نشر الإعلان بنجاح!", "🚀");
-            e.target.reset();
+                showToast("تم نشر الإعلان والفيديو بنجاح!", "🚀", true, 3500);
+
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsBadge').value = '';
+                document.getElementById('newsContent').value = '';
+                document.getElementById('newsImageFile').value = '';
+                document.getElementById('newsVideoUrl').value = '';
+                document.getElementById('newsVideoFile').value = '';
+
+            } catch (error) {
+                showToast("حدث خطأ أثناء رفع الملفات، يفضل استخدام رابط الفيديو بدلاً من رفع الملف المباشر", "❌", true, 4000);
+            }
         }
 
         async function deleteNews(key) {
             await db.ref('news/' + key).remove();
-            showToast("تم حذف الخبر بنجاح", "🗑️");
+            showToast("تم حذف الإعلان بنجاح", "🗑️");
         }
 
         function loadTicketsLive() {
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
                 container.innerHTML = '';
-                const tickets = snapshot.val();
-                if (!tickets) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو طلبات حالياً.</p>';
+                ticketsCache = snapshot.val() || {};
+                const keys = Object.keys(ticketsCache);
+                if (keys.length === 0) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
                     return;
                 }
-                Object.keys(tickets).reverse().forEach(key => {
-                    const t = tickets[key];
+                keys.reverse().forEach(k => {
+                    const t = ticketsCache[k];
                     container.innerHTML += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <b>👤 ولي الأمر: ${t.parentName} (${t.email})</b>
-                                <span style="background: #FEF3C7; color: #B45309; padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">${t.ticketType}</span>
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 15px; border-radius: 14px; margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <b>👤 ${t.parentName} (${t.studentName || ''})</b>
+                                <span style="font-size: 12px; font-weight: bold; color: var(--primary);">${t.ticketType}</span>
                             </div>
-                            <p style="font-size: 14px; color: #334155; margin-bottom: 12px;">${t.ticketContent}</p>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="reply_${key}" class="form-control" placeholder="اكتب رد الإدارة..." value="${t.adminReply || ''}">
-                                <button onclick="sendReply('${key}')" class="btn btn-success" style="white-space: nowrap;">إرسال الرد 💬</button>
+                            <p style="font-size: 13px; color: #334155; margin-bottom: 10px;">${t.ticketContent}</p>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <input type="text" id="reply_${k}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}">
+                                <button onclick="saveTicketReply('${k}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 💬</button>
+                                <button onclick="deleteTicketAdmin('${k}')" class="btn btn-danger">حذف 🗑️</button>
                             </div>
                         </div>
                     `;
@@ -724,11 +643,16 @@
             });
         }
 
-        async function sendReply(key) {
+        async function saveTicketReply(key) {
             const reply = document.getElementById('reply_' + key).value.trim();
             if (!reply) return showToast("يرجى كتابة نص الرد أولاً", "⚠️");
             await db.ref('tickets/' + key).update({ adminReply: reply, status: 'تم الرد' });
-            showToast("تم إرسال الرد بنجاح", "✅");
+            showToast("تم إرسال الرد لولي الأمر بنجاح", "✅");
+        }
+
+        async function deleteTicketAdmin(key) {
+            await db.ref('tickets/' + key).remove();
+            showToast("تم حذف الطلب بنجاح", "🗑️");
         }
     </script>
 </body>
