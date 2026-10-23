@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مدرسة اللغات الرسمية الجديدة | البوابة الإلكترونية</title>
     <!-- خط Cairo المميز -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -71,67 +71,37 @@
             align-items: center;
             gap: 8px;
         }
-        .btn-sidebar-toggle:hover { 
-            background: rgba(255, 255, 255, 0.2); 
-            border-color: var(--accent);
-        }
+        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-        }
-
+        .logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .logo-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #ffffff;
-            padding: 2px;
-            border: 2px solid var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            width: 48px; height: 48px; border-radius: 50%; background: #ffffff;
+            padding: 2px; border: 2px solid var(--accent); display: flex;
+            align-items: center; justify-content: center; overflow: hidden;
         }
         .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
         .logo-text { font-size: 17px; font-weight: 800; color: #FFFFFF; }
 
         .header-actions { display: flex; gap: 10px; }
         .btn-header {
-            padding: 8px 18px;
-            border-radius: 10px;
-            font-size: 13.5px;
-            font-weight: 800;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
+            padding: 8px 18px; border-radius: 10px; font-size: 13.5px;
+            font-weight: 800; cursor: pointer; border: none; transition: all 0.3s ease;
         }
-        .btn-header-outline {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .btn-header-outline:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
+        .btn-header-outline { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
         .btn-header-primary { background: var(--accent); color: #fff; }
-        .btn-header-primary:hover { background: var(--accent-hover); }
 
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
-            z-index: 1000; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
         .sliding-sidebar {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
-            background: #0f172a;
-            z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 24px 20px; display: flex; flex-direction: column;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #0f172a; z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.1); padding: 24px 20px;
+            display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sliding-sidebar.active { right: 0; }
 
@@ -146,8 +116,7 @@
         .sidebar-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px;
             border-radius: 12px; background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            cursor: pointer; transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer; transition: all 0.2s ease;
         }
         .sidebar-item:hover { background: rgba(2, 132, 199, 0.2); border-color: var(--primary); }
         .sidebar-icon { font-size: 18px; }
@@ -156,7 +125,6 @@
         .main-wrapper { max-width: 950px; width: 100%; margin: 30px auto; padding: 0 16px; flex: 1; }
 
         .news-header-title { font-size: 20px; font-weight: 800; color: #FFFFFF; margin-bottom: 20px; text-align: center; }
-
         .news-feed { display: flex; flex-direction: column; gap: 16px; }
         .news-card {
             background: var(--card-bg); border-radius: 16px; padding: 24px;
@@ -166,12 +134,6 @@
         .view-section, .auth-page-view {
             background: var(--card-bg); border-radius: 20px; padding: 28px;
             box-shadow: var(--shadow); display: none; margin-bottom: 25px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .btn-back-home {
@@ -207,14 +169,16 @@
         }
         .btn-submit:hover { background: var(--primary-dark); }
 
-        /* تصميم الجدول الواضح والكبير */
-        .grades-card-box {
-            background: #FFFFFF;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border);
+        /* تنسيق البروفايل الجديد والمميز */
+        .profile-card { background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+        .profile-avatar-box {
+            width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; font-size: 32px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
         }
 
+        /* تنسيق جدول الدرجات الواضح */
+        .grades-card-box { background: #FFFFFF; border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
         .grades-summary-card {
             background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             color: white; border-radius: 14px; padding: 18px; margin-bottom: 20px;
@@ -223,41 +187,13 @@
         .grades-summary-item h4 { font-size: 13px; opacity: 0.9; font-weight: 600; }
         .grades-summary-item span { font-size: 22px; font-weight: 900; }
 
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 2px solid #E2E8F0;
-            background: #FFFFFF;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-            font-size: 15px;
-            color: #0F172A;
-        }
-
-        th {
-            background: #0284C7;
-            color: #FFFFFF;
-            font-size: 15px;
-            font-weight: 800;
-            padding: 14px;
-            border: 1px solid #0369A1;
-        }
-
-        td {
-            padding: 14px;
-            border: 1px solid #E2E8F0;
-            font-weight: 700;
-        }
-
+        .table-responsive { overflow-x: auto; border-radius: 12px; border: 2px solid #E2E8F0; background: #FFFFFF; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 15px; color: #0F172A; }
+        th { background: #0284C7; color: #FFFFFF; font-size: 15px; font-weight: 800; padding: 14px; border: 1px solid #0369A1; }
+        td { padding: 14px; border: 1px solid #E2E8F0; font-weight: 700; }
         tr:nth-child(even) { background-color: #F8FAFC; }
 
-        .badge-status {
-            padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; display: inline-block;
-        }
+        .badge-status { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; display: inline-block; }
         .badge-success { background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; }
 
         .custom-toast {
@@ -336,7 +272,7 @@
 
     <main class="main-wrapper">
         
-        <!-- قسم الأخبار والصفحة الرئيسية -->
+        <!-- قسم الأخبار -->
         <div id="newsHomeContainer">
             <div class="news-header-title">📢 أحدث التنبيهات والإعلانات المدرسية</div>
             <div class="news-feed" id="newsFeedList">
@@ -344,19 +280,20 @@
             </div>
         </div>
 
-        <!-- قسم البروفايل -->
+        <!-- قسم البروفايل الشخصي الموسع -->
         <div class="view-section" id="profileSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthProfileBox">
                 <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 8px;">👤 البروفايل الشخصي</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يرجى تسجيل الدخول لعرض وتحديث حسابك.</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">يرجى تسجيل الدخول لعرض وتعديل بيانات حسابك الشخصي.</p>
                 <button onclick="openAuthPage(false)" class="btn-submit">تسجيل الدخول الآن 🔐</button>
             </div>
             <div id="authProfileBox" style="display: none;">
                 <div class="profile-card">
-                    <h3 id="profileName" style="text-align: center; font-size: 18px; font-weight: 800;">اسم المستخدم</h3>
-                    <p id="profileRoleBadge" style="text-align: center; font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 2px;">طالب</p>
-                    <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+                    <div class="profile-avatar-box" id="profileAvatarIcon">🎓</div>
+                    <h3 id="profileName" style="text-align: center; font-size: 19px; font-weight: 900; color: var(--text-dark);">اسم المستخدم</h3>
+                    <p id="profileRoleBadge" style="text-align: center; font-size: 12.5px; font-weight: 800; color: var(--primary); margin-top: 2px;">طالب</p>
+                    <hr style="margin: 18px 0; border: none; border-top: 1px solid var(--border);">
                     <form onsubmit="saveProfileChanges(event)">
                         <div class="form-grid">
                             <div class="form-group">
@@ -364,34 +301,44 @@
                                 <input type="text" id="profileGrade" class="form-control" disabled style="background: #F1F5F9;">
                             </div>
                             <div class="form-group">
-                                <label>الرقم القومي / الكود</label>
+                                <label>الرقم القومي / كود الطالب</label>
                                 <input type="text" id="profileNationalId" class="form-control" disabled style="background: #F1F5F9;">
                             </div>
                             <div class="form-group">
-                                <label>رقم المحمول</label>
+                                <label>رقم المحمول الأساسي</label>
                                 <input type="tel" id="profilePhone" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label>كلمة المرور</label>
-                                <input type="password" id="profilePassword" class="form-control" required>
+                                <label>رقم هاتف إضافي (للطوارئ)</label>
+                                <input type="tel" id="profileEmergencyPhone" class="form-control" placeholder="01111111111">
+                            </div>
+                            <div class="form-group">
+                                <label>البريد الإلكتروني</label>
+                                <input type="email5" id="profileEmail" class="form-control" placeholder="student@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label>عنوان السكن</label>
+                                <input type="text" id="profileAddress" class="form-control" placeholder="دمياط - شارع النيل">
+                            </div>
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label>تغيير كلمة المرور الجديدة</label>
+                                <input type="password" id="profilePassword" class="form-control" placeholder="أدخل كلمة مرور جديدة إن أردت" required>
                             </div>
                         </div>
-                        <button type="submit" class="btn-submit" style="background: var(--accent);">حفظ التعديلات 💾</button>
+                        <button type="submit" class="btn-submit" style="background: var(--accent);">حفظ التعديلات والبيانات 💾</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- قسم الدرجات والنتائج المحمي -->
+        <!-- قسم الدرجات والنتائج -->
         <div class="view-section" id="gradesSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            
             <div id="unauthGradesBox">
                 <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 8px;">📊 كشف نتائج وتقييم الطالب</h2>
                 <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">هذا القسم محمي، قم بتسجيل الدخول للاطلاع على كشف الدرجات الخاص بك.</p>
                 <button onclick="openAuthPage(false)" class="btn-submit">تسجيل الدخول لعرض الدرجات 🔐</button>
             </div>
-
             <div id="authGradesBox" style="display: none;">
                 <div class="grades-card-box">
                     <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 16px; text-align: center;">📊 كشف درجات وتقييم الطالب</h2>
@@ -449,7 +396,7 @@
             </div>
         </div>
 
-        <!-- قسم الشكاوى والاستفسارات -->
+        <!-- قسم الشكاوى -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div id="unauthTicketsBox">
@@ -481,7 +428,7 @@
             </div>
         </div>
 
-        <!-- صفحة تسجيل الدخول وإنشاء الحساب التفصيلية -->
+        <!-- صفحة تسجيل الدخول -->
         <div class="auth-page-view" id="authPageView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div class="role-tabs">
@@ -660,7 +607,10 @@
                 }
 
                 const userId = 'user_' + Date.now();
-                const userData = { id: userId, name, nationalId, phone, grade, role: currentRole, password };
+                const userData = { 
+                    id: userId, name, nationalId, phone, grade, role: currentRole, password,
+                    emergencyPhone: '', email: '', address: ''
+                };
 
                 db.ref('users/' + userId).set(userData).then(() => {
                     currentUser = userData;
@@ -709,6 +659,10 @@
             document.getElementById('profileGrade').value = currentUser.grade || 'غير محدد';
             document.getElementById('profileNationalId').value = currentUser.nationalId || '';
             document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileEmergencyPhone').value = currentUser.emergencyPhone || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profileAddress').value = currentUser.address || '';
+            document.getElementById('profilePassword').value = currentUser.password || '';
 
             document.getElementById('unauthGradesBox').style.display = 'none';
             document.getElementById('authGradesBox').style.display = 'block';
@@ -808,13 +762,21 @@
             e.preventDefault();
             if (!currentUser) return;
 
-            const newPhone = document.getElementById('profilePhone').value;
-            const newPassword = document.getElementById('profilePassword').value;
+            const phone = document.getElementById('profilePhone').value;
+            const emergencyPhone = document.getElementById('profileEmergencyPhone').value;
+            const email = document.getElementById('profileEmail').value;
+            const address = document.getElementById('profileAddress').value;
+            const password = document.getElementById('profilePassword').value;
 
-            db.ref('users/' + currentUser.id).update({ phone: newPhone, password: newPassword }).then(() => {
-                currentUser.phone = newPhone;
-                currentUser.password = newPassword;
-                showToast('تم حفظ التعديلات! 💾');
+            db.ref('users/' + currentUser.id).update({ 
+                phone, emergencyPhone, email, address, password 
+            }).then(() => {
+                currentUser.phone = phone;
+                currentUser.emergencyPhone = emergencyPhone;
+                currentUser.email = email;
+                currentUser.address = address;
+                currentUser.password = password;
+                showToast('تم حفظ تعديلات البروفايل بنجاح! 💾');
             });
         }
 
