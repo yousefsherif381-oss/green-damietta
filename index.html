@@ -88,7 +88,9 @@
             font-weight: 800; cursor: pointer; border: none; transition: all 0.3s ease;
         }
         .btn-header-outline { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn-header-outline:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
         .btn-header-primary { background: var(--accent); color: #fff; }
+        .btn-header-primary:hover { background: var(--accent-hover); }
 
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -134,6 +136,12 @@
         .view-section, .auth-page-view {
             background: var(--card-bg); border-radius: 20px; padding: 28px;
             box-shadow: var(--shadow); display: none; margin-bottom: 25px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .btn-back-home {
@@ -150,6 +158,7 @@
             width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
             border-radius: 10px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
         }
+        .form-control:focus { border-color: var(--primary); }
 
         .btn-submit {
             width: 100%; padding: 13px; background: var(--primary); color: white;
@@ -241,7 +250,8 @@
             </div>
 
             <div class="header-actions" id="headerAuthActions">
-                <button onclick="openAuthPage()" class="btn-header btn-header-primary">تسجيل الدخول 🔑</button>
+                <button onclick="openSignInPage()" class="btn-header btn-header-outline">دخول 🔑</button>
+                <button onclick="openSignUpPage()" class="btn-header btn-header-primary">حساب جديد ✨</button>
             </div>
             <div class="header-actions" id="headerUserActions" style="display: none;">
                 <button id="btnAdminNav" onclick="navigateToSection('adminSection')" class="btn-header btn-header-outline" style="display: none; background: #D97706;">⚙️ الأدمن</button>
@@ -261,10 +271,10 @@
             </div>
         </div>
 
-        <!-- لوحة الأدمن -->
+        <!-- لوحة تحكم الأدمن -->
         <div class="view-section" id="adminSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="font-size: 22px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; text-align: center;">⚙️ لوحة الإدارة الشاملة</h2>
+            <h2 style="font-size: 22px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; text-align: center;">⚙️ لوحة الإدارة الشاملة (Admin Dashboard)</h2>
 
             <div class="admin-card-section">
                 <h3 style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">📢 نشر إعلان جديد</h3>
@@ -279,7 +289,7 @@
                 <h3 style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">📊 رصد وإضافة درجات طالب</h3>
                 <form onsubmit="adminAddGrade(event)">
                     <div class="form-grid">
-                        <div class="form-group"><label>كود الطالب</label><input type="text" id="adminGradeStudentId" class="form-control" required></div>
+                        <div class="form-group"><label>كود الطالب / الرقم القومي</label><input type="text" id="adminGradeStudentId" class="form-control" required></div>
                         <div class="form-group"><label>المادة</label>
                             <select id="adminGradeSubject" class="form-control">
                                 <option value="اللغة العربية">اللغة العربية</option>
@@ -298,7 +308,7 @@
             </div>
 
             <div class="admin-card-section">
-                <h3 style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">📨 الشكاوى والطلبات</h3>
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">📨 الشكاوى والطلبات المستلمة</h3>
                 <div id="adminTicketsContainer"><p style="color: gray; text-align: center;">جاري التحميل...</p></div>
             </div>
         </div>
@@ -314,7 +324,7 @@
                 <form onsubmit="saveProfileChanges(event)">
                     <div class="form-grid">
                         <div class="form-group"><label>الصف</label><input type="text" id="profileGrade" class="form-control" disabled style="background: #F1F5F9;"></div>
-                        <div class="form-group"><label>الكود / الرقم</label><input type="text" id="profileNationalId" class="form-control" disabled style="background: #F1F5F9;"></div>
+                        <div class="form-group"><label>الكود / الرقم القومي</label><input type="text" id="profileNationalId" class="form-control" disabled style="background: #F1F5F9;"></div>
                         <div class="form-group"><label>المحمول</label><input type="tel" id="profilePhone" class="form-control" required></div>
                         <div class="form-group"><label>الإيميل</label><input type="email" id="profileEmail" class="form-control"></div>
                     </div>
@@ -380,22 +390,62 @@
             </form>
         </div>
 
-        <!-- صفحة الدخول المباشر (بدون أزرار تبديل معقدة) -->
-        <div class="auth-page-view" id="authPageView">
+        <!-- صفحة تسجيل الدخول النظيفة والبسيطة -->
+        <div class="auth-page-view" id="signInView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="text-align: center; font-size: 18px; font-weight: 800; margin-bottom: 4px;">تسجيل الدخول / إنشاء حساب مباشر</h2>
-            <p style="text-align: center; font-size: 12.5px; color: var(--text-muted); margin-bottom: 20px;">أدخل كود الطالب وكلمة المرور وسيدخل النظام تلقائياً</p>
+            <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px;">تسجيل الدخول</h2>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل بيانات حسابك أو بيانات الإدارة للدخول</p>
 
-            <form id="mainAuthForm" onsubmit="handleAuthAction(event)">
+            <form onsubmit="handleSignIn(event)">
                 <div class="form-group">
-                    <label>كود الطالب / الرقم القومي / أدمن</label>
-                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الكود أو admin" required>
+                    <label>كود الطالب / الرقم القومي / اسم المستخدم</label>
+                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الكود أو الرقم القومي" required>
                 </div>
                 <div class="form-group">
                     <label>كلمة المرور</label>
                     <input type="password" id="authPasswordInput" class="form-control" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="btn-submit">دخول / إنشاء حساب 🔑</button>
+                <button type="submit" class="btn-submit">تسجيل الدخول 🔑</button>
+            </form>
+        </div>
+
+        <!-- صفحة إنشاء حساب جديد كاملة -->
+        <div class="auth-page-view" id="signUpView">
+            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
+            <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px;">إنشاء حساب جديد ✨</h2>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">سجل بياناتك للانضمام إلى البوابة المدرسية</p>
+
+            <form onsubmit="handleSignUp(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>الاسم الرباعي</label>
+                        <input type="text" id="signUpName" class="form-control" placeholder="مثال: أحمد محمد علي" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الرقم القومي / الكود (14 رقم)</label>
+                        <input type="text" id="signUpNationalId" class="form-control" placeholder="30000000000000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الصف الدراسي</label>
+                        <select id="signUpGrade" class="form-control">
+                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم المحمول</label>
+                        <input type="tel" id="signUpPhone" class="form-control" placeholder="01000000000" required>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>كلمة المرور</label>
+                        <input type="password" id="signUpPassword" class="form-control" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" style="background: var(--accent);">إنشاء الحساب الآن ✨</button>
             </form>
         </div>
 
@@ -435,7 +485,8 @@
 
         function hideAllViews() {
             document.getElementById('newsHomeContainer').style.display = 'none';
-            document.getElementById('authPageView').style.display = 'none';
+            document.getElementById('signInView').style.display = 'none';
+            document.getElementById('signUpView').style.display = 'none';
             document.querySelectorAll('.view-section').forEach(sec => sec.style.display = 'none');
         }
 
@@ -444,12 +495,18 @@
             document.getElementById(sectionId).style.display = 'block';
         }
 
-        function openAuthPage() {
+        function openSignInPage() {
             hideAllViews();
-            document.getElementById('authPageView').style.display = 'block';
+            document.getElementById('signInView').style.display = 'block';
         }
 
-        function handleAuthAction(e) {
+        function openSignUpPage() {
+            hideAllViews();
+            document.getElementById('signUpView').style.display = 'block';
+        }
+
+        // تسجيل الدخول (يدعم الطلاب والأدمن admin / admin123)
+        function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
@@ -477,24 +534,29 @@
                     onUserLoginSuccess();
                     showToast('تم تسجيل الدخول بنجاح! 🔑');
                 } else {
-                    // لو الحساب مش موجود، بننشئه تلقائياً برقم الكود وكلمة المرور الجديدة مباشرة!
-                    const userId = 'user_' + Date.now();
-                    const newUser = {
-                        id: userId,
-                        nationalId: identifier,
-                        name: 'الطالب (كود: ' + identifier + ')',
-                        phone: identifier,
-                        grade: 'الصف الأول الابتدائي',
-                        role: 'student',
-                        password: password,
-                        email: ''
-                    };
-                    db.ref('users/' + userId).set(newUser).then(() => {
-                        currentUser = newUser;
-                        onUserLoginSuccess();
-                        showToast('تم إنشاء وتسجيل حساب جديد تلقائياً! 🎉');
-                    });
+                    showToast('بيانات الدخول غير صحيحة ❌', '⚠️');
                 }
+            });
+        }
+
+        // إنشاء حساب جديد
+        function handleSignUp(e) {
+            e.preventDefault();
+            const name = document.getElementById('signUpName').value;
+            const nationalId = document.getElementById('signUpNationalId').value;
+            const grade = document.getElementById('signUpGrade').value;
+            const phone = document.getElementById('signUpPhone').value;
+            const password = document.getElementById('signUpPassword').value;
+
+            const userId = 'user_' + Date.now();
+            const newUser = {
+                id: userId, name, nationalId, grade, phone, password, role: 'student', email: ''
+            };
+
+            db.ref('users/' + userId).set(newUser).then(() => {
+                currentUser = newUser;
+                onUserLoginSuccess();
+                showToast('تم إنشاء الحساب بنجاح! 🎉');
             });
         }
 
