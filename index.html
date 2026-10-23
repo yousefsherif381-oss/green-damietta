@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدرسة اللغات الرسمية | البوابة الإلكترونية</title>
-    <!-- خط Cairo المميز -->
+    <title>Nexus | البوابة التعليمية الذكية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -54,7 +52,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
+            position: relative;
         }
 
         .btn-sidebar-toggle {
@@ -67,19 +65,40 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 2;
         }
         .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
 
-        .logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        /* جعل الاسم في المنتصف وبحجم كبير ومتناسق */
+        .logo-area {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
         .logo-box {
-            width: 48px; height: 48px; border-radius: 50%; background: #ffffff;
-            padding: 2px; border: 2px solid var(--accent); display: flex;
+            width: 52px; height: 52px; border-radius: 50%; background: #ffffff;
+            padding: 2px; border: 2.5px solid var(--accent); display: flex;
             align-items: center; justify-content: center; overflow: hidden;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
         }
         .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .logo-text { font-size: 17px; font-weight: 800; color: #FFFFFF; }
+        
+        .logo-text {
+            font-size: 26px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(2, 132, 199, 0.5);
+            background: linear-gradient(45deg, #FFFFFF, #38BDF8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-        .header-actions { display: flex; gap: 10px; }
+        .header-actions { display: flex; gap: 10px; z-index: 2; }
         .btn-header {
             padding: 8px 18px; border-radius: 10px; font-size: 13.5px;
             font-weight: 800; cursor: pointer; border: none; transition: all 0.3s ease;
@@ -183,6 +202,13 @@
             z-index: 2000; opacity: 0; transition: all 0.3s ease; pointer-events: none;
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* تجاوب الشاشات الصغيرة للموبايل لضبط مكان اللوجو والاسم */
+        @media (max-width: 768px) {
+            .logo-area { position: static; transform: none; margin: 0 auto; }
+            .nav-container { flex-wrap: wrap; gap: 10px; justify-content: center; }
+            .header-actions { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>
@@ -231,9 +257,9 @@
 
             <div class="logo-area" onclick="showHomePage()">
                 <div class="logo-box">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار المدرسة">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="شعار النظام">
                 </div>
-                <span class="logo-text">مدرسة اللغات الرسمية</span>
+                <span class="logo-text">Nexus</span>
             </div>
 
             <div class="header-actions" id="headerAuthActions">
@@ -249,7 +275,7 @@
 
     <main class="main-wrapper">
         
-        <!-- قسم الأخبار - ظاهر للجميع بدون تسجيل دخول -->
+        <!-- قسم الأخبار -->
         <div id="newsHomeContainer">
             <div class="news-header-title">📢 أحدث التنبيهات والإعلانات المدرسية</div>
             <div class="news-feed" id="newsFeedList">
@@ -257,7 +283,7 @@
             </div>
         </div>
 
-        <!-- البروفايل الشخصي للطالب -->
+        <!-- البروفايل الشخصي -->
         <div class="view-section" id="profileSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
@@ -320,7 +346,8 @@
             <h2 style="font-size: 18px; font-weight: 800; color: var(--primary-dark); margin-bottom: 15px;">📅 سجل انضباط الطالب</h2>
             <div style="background: #F8FAFC; padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
                 <span style="font-size: 13px; color: var(--text-muted);">حالة حضور الطالب الحالية</span>
-                <div style="font-size: 22px; font-weight: 900; margin-top: 8px; color: #16A34A;">منتظم 🟢</div>
+                <div id="lblAttendanceStatusText" style="font-size: 22px; font-weight: 900; margin-top: 8px; color: #16A34A;">منتظم 🟢</div>
+                <div id="lblAttendanceNoteText" style="font-size: 13px; color: gray; margin-top: 4px;"></div>
             </div>
         </div>
 
@@ -345,12 +372,12 @@
         <div class="auth-page-view" id="signInView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px;">تسجيل الدخول</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم المستخدم/الكود وكلمة المرور للدخول</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل كود الطالب أو الرقم القومي للدخول</p>
 
             <form onsubmit="handleSignIn(event)">
                 <div class="form-group">
-                    <label>كود الطالب / الرقم القومي / اسم المستخدم</label>
-                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الكود أو admin" required>
+                    <label>كود الطالب / الرقم القومي</label>
+                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الكود" required>
                 </div>
                 <div class="form-group">
                     <label>كلمة المرور</label>
@@ -369,8 +396,21 @@
                 <div class="form-grid">
                     <div class="form-group"><label>الاسم الرباعي</label><input type="text" id="signUpName" class="form-control" required></div>
                     <div class="form-group"><label>الرقم القومي / الكود</label><input type="text" id="signUpNationalId" class="form-control" required></div>
+                    <div class="form-group"><label>الصف الدراسي</label>
+                        <select id="signUpGrade" class="form-control">
+                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                            <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                            <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
+                            <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>رقم المحمول</label><input type="tel" id="signUpPhone" class="form-control" required></div>
-                    <div class="form-group"><label>كلمة المرور</label><input type="password" id="signUpPassword" class="form-control" required></div>
+                    <div class="form-group" style="grid-column: span 2;"><label>كلمة المرور</label><input type="password" id="signUpPassword" class="form-control" required></div>
                 </div>
                 <button type="submit" class="btn-submit" style="background: var(--accent);">إنشاء الحساب ✨</button>
             </form>
@@ -414,13 +454,11 @@
         function openSignInPage() { hideAllViews(); document.getElementById('signInView').style.display = 'block'; }
         function openSignUpPage() { hideAllViews(); document.getElementById('signUpView').style.display = 'block'; }
 
-        // تسجيل الدخول والتحويل الرابط الخارجي للأدمن
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            // عند إدخال بيانات الأدمن -> تحويل فوراً لصفحة الإدارة
             if (identifier === 'admin' && password === 'admin123') {
                 showToast('جاري تحويلك لصفحة الإدارة... ⚙️');
                 setTimeout(() => {
@@ -429,19 +467,21 @@
                 return;
             }
 
-            // للطلاب العاديين -> تحويل لكشف الدرجات داخل نفس الصفحة
-            db.ref('users').once('value').then(snapshot => {
-                const users = snapshot.val();
-                let foundUser = null;
-                if (users) {
-                    Object.values(users).forEach(u => {
-                        if ((u.nationalId === identifier || u.id === identifier || u.phone === identifier) && u.password === password) {
-                            foundUser = u;
+            db.ref('students').once('value').then(snapshot => {
+                const students = snapshot.val();
+                let foundKey = null;
+                let foundStudent = null;
+                if (students) {
+                    Object.keys(students).forEach(k => {
+                        const s = students[k];
+                        if ((s.nationalId === identifier || s.code === identifier || s.phone === identifier) && s.password === password) {
+                            foundKey = k;
+                            foundStudent = s;
                         }
                     });
                 }
-                if (foundUser) {
-                    currentUser = foundUser;
+                if (foundStudent) {
+                    currentUser = { ...foundStudent, firebaseKey: foundKey };
                     onUserLoginSuccess();
                     showToast('تم تسجيل الدخول بنجاح! 🔑');
                 } else { showToast('بيانات الدخول غير صحيحة ❌', '⚠️'); }
@@ -450,16 +490,22 @@
 
         function handleSignUp(e) {
             e.preventDefault();
-            const name = document.getElementById('signUpName').value;
-            const nationalId = document.getElementById('signUpNationalId').value;
-            const phone = document.getElementById('signUpPhone').value;
-            const password = document.getElementById('signUpPassword').value;
+            const name = document.getElementById('signUpName').value.trim();
+            const nationalId = document.getElementById('signUpNationalId').value.trim();
+            const grade = document.getElementById('signUpGrade').value;
+            const phone = document.getElementById('signUpPhone').value.trim();
+            const password = document.getElementById('signUpPassword').value.trim();
 
-            const userId = 'user_' + Date.now();
-            const newUser = { id: userId, name, nationalId, phone, password, role: 'student' };
+            const studentKey = 'student_' + Date.now();
+            const newStudent = {
+                name, nationalId, grade, phone, password,
+                role: 'student',
+                attendance: 'منتظم',
+                attendanceNote: ''
+            };
 
-            db.ref('users/' + userId).set(newUser).then(() => {
-                currentUser = newUser;
+            db.ref('students/' + studentKey).set(newStudent).then(() => {
+                currentUser = { ...newStudent, firebaseKey: studentKey };
                 onUserLoginSuccess();
                 showToast('تم إنشاء الحساب بنجاح! 🎉');
             });
@@ -472,37 +518,82 @@
             document.getElementById('profileName').textContent = currentUser.name;
             document.getElementById('profileNationalId').value = currentUser.nationalId || '';
             document.getElementById('profilePhone').value = currentUser.phone || '';
+            
+            document.getElementById('lblAttendanceStatusText').textContent = currentUser.attendance || 'منتظم 🟢';
+            document.getElementById('lblAttendanceNoteText').textContent = currentUser.attendanceNote ? `ملاحظة: ${currentUser.attendanceNote}` : '';
+
             loadStudentGrades();
             navigateToSection('gradesSection');
+        }
+
+        const gradeSubjectsDetailed = {
+            lowerPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'discover', name: 'Discover / اكتشف' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            upperPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
+                { id: 'skills', name: 'المهارات المهنية' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            prep: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'computer', name: 'الحاسب الآلي' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ]
+        };
+
+        function getSubjectsForGradeName(gradeName) {
+            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
+            if (gradeName.includes('الإعدادي') || gradeName.includes('اعدادي')) return gradeSubjectsDetailed.prep;
+            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
+            else return gradeSubjectsDetailed.lowerPrimary;
         }
 
         function loadStudentGrades() {
             const tableBody = document.getElementById('gradesTableBody');
             tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري تحميل الدرجات...</td></tr>';
 
-            db.ref('grades/' + (currentUser ? currentUser.nationalId : 'default')).once('value').then(snapshot => {
-                const data = snapshot.val();
+            db.ref('students/' + currentUser.firebaseKey).once('value').then(snapshot => {
+                const u = snapshot.val();
                 tableBody.innerHTML = '';
                 let totalScore = 0, maxScore = 0;
 
-                if (data) {
-                    Object.values(data).forEach(item => {
-                        const sum = (item.yearWork || 0) + (item.weeklyQuiz || 0) + (item.finalExam || 0);
+                if (u) {
+                    const subjects = getSubjectsForGradeName(u.grade);
+                    subjects.forEach(sub => {
+                        const work = parseFloat(u[sub.id + '_work'] || 0);
+                        const weekly = parseFloat(u[sub.id + '_weekly'] || 0);
+                        const final = parseFloat(u[sub.id + '_final'] || 0);
+                        const sum = work + weekly + final;
                         totalScore += sum; maxScore += 100;
+
                         tableBody.innerHTML += `
                             <tr>
-                                <td><b>${item.subject || 'المادة'}</b></td>
-                                <td>${item.yearWork || 0}</td>
-                                <td>${item.weeklyQuiz || 0}</td>
-                                <td>${item.finalExam || 0}</td>
-                                <td><b style="color: var(--primary);">${sum}</b></td>
+                                <td><b>${sub.name}</b></td>
+                                <td>${work}</td>
+                                <td>${weekly}</td>
+                                <td>${final}</td>
+                                <td><b style="color: var(--primary);">${sum} / 100</b></td>
                             </tr>
                         `;
                     });
                     const percentage = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : 0;
                     document.getElementById('summaryTotal').textContent = totalScore + ' / ' + maxScore;
                     document.getElementById('summaryPercentage').textContent = percentage + '%';
-                    document.getElementById('summaryGrade').textContent = percentage >= 85 ? 'ممتاز 🌟' : 'جيد جداً 👍';
+                    document.getElementById('summaryGrade').textContent = percentage >= 85 ? 'ممتاز 🌟' : (percentage >= 75 ? 'جيد جداً 👍' : 'ناجح ✅');
                 } else {
                     tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray;">لا توجد درجات مرصودة بعد.</td></tr>';
                 }
@@ -518,15 +609,22 @@
             showHomePage();
         }
 
-        function saveProfileChanges(e) { e.preventDefault(); showToast('تم حفظ التعديلات! 💾'); }
+        function saveProfileChanges(e) {
+            e.preventDefault();
+            const phone = document.getElementById('profilePhone').value.trim();
+            db.ref('students/' + currentUser.firebaseKey).update({ phone }).then(() => {
+                showToast('تم حفظ التعديلات بنجاح! 💾');
+            });
+        }
+
         function submitParentTicket(e) {
             e.preventDefault();
             const ticketId = 'ticket_' + Date.now();
             db.ref('tickets/' + ticketId).set({
                 id: ticketId,
-                parentName: document.getElementById('ticketParentName').value,
-                contact: document.getElementById('ticketParentEmail').value,
-                content: document.getElementById('ticketContent').value,
+                parentName: document.getElementById('ticketParentName').value.trim(),
+                contact: document.getElementById('ticketParentEmail').value.trim(),
+                content: document.getElementById('ticketContent').value.trim(),
                 date: new Date().toLocaleDateString('ar-EG')
             }).then(() => {
                 showToast('تم إرسال الطلب بنجاح! 🚀');
@@ -540,13 +638,15 @@
             newsFeedList.innerHTML = '';
             const data = snapshot.val();
             if (data) {
-                Object.values(data).reverse().forEach(item => {
+                Object.keys(data).reverse().forEach(key => {
+                    const item = data[key];
                     newsFeedList.innerHTML += `
                         <div class="news-card">
-                            <h4 style="color: var(--primary-dark); font-size: 16px;">${item.title || 'تنبيه'}</h4>
+                            <h4 style="color: var(--primary-dark); font-size: 16px;">${item.title || 'تنبيه'} <small style="color:var(--accent);">(${item.badge || ''})</small></h4>
                             <p style="font-size: 14px; margin-top: 6px;">${item.content || ''}</p>
                             ${item.image ? `<img src="${item.image}" style="max-width:100%; border-radius:10px; margin-top:10px;">` : ''}
-                            <br><small style="color: gray;">📅 ${item.date || 'اليوم'}</small>
+                            ${item.video ? `<video src="${item.video}" controls style="max-width:100%; border-radius:10px; margin-top:10px;"></video>` : ''}
+                            <br><small style="color: gray; display:inline-block; margin-top:8px;">📅 ${new Date(item.timestamp || Date.now()).toLocaleDateString('ar-EG')}</small>
                         </div>
                     `;
                 });
