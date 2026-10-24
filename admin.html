@@ -148,7 +148,7 @@
             transition: all 0.3s ease;
         }
 
-        /* تنسيق أزرار رفع الملفات المخصصة والعصرية */
+        /* أزرار رفع الملفات المخصصة */
         input[type="file"] { display: none; }
 
         .custom-file-upload {
@@ -238,6 +238,10 @@
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
             </div>
+            <div class="sidebar-item" id="menuItemPassword" onclick="switchAdminSection('passwordSection', this)">
+                <span class="sidebar-icon">🔑</span>
+                <span class="sidebar-label">تغيير كلمة المرور</span>
+            </div>
         </div>
     </aside>
 
@@ -255,6 +259,8 @@
     </header>
 
     <main class="main-wrapper">
+
+        <!-- 1️⃣ قسم الأخبار -->
         <div class="admin-section active" id="newsSection">
             <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
             <form onsubmit="postNews(event)">
@@ -295,6 +301,7 @@
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
+        <!-- 2️⃣ قسم الدرجات -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
             <div style="margin-bottom: 20px;">
@@ -325,6 +332,7 @@
             </div>
         </div>
 
+        <!-- 3️⃣ قسم الحضور -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">📅 تسجيل ومتابعة انضباط وحضور الطلاب</div>
             <div style="background: #F8FAFC; padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
@@ -352,6 +360,7 @@
             </div>
         </div>
 
+        <!-- 4️⃣ قسم سجل المستخدمين -->
         <div class="admin-section" id="usersSection">
             <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
             <div style="overflow-x: auto;">
@@ -374,10 +383,24 @@
             </div>
         </div>
 
+        <!-- 5️⃣ قسم الشكاوى -->
         <div class="admin-section" id="ticketsSection">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
+
+        <!-- 6️⃣ قسم تغيير كلمة المرور الجديد -->
+        <div class="admin-section" id="passwordSection">
+            <div class="card-title">🔑 تغيير كلمة مرور لوحة الإدارة</div>
+            <form onsubmit="changeAdminPassword(event)" style="max-width: 500px;">
+                <div style="margin-bottom: 16px;">
+                    <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">كلمة المرور الجديدة</label>
+                    <input type="password" id="newAdminPasswordInput" class="form-control" placeholder="أدخل كلمة المرور الجديدة..." required minlength="4">
+                </div>
+                <button type="submit" class="btn btn-primary" style="background: var(--accent); color: #0F172A; width: 100%;">تحديث وحفظ كلمة المرور 💾</button>
+            </form>
+        </div>
+
     </main>
 
     <script>
@@ -395,7 +418,6 @@
         const db = firebase.database();
 
         let usersCache = {};
-        let ticketsCache = {};
 
         function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
             const toast = document.getElementById('customToast');
@@ -405,7 +427,6 @@
             if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
 
-        // دالة لتحديث عرض اسم الملف المختار في الأزرار العصرية
         function updateFileName(input, previewId) {
             const previewSpan = document.getElementById(previewId);
             if (input.files && input.files[0]) {
@@ -696,6 +717,21 @@
 
             } catch (error) {
                 showToast("حدث خطأ أثناء رفع الملفات، يرجى المحاولة مرة أخرى", "❌", true, 3500);
+            }
+        }
+
+        // دالة تغيير كلمة مرور الأدمن
+        async function changeAdminPassword(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('newAdminPasswordInput').value.trim();
+            if (!newPass) return;
+
+            try {
+                await db.ref('settings/adminPassword').set(newPass);
+                showToast("تم تحديث كلمة مرور الأدمن بنجاح! 🔑", "🔑", true, 3500);
+                document.getElementById('newAdminPasswordInput').value = '';
+            } catch (err) {
+                showToast("حدث خطأ أثناء الحفظ، حاول مرة أخرى", "❌", true, 3500);
             }
         }
     </script>
