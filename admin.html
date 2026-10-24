@@ -16,10 +16,10 @@
             --accent-hover: #D97706;
             --danger: #EF4444;
             --success: #10B981;
-            --card-bg: rgba(255, 255, 255, 0.98);
+            --card-bg: rgba(255, 255, 255, 0.88);
             --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border: #E2E8F0;
+            --border: rgba(255, 255, 255, 0.5);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
@@ -49,11 +49,13 @@
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
+        /* 🌟 القائمة الجانبية بنظام الزجاج العائم (Glassmorphism) */
         .sliding-sidebar {
             position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(16px);
+            background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
-            border-left: 2px solid rgba(245, 158, 11, 0.4);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
             padding: 24px 20px; display: flex; flex-direction: column;
             transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -87,10 +89,12 @@
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
 
+        /* 🌟 الهيدر بالزجاج العائم */
         header {
-            background: rgba(12, 74, 110, 0.92);
-            backdrop-filter: blur(14px);
-            border-bottom: 3px solid var(--accent);
+            background: rgba(12, 74, 110, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             position: sticky; top: 0; z-index: 100;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         }
@@ -126,72 +130,69 @@
 
         .main-wrapper { max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
+        /* 🌟 الكروت بزجاج عائم وإضاءات نيون خفيفة عند المرور بالماوس */
         .admin-section {
-            background: var(--card-bg); border-radius: 24px; padding: 30px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3); display: none; margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px; padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
+            display: none; margin-bottom: 25px;
             border-top: 5px solid var(--accent);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: smoothSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .admin-section.active { display: block; }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        .admin-section:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(2, 132, 199, 0.25), 0 0 20px rgba(245, 158, 11, 0.15);
+        }
+
+        @keyframes smoothSlideUp {
+            0% { opacity: 0; transform: translateY(25px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .card-title { font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
         .form-control {
-            width: 100%; padding: 12px 14px; border: 2px solid var(--border);
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
             transition: all 0.3s ease;
         }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 
-        /* أزرار رفع الملفات المخصصة */
         input[type="file"] { display: none; }
 
         .custom-file-upload {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 12px 18px;
-            background: #F8FAFC;
-            border: 2px dashed var(--primary);
-            border-radius: 12px;
-            color: var(--primary-dark);
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px 18px; background: #F8FAFC;
+            border: 2px dashed var(--primary); border-radius: 12px;
+            color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
             text-align: center;
         }
-
         .custom-file-upload:hover {
-            background: #E0F2FE;
-            border-color: var(--accent);
-            transform: translateY(-2px);
+            background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
         }
 
-        .file-name-preview {
-            display: block;
-            font-size: 12.5px;
-            color: var(--text-muted);
-            margin-top: 6px;
-            font-weight: 600;
-        }
+        .file-name-preview { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
 
-        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.2s; }
+        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-success { background: var(--success); color: white; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
-        th { background: #F8FAFC; color: var(--primary-dark); font-weight: 800; }
+        th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
+        tr:nth-child(even) { background-color: #F8FAFC; }
 
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -280,13 +281,13 @@
                         <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
                     </div>
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (YouTube / Google Drive) (اختياري):</label>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (اختياري):</label>
                         <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)" style="padding: 12px;">
                     </div>
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز (أقل من 2 دقيقة):</label>
+                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز:</label>
                     <label for="newsVideoFile" class="custom-file-upload">
                         <span>🎬 اضغط لاختيار فيديو الإعلان</span>
                     </label>
@@ -310,7 +311,7 @@
                     <option value="">-- حدد الطالب من القائمة --</option>
                 </select>
             </div>
-            <div id="gradesEditFormContainer" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
                 <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 <div style="overflow-x: auto;">
                     <table>
@@ -335,7 +336,7 @@
         <!-- 3️⃣ قسم الحضور -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">📅 تسجيل ومتابعة انضباط وحضور الطلاب</div>
-            <div style="background: #F8FAFC; padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
+            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
                 <div class="form-grid">
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
@@ -389,7 +390,7 @@
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-        <!-- 6️⃣ قسم تغيير كلمة المرور الجديد -->
+        <!-- 6️⃣ قسم تغيير كلمة المرور -->
         <div class="admin-section" id="passwordSection">
             <div class="card-title">🔑 تغيير كلمة مرور لوحة الإدارة</div>
             <form onsubmit="changeAdminPassword(event)" style="max-width: 500px;">
@@ -469,7 +470,7 @@
 
         function getSubjectsForGradeName(gradeName) {
             if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
-            if (gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
+            if (gradeName.includes('الاعدادي') || gradeName.includes('الإعدادي')) return gradeSubjectsDetailed.prep;
             else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
             else return gradeSubjectsDetailed.lowerPrimary;
         }
@@ -613,126 +614,112 @@
                 container.innerHTML = '';
                 const newsData = snapshot.val();
                 if (!newsData) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد أخبار منشورة حالياً.</p>';
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد إعلانات منشورة حالياً.</p>';
                     return;
                 }
                 Object.keys(newsData).reverse().forEach(key => {
                     const item = newsData[key];
                     container.innerHTML += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 14px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="background: #FFFFFF; padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <b>📌 ${item.title}</b> <small style="color: var(--accent); font-weight: bold;">(${item.badge})</small>
-                                <p style="font-size: 13px; color: #334155; margin-top: 4px;">${item.content}</p>
+                                <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">${item.title}</h5>
+                                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">${item.content.substring(0, 60)}...</p>
                             </div>
-                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">حذف 🗑️</button>
+                            <button onclick="deleteNewsItem('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">حذف 🗑️</button>
                         </div>
                     `;
                 });
             });
         }
 
-        async function deleteNews(key) {
+        function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان';
+            const content = document.getElementById('newsContent').value.trim();
+            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
+            
+            const imageFile = document.getElementById('newsImageFile').files[0];
+            const videoFile = document.getElementById('newsVideoFile').files[0];
+
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    saveNewsToFirebase(title, badge, content, event.target.result, null, videoUrl);
+                };
+                reader.readAsDataURL(imageFile);
+            } else if (videoFile) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    saveNewsToFirebase(title, badge, content, null, event.target.result, videoUrl);
+                };
+                reader.readAsDataURL(videoFile);
+            } else {
+                saveNewsToFirebase(title, badge, content, null, null, videoUrl);
+            }
+        }
+
+        function saveNewsToFirebase(title, badge, content, image, video, videoUrl) {
+            const finalVideo = video || videoUrl || '';
+            db.ref('news').push({ title, badge, content, image: image || '', video: finalVideo }).then(() => {
+                showToast("تم نشر الإعلان بنجاح للجميع 🚀", "📢");
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsBadge').value = '';
+                document.getElementById('newsContent').value = '';
+                document.getElementById('newsVideoUrl').value = '';
+                document.getElementById('newsImageFile').value = '';
+                document.getElementById('newsVideoFile').value = '';
+                document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+                document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+            });
+        }
+
+        function deleteNewsItem(key) {
             if (confirm("هل أنت متأكد من حذف هذا الإعلان؟")) {
-                await db.ref('news/' + key).remove();
-                showToast("تم حذف الإعلان بنجاح", "🗑️");
+                db.ref('news/' + key).remove().then(() => {
+                    showToast("تم حذف الإعلان بنجاح", "🗑️");
+                });
             }
         }
 
         function loadTicketsLive() {
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
-                if (!container) return;
                 container.innerHTML = '';
-                const data = snapshot.val();
-                if (!data) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات مسجلة حالياً.</p>';
+                const tickets = snapshot.val();
+                if (!tickets) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات جديدة.</p>';
                     return;
                 }
-                Object.keys(data).reverse().forEach(k => {
-                    const t = data[k];
+                Object.keys(tickets).reverse().forEach(key => {
+                    const t = tickets[key];
                     container.innerHTML += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 14px; border-radius: 14px; margin-bottom: 12px; border-right: 4px solid var(--accent);">
+                        <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-right: 4px solid var(--accent);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <b style="color: var(--primary-dark);">👤 ${t.parentName || 'ولي أمر'} <small style="color: var(--text-muted);">(${t.contact || ''})</small></b>
-                                <span style="font-size: 11px; color: var(--text-muted);">${t.date || ''}</span>
+                                <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">ولي الأمر: ${t.parentName} (${t.contact})</h5>
+                                <span style="font-size: 11.5px; color: var(--text-muted);">${t.date || ''}</span>
                             </div>
-                            <p style="font-size: 13.5px; color: #334155;">${t.content || ''}</p>
+                            <p style="font-size: 13.5px; color: #334155; line-height: 1.5;">${t.content}</p>
+                            <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="margin-top: 10px; padding: 5px 12px; font-size: 11.5px;">حذف الطلب 🗑️</button>
                         </div>
                     `;
                 });
             });
         }
 
-        async function postNews(e) {
-            e.preventDefault();
-            const title = document.getElementById('newsTitle').value.trim();
-            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان مدرسي';
-            const content = document.getElementById('newsContent').value.trim();
-            const imageFile = document.getElementById('newsImageFile').files[0];
-            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
-            const videoFile = document.getElementById('newsVideoFile').files[0];
-
-            let imageData = '';
-            let videoData = videoUrl;
-
-            showToast("جاري معالجة ورفع الملفات...", "⏳", false);
-
-            const readFile = (file) => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.readAsDataURL(file);
-                });
-            };
-
-            try {
-                if (imageFile) {
-                    imageData = await readFile(imageFile);
-                }
-                if (!videoData && videoFile) {
-                    videoData = await readFile(videoFile);
-                }
-
-                await db.ref('news').push({
-                    title,
-                    badge,
-                    content,
-                    image: imageData,
-                    video: videoData,
-                    timestamp: Date.now()
-                });
-
-                showToast("تم نشر الإعلان والفيديو بنجاح!", "🚀", true, 3500);
-
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsBadge').value = '';
-                document.getElementById('newsContent').value = '';
-                document.getElementById('newsImageFile').value = '';
-                document.getElementById('newsVideoUrl').value = '';
-                document.getElementById('newsVideoFile').value = '';
-                document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-                document.getElementById('imageNamePreview').style.color = '#64748B';
-                document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-                document.getElementById('videoNamePreview').style.color = '#64748B';
-
-            } catch (error) {
-                showToast("حدث خطأ أثناء رفع الملفات، يرجى المحاولة مرة أخرى", "❌", true, 3500);
-            }
+        function deleteTicket(key) {
+            db.ref('tickets/' + key).remove().then(() => {
+                showToast("تم حذف الشكوى بنجاح", "🗑️");
+            });
         }
 
-        // دالة تغيير كلمة مرور الأدمن
-        async function changeAdminPassword(e) {
+        function changeAdminPassword(e) {
             e.preventDefault();
             const newPass = document.getElementById('newAdminPasswordInput').value.trim();
-            if (!newPass) return;
-
-            try {
-                await db.ref('settings/adminPassword').set(newPass);
-                showToast("تم تحديث كلمة مرور الأدمن بنجاح! 🔑", "🔑", true, 3500);
+            db.ref('settings/adminPassword').set(newPass).then(() => {
+                showToast("تم تغيير كلمة مرور الإدارة بنجاح 🔑", "✅");
                 document.getElementById('newAdminPasswordInput').value = '';
-            } catch (err) {
-                showToast("حدث خطأ أثناء الحفظ، حاول مرة أخرى", "❌", true, 3500);
-            }
+            });
         }
     </script>
 </body>
