@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
+    <title>لوحة التحكم والإدارة | بوابة التعلم الذكي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -110,12 +110,12 @@
 
         .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; margin: auto; }
         .logo-box {
-            width: 56px; height: 56px; border-radius: 50%; background: #ffffff; padding: 3px;
+            width: 52px; height: 52px; border-radius: 50%; background: #0F172A; padding: 2px;
             border: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
         }
-        .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .logo-text { font-size: 19px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
 
         .btn-header-home {
             background: var(--accent); color: #fff; border: none; padding: 9px 18px;
@@ -146,6 +146,42 @@
             width: 100%; padding: 12px 14px; border: 2px solid var(--border);
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
             transition: all 0.3s ease;
+        }
+
+        /* تنسيق أزرار رفع الملفات المخصصة والعصرية */
+        input[type="file"] { display: none; }
+
+        .custom-file-upload {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 18px;
+            background: #F8FAFC;
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .custom-file-upload:hover {
+            background: #E0F2FE;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+        }
+
+        .file-name-preview {
+            display: block;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 600;
         }
 
         .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.2s; }
@@ -210,9 +246,9 @@
             <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
             <div class="logo-area" onclick="window.location.href='index.html'">
                 <div class="logo-box">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="الشعار">
+                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار بوابة التعلم الذكي">
                 </div>
-                <span class="logo-text">لوحة التحكم والإدارة</span>
+                <span class="logo-text">بوابة التعلم الذكي - الإدارة</span>
             </div>
             <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
         </div>
@@ -231,17 +267,25 @@
                 <div class="form-grid" style="margin-bottom: 15px;">
                     <div>
                         <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان (اختياري):</label>
-                        <input type="file" id="newsImageFile" class="form-control" accept="image/*" style="padding: 8px;">
+                        <label for="newsImageFile" class="custom-file-upload">
+                            <span>📁 اضغط لاختيار صورة الإعلان</span>
+                        </label>
+                        <input type="file" id="newsImageFile" accept="image/*" onchange="updateFileName(this, 'imageNamePreview')">
+                        <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
                     </div>
                     <div>
                         <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (YouTube / Google Drive) (اختياري):</label>
-                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)">
+                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)" style="padding: 12px;">
                     </div>
                 </div>
 
                 <div style="margin-bottom: 15px;">
                     <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز (أقل من 2 دقيقة):</label>
-                    <input type="file" id="newsVideoFile" class="form-control" accept="video/mp4,video/webm,video/ogg" style="padding: 8px;">
+                    <label for="newsVideoFile" class="custom-file-upload">
+                        <span>🎬 اضغط لاختيار فيديو الإعلان</span>
+                    </label>
+                    <input type="file" id="newsVideoFile" accept="video/mp4,video/webm,video/ogg" onchange="updateFileName(this, 'videoNamePreview')">
+                    <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
@@ -359,6 +403,18 @@
             document.getElementById('toastMessage').textContent = message;
             toast.classList.add('show');
             if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
+        }
+
+        // دالة لتحديث عرض اسم الملف المختار في الأزرار العصرية
+        function updateFileName(input, previewId) {
+            const previewSpan = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                previewSpan.textContent = '✅ تم اختيار: ' + input.files[0].name;
+                previewSpan.style.color = '#16A34A';
+            } else {
+                previewSpan.textContent = 'لم يتم اختيار ملف بعد';
+                previewSpan.style.color = '#64748B';
+            }
         }
 
         const gradeSubjectsDetailed = {
@@ -554,6 +610,38 @@
             });
         }
 
+        async function deleteNews(key) {
+            if (confirm("هل أنت متأكد من حذف هذا الإعلان؟")) {
+                await db.ref('news/' + key).remove();
+                showToast("تم حذف الإعلان بنجاح", "🗑️");
+            }
+        }
+
+        function loadTicketsLive() {
+            db.ref('tickets').on('value', (snapshot) => {
+                const container = document.getElementById('adminTicketsList');
+                if (!container) return;
+                container.innerHTML = '';
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات مسجلة حالياً.</p>';
+                    return;
+                }
+                Object.keys(data).reverse().forEach(k => {
+                    const t = data[k];
+                    container.innerHTML += `
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 14px; border-radius: 14px; margin-bottom: 12px; border-right: 4px solid var(--accent);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <b style="color: var(--primary-dark);">👤 ${t.parentName || 'ولي أمر'} <small style="color: var(--text-muted);">(${t.contact || ''})</small></b>
+                                <span style="font-size: 11px; color: var(--text-muted);">${t.date || ''}</span>
+                            </div>
+                            <p style="font-size: 13.5px; color: #334155;">${t.content || ''}</p>
+                        </div>
+                    `;
+                });
+            });
+        }
+
         async function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
@@ -564,7 +652,7 @@
             const videoFile = document.getElementById('newsVideoFile').files[0];
 
             let imageData = '';
-            let videoData = videoUrl; // إعطاء الأولوية للرابط مباشرة
+            let videoData = videoUrl;
 
             showToast("جاري معالجة ورفع الملفات...", "⏳", false);
 
@@ -580,7 +668,6 @@
                 if (imageFile) {
                     imageData = await readFile(imageFile);
                 }
-                // لو المدمين متحطش رابط، يرفع الملف المباشر من الموبايل
                 if (!videoData && videoFile) {
                     videoData = await readFile(videoFile);
                 }
@@ -602,57 +689,14 @@
                 document.getElementById('newsImageFile').value = '';
                 document.getElementById('newsVideoUrl').value = '';
                 document.getElementById('newsVideoFile').value = '';
+                document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+                document.getElementById('imageNamePreview').style.color = '#64748B';
+                document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+                document.getElementById('videoNamePreview').style.color = '#64748B';
 
             } catch (error) {
-                showToast("حدث خطأ أثناء رفع الملفات، يفضل استخدام رابط الفيديو بدلاً من رفع الملف المباشر", "❌", true, 4000);
+                showToast("حدث خطأ أثناء رفع الملفات، يرجى المحاولة مرة أخرى", "❌", true, 3500);
             }
-        }
-
-        async function deleteNews(key) {
-            await db.ref('news/' + key).remove();
-            showToast("تم حذف الإعلان بنجاح", "🗑️");
-        }
-
-        function loadTicketsLive() {
-            db.ref('tickets').on('value', (snapshot) => {
-                const container = document.getElementById('adminTicketsList');
-                container.innerHTML = '';
-                ticketsCache = snapshot.val() || {};
-                const keys = Object.keys(ticketsCache);
-                if (keys.length === 0) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات حتى الآن.</p>';
-                    return;
-                }
-                keys.reverse().forEach(k => {
-                    const t = ticketsCache[k];
-                    container.innerHTML += `
-                        <div style="background: #F8FAFC; border: 1px solid var(--border); padding: 15px; border-radius: 14px; margin-bottom: 12px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <b>👤 ${t.parentName} (${t.studentName || ''})</b>
-                                <span style="font-size: 12px; font-weight: bold; color: var(--primary);">${t.ticketType}</span>
-                            </div>
-                            <p style="font-size: 13px; color: #334155; margin-bottom: 10px;">${t.ticketContent}</p>
-                            <div style="display: flex; gap: 8px; margin-top: 8px;">
-                                <input type="text" id="reply_${k}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}">
-                                <button onclick="saveTicketReply('${k}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 💬</button>
-                                <button onclick="deleteTicketAdmin('${k}')" class="btn btn-danger">حذف 🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        async function saveTicketReply(key) {
-            const reply = document.getElementById('reply_' + key).value.trim();
-            if (!reply) return showToast("يرجى كتابة نص الرد أولاً", "⚠️");
-            await db.ref('tickets/' + key).update({ adminReply: reply, status: 'تم الرد' });
-            showToast("تم إرسال الرد لولي الأمر بنجاح", "✅");
-        }
-
-        async function deleteTicketAdmin(key) {
-            await db.ref('tickets/' + key).remove();
-            showToast("تم حذف الطلب بنجاح", "🗑️");
         }
     </script>
 </body>
