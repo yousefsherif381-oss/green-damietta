@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة | مدرسة اللغات الرسمية الجديدة</title>
+    <title>لوحة التحكم والإدارة | Nexus</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -110,11 +110,11 @@
 
         .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; margin: auto; }
         .logo-box {
-            width: 56px; height: 56px; border-radius: 50%; background: #ffffff; padding: 3px;
+            width: 56px; height: 56px; border-radius: 50%; background: #0f172a; padding: 2px;
             border: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
         }
-        .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .logo-text { font-size: 18px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
 
         .btn-header-home {
@@ -206,6 +206,11 @@
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
             </div>
+            <!-- قسم إعدادات النظام الجديد (تغيير الشعار والباسورد) -->
+            <div class="sidebar-item" id="menuItemSettings" onclick="switchAdminSection('settingsSection', this)">
+                <span class="sidebar-icon">⚙️</span>
+                <span class="sidebar-label">إعدادات النظام والشعار</span>
+            </div>
         </div>
     </aside>
 
@@ -214,9 +219,9 @@
             <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
             <div class="logo-area" onclick="window.location.href='index.html'">
                 <div class="logo-box">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BcwJ8QmjPQ7RsoBbCPZ7EIhfBOEp4VCfOFmCe_4Vxw&s=10" alt="الشعار">
+                    <img id="headerAdminLogoImg" src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="الشعار">
                 </div>
-                <span class="logo-text">لوحة التحكم والإدارة</span>
+                <span class="logo-text">Nexus Admin</span>
             </div>
             <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
         </div>
@@ -256,7 +261,7 @@
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2. رصد الدرجات (محدد المواد بدقة حسب صف الطالب) -->
+        <!-- 2. رصد الدرجات -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title">📊 رصد درجات وتقييمات الطلاب الدقيقة</div>
             <div style="margin-bottom: 20px;">
@@ -315,7 +320,7 @@
             </div>
         </div>
 
-        <!-- 4. سجل الحسابات والطلاب (عرض شامل وإمكانية الحذف) -->
+        <!-- 4. سجل الحسابات والطلاب -->
         <div class="admin-section" id="usersSection">
             <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
             <div style="overflow-x: auto;">
@@ -344,19 +349,44 @@
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
+
+        <!-- 6. قسم إعدادات النظام وتغيير الشعار والباسورد -->
+        <div class="admin-section" id="settingsSection">
+            <div class="card-title">⚙️ إعدادات النظام وتغيير الشعار وكلمة المرور</div>
+            <div style="background: #F8FAFC; padding: 22px; border-radius: 18px; border: 1px solid var(--border);">
+                
+                <!-- تغيير كلمة مرور الأدمن -->
+                <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">🔒 تغيير كلمة مرور لوحة التحكم:</h4>
+                <form onsubmit="updateAdminPassword(event)">
+                    <div class="form-grid">
+                        <div>
+                            <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">كلمة المرور الجديدة:</label>
+                            <input type="password" id="newAdminPassword" class="form-control" placeholder="أدخل الباسورد الجديد" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 12px;">تحديث كلمة المرور 🔑</button>
+                </form>
+
+                <hr style="margin: 25px 0; border: none; border-top: 1px solid var(--border);">
+
+                <!-- تغيير شعار المنصة -->
+                <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">🖼️ تغيير شعار الموقع (Logo):</h4>
+                <form onsubmit="updateSystemLogo(event)">
+                    <div class="form-grid">
+                        <div>
+                            <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">اختر صورة الشعار الجديدة من الجهاز:</label>
+                            <input type="file" id="newLogoFile" class="form-control" accept="image/*" required style="padding: 8px;">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="margin-top: 12px;">حفظ وتطبيق الشعار الجديد 🚀</button>
+                </form>
+
+            </div>
+        </div>
     </main>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
-            authDomain: "green-damietta-b0a29.firebaseapp.com",
-            databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com",
-            projectId: "green-damietta-b0a29",
-            storageBucket: "green-damietta-b0a29.firebasestorage.app",
-            messagingSenderId: "210935345765",
-            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
-            measurementId: "G-CT9KYEKXML"
-        };
+        const firebaseConfig = { databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
@@ -370,7 +400,6 @@
             if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
 
-        // تحديد المواد الدراسية بدقة تامة حسب الصف الدراسي
         const gradeSubjectsDetailed = {
             lowerPrimary: [
                 { id: 'ar', name: 'اللغة العربية' },
@@ -407,7 +436,10 @@
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
-        window.addEventListener('DOMContentLoaded', () => { loadAllData(); });
+        window.addEventListener('DOMContentLoaded', () => { 
+            loadAllData(); 
+            loadSystemLogoLive();
+        });
 
         function loadAllData() {
             db.ref('students').on('value', (snapshot) => {
@@ -438,7 +470,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // عرض جدول الطلاب بجميع البيانات وإمكانية الحذف
         function renderUsersTable() {
             const tbody = document.getElementById('adminUsersTableBody');
             const selectGradesBox = document.getElementById('studentSelectForGrades');
@@ -485,7 +516,6 @@
             });
         }
 
-        // حذف مستخدم أو طالب نهائياً من قاعدة البيانات
         async function deleteUser(key, name) {
             if (confirm(`هل أنت متأكد من حذف الحساب الخاص بـ (${name}) نهائياً؟`)) {
                 await db.ref('students/' + key).remove();
@@ -516,7 +546,6 @@
             loadStudentGradesToEdit();
         }
 
-        // تحميل نموذج الدرجات للمواد الخاصة بصف الطالب المختار فقط
         function loadStudentGradesToEdit() {
             const key = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
@@ -559,6 +588,43 @@
 
             await db.ref('students/' + key).update(updates);
             showToast("تم رصد وتحديث الدرجات بنجاح", "📊");
+        }
+
+        // تحديث كلمة مرور الأدمن في قاعدة البيانات
+        async function updateAdminPassword(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('newAdminPassword').value.trim();
+            if (!newPass) return;
+            await db.ref('settings/adminPassword').set(newPass);
+            showToast("تم تغيير كلمة مرور لوحة التحكم بنجاح! 🔑", "🔒");
+            document.getElementById('newAdminPassword').value = '';
+        }
+
+        // تحديث الشعار في قاعدة البيانات
+        async function updateSystemLogo(e) {
+            e.preventDefault();
+            const file = document.getElementById('newLogoFile').files[0];
+            if (!file) return;
+
+            showToast("جاري معالجة ورفع الشعار الجديد...", "⏳", false);
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64Logo = event.target.result;
+                await db.ref('settings/systemLogo').set(base64Logo);
+                document.getElementById('headerAdminLogoImg').src = base64Logo;
+                showToast("تم تحديث شعار النظام بنجاح! 🚀", "🖼️");
+                document.getElementById('newLogoFile').value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSystemLogoLive() {
+            db.ref('settings/systemLogo').on('value', snapshot => {
+                const logoUrl = snapshot.val();
+                if (logoUrl) {
+                    document.getElementById('headerAdminLogoImg').src = logoUrl;
+                }
+            });
         }
 
         function loadNewsLive() {
