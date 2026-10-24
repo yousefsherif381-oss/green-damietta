@@ -206,10 +206,9 @@
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
             </div>
-            <!-- قسم إعدادات النظام الجديد (تغيير الشعار والباسورد) -->
             <div class="sidebar-item" id="menuItemSettings" onclick="switchAdminSection('settingsSection', this)">
                 <span class="sidebar-icon">⚙️</span>
-                <span class="sidebar-label">إعدادات النظام والشعار</span>
+                <span class="sidebar-label">إعدادات الأمان وباسورد الأدمن</span>
             </div>
         </div>
     </aside>
@@ -219,7 +218,7 @@
             <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
             <div class="logo-area" onclick="window.location.href='index.html'">
                 <div class="logo-box">
-                    <img id="headerAdminLogoImg" src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="الشعار">
+                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="الشعار">
                 </div>
                 <span class="logo-text">Nexus Admin</span>
             </div>
@@ -350,12 +349,11 @@
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-        <!-- 6. قسم إعدادات النظام وتغيير الشعار والباسورد -->
+        <!-- 6. قسم تغيير كلمة مرور لوحة التحكم فقط -->
         <div class="admin-section" id="settingsSection">
-            <div class="card-title">⚙️ إعدادات النظام وتغيير الشعار وكلمة المرور</div>
+            <div class="card-title">⚙️ إعدادات الأمان وتغيير كلمة مرور لوحة التحكم</div>
             <div style="background: #F8FAFC; padding: 22px; border-radius: 18px; border: 1px solid var(--border);">
                 
-                <!-- تغيير كلمة مرور الأدمن -->
                 <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">🔒 تغيير كلمة مرور لوحة التحكم:</h4>
                 <form onsubmit="updateAdminPassword(event)">
                     <div class="form-grid">
@@ -365,20 +363,6 @@
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="margin-top: 12px;">تحديث كلمة المرور 🔑</button>
-                </form>
-
-                <hr style="margin: 25px 0; border: none; border-top: 1px solid var(--border);">
-
-                <!-- تغيير شعار المنصة -->
-                <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">🖼️ تغيير شعار الموقع (Logo):</h4>
-                <form onsubmit="updateSystemLogo(event)">
-                    <div class="form-grid">
-                        <div>
-                            <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">اختر صورة الشعار الجديدة من الجهاز:</label>
-                            <input type="file" id="newLogoFile" class="form-control" accept="image/*" required style="padding: 8px;">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-success" style="margin-top: 12px;">حفظ وتطبيق الشعار الجديد 🚀</button>
                 </form>
 
             </div>
@@ -438,7 +422,6 @@
 
         window.addEventListener('DOMContentLoaded', () => { 
             loadAllData(); 
-            loadSystemLogoLive();
         });
 
         function loadAllData() {
@@ -595,36 +578,13 @@
             e.preventDefault();
             const newPass = document.getElementById('newAdminPassword').value.trim();
             if (!newPass) return;
-            await db.ref('settings/adminPassword').set(newPass);
-            showToast("تم تغيير كلمة مرور لوحة التحكم بنجاح! 🔑", "🔒");
-            document.getElementById('newAdminPassword').value = '';
-        }
-
-        // تحديث الشعار في قاعدة البيانات
-        async function updateSystemLogo(e) {
-            e.preventDefault();
-            const file = document.getElementById('newLogoFile').files[0];
-            if (!file) return;
-
-            showToast("جاري معالجة ورفع الشعار الجديد...", "⏳", false);
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                const base64Logo = event.target.result;
-                await db.ref('settings/systemLogo').set(base64Logo);
-                document.getElementById('headerAdminLogoImg').src = base64Logo;
-                showToast("تم تحديث شعار النظام بنجاح! 🚀", "🖼️");
-                document.getElementById('newLogoFile').value = '';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function loadSystemLogoLive() {
-            db.ref('settings/systemLogo').on('value', snapshot => {
-                const logoUrl = snapshot.val();
-                if (logoUrl) {
-                    document.getElementById('headerAdminLogoImg').src = logoUrl;
-                }
-            });
+            try {
+                await db.ref('settings/adminPassword').set(newPass);
+                showToast("تم تغيير كلمة مرور لوحة التحكم بنجاح! 🔑", "🔒");
+                document.getElementById('newAdminPassword').value = '';
+            } catch(err) {
+                showToast("حدث خطأ أثناء تحديث كلمة المرور", "❌");
+            }
         }
 
         function loadNewsLive() {
