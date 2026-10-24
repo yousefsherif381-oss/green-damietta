@@ -244,7 +244,7 @@
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-label">الحضور والغياب</span>
             </div>
-            <div class="sidebar-item" onclick="closeSidebar(); checkAuthAndNavigate('ticketsSection');">
+            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('ticketsSection');">
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">الشكاوى والاستفسارات</span>
             </div>
@@ -485,7 +485,14 @@
             } else { navigateToSection(sectionId); }
         }
 
-        function navigateToSection(sectionId) { hideAllViews(); document.getElementById(sectionId).style.display = 'block'; }
+        function navigateToSection(sectionId) { 
+            hideAllViews(); 
+            document.getElementById(sectionId).style.display = 'block'; 
+            if (sectionId === 'ticketsSection') {
+                loadStudentTicketsLive();
+            }
+        }
+
         function openSignInPage() { hideAllViews(); document.getElementById('signInView').style.display = 'block'; }
         function openSignUpPage() { hideAllViews(); document.getElementById('signUpView').style.display = 'block'; }
 
@@ -564,7 +571,7 @@
             document.getElementById('lblAttendanceNoteText').textContent = currentUser.attendanceNote ? `ملاحظة: ${currentUser.attendanceNote}` : '';
 
             loadStudentGrades();
-            loadStudentTicketsLive(); // تحميل شكاوى الطالب وردود الإدارة
+            loadStudentTicketsLive();
             showHomePage(); 
         }
 
@@ -709,27 +716,32 @@
 
         function loadStudentTicketsLive() {
             const container = document.getElementById('studentMyTicketsList');
-            if (!currentUser) return;
+            if (!container) return;
+
             db.ref('tickets').on('value', snapshot => {
                 container.innerHTML = '';
                 const tickets = snapshot.val();
                 let found = false;
+
                 if (tickets) {
                     Object.keys(tickets).reverse().forEach(key => {
                         const t = tickets[key];
-                        if (t.contact === currentUser.phone || t.parentName.includes(currentUser.name)) {
+                        const userPhone = currentUser ? currentUser.phone : '';
+                        const userName = currentUser ? currentUser.name : '';
+
+                        if ((userPhone && t.contact === userPhone) || (userName && t.parentName.includes(userName)) || !currentUser) {
                             found = true;
                             let replyHtml = t.adminReply ? `
                                 <div style="background: #E0F2FE; border: 1px solid #BAE6FD; padding: 10px 14px; border-radius: 10px; margin-top: 10px;">
                                     <div style="font-size: 12px; font-weight: 800; color: var(--primary-dark); margin-bottom: 2px;">💬 رد الإدارة:</div>
-                                    <p style="font-size: 13px; color: #0369A1; font-weight: 700;">${t.adminReply}</p>
+                                    <p style="font-size: 13.5px; color: #0369A1; font-weight: 700; margin: 0;">${t.adminReply}</p>
                                 </div>
                             ` : `
                                 <div style="margin-top: 8px; font-size: 12px; color: #D97706; font-weight: 700;">⏳ قيد المراجعة من الإدارة...</div>
                             `;
 
                             container.innerHTML += `
-                                <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-right: 4px solid var(--primary);">
+                                <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-right: 4px solid var(--primary); text-align: right;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                         <span style="font-size: 13px; font-weight: 800; color: var(--primary-dark);">النوع: ${t.ticketType || 'عام'}</span>
                                         <span style="font-size: 11.5px; color: var(--text-muted);">${t.date || ''}</span>
@@ -741,6 +753,7 @@
                         }
                     });
                 }
+
                 if (!found) {
                     container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted); text-align: center; padding: 15px;">لم تقم بإرسال أي شكاوى أو استفسارات بعد.</p>';
                 }
