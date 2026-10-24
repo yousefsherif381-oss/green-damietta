@@ -567,6 +567,10 @@
             document.getElementById('profilePhone').value = currentUser.phone || '';
             document.getElementById('profileGradeDisplay').textContent = currentUser.grade || 'الصف الدراسي غير محدد';
             
+            // تعبئة بيانات فورم الشكوى ببيانات الطالب تلقائياً لتسهيل الإرسال والمطابقة
+            if (document.getElementById('ticketParentName')) document.getElementById('ticketParentName').value = currentUser.name || '';
+            if (document.getElementById('ticketParentEmail')) document.getElementById('ticketParentEmail').value = currentUser.phone || '';
+
             document.getElementById('lblAttendanceStatusText').textContent = currentUser.attendance || 'منتظم 🟢';
             document.getElementById('lblAttendanceNoteText').textContent = currentUser.attendanceNote ? `ملاحظة: ${currentUser.attendanceNote}` : '';
 
@@ -707,10 +711,9 @@
 
             db.ref('tickets').push({ parentName, contact, ticketType, content, date, adminReply: '' }).then(() => {
                 showToast('تم إرسال الشكوى أو الطلب بنجاح 🚀');
-                document.getElementById('ticketParentName').value = '';
-                document.getElementById('ticketParentEmail').value = '';
                 document.getElementById('ticketTypeSelect').value = '';
                 document.getElementById('ticketContent').value = '';
+                loadStudentTicketsLive();
             });
         }
 
@@ -726,10 +729,20 @@
                 if (tickets) {
                     Object.keys(tickets).reverse().forEach(key => {
                         const t = tickets[key];
-                        const userPhone = currentUser ? currentUser.phone : '';
-                        const userName = currentUser ? currentUser.name : '';
+                        
+                        // الفلترة: إما عرض الشكوى التابعة للطالب الحالي أو جميع الشكاوى المنشورة
+                        const userPhone = currentUser && currentUser.phone ? currentUser.phone.trim() : '';
+                        const userName = currentUser && currentUser.name ? currentUser.name.trim() : '';
+                        const ticketContact = t.contact ? t.contact.trim() : '';
+                        const ticketParentName = t.parentName ? t.parentName.trim() : '';
 
-                        if ((userPhone && t.contact === userPhone) || (userName && t.parentName.includes(userName)) || !currentUser) {
+                        const isMatch = currentUser ? (
+                            (userPhone && ticketContact === userPhone) ||
+                            (userName && ticketParentName.includes(userName)) ||
+                            (ticketParentName && userName.includes(ticketParentName))
+                        ) : true;
+
+                        if (isMatch) {
                             found = true;
                             let replyHtml = t.adminReply ? `
                                 <div style="background: #E0F2FE; border: 1px solid #BAE6FD; padding: 10px 14px; border-radius: 10px; margin-top: 10px;">
