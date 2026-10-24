@@ -49,7 +49,6 @@
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* 🌟 القائمة الجانبية بتصميم زجاجي أزرق مدمج مع الخلفية */
         .sliding-sidebar {
             position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
             background: rgba(12, 74, 110, 0.78); 
@@ -383,7 +382,7 @@
             </div>
         </div>
 
-        <!-- 5️⃣ قسم الشكاوى -->
+        <!-- 5️⃣ قسم الشكاوى مع زر الرد المباشر -->
         <div class="admin-section" id="ticketsSection">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
@@ -619,7 +618,7 @@
                 Object.keys(newsData).reverse().forEach(key => {
                     const item = newsData[key];
                     container.innerHTML += `
-                        <div style="background: #FFFFFF; padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align- items: center;">
+                        <div style="background: #FFFFFF; padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">${item.title}</h5>
                                 <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">${item.content.substring(0, 60)}...</p>
@@ -681,6 +680,7 @@
             }
         }
 
+        // 🌟 دالة عرض الشكاوى المحدثة مع حقل الرد للإدارة
         function loadTicketsLive() {
             db.ref('tickets').on('value', (snapshot) => {
                 const container = document.getElementById('adminTicketsList');
@@ -693,17 +693,35 @@
                 Object.keys(tickets).reverse().forEach(key => {
                     const t = tickets[key];
                     container.innerHTML += `
-                        <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-right: 4px solid var(--accent);">
+                        <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 14px; border: 1px solid var(--border); border-right: 4px solid var(--accent);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                 <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">ولي الأمر: ${t.parentName} (${t.contact})</h5>
                                 <span style="font-size: 11.5px; color: var(--text-muted);">${t.date || ''}</span>
                             </div>
                             <div style="font-size: 12.5px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">النوع: ${t.ticketType || 'عام'}</div>
-                            <p style="font-size: 13.5px; color: #334155; line-height: 1.5;">${t.content}</p>
-                            <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="margin-top: 10px; padding: 5px 12px; font-size: 11.5px;">حذف الطلب 🗑️</button>
+                            <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 10px;">${t.content}</p>
+                            
+                            <div style="background: #F8FAFC; padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin-top: 10px;">
+                                <label style="font-size: 12px; font-weight: 800; display: block; margin-bottom: 4px; color: var(--primary-dark);">💬 الرد على ولي الأمر:</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="reply_${key}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}" style="font-size: 13px; padding: 8px 12px;">
+                                    <button onclick="saveTicketReply('${key}')" class="btn btn-primary" style="padding: 8px 16px; font-size: 12.5px; white-space: nowrap;">إرسال الرد 💾</button>
+                                </div>
+                            </div>
+
+                            <div style="text-align: left; margin-top: 10px;">
+                                <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 5px 12px; font-size: 11.5px;">حذف الطلب 🗑️</button>
+                            </div>
                         </div>
                     `;
                 });
+            });
+        }
+
+        function saveTicketReply(key) {
+            const replyText = document.getElementById(`reply_${key}`).value.trim();
+            db.ref('tickets/' + key).update({ adminReply: replyText }).then(() => {
+                showToast("تم إرسال وتحديث رد الإدارة بنجاح 💬", "✅");
             });
         }
 
