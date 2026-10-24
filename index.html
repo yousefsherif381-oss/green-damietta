@@ -428,6 +428,15 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
         let currentUser = null;
+        let latestAdminPassword = "admin123"; // الباسورد الافتراضي
+
+        // الاستماع اللحظي لأي تغيير في باسورد الأدمن من قاعدة البيانات
+        db.ref('settings/adminPassword').on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                latestAdminPassword = val;
+            }
+        });
 
         function showToast(message, icon = "✨") {
             const toast = document.getElementById('customToast');
@@ -464,11 +473,15 @@
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            if (identifier === 'admin' && password === 'admin123') {
-                showToast('جاري تحويلك لصفحة الإدارة... ⚙️');
-                setTimeout(() => {
-                    window.location.href = 'https://yousefsherif381-oss.github.io/green-damietta/admin.html';
-                }, 1000);
+            if (identifier === 'admin') {
+                if (password === latestAdminPassword) {
+                    showToast('جاري تحويلك لصفحة الإدارة... ⚙️');
+                    setTimeout(() => {
+                        window.location.href = 'https://yousefsherif381-oss.github.io/green-damietta/admin.html';
+                    }, 1000);
+                } else {
+                    showToast('كلمة مرور الإدارة غير صحيحة ❌', '⚠️');
+                }
                 return;
             }
 
@@ -644,19 +657,4 @@
             const data = snapshot.val();
             if (data) {
                 Object.keys(data).reverse().forEach(key => {
-                    const item = data[key];
-                    newsFeedList.innerHTML += `
-                        <div class="news-card">
-                            <h4 style="color: var(--primary-dark); font-size: 16px;">${item.title || 'تنبيه'} <small style="color:var(--accent);">(${item.badge || ''})</small></h4>
-                            <p style="font-size: 14px; margin-top: 6px;">${item.content || ''}</p>
-                            ${item.image ? `<img src="${item.image}" style="max-width:100%; border-radius:10px; margin-top:10px;">` : ''}
-                            ${item.video ? `<video src="${item.video}" controls style="max-width:100%; border-radius:10px; margin-top:10px;"></video>` : ''}
-                            <br><small style="color: gray; display:inline-block; margin-top:8px;">📅 ${new Date(item.timestamp || Date.now()).toLocaleDateString('ar-EG')}</small>
-                        </div>
-                    `;
-                });
-            } else { newsFeedList.innerHTML = '<p style="color: white; text-align: center; padding: 20px;">لا توجد إعلانات حالياً.</p>'; }
-        });
-    </script>
-</body>
-</html>
+                    ...
