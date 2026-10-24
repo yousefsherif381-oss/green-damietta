@@ -567,7 +567,6 @@
             document.getElementById('profilePhone').value = currentUser.phone || '';
             document.getElementById('profileGradeDisplay').textContent = currentUser.grade || 'الصف الدراسي غير محدد';
             
-            // تعبئة بيانات فورم الشكوى ببيانات الطالب تلقائياً لتسهيل الإرسال والمطابقة
             if (document.getElementById('ticketParentName')) document.getElementById('ticketParentName').value = currentUser.name || '';
             if (document.getElementById('ticketParentEmail')) document.getElementById('ticketParentEmail').value = currentUser.phone || '';
 
@@ -647,7 +646,20 @@
                     document.getElementById('summaryTotal').textContent = totalScore + ' / ' + maxScore;
                     document.getElementById('summaryPercentage').textContent = percentage + '%';
                     
-                    const gradeText = percentage >= 85 ? 'ممتاز 🌟' : (percentage >= 75 ? 'جيد جداً 👍' : 'ناجح ✅');
+                    // 🌟 حساب التقدير العام بشكل صحيح ودقيق
+                    let gradeText = 'راسب ❌';
+                    if (percentage >= 85) {
+                        gradeText = 'ممتاز 🌟';
+                    } else if (percentage >= 75) {
+                        gradeText = 'جيد جداً 👍';
+                    } else if (percentage >= 65) {
+                        gradeText = 'جيد 👏';
+                    } else if (percentage >= 50) {
+                        gradeText = 'مقبول / ناجح ✅';
+                    } else {
+                        gradeText = 'راسب ❌';
+                    }
+
                     document.getElementById('summaryGrade').textContent = gradeText;
 
                     if (percentage >= 85 && typeof confetti === 'function') {
@@ -730,7 +742,6 @@
                     Object.keys(tickets).reverse().forEach(key => {
                         const t = tickets[key];
                         
-                        // الفلترة: إما عرض الشكوى التابعة للطالب الحالي أو جميع الشكاوى المنشورة
                         const userPhone = currentUser && currentUser.phone ? currentUser.phone.trim() : '';
                         const userName = currentUser && currentUser.name ? currentUser.name.trim() : '';
                         const ticketContact = t.contact ? t.contact.trim() : '';
