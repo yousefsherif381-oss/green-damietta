@@ -288,7 +288,6 @@
             </div>
         </div>
 
-        <!-- 🌟 البروفايل الشخصي الاحترافي -->
         <div class="view-section" id="profileSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             
@@ -359,11 +358,13 @@
             </div>
         </div>
 
-        <!-- 🌟 مركز الشكاوى مع خيارات متعددة دقيقة -->
+        <!-- 🌟 مركز الشكاوى والمتابعة المحدث -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; margin-top: 10px;">📨 إرسال شكوى أو استفسار</h2>
-            <form onsubmit="submitParentTicket(event)">
+            <h2 style="font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; margin-top: 10px;">📨 الشكاوى والاستفسارات ومتابعة الردود</h2>
+            
+            <form onsubmit="submitParentTicket(event)" style="background: rgba(248, 250, 252, 0.6); padding: 18px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 25px;">
+                <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">إرسال شكوى أو طلب جديد</h4>
                 <div class="form-grid">
                     <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="ticketParentName" class="form-control" required></div>
                     <div class="form-group"><label>رقم التواصل</label><input type="text" id="ticketParentEmail" class="form-control" required></div>
@@ -384,10 +385,13 @@
 
                 <div class="form-group">
                     <label>تفاصيل الشكوى أو الاستفسار</label>
-                    <textarea id="ticketContent" class="form-control" rows="4" placeholder="اكتب التفاصيل هنا بوضوح..." required></textarea>
+                    <textarea id="ticketContent" class="form-control" rows="3" placeholder="اكتب التفاصيل هنا بوضوح..." required></textarea>
                 </div>
                 <button type="submit" class="btn-submit">إرسال الطلب 🚀</button>
             </form>
+
+            <h4 style="font-size: 16px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">📋 متابعة الشكاوى المرسلة والردود:</h4>
+            <div id="studentMyTicketsList">جاري تحميل شكاواك...</div>
         </div>
 
         <div class="auth-page-view" id="signInView">
@@ -560,6 +564,7 @@
             document.getElementById('lblAttendanceNoteText').textContent = currentUser.attendanceNote ? `ملاحظة: ${currentUser.attendanceNote}` : '';
 
             loadStudentGrades();
+            loadStudentTicketsLive(); // تحميل شكاوى الطالب وردود الإدارة
             showHomePage(); 
         }
 
@@ -693,13 +698,52 @@
             const content = document.getElementById('ticketContent').value.trim();
             const date = new Date().toLocaleDateString('ar-EG');
 
-            db.ref('tickets').push({ parentName, contact, ticketType, content, date }).then(() => {
+            db.ref('tickets').push({ parentName, contact, ticketType, content, date, adminReply: '' }).then(() => {
                 showToast('تم إرسال الشكوى أو الطلب بنجاح 🚀');
                 document.getElementById('ticketParentName').value = '';
                 document.getElementById('ticketParentEmail').value = '';
                 document.getElementById('ticketTypeSelect').value = '';
                 document.getElementById('ticketContent').value = '';
-                showHomePage();
+            });
+        }
+
+        function loadStudentTicketsLive() {
+            const container = document.getElementById('studentMyTicketsList');
+            if (!currentUser) return;
+            db.ref('tickets').on('value', snapshot => {
+                container.innerHTML = '';
+                const tickets = snapshot.val();
+                let found = false;
+                if (tickets) {
+                    Object.keys(tickets).reverse().forEach(key => {
+                        const t = tickets[key];
+                        if (t.contact === currentUser.phone || t.parentName.includes(currentUser.name)) {
+                            found = true;
+                            let replyHtml = t.adminReply ? `
+                                <div style="background: #E0F2FE; border: 1px solid #BAE6FD; padding: 10px 14px; border-radius: 10px; margin-top: 10px;">
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--primary-dark); margin-bottom: 2px;">💬 رد الإدارة:</div>
+                                    <p style="font-size: 13px; color: #0369A1; font-weight: 700;">${t.adminReply}</p>
+                                </div>
+                            ` : `
+                                <div style="margin-top: 8px; font-size: 12px; color: #D97706; font-weight: 700;">⏳ قيد المراجعة من الإدارة...</div>
+                            `;
+
+                            container.innerHTML += `
+                                <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-right: 4px solid var(--primary);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <span style="font-size: 13px; font-weight: 800; color: var(--primary-dark);">النوع: ${t.ticketType || 'عام'}</span>
+                                        <span style="font-size: 11.5px; color: var(--text-muted);">${t.date || ''}</span>
+                                    </div>
+                                    <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 6px;">${t.content}</p>
+                                    ${replyHtml}
+                                </div>
+                            `;
+                        }
+                    });
+                }
+                if (!found) {
+                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted); text-align: center; padding: 15px;">لم تقم بإرسال أي شكاوى أو استفسارات بعد.</p>';
+                }
             });
         }
 
