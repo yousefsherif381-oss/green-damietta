@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم | بوابة التعلم الذكي</title>
+    <title>لوحة التحكم الإدارية | بوابة التعلم الذكي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -85,6 +85,7 @@
             margin-bottom: 20px; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px;
         }
 
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
         .form-group { margin-bottom: 16px; text-align: right; }
         .form-group label { display: block; font-size: 13.5px; font-weight: 700; color: #475569; margin-bottom: 8px; }
         .form-control {
@@ -92,45 +93,40 @@
             border-radius: 10px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
         }
 
-        /* تنسيق أزرار رفع الملفات العصرية المخصصة */
+        /* تنسيق أزرار رفع الملفات المخصصة */
         input[type="file"] { display: none; }
 
         .custom-file-upload {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 12px 18px;
-            background: #F8FAFC;
-            border: 2px dashed var(--primary);
-            border-radius: 12px;
-            color: var(--primary-dark);
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 10px; width: 100%; padding: 12px 18px; background: #F8FAFC;
+            border: 2px dashed var(--primary); border-radius: 12px;
+            color: var(--primary-dark); font-weight: 700; font-size: 14px;
+            cursor: pointer; transition: all 0.3s ease; text-align: center;
         }
 
         .custom-file-upload:hover {
-            background: #E0F2FE;
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+            background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
         }
 
         .file-name-preview {
-            display: block;
-            font-size: 12.5px;
-            color: var(--text-muted);
-            margin-top: 6px;
-            font-weight: 600;
+            display: block; font-size: 12.5px; color: var(--text-muted);
+            margin-top: 6px; font-weight: 600;
         }
 
         .btn-submit {
             width: 100%; padding: 13px; background: var(--primary); color: white;
             border: none; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
+        }
+
+        .subject-box {
+            background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; margin-bottom: 14px;
+        }
+        .subject-title { font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+
+        .ticket-item {
+            background: #F8FAFC; border-right: 4px solid var(--accent);
+            padding: 16px; border-radius: 12px; margin-bottom: 12px; border-top: 1px solid var(--border);
         }
 
         .custom-toast {
@@ -164,7 +160,7 @@
 
     <main class="main-wrapper">
         
-        <!-- قسم نشر الإعلانات والأخبار -->
+        <!-- 1️⃣ قسم نشر الإعلانات والأخبار -->
         <div class="admin-card">
             <h2 class="admin-title">📢 نشر خبر أو إعلان جديد</h2>
             <form onsubmit="publishNews(event)">
@@ -181,7 +177,6 @@
                     <textarea id="newsContentInput" class="form-control" rows="3" placeholder="اكتب تفاصيل الإعلان هنا..." required></textarea>
                 </div>
 
-                <!-- حقل إرفاق الصورة العصري -->
                 <div class="form-group">
                     <label>🖼️ إرفاق صورة الإعلان (اختياري):</label>
                     <label for="newsImageInput" class="custom-file-upload">
@@ -191,7 +186,6 @@
                     <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
                 </div>
 
-                <!-- حقل إرفاق الفيديو العصري -->
                 <div class="form-group">
                     <label>🎥 أو إرفاق فيديو صغير من الجهاز:</label>
                     <label for="newsVideoInput" class="custom-file-upload">
@@ -205,7 +199,60 @@
             </form>
         </div>
 
-        <!-- قسم تغيير كلمة مرور الأدمن -->
+        <!-- 2️⃣ قسم رصد درجات الطلاب -->
+        <div class="admin-card">
+            <h2 class="admin-title">📊 رصد درجات الطلاب</h2>
+            <div class="form-group">
+                <label>اختر الطالب لرصد الدرجات</label>
+                <select id="studentSelectForGrades" class="form-control" onchange="loadStudentGradesForAdmin(this.value)">
+                    <option value="">-- اختر الطالب --</option>
+                </select>
+            </div>
+
+            <div id="gradesInputsContainer" style="display: none; margin-top: 20px;">
+                <form onsubmit="saveStudentGrades(event)">
+                    <div id="dynamicSubjectsArea"></div>
+                    <button type="submit" class="btn-submit" style="background: var(--accent);">حفظ كل الدرجات 💾</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 3️⃣ قسم الحضور والغياب -->
+        <div class="admin-card">
+            <h2 class="admin-title">📅 سجل حضور وغياب الطلاب</h2>
+            <div class="form-group">
+                <label>اختر الطالب</label>
+                <select id="studentSelectForAttendance" class="form-control" onchange="loadStudentAttendanceForAdmin(this.value)">
+                    <option value="">-- اختر الطالب --</option>
+                </select>
+            </div>
+
+            <form id="attendanceForm" onsubmit="saveStudentAttendance(event)" style="display: none; margin-top: 15px;">
+                <div class="form-group">
+                    <label>حالة الحضور</label>
+                    <select id="attendanceStatusSelect" class="form-control">
+                        <option value="منتظم 🟢">منتظم 🟢</option>
+                        <option value="غائب 🔴">غائب 🔴</option>
+                        <option value="مستأذن 🟡">مستأذن 🟡</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظة غياب أو تأخير (اختياري)</label>
+                    <input type="text" id="attendanceNoteInput" class="form-control" placeholder="اكتب السبب إن وجد...">
+                </div>
+                <button type="submit" class="btn-submit">حفظ حالة الحضور 💾</button>
+            </form>
+        </div>
+
+        <!-- 4️⃣ قسم الشكاوى والتواصل -->
+        <div class="admin-card">
+            <h2 class="admin-title">📨 شكاوى واستفسارات أولياء الأمور</h2>
+            <div id="ticketsListContainer">
+                <p style="color: gray; text-align: center;">جاري تحميل الشكاوى...</p>
+            </div>
+        </div>
+
+        <!-- 5️⃣ قسم تغيير كلمة مرور الأدمن -->
         <div class="admin-card">
             <h2 class="admin-title">🔑 تغيير كلمة مرور الإدارة</h2>
             <form onsubmit="changeAdminPassword(event)">
@@ -224,6 +271,45 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
+        let allStudentsData = {};
+        let selectedStudentKey = null;
+
+        const gradeSubjectsDetailed = {
+            lowerPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'discover', name: 'Discover / اكتشف' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            upperPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
+                { id: 'skills', name: 'المهارات المهنية' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            prep: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'computer', name: 'الحاسب الآلي' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ]
+        };
+
+        function getSubjectsForGradeName(gradeName) {
+            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
+            if (gradeName.includes('الإعدادي') || gradeName.includes('اعدادي')) return gradeSubjectsDetailed.prep;
+            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
+            else return gradeSubjectsDetailed.lowerPrimary;
+        }
+
         function showToast(message, icon = "✨") {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
@@ -232,7 +318,6 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // دالة تحديث اسم الملف المختار فورياً
         function updateFileName(input, previewId) {
             const previewSpan = document.getElementById(previewId);
             if (input.files && input.files[0]) {
@@ -244,6 +329,111 @@
             }
         }
 
+        // تحميل قائمة الطلاب
+        db.ref('students').on('value', (snapshot) => {
+            allStudentsData = snapshot.val() || {};
+            const gradesSelect = document.getElementById('studentSelectForGrades');
+            const attendanceSelect = document.getElementById('studentSelectForAttendance');
+            
+            gradesSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
+            attendanceSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
+
+            Object.keys(allStudentsData).forEach(key => {
+                const s = allStudentsData[key];
+                const opt = `<option value="${key}">${s.name} (${s.grade || 'غير محدد'})</option>`;
+                gradesSelect.innerHTML += opt;
+                attendanceSelect.innerHTML += opt;
+            });
+        });
+
+        // رصد الدرجات
+        function loadStudentGradesForAdmin(key) {
+            selectedStudentKey = key;
+            const container = document.getElementById('gradesInputsContainer');
+            const area = document.getElementById('dynamicSubjectsArea');
+            if (!key) { container.style.display = 'none'; return; }
+
+            const student = allStudentsData[key];
+            const subjects = getSubjectsForGradeName(student.grade);
+            area.innerHTML = '';
+
+            subjects.forEach(sub => {
+                area.innerHTML += `
+                    <div class="subject-box">
+                        <div class="subject-title">📚 ${sub.name}</div>
+                        <div class="form-grid">
+                            <div class="form-group"><label>أعمال السنة</label><input type="number" id="${sub.id}_work" class="form-control" value="${student[sub.id + '_work'] || 0}"></div>
+                            <div class="form-group"><label>التقييم الأسبوعي</label><input type="number" id="${sub.id}_weekly" class="form-control" value="${student[sub.id + '_weekly'] || 0}"></div>
+                            <div class="form-group"><label>الامتحان النهائي</label><input type="number" id="${sub.id}_final" class="form-control" value="${student[sub.id + '_final'] || 0}"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.style.display = 'block';
+        }
+
+        function saveStudentGrades(e) {
+            e.preventDefault();
+            if (!selectedStudentKey) return;
+            const student = allStudentsData[selectedStudentKey];
+            const subjects = getSubjectsForGradeName(student.grade);
+            let updates = {};
+
+            subjects.forEach(sub => {
+                updates[sub.id + '_work'] = document.getElementById(sub.id + '_work').value;
+                updates[sub.id + '_weekly'] = document.getElementById(sub.id + '_weekly').value;
+                updates[sub.id + '_final'] = document.getElementById(sub.id + '_final').value;
+            });
+
+            db.ref('students/' + selectedStudentKey).update(updates).then(() => {
+                showToast('تم حفظ درجات الطالب بنجاح! 💾');
+            });
+        }
+
+        // الحضور والغياب
+        function loadStudentAttendanceForAdmin(key) {
+            const form = document.getElementById('attendanceForm');
+            if (!key) { form.style.display = 'none'; return; }
+            const s = allStudentsData[key];
+            document.getElementById('attendanceStatusSelect').value = s.attendance || 'منتظم 🟢';
+            document.getElementById('attendanceNoteInput').value = s.attendanceNote || '';
+            form.style.display = 'block';
+        }
+
+        function saveStudentAttendance(e) {
+            e.preventDefault();
+            const key = document.getElementById('studentSelectForAttendance').value;
+            if (!key) return;
+            db.ref('students/' + key).update({
+                attendance: document.getElementById('attendanceStatusSelect').value,
+                attendanceNote: document.getElementById('attendanceNoteInput').value.trim()
+            }).then(() => {
+                showToast('تم تحديث حالة الحضور! 📅');
+            });
+        }
+
+        // الشكاوى
+        db.ref('tickets').on('value', (snapshot) => {
+            const container = document.getElementById('ticketsListContainer');
+            container.innerHTML = '';
+            const data = snapshot.val();
+            if (data) {
+                Object.keys(data).reverse().forEach(k => {
+                    const t = data[k];
+                    container.innerHTML += `
+                        <div class="ticket-item">
+                            <h4 style="color: var(--primary-dark);">👤 ${t.parentName || 'ولي أمر'} <small style="color:gray;">(${t.contact || ''})</small></h4>
+                            <p style="margin-top:6px; font-weight:600;">${t.content || ''}</p>
+                            <small style="color: gray; display:block; margin-top:6px;">📅 ${t.date || ''}</small>
+                        </div>
+                    `;
+                });
+            } else {
+                container.innerHTML = '<p style="color: gray; text-align: center;">لا توجد شكاوى مسجلة حالياً.</p>';
+            }
+        });
+
+        // نشر الإعلانات
         function publishNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitleInput').value.trim();
@@ -256,9 +446,7 @@
 
             const processPublish = (imageData, videoData) => {
                 db.ref('news/' + newsKey).set({
-                    title,
-                    badge,
-                    content,
+                    title, badge, content,
                     image: imageData || '',
                     video: videoData || '',
                     timestamp: Date.now()
@@ -267,8 +455,7 @@
                     document.getElementById('newsTitleInput').value = '';
                     document.getElementById('newsBadgeInput').value = '';
                     document.getElementById('newsContentInput').value = '';
-                    imageInput.value = '';
-                    videoInput.value = '';
+                    imageInput.value = ''; videoInput.value = '';
                     document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
                     document.getElementById('imageNamePreview').style.color = '#64748B';
                     document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
@@ -276,12 +463,10 @@
                 });
             };
 
-            let imgData = '', vidData = '';
-            
             const readImage = new Promise((resolve) => {
                 if (imageInput.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = (event) => resolve(event.target.result);
+                    reader.onload = (e) => resolve(e.target.result);
                     reader.readAsDataURL(imageInput.files[0]);
                 } else resolve('');
             });
@@ -289,7 +474,7 @@
             const readVideo = new Promise((resolve) => {
                 if (videoInput.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = (event) => resolve(event.target.result);
+                    reader.onload = (e) => resolve(e.target.result);
                     reader.readAsDataURL(videoInput.files[0]);
                 } else resolve('');
             });
@@ -299,6 +484,7 @@
             });
         }
 
+        // تغيير باسورد الأدمن
         function changeAdminPassword(e) {
             e.preventDefault();
             const newPass = document.getElementById('newAdminPasswordInput').value.trim();
