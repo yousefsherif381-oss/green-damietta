@@ -8,6 +8,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <!-- مكتبة تأثير الاحتفال (Confetti) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
     <style>
         :root {
@@ -15,11 +17,11 @@
             --primary-dark: #0369A1;
             --accent: #F59E0B;
             --accent-hover: #D97706;
-            --card-bg: #FFFFFF;
+            --card-bg: rgba(255, 255, 255, 0.85);
             --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border: #CBD5E1;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            --border: rgba(255, 255, 255, 0.4);
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
@@ -42,12 +44,15 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* 🌟 الهيدر بالزجاج العائم (Glassmorphism) */
         header {
-            background: rgba(12, 74, 110, 0.92);
+            background: rgba(12, 74, 110, 0.65);
             backdrop-filter: blur(16px);
-            border-bottom: 2px solid rgba(245, 158, 11, 0.4);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
         }
 
         .nav-container {
@@ -98,10 +103,13 @@
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
+        /* 🌟 القائمة الجانبية بالزجاج المعتم */
         .sliding-sidebar {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
-            background: #0f172a; z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-            border-left: 1px solid rgba(255, 255, 255, 0.1); padding: 24px 20px;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.15); padding: 24px 20px;
             display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sliding-sidebar.active { right: 0; }
@@ -127,25 +135,38 @@
 
         .news-header-title { font-size: 20px; font-weight: 800; color: #FFFFFF; margin-bottom: 20px; text-align: center; }
         .news-feed { display: flex; flex-direction: column; gap: 16px; }
-        .news-card {
-            background: var(--card-bg); border-radius: 16px; padding: 24px;
-            box-shadow: var(--shadow); border-right: 5px solid var(--accent);
+        
+        /* 🌟 الكروت بزجاج عائم مع إضاءة نيون عند المرور بالماوس */
+        .news-card, .view-section, .grades-card-box {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px; padding: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            margin-bottom: 25px;
+            animation: smoothSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .view-section, .auth-page-view {
-            background: var(--card-bg); border-radius: 20px; padding: 28px;
-            box-shadow: var(--shadow); display: none; margin-bottom: 25px; animation: fadeIn 0.3s ease;
+        .news-card:hover, .view-section:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(2, 132, 199, 0.25), 0 0 20px rgba(245, 158, 11, 0.15);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* 🌟 التأثيرات الحركية (Fade & Slide in) والانسيابية */
+        @keyframes smoothSlideUp {
+            0% { opacity: 0; transform: translateY(25px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .btn-back-home {
             background: #F1F5F9; color: #475569; border: none; padding: 8px 14px;
             border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; margin-bottom: 20px;
+            transition: all 0.2s ease;
         }
+        .btn-back-home:hover { background: #E2E8F0; }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
         .form-group { margin-bottom: 14px; text-align: right; }
@@ -153,14 +174,18 @@
         .form-control {
             width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
             border-radius: 10px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
+            transition: all 0.3s ease;
         }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 
         .btn-submit {
             width: 100%; padding: 13px; background: var(--primary); color: white;
             border: none; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-submit:active { transform: scale(0.96); }
 
-        .grades-card-box { background: #FFFFFF; border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
         .grades-summary-card {
             background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             color: white; border-radius: 14px; padding: 18px; margin-bottom: 20px;
@@ -264,7 +289,7 @@
 
         <div class="view-section" id="profileSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
+            <div style="background: rgba(248, 250, 252, 0.8); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
                 <h3 id="profileName" style="text-align: center; font-size: 19px; font-weight: 900;">اسم المستخدم</h3>
                 <p id="profileRoleBadge" style="text-align: center; font-size: 12.5px; font-weight: 800; color: var(--primary); margin-top: 2px;">طالب</p>
                 <hr style="margin: 18px 0; border: none; border-top: 1px solid var(--border);">
@@ -320,7 +345,7 @@
         <div class="view-section" id="attendanceSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--primary-dark); margin-bottom: 15px;">📅 سجل انضباط الطالب</h2>
-            <div style="background: #F8FAFC; padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+            <div style="background: rgba(248, 250, 252, 0.8); padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
                 <span style="font-size: 13px; color: var(--text-muted);">حالة حضور الطالب الحالية</span>
                 <div id="lblAttendanceStatusText" style="font-size: 22px; font-weight: 900; margin-top: 8px; color: #16A34A;">منتظم 🟢</div>
                 <div id="lblAttendanceNoteText" style="font-size: 13px; color: gray; margin-top: 4px;"></div>
@@ -576,7 +601,19 @@
                     const percentage = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : 0;
                     document.getElementById('summaryTotal').textContent = totalScore + ' / ' + maxScore;
                     document.getElementById('summaryPercentage').textContent = percentage + '%';
-                    document.getElementById('summaryGrade').textContent = percentage >= 85 ? 'ممتاز 🌟' : (percentage >= 75 ? 'جيد جداً 👍' : 'ناجح ✅');
+                    
+                    const gradeText = percentage >= 85 ? 'ممتاز 🌟' : (percentage >= 75 ? 'جيد جداً 👍' : 'ناجح ✅');
+                    document.getElementById('summaryGrade').textContent = gradeText;
+
+                    // تشغيل احتفال Confetti لو الطالب جاب ممتاز 🌟
+                    if (percentage >= 85 && typeof confetti === 'function') {
+                        confetti({
+                            particleCount: 120,
+                            spread: 80,
+                            origin: { y: 0.6 }
+                        });
+                    }
+
                 } else {
                     tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray;">لا توجد درجات مرصودة بعد.</td></tr>';
                 }
