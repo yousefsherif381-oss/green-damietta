@@ -44,18 +44,19 @@
 
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(12, 74, 110, 0.7); backdrop-filter: blur(8px);
+            background: rgba(12, 74, 110, 0.5); backdrop-filter: blur(8px);
             z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* 🌟 القائمة الجانبية بنظام الزجاج العائم (Glassmorphism) */
+        /* 🌟 القائمة الجانبية بتصميم زجاجي أزرق مدمج مع الخلفية */
         .sliding-sidebar {
             position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
-            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(12, 74, 110, 0.78); 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
             padding: 24px 20px; display: flex; flex-direction: column;
             transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -63,11 +64,11 @@
 
         .sidebar-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
         .btn-close-sidebar {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); 
             width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
             transition: all 0.2s ease;
         }
@@ -76,20 +77,19 @@
         .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
         .sidebar-item {
             display: flex; align-items: center; gap: 14px; padding: 16px 18px;
-            border-radius: 16px; background: rgba(255, 255, 255, 0.08); 
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px; background: rgba(255, 255, 255, 0.12); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
             cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar-item:hover, .sidebar-item.active { 
-            background: rgba(2, 132, 199, 0.4); 
+            background: rgba(2, 132, 199, 0.5); 
             border-color: var(--accent); 
             transform: translateX(-6px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
         }
         .sidebar-icon { font-size: 22px; }
         .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
 
-        /* 🌟 الهيدر بالزجاج العائم */
         header {
             background: rgba(12, 74, 110, 0.65);
             backdrop-filter: blur(16px);
@@ -130,7 +130,6 @@
 
         .main-wrapper { max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
-        /* 🌟 الكروت بزجاج عائم وإضاءات نيون خفيفة عند المرور بالماوس */
         .admin-section {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(12px);
@@ -620,7 +619,7 @@
                 Object.keys(newsData).reverse().forEach(key => {
                     const item = newsData[key];
                     container.innerHTML += `
-                        <div style="background: #FFFFFF; padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="background: #FFFFFF; padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align- items: center;">
                             <div>
                                 <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">${item.title}</h5>
                                 <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">${item.content.substring(0, 60)}...</p>
@@ -699,6 +698,7 @@
                                 <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">ولي الأمر: ${t.parentName} (${t.contact})</h5>
                                 <span style="font-size: 11.5px; color: var(--text-muted);">${t.date || ''}</span>
                             </div>
+                            <div style="font-size: 12.5px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">النوع: ${t.ticketType || 'عام'}</div>
                             <p style="font-size: 13.5px; color: #334155; line-height: 1.5;">${t.content}</p>
                             <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="margin-top: 10px; padding: 5px 12px; font-size: 11.5px;">حذف الطلب 🗑️</button>
                         </div>
