@@ -103,17 +103,17 @@
 
         .sliding-sidebar {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
-            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px);
+            background: rgba(12, 74, 110, 0.85); backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-            border-left: 1px solid rgba(255, 255, 255, 0.15); padding: 24px 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.2); padding: 24px 20px;
             display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sliding-sidebar.active { right: 0; }
 
         .sidebar-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
         .sidebar-title { font-size: 16px; font-weight: 800; color: #F8FAFC; }
         .btn-close-sidebar { background: transparent; border: none; font-size: 18px; cursor: pointer; color: #94A3B8; }
@@ -121,10 +121,10 @@
         .sidebar-menu { display: flex; flex-direction: column; gap: 10px; }
         .sidebar-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-            border-radius: 12px; background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer; transition: all 0.2s ease;
+            border-radius: 12px; background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.12); cursor: pointer; transition: all 0.2s ease;
         }
-        .sidebar-item:hover { background: rgba(2, 132, 199, 0.2); border-color: var(--primary); }
+        .sidebar-item:hover { background: rgba(2, 132, 199, 0.3); border-color: var(--accent); }
         .sidebar-icon { font-size: 18px; }
         .sidebar-label { font-size: 14px; font-weight: 700; color: #F8FAFC; }
 
@@ -288,17 +288,25 @@
             </div>
         </div>
 
+        <!-- 🌟 البروفايل الشخصي الاحترافي -->
         <div class="view-section" id="profileSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h3 id="profileName" style="text-align: center; font-size: 22px; font-weight: 900; color: var(--primary-dark); margin-top: 10px;">اسم المستخدم</h3>
-            <p id="profileRoleBadge" style="text-align: center; font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 20px;">طالب</p>
+            
+            <div style="text-align: center; margin-bottom: 25px; margin-top: 10px;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-size: 32px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3);">
+                    👤
+                </div>
+                <h3 id="profileName" style="font-size: 22px; font-weight: 900; color: var(--primary-dark);">اسم المستخدم</h3>
+                <p id="profileRoleBadge" style="font-size: 13px; font-weight: 800; color: var(--accent); margin-top: 4px;">طالب</p>
+                <p id="profileGradeDisplay" style="font-size: 12.5px; font-weight: 700; color: var(--text-muted); margin-top: 2px;"></p>
+            </div>
             
             <form onsubmit="saveProfileChanges(event)">
                 <div class="form-grid">
-                    <div class="form-group"><label>الكود / الرقم القومي</label><input type="text" id="profileNationalId" class="form-control" disabled style="background: #F1F5F9;"></div>
-                    <div class="form-group"><label>المحمول</label><input type="tel" id="profilePhone" class="form-control" required></div>
+                    <div class="form-group"><label>الكود / الرقم القومي</label><input type="text" id="profileNationalId" class="form-control" disabled style="background: #F1F5F9; color: var(--text-muted);"></div>
+                    <div class="form-group"><label>رقم المحمول</label><input type="tel" id="profilePhone" class="form-control" required></div>
                 </div>
-                <button type="submit" class="btn-submit" style="background: var(--accent);">حفظ التعديلات 💾</button>
+                <button type="submit" class="btn-submit" style="background: var(--accent); margin-top: 15px;">حفظ التعديلات 💾</button>
             </form>
         </div>
 
@@ -351,6 +359,7 @@
             </div>
         </div>
 
+        <!-- 🌟 مركز الشكاوى مع خيارات متعددة دقيقة -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; margin-top: 10px;">📨 إرسال شكوى أو استفسار</h2>
@@ -359,9 +368,23 @@
                     <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="ticketParentName" class="form-control" required></div>
                     <div class="form-group"><label>رقم التواصل</label><input type="text" id="ticketParentEmail" class="form-control" required></div>
                 </div>
+
                 <div class="form-group">
-                    <label>التفاصيل</label>
-                    <textarea id="ticketContent" class="form-control" rows="4" required></textarea>
+                    <label>نوع الشكوى أو الطلب</label>
+                    <select id="ticketTypeSelect" class="form-control" required>
+                        <option value="">-- اختر نوع الشكوى أو الاستفسار --</option>
+                        <option value="مشكلة في رصد الدرجات">📊 مشكلة في رصد الدرجات</option>
+                        <option value="استفسار عن الغياب والانضباط">📅 استفسار عن الغياب والانضباط</option>
+                        <option value="مشكلة تقنية في الموقع">💻 مشكلة تقنية في الموقع</option>
+                        <option value="طلب تعديل بيانات الطالب">✏️ طلب تعديل بيانات الطالب</option>
+                        <option value="مقترح لتطوير المنصة">💡 مقترح لتطوير المنصة</option>
+                        <option value="أخرى">📌 استفسار أو شكوى أخرى</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>تفاصيل الشكوى أو الاستفسار</label>
+                    <textarea id="ticketContent" class="form-control" rows="4" placeholder="اكتب التفاصيل هنا بوضوح..." required></textarea>
                 </div>
                 <button type="submit" class="btn-submit">إرسال الطلب 🚀</button>
             </form>
@@ -527,15 +550,17 @@
             document.getElementById('headerAuthActions').style.display = 'none';
             document.getElementById('headerUserActions').style.display = 'flex';
             document.getElementById('sidebarProfileBtn').style.display = 'flex';
+            
             document.getElementById('profileName').textContent = currentUser.name;
             document.getElementById('profileNationalId').value = currentUser.nationalId || '';
             document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileGradeDisplay').textContent = currentUser.grade || 'الصف الدراسي غير محدد';
             
             document.getElementById('lblAttendanceStatusText').textContent = currentUser.attendance || 'منتظم 🟢';
             document.getElementById('lblAttendanceNoteText').textContent = currentUser.attendanceNote ? `ملاحظة: ${currentUser.attendanceNote}` : '';
 
             loadStudentGrades();
-            showHomePage(); // توجيه الطالب للأخبار والإعلانات مباشرة فور الدخول
+            showHomePage(); 
         }
 
         const gradeSubjectsDetailed = {
@@ -664,13 +689,15 @@
             e.preventDefault();
             const parentName = document.getElementById('ticketParentName').value.trim();
             const contact = document.getElementById('ticketParentEmail').value.trim();
+            const ticketType = document.getElementById('ticketTypeSelect').value;
             const content = document.getElementById('ticketContent').value.trim();
             const date = new Date().toLocaleDateString('ar-EG');
 
-            db.ref('tickets').push({ parentName, contact, content, date }).then(() => {
-                showToast('تم إرسال الشكوى/الاستفسار بنجاح 🚀');
+            db.ref('tickets').push({ parentName, contact, ticketType, content, date }).then(() => {
+                showToast('تم إرسال الشكوى أو الطلب بنجاح 🚀');
                 document.getElementById('ticketParentName').value = '';
                 document.getElementById('ticketParentEmail').value = '';
+                document.getElementById('ticketTypeSelect').value = '';
                 document.getElementById('ticketContent').value = '';
                 showHomePage();
             });
