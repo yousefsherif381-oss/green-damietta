@@ -15,7 +15,6 @@
             --primary-dark: #0369A1;
             --accent: #F59E0B;
             --accent-hover: #D97706;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0284c7 100%);
             --card-bg: #FFFFFF;
             --text-dark: #0F172A;
             --text-muted: #64748B;
@@ -26,17 +25,25 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         
         body {
-            background: var(--bg-gradient);
-            background-attachment: fixed;
+            background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
+            background-size: 400% 400%;
+            animation: oceanWaves 16s ease infinite;
             min-height: 100vh;
             color: var(--text-dark);
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes oceanWaves {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         header {
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(12, 74, 110, 0.92);
             backdrop-filter: blur(16px);
             border-bottom: 2px solid rgba(245, 158, 11, 0.4);
             position: sticky;
@@ -69,7 +76,6 @@
         }
         .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
 
-        /* جعل الاسم في المنتصف وبحجم كبير ومتناسق */
         .logo-area {
             position: absolute;
             left: 50%;
@@ -203,7 +209,6 @@
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* تجاوب الشاشات الصغيرة للموبايل لضبط مكان اللوجو والاسم */
         @media (max-width: 768px) {
             .logo-area { position: static; transform: none; margin: 0 auto; }
             .nav-container { flex-wrap: wrap; gap: 10px; justify-content: center; }
