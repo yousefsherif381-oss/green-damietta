@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <!-- مكتبة تأثير الاحتفال (Confetti) -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
     <style>
@@ -44,7 +43,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* 🌟 الهيدر بالزجاج العائم (Glassmorphism) */
         header {
             background: rgba(12, 74, 110, 0.65);
             backdrop-filter: blur(16px);
@@ -103,7 +101,6 @@
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* 🌟 القائمة الجانبية بالزجاج المعتم */
         .sliding-sidebar {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
             background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px);
@@ -136,8 +133,8 @@
         .news-header-title { font-size: 20px; font-weight: 800; color: #FFFFFF; margin-bottom: 20px; text-align: center; }
         .news-feed { display: flex; flex-direction: column; gap: 16px; }
         
-        /* 🌟 الكروت بزجاج عائم مع إضاءة نيون عند المرور بالماوس */
-        .news-card, .view-section, .grades-card-box {
+        /* 🌟 التعديل الجوهري: جعل جميع الأقسام مخفية افتراضياً */
+        .news-card, .view-section, .auth-page-view {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -145,9 +142,12 @@
             border-radius: 20px; padding: 28px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             margin-bottom: 25px;
+            display: none; /* إخفاء الأقسام حتى لا تظهر مقروءة معاً */
             animation: smoothSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        .news-card { display: block; } /* الكارت الخاص بالخبر يظهر فقط داخل newsFeedList */
 
         .news-card:hover, .view-section:hover {
             transform: translateY(-4px);
@@ -155,7 +155,6 @@
             box-shadow: 0 20px 40px rgba(2, 132, 199, 0.25), 0 0 20px rgba(245, 158, 11, 0.15);
         }
 
-        /* 🌟 التأثيرات الحركية (Fade & Slide in) والانسيابية */
         @keyframes smoothSlideUp {
             0% { opacity: 0; transform: translateY(25px) scale(0.98); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
@@ -186,6 +185,7 @@
         .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
         .btn-submit:active { transform: scale(0.96); }
 
+        .grades-card-box { background: transparent; padding: 0; border: none; }
         .grades-summary-card {
             background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             color: white; border-radius: 14px; padding: 18px; margin-bottom: 20px;
@@ -280,10 +280,11 @@
 
     <main class="main-wrapper">
         
-        <div id="newsHomeContainer">
+        <!-- قسم الأخبار والإعلانات (الرئيسية) -->
+        <div id="newsHomeContainer" style="display: block;">
             <div class="news-header-title">📢 أحدث التنبيهات والإعلانات التعليمية</div>
             <div class="news-feed" id="newsFeedList">
-                <p style="color: #94A3B8; text-align: center; padding: 30px;">جاري تحميل الأخبار والتحديثات...</p>
+                <p style="color: #FFFFFF; text-align: center; padding: 30px;">جاري تحميل الأخبار والتحديثات...</p>
             </div>
         </div>
 
@@ -439,7 +440,12 @@
         function toggleSidebar() { document.getElementById('slidingSidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
         function closeSidebar() { document.getElementById('slidingSidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); }
 
-        function showHomePage() { hideAllViews(); document.getElementById('newsHomeContainer').style.display = 'block'; loadNewsFeed(); }
+        function showHomePage() { 
+            hideAllViews(); 
+            document.getElementById('newsHomeContainer').style.display = 'block'; 
+            loadNewsFeed(); 
+        }
+
         function hideAllViews() {
             document.getElementById('newsHomeContainer').style.display = 'none';
             document.getElementById('signInView').style.display = 'none';
@@ -605,7 +611,6 @@
                     const gradeText = percentage >= 85 ? 'ممتاز 🌟' : (percentage >= 75 ? 'جيد جداً 👍' : 'ناجح ✅');
                     document.getElementById('summaryGrade').textContent = gradeText;
 
-                    // تشغيل احتفال Confetti لو الطالب جاب ممتاز 🌟
                     if (percentage >= 85 && typeof confetti === 'function') {
                         confetti({
                             particleCount: 120,
@@ -626,7 +631,7 @@
                 const data = snapshot.val();
                 feed.innerHTML = '';
                 if (!data) {
-                    feed.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 30px;">لا توجد إعلانات أو تنبيهات منشورة حالياً.</p>';
+                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو تنبيهات منشورة حالياً.</p>';
                     return;
                 }
                 Object.keys(data).reverse().forEach(key => {
@@ -691,8 +696,9 @@
             });
         }
 
+        /* 🌟 التشغيل الفوري للرئيسية والأخبار فور تحميل الشاشة */
         window.addEventListener('DOMContentLoaded', () => {
-            loadNewsFeed();
+            showHomePage();
         });
     </script>
 </body>
