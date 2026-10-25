@@ -745,7 +745,7 @@
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
-        // تصحيح منطق حساب التقديرات بحيث يظهر راسب لو النسبة أقل من 50%
+        // حساب التقديرات بحيث يظهر راسب صافي بدون أي إضافات
         function loadStudentGradesUI() {
             if (!currentUser) return;
             let targetKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
@@ -785,12 +785,12 @@
 
                 const percentage = maxTotal > 0 ? ((totalSum / maxTotal) * 100).toFixed(1) : 0;
                 
-                // تعديل منطقي للتقديرات: أقل من 50% يعتبر راسب (يحتاج إعادة امتحان)
-                let generalGrade = 'راسب (تحتاج إعادة امتحان) ❌';
+                let generalGrade = 'راسب';
                 if (percentage >= 85) generalGrade = 'ممتاز ⭐';
                 else if (percentage >= 75) generalGrade = 'جيد جداً 🌟';
                 else if (percentage >= 65) generalGrade = 'جيد 👍';
                 else if (percentage >= 50) generalGrade = 'مقبول 🟡';
+                else generalGrade = 'راسب';
 
                 document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxTotal}`;
                 document.getElementById('summaryPercentage').textContent = `${percentage}%`;
