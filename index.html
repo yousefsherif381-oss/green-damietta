@@ -431,6 +431,7 @@
             </form>
         </div>
 
+        <!-- صفحة إنشاء الحساب مع حقل اسم ولي الأمر المضاف -->
         <div class="auth-page-view" id="signUpView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">إنشاء حساب جديد ✨</h2>
@@ -452,8 +453,10 @@
                             <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
                         </select>
                     </div>
+                    <!-- 👨‍👩‍👦 حقل اسم ولي الأمر المضاف حديثاً -->
+                    <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="signUpParentName" class="form-control" placeholder="أدخل اسم ولي الأمر" required></div>
                     <div class="form-group"><label>رقم المحمول</label><input type="tel" id="signUpPhone" class="form-control" required></div>
-                    <div class="form-group" style="grid-column: span 2;"><label>كلمة المرور</label><input type="password" id="signUpPassword" class="form-control" required></div>
+                    <div class="form-group"><label>كلمة المرور</label><input type="password" id="signUpPassword" class="form-control" required></div>
                 </div>
                 <button type="submit" class="btn-submit" style="background: var(--accent);">إنشاء الحساب ✨</button>
             </form>
@@ -475,7 +478,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadNewsFeed();
-            // تفعيل التحديث المباشر لحالة الحضور والغياب لو الطالب مسجل دخول
             setInterval(() => {
                 if (currentUser && currentUser.firebaseKey) {
                     db.ref('students/' + currentUser.firebaseKey).once('value', snapshot => {
@@ -578,12 +580,13 @@
             const name = document.getElementById('signUpName').value.trim();
             const nationalId = document.getElementById('signUpNationalId').value.trim();
             const grade = document.getElementById('signUpGrade').value;
+            const parentName = document.getElementById('signUpParentName').value.trim(); // أخذ قيمة اسم ولي الأمر
             const phone = document.getElementById('signUpPhone').value.trim();
             const password = document.getElementById('signUpPassword').value.trim();
 
             const studentKey = 'student_' + Date.now();
             const newStudent = {
-                name, nationalId, grade, phone, password,
+                name, nationalId, grade, parentName, phone, password,
                 role: 'student',
                 attendance: 'منتظم',
                 absenceCount: 0,
@@ -608,7 +611,7 @@
             document.getElementById('profilePhone').value = currentUser.phone || '';
             document.getElementById('profileGradeDisplay').textContent = currentUser.grade || 'الصف الدراسي غير محدد';
             
-            if (document.getElementById('ticketParentName')) document.getElementById('ticketParentName').value = currentUser.name || '';
+            if (document.getElementById('ticketParentName')) document.getElementById('ticketParentName').value = currentUser.parentName || currentUser.name || '';
             if (document.getElementById('ticketParentEmail')) document.getElementById('ticketParentEmail').value = currentUser.phone || '';
 
             updateAttendanceUI(currentUser);
@@ -686,7 +689,7 @@
             tbody.innerHTML = '';
             
             let totalSum = 0;
-            let maxTotal = subjects.length * 100; // لكل مادة 100 درجة (30+20+50)
+            let maxTotal = subjects.length * 100;
 
             subjects.forEach(sub => {
                 const work = parseFloat(currentUser[sub.id + '_work']) || 0;
