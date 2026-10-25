@@ -331,11 +331,11 @@
                     </div>
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
-                        <select id="attendanceStatusSelect" class="form-control">
+                        <select id="attendanceStatusSelect" class="form-control" onchange="onAttendanceStatusChange()">
                             <option value="منتظم">منتظم (حاضر) ✅</option>
-                            <option value="غياب بدون عذر">غياب بدون عذر ❌</option>
+                            <option value="غاب يوم واحد">غاب يوم واحد ❌</option>
                             <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
-                            <option value="استئذان رسمي">استئذان رسمي / خروج مبكر ⚠️</option>
+                            <option value="استئذان رسمي">استئذان رسمي ⚠️</option>
                         </select>
                     </div>
                 </div>
@@ -347,7 +347,7 @@
                     </div>
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر (رقم التقرير الطبي / التفاصيل):</label>
-                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: عذر طبي معتمد رقم 123...">
+                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر أو تقرير رقم 123...">
                     </div>
                 </div>
 
@@ -500,6 +500,17 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // دالة ذكية لتحديث عداد الغياب تلقائياً بناءً على الحالة المختارة
+        function onAttendanceStatusChange() {
+            const status = document.getElementById('attendanceStatusSelect').value;
+            const absenceInput = document.getElementById('absenceCountInput');
+            if (status === 'منتظم') {
+                absenceInput.value = 0;
+            } else if (status === 'غاب يوم واحد') {
+                absenceInput.value = 1;
+            }
+        }
+
         function renderUsersTable() {
             const tbody = document.getElementById('adminUsersTableBody');
             const selectGradesBox = document.getElementById('studentSelectForGrades');
@@ -518,7 +529,7 @@
                 const u = usersCache[k];
                 const isStudent = u.role !== 'parent';
                 const name = isStudent ? u.name : (u.parentName || u.name);
-                const absenceCount = u.absenceCount || 0;
+                const absenceCount = u.absenceCount !== undefined ? u.absenceCount : 0;
 
                 if (isStudent) {
                     selectGradesBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
@@ -527,7 +538,7 @@
 
                 let attColor = '#10B981';
                 let attVal = u.attendance || 'منتظم';
-                if (attVal.includes('بدون عذر')) attColor = '#EF4444';
+                if (attVal.includes('غاب')) attColor = '#EF4444';
                 else if (attVal.includes('مرضي')) attColor = '#0284C7';
                 else if (attVal.includes('استئذان')) attColor = '#F59E0B';
 
@@ -550,7 +561,7 @@
             if (!key || !usersCache[key]) return;
             const u = usersCache[key];
             document.getElementById('attendanceStatusSelect').value = u.attendance || 'منتظم';
-            document.getElementById('absenceCountInput').value = u.absenceCount || 0;
+            document.getElementById('absenceCountInput').value = u.absenceCount !== undefined ? u.absenceCount : 0;
             document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
         }
 
@@ -566,7 +577,7 @@
                 absenceCount: absenceCount,
                 attendanceNote: note
             });
-            showToast("تم تحديث عداد وحالة الحضور بنجاح", "💾");
+            showToast("تم تحديث عداد وحالة الحضور بدقة بنجاح", "💾");
         }
 
         function quickSelectStudent(key) {
