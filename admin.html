@@ -127,7 +127,7 @@
         }
         .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
 
-        .main-wrapper { max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
+        .main-wrapper { max-width: 1250px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
         .admin-section {
             background: rgba(255, 255, 255, 0.88);
@@ -355,9 +355,9 @@
             </div>
         </div>
 
-        <!-- 4️⃣ قسم سجل المستخدمين -->
+        <!-- 4️⃣ قسم سجل المستخدمين مع كافة تفاصيل الحساب -->
         <div class="admin-section" id="usersSection">
-            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
+            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة (مع كافة التفاصيل)</div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -365,6 +365,9 @@
                             <th>الاسم</th>
                             <th>نوع الحساب</th>
                             <th>الصف الدراسي</th>
+                            <th>الكود / الرقم القومي</th>
+                            <th>رقم المحمول</th>
+                            <th>كلمة المرور</th>
                             <th>حالة الحضور</th>
                             <th>مرات الغياب</th>
                             <th>تفاصيل العذر والملاحظة</th>
@@ -372,7 +375,7 @@
                         </tr>
                     </thead>
                     <tbody id="adminUsersTableBody">
-                        <tr><td colspan="7" style="text-align: center;">جاري تحميل البيانات...</td></tr>
+                        <tr><td colspan="10" style="text-align: center;">جاري تحميل البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -500,7 +503,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // دالة ذكية لتحديث عداد الغياب تلقائياً بناءً على الحالة المختارة
         function onAttendanceStatusChange() {
             const status = document.getElementById('attendanceStatusSelect').value;
             const absenceInput = document.getElementById('absenceCountInput');
@@ -521,7 +523,7 @@
 
             const keys = Object.keys(usersCache);
             if (keys.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
                 return;
             }
 
@@ -529,6 +531,9 @@
                 const u = usersCache[k];
                 const isStudent = u.role !== 'parent';
                 const name = isStudent ? u.name : (u.parentName || u.name);
+                const nationalIdVal = u.nationalId || u.code || '---';
+                const phoneVal = u.phone || '---';
+                const passVal = u.password || '---';
                 const absenceCount = u.absenceCount !== undefined ? u.absenceCount : 0;
 
                 if (isStudent) {
@@ -547,6 +552,9 @@
                         <td><b>${name}</b></td>
                         <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
                         <td>${u.grade || 'غير محدد'}</td>
+                        <td><code>${nationalIdVal}</code></td>
+                        <td>${phoneVal}</td>
+                        <td><code>${passVal}</code></td>
                         <td><span style="font-weight:bold; color:${attColor};">${attVal}</span></td>
                         <td><span style="background: #F1F5F9; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${absenceCount} مرة</span></td>
                         <td>${u.attendanceNote || '---'}</td>
