@@ -318,9 +318,9 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم الحضور (معدل بدقة ليكون منظماً تماماً وبدون تداخل) -->
+        <!-- 3️⃣ قسم الحضور والغياب الدقيق والعداد -->
         <div class="admin-section" id="attendanceSection">
-            <div class="card-title">📅 تسجيل ومتابعة انضباط وحضور الطلاب</div>
+            <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية والاحترازية</div>
             <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
                 <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
                     <div>
@@ -330,19 +330,28 @@
                         </select>
                     </div>
                     <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والانضباط:</label>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
                         <select id="attendanceStatusSelect" class="form-control">
-                            <option value="منتظم">منتظم ✅</option>
-                            <option value="غائب اليوم">غائب اليوم ❌</option>
-                            <option value="مزوغ / استئذان">مزوغ / استئذان ⚠️</option>
+                            <option value="منتظم">منتظم (حاضر) ✅</option>
+                            <option value="غياب بدون عذر">غياب بدون عذر ❌</option>
+                            <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
+                            <option value="استئذان رسمي">استئذان رسمي / خروج مبكر ⚠️</option>
                         </select>
                     </div>
                 </div>
-                <div style="margin-top: 15px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظة على الحالة السلوكية أو سبب الغياب:</label>
-                    <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: استئذان بعذر طبي...">
+                
+                <div class="form-grid" style="grid-template-columns: 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي عدد مرات الغياب:</label>
+                        <input type="number" id="absenceCountInput" class="form-control" value="0" min="0" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر (رقم التقرير الطبي / التفاصيل):</label>
+                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: عذر طبي معتمد رقم 123...">
+                    </div>
                 </div>
-                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث حالة الحضور والملاحظة 💾</button>
+
+                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور بدقة 💾</button>
             </div>
         </div>
 
@@ -356,9 +365,9 @@
                             <th>الاسم</th>
                             <th>نوع الحساب</th>
                             <th>الصف الدراسي</th>
-                            <th>الرقم القومي / الكود</th>
                             <th>حالة الحضور</th>
-                            <th>ملاحظة الغياب</th>
+                            <th>مرات الغياب</th>
+                            <th>تفاصيل العذر والملاحظة</th>
                             <th>إجراء سريع</th>
                         </tr>
                     </thead>
@@ -509,20 +518,26 @@
                 const u = usersCache[k];
                 const isStudent = u.role !== 'parent';
                 const name = isStudent ? u.name : (u.parentName || u.name);
-                const idVal = u.nationalId || u.parentNationalId || u.code || '---';
+                const absenceCount = u.absenceCount || 0;
 
                 if (isStudent) {
                     selectGradesBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
                     selectAttBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
                 }
 
+                let attColor = '#10B981';
+                let attVal = u.attendance || 'منتظم';
+                if (attVal.includes('بدون عذر')) attColor = '#EF4444';
+                else if (attVal.includes('مرضي')) attColor = '#0284C7';
+                else if (attVal.includes('استئذان')) attColor = '#F59E0B';
+
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${name}</b></td>
                         <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
                         <td>${u.grade || 'غير محدد'}</td>
-                        <td>${idVal}</td>
-                        <td><span style="font-weight:bold; color:${u.attendance && u.attendance.includes('مزوغ') ? '#EF4444' : '#10B981'}">${u.attendance || 'منتظم'}</span></td>
+                        <td><span style="font-weight:bold; color:${attColor};">${attVal}</span></td>
+                        <td><span style="background: #F1F5F9; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${absenceCount} مرة</span></td>
                         <td>${u.attendanceNote || '---'}</td>
                         <td>${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 12px; font-size: 12px;">📊 رصد درجاته</button>` : '---'}</td>
                     </tr>
@@ -535,6 +550,7 @@
             if (!key || !usersCache[key]) return;
             const u = usersCache[key];
             document.getElementById('attendanceStatusSelect').value = u.attendance || 'منتظم';
+            document.getElementById('absenceCountInput').value = u.absenceCount || 0;
             document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
         }
 
@@ -542,9 +558,15 @@
             const key = document.getElementById('studentAttendanceSelect').value;
             if (!key || !usersCache[key]) return showToast("يرجى تحديد الطالب أولاً", "⚠️");
             const status = document.getElementById('attendanceStatusSelect').value;
+            const absenceCount = parseInt(document.getElementById('absenceCountInput').value) || 0;
             const note = document.getElementById('attendanceNoteInput').value.trim();
-            await db.ref('students/' + key).update({ attendance: status, attendanceNote: note });
-            showToast("تم حفظ حالة الحضور والملاحظة بنجاح", "💾");
+
+            await db.ref('students/' + key).update({
+                attendance: status,
+                absenceCount: absenceCount,
+                attendanceNote: note
+            });
+            showToast("تم تحديث عداد وحالة الحضور بنجاح", "💾");
         }
 
         function quickSelectStudent(key) {
