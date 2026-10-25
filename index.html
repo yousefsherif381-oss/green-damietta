@@ -416,12 +416,12 @@
         <div class="auth-page-view" id="signInView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">تسجيل الدخول</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل كود الطالب أو الرقم القومي للدخول</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل كود الطالب أو ولي الأمر أو الرقم القومي للدخول</p>
 
             <form onsubmit="handleSignIn(event)">
                 <div class="form-group">
-                    <label>كود الطالب / الرقم القومي</label>
-                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الكود" required>
+                    <label>الكود / الرقم القومي / رقم المحمول</label>
+                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل بيانات الدخول" required>
                 </div>
                 <div class="form-group">
                     <label>كلمة المرور</label>
@@ -431,16 +431,24 @@
             </form>
         </div>
 
-        <!-- صفحة إنشاء الحساب متضمنة حقل اسم ولي الأمر -->
+        <!-- 👨‍👩‍👦 صفحة إنشاء حساب جديد (طالب أو ولي أمر مربوط بالطالب) -->
         <div class="auth-page-view" id="signUpView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">إنشاء حساب جديد ✨</h2>
 
             <form onsubmit="handleSignUp(event)">
+                <div class="form-group">
+                    <label>اختر نوع الحساب:</label>
+                    <select id="signUpRole" class="form-control" onchange="toggleRoleFields()">
+                        <option value="student">🎓 حساب طالب</option>
+                        <option value="parent">👨‍👩‍👦 حساب ولي أمر (مربوط بالطالب)</option>
+                    </select>
+                </div>
+
                 <div class="form-grid">
-                    <div class="form-group"><label>الاسم الرباعي</label><input type="text" id="signUpName" class="form-control" required></div>
-                    <div class="form-group"><label>الرقم القومي / الكود</label><input type="text" id="signUpNationalId" class="form-control" required></div>
-                    <div class="form-group"><label>الصف الدراسي</label>
+                    <div class="form-group" id="groupName"><label>الاسم الرباعي</label><input type="text" id="signUpName" class="form-control"></div>
+                    <div class="form-group" id="groupNationalId"><label>الرقم القومي / الكود</label><input type="text" id="signUpNationalId" class="form-control"></div>
+                    <div class="form-group" id="groupGrade"><label>الصف الدراسي</label>
                         <select id="signUpGrade" class="form-control">
                             <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
                             <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
@@ -453,7 +461,11 @@
                             <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="signUpParentName" class="form-control" placeholder="أدخل اسم ولي الأمر" required></div>
+
+                    <!-- حقول خاصة بولي الأمر لربطه بالطالب -->
+                    <div class="form-group" id="groupParentName" style="display: none;"><label>اسم ولي الأمر</label><input type="text" id="signUpParentName" class="form-control" placeholder="اسم ولي الأمر"></div>
+                    <div class="form-group" id="groupStudentCodeLink" style="display: none;"><label>كود الطالب المراد ربطه</label><input type="text" id="signUpLinkedStudentCode" class="form-control" placeholder="أدخل كود الطالب أو رقمه القومي"></div>
+
                     <div class="form-group"><label>رقم المحمول</label><input type="tel" id="signUpPhone" class="form-control" required></div>
                     <div class="form-group"><label>كلمة المرور</label><input type="password" id="signUpPassword" class="form-control" required></div>
                 </div>
@@ -477,18 +489,41 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadNewsFeed();
+            toggleRoleFields();
             setInterval(() => {
                 if (currentUser && currentUser.firebaseKey) {
-                    db.ref('students/' + currentUser.firebaseKey).once('value', snapshot => {
-                        const updatedData = snapshot.val();
-                        if (updatedData) {
-                            currentUser = { ...updatedData, firebaseKey: currentUser.firebaseKey };
-                            updateAttendanceUI(currentUser);
-                        }
-                    });
+                    let targetKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
+                    if (targetKey) {
+                        db.ref('students/' + targetKey).once('value', snapshot => {
+                            const updatedData = snapshot.val();
+                            if (updatedData) {
+                                updateAttendanceUI(updatedData);
+                            }
+                        });
+                    }
                 }
             }, 4000);
         });
+
+        function toggleRoleFields() {
+            const role = document.getElementById('signUpRole').value;
+            const groupGrade = document.getElementById('groupGrade');
+            const groupParentName = document.getElementById('groupParentName');
+            const groupStudentCodeLink = document.getElementById('groupStudentCodeLink');
+            const nameLabel = document.querySelector('#groupName label');
+
+            if (role === 'parent') {
+                groupGrade.style.display = 'none';
+                groupParentName.style.display = 'block';
+                groupStudentCodeLink.style.display = 'block';
+                nameLabel.textContent = 'اسم ولي الأمر الرباعي';
+            } else {
+                groupGrade.style.display = 'block';
+                groupParentName.style.display = 'none';
+                groupStudentCodeLink.style.display = 'none';
+                nameLabel.textContent = 'الاسم الرباعي';
+            }
+        }
 
         function showToast(message, icon = "✨") {
             const toast = document.getElementById('customToast');
@@ -520,7 +555,12 @@
                 openSignInPage();
             } else { 
                 if (sectionId === 'gradesSection') loadStudentGradesUI();
-                if (sectionId === 'attendanceSection') updateAttendanceUI(currentUser);
+                if (sectionId === 'attendanceSection') {
+                    let targetKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
+                    db.ref('students/' + targetKey).once('value', snap => {
+                        if (snap.val()) updateAttendanceUI(snap.val());
+                    });
+                }
                 navigateToSection(sectionId); 
             }
         }
@@ -544,9 +584,7 @@
             if (identifier === 'admin') {
                 if (password === latestAdminPassword) {
                     showToast('جاري تحويلك لصفحة الإدارة... ⚙️');
-                    setTimeout(() => {
-                        window.location.href = 'admin.html';
-                    }, 1000);
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                 } else {
                     showToast('كلمة مرور الإدارة غير صحيحة ❌', '⚠️');
                 }
@@ -556,18 +594,18 @@
             db.ref('students').once('value').then(snapshot => {
                 const students = snapshot.val();
                 let foundKey = null;
-                let foundStudent = null;
+                let foundUser = null;
                 if (students) {
                     Object.keys(students).forEach(k => {
                         const s = students[k];
                         if ((s.nationalId === identifier || s.code === identifier || s.phone === identifier) && s.password === password) {
                             foundKey = k;
-                            foundStudent = s;
+                            foundUser = s;
                         }
                     });
                 }
-                if (foundStudent) {
-                    currentUser = { ...foundStudent, firebaseKey: foundKey };
+                if (foundUser) {
+                    currentUser = { ...foundUser, firebaseKey: foundKey };
                     onUserLoginSuccess();
                     showToast('تم تسجيل الدخول بنجاح! 🔑');
                 } else { showToast('بيانات الدخول غير صحيحة ❌', '⚠️'); }
@@ -576,25 +614,49 @@
 
         function handleSignUp(e) {
             e.preventDefault();
+            const role = document.getElementById('signUpRole').value;
             const name = document.getElementById('signUpName').value.trim();
             const nationalId = document.getElementById('signUpNationalId').value.trim();
-            const grade = document.getElementById('signUpGrade').value;
-            const parentName = document.getElementById('signUpParentName').value.trim();
             const phone = document.getElementById('signUpPhone').value.trim();
             const password = document.getElementById('signUpPassword').value.trim();
 
-            const studentKey = 'student_' + Date.now();
-            const newStudent = {
-                name, nationalId, grade, parentName, phone, password,
-                role: 'student',
-                attendance: 'منتظم',
-                absenceCount: 0,
-                attendanceNote: '',
-                absenceDatesLog: 'لا توجد تواريخ غياب مسجلة حتى الآن.'
-            };
+            const userKey = (role === 'parent' ? 'parent_' : 'student_') + Date.now();
+            let newUser = { name, nationalId, phone, password, role };
 
-            db.ref('students/' + studentKey).set(newStudent).then(() => {
-                currentUser = { ...newStudent, firebaseKey: studentKey };
+            if (role === 'student') {
+                newUser.grade = document.getElementById('signUpGrade').value;
+                newUser.attendance = 'منتظم';
+                newUser.absenceCount = 0;
+                newUser.attendanceNote = '';
+                newUser.absenceDatesLog = 'لا توجد تواريخ غياب مسجلة حتى الآن.';
+            } else {
+                const linkedCode = document.getElementById('signUpLinkedStudentCode').value.trim();
+                // البحث عن الطالب المرتبط لكبط الكีย์ بتاعه
+                db.ref('students').once('value').then(snapshot => {
+                    const students = snapshot.val();
+                    let targetStudentKey = null;
+                    if (students) {
+                        Object.keys(students).forEach(k => {
+                            const s = students[k];
+                            if (s.nationalId === linkedCode || s.code === linkedCode) {
+                                targetStudentKey = k;
+                            }
+                        });
+                    }
+                    newUser.linkedStudentKey = targetStudentKey || '';
+                    newUser.parentName = document.getElementById('signUpParentName').value.trim();
+
+                    db.ref('students/' + userKey).set(newUser).then(() => {
+                        currentUser = { ...newUser, firebaseKey: userKey };
+                        onUserLoginSuccess();
+                        showToast('تم إنشاء حساب ولي الأمر وربطه بالطالب بنجاح! 🎉');
+                    });
+                });
+                return;
+            }
+
+            db.ref('students/' + userKey).set(newUser).then(() => {
+                currentUser = { ...newUser, firebaseKey: userKey };
                 onUserLoginSuccess();
                 showToast('تم إنشاء الحساب بنجاح! 🎉');
             });
@@ -608,12 +670,16 @@
             document.getElementById('profileName').textContent = currentUser.name;
             document.getElementById('profileNationalId').value = currentUser.nationalId || '';
             document.getElementById('profilePhone').value = currentUser.phone || '';
-            document.getElementById('profileGradeDisplay').textContent = currentUser.grade || 'الصف الدراسي غير محدد';
+            document.getElementById('profileRoleBadge').textContent = currentUser.role === 'parent' ? '👨‍👩‍👦 ولي أمر' : '🎓 طالب';
+            document.getElementById('profileGradeDisplay').textContent = currentUser.grade || (currentUser.role === 'parent' ? 'ولي أمر طالب مربوط' : '');
             
-            if (document.getElementById('ticketParentName')) document.getElementById('ticketParentName').value = currentUser.parentName || currentUser.name || '';
-            if (document.getElementById('ticketParentEmail')) document.getElementById('ticketParentEmail').value = currentUser.phone || '';
-
-            updateAttendanceUI(currentUser);
+            if (currentUser.role === 'parent' && currentUser.linkedStudentKey) {
+                db.ref('students/' + currentUser.linkedStudentKey).once('value', snap => {
+                    if (snap.val()) updateAttendanceUI(snap.val());
+                });
+            } else {
+                updateAttendanceUI(currentUser);
+            }
             showHomePage();
         }
 
@@ -683,40 +749,51 @@
 
         function loadStudentGradesUI() {
             if (!currentUser) return;
-            const subjects = getSubjectsForGradeName(currentUser.grade);
-            const tbody = document.getElementById('gradesTableBody');
-            tbody.innerHTML = '';
-            
-            let totalSum = 0;
-            let maxTotal = subjects.length * 100;
+            let targetKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
+            if (!targetKey) {
+                showToast('لا يوجد طالب مربوط بهذا الحساب ⚠️', '⚠️');
+                return;
+            }
 
-            subjects.forEach(sub => {
-                const work = parseFloat(currentUser[sub.id + '_work']) || 0;
-                const weekly = parseFloat(currentUser[sub.id + '_weekly']) || 0;
-                const final = parseFloat(currentUser[sub.id + '_final']) || 0;
-                const subTotal = work + weekly + final;
-                totalSum += subTotal;
+            db.ref('students/' + targetKey).once('value', snapshot => {
+                const studentData = snapshot.val();
+                if (!studentData) return;
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub.name}</b></td>
-                        <td>${work}</td>
-                        <td>${weekly}</td>
-                        <td>${final}</td>
-                        <td style="color: var(--primary-dark); font-weight: 900;">${subTotal} / 100</td>
-                    </tr>
-                `;
+                const subjects = getSubjectsForGradeName(studentData.grade);
+                const tbody = document.getElementById('gradesTableBody');
+                tbody.innerHTML = '';
+                
+                let totalSum = 0;
+                let maxTotal = subjects.length * 100;
+
+                subjects.forEach(sub => {
+                    const work = parseFloat(studentData[sub.id + '_work']) || 0;
+                    const weekly = parseFloat(studentData[sub.id + '_weekly']) || 0;
+                    const final = parseFloat(studentData[sub.id + '_final']) || 0;
+                    const subTotal = work + weekly + final;
+                    totalSum += subTotal;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${sub.name}</b></td>
+                            <td>${work}</td>
+                            <td>${weekly}</td>
+                            <td>${final}</td>
+                            <td style="color: var(--primary-dark); font-weight: 900;">${subTotal} / 100</td>
+                        </tr>
+                    `;
+                });
+
+                const percentage = maxTotal > 0 ? ((totalSum / maxTotal) * 100).toFixed(1) : 0;
+                let generalGrade = 'مقبول';
+                if (percentage >= 85) generalGrade = 'ممتاز ⭐';
+                else if (percentage >= 75) generalGrade = 'جيد جداً 🌟';
+                else if (percentage >= 65) generalGrade = 'جيد 👍';
+
+                document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxTotal}`;
+                document.getElementById('summaryPercentage').textContent = `${percentage}%`;
+                document.getElementById('summaryGrade').textContent = generalGrade;
             });
-
-            const percentage = maxTotal > 0 ? ((totalSum / maxTotal) * 100).toFixed(1) : 0;
-            let generalGrade = 'مقبول';
-            if (percentage >= 85) generalGrade = 'ممتاز ⭐';
-            else if (percentage >= 75) generalGrade = 'جيد جداً 🌟';
-            else if (percentage >= 65) generalGrade = 'جيد 👍';
-
-            document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxTotal}`;
-            document.getElementById('summaryPercentage').textContent = `${percentage}%`;
-            document.getElementById('summaryGrade').textContent = generalGrade;
         }
 
         function loadNewsFeed() {
@@ -756,9 +833,11 @@
             const ticketType = document.getElementById('ticketTypeSelect').value;
             const content = document.getElementById('ticketContent').value.trim();
 
+            let targetStudentKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
+
             const ticketKey = 'ticket_' + Date.now();
             db.ref('tickets/' + ticketKey).set({
-                studentKey: currentUser.firebaseKey,
+                studentKey: targetStudentKey,
                 studentName: currentUser.name,
                 parentName, contact, ticketType, content,
                 adminReply: '',
@@ -772,6 +851,8 @@
 
         function loadStudentTicketsLive() {
             if (!currentUser) return;
+            let targetStudentKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
+
             db.ref('tickets').on('value', snapshot => {
                 const data = snapshot.val();
                 const container = document.getElementById('studentMyTicketsList');
@@ -783,7 +864,7 @@
                 let hasAny = false;
                 Object.keys(data).reverse().forEach(key => {
                     const t = data[key];
-                    if (t.studentKey === currentUser.firebaseKey) {
+                    if (t.studentKey === targetStudentKey) {
                         hasAny = true;
                         const replyBox = t.adminReply ? `
                             <div style="margin-top: 10px; background: #E0F2FE; padding: 12px; border-radius: 10px; border-right: 4px solid var(--primary);">
