@@ -346,9 +346,18 @@
                         <input type="number" id="absenceCountInput" class="form-control" value="0" min="0" placeholder="0">
                     </div>
                     <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر (رقم التقرير الطبي / التفاصيل):</label>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر:</label>
                         <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر أو تقرير رقم 123...">
                     </div>
+                </div>
+
+                <!-- 📅 خانة تواريخ أيام الغياب والأشهر والأسباب -->
+                <div style="margin-top: 15px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تواريخ أيام الغياب تفصيلياً (اليوم، الشهر، السبب):</label>
+                    <textarea id="absenceDatesLogInput" class="form-control" rows="3" placeholder="مثال:
+- 12 أكتوبر: عذر مرضي
+- 18 أكتوبر: غياب بدون عذر
+- 25 نوفمبر: استئذان رسمي"></textarea>
                 </div>
 
                 <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور بدقة 💾</button>
@@ -571,6 +580,7 @@
             document.getElementById('attendanceStatusSelect').value = u.attendance || 'منتظم';
             document.getElementById('absenceCountInput').value = u.absenceCount !== undefined ? u.absenceCount : 0;
             document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
+            document.getElementById('absenceDatesLogInput').value = u.absenceDatesLog || '';
         }
 
         async function saveStudentAttendance() {
@@ -579,13 +589,15 @@
             const status = document.getElementById('attendanceStatusSelect').value;
             const absenceCount = parseInt(document.getElementById('absenceCountInput').value) || 0;
             const note = document.getElementById('attendanceNoteInput').value.trim();
+            const datesLog = document.getElementById('absenceDatesLogInput').value.trim();
 
             await db.ref('students/' + key).update({
                 attendance: status,
                 absenceCount: absenceCount,
-                attendanceNote: note
+                attendanceNote: note,
+                absenceDatesLog: datesLog
             });
-            showToast("تم تحديث عداد وحالة الحضور بدقة بنجاح", "💾");
+            showToast("تم تحديث عداد وتواريخ الغياب بدقة بنجاح", "💾");
         }
 
         function quickSelectStudent(key) {
