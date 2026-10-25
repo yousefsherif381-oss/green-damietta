@@ -101,32 +101,33 @@
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
+        /* تعديل الحجم والمسافات ليملأ الفراغ بشكل أنيق واحترافي */
         .sliding-sidebar {
-            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
-            background: rgba(12, 74, 110, 0.85); backdrop-filter: blur(20px);
+            position: fixed; top: 0; right: -360px; width: 340px; height: 100vh;
+            background: rgba(12, 74, 110, 0.88); backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-            border-left: 1px solid rgba(255, 255, 255, 0.2); padding: 24px 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.2); padding: 30px 24px;
             display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sliding-sidebar.active { right: 0; }
 
         .sidebar-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .sidebar-title { font-size: 16px; font-weight: 800; color: #F8FAFC; }
-        .btn-close-sidebar { background: transparent; border: none; font-size: 18px; cursor: pointer; color: #94A3B8; }
+        .sidebar-title { font-size: 18px; font-weight: 950; color: #F8FAFC; }
+        .btn-close-sidebar { background: transparent; border: none; font-size: 20px; cursor: pointer; color: #94A3B8; }
 
-        .sidebar-menu { display: flex; flex-direction: column; gap: 10px; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
         .sidebar-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-            border-radius: 12px; background: rgba(255, 255, 255, 0.08); 
-            border: 1px solid rgba(255, 255, 255, 0.12); cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+            border-radius: 16px; background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.18); cursor: pointer; transition: all 0.25s ease;
         }
-        .sidebar-item:hover { background: rgba(2, 132, 199, 0.3); border-color: var(--accent); }
-        .sidebar-icon { font-size: 18px; }
-        .sidebar-label { font-size: 14px; font-weight: 700; color: #F8FAFC; }
+        .sidebar-item:hover { background: rgba(2, 132, 199, 0.4); border-color: var(--accent); transform: translateX(-4px); }
+        .sidebar-icon { font-size: 24px; }
+        .sidebar-label { font-size: 16px; font-weight: 800; color: #F8FAFC; }
 
         .main-wrapper { max-width: 950px; width: 100%; margin: 30px auto; padding: 0 16px; flex: 1; }
 
@@ -745,7 +746,6 @@
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
-        // حساب التقديرات بحيث يظهر راسب صافي بدون أي إضافات
         function loadStudentGradesUI() {
             if (!currentUser) return;
             let targetKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
@@ -763,7 +763,7 @@
                 tbody.innerHTML = '';
                 
                 let totalSum = 0;
-                let maxTotal = subjects.length * 100; // كل مادة من 100 درجة
+                let maxTotal = subjects.length * 100;
 
                 subjects.forEach(sub => {
                     const work = parseFloat(studentData[sub.id + '_work']) || 0;
