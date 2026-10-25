@@ -348,7 +348,7 @@
             </div>
         </div>
 
-        <!-- 📅 قسم الحضور والغياب الدقيق للطالب -->
+        <!-- 📅 قسم الحضور والغياب الدقيق للطالب مع السجل والتفاصيل -->
         <div class="view-section" id="attendanceSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; margin-top: 10px;">📅 سجل وحالة الانضباط والحضور</h2>
@@ -364,9 +364,15 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 15px;">
-                    <span style="font-size: 13px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">ملاحظات الإدارة / تفاصيل العذر:</span>
-                    <p id="lblAttendanceNoteText" style="font-size: 14.5px; font-weight: 800; color: var(--text-dark);">---</p>
+                <div style="margin-top: 15px; text-align: right;">
+                    <span style="font-size: 13px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">ملاحظات الإدارة:</span>
+                    <p id="lblAttendanceNoteText" style="font-size: 14.5px; font-weight: 800; color: var(--text-dark); margin-bottom: 15px;">---</p>
+                </div>
+
+                <!-- 📋 قسم عرض تواريخ أيام الغياب والأشهر والأسباب بالتفصيل -->
+                <div style="margin-top: 15px; text-align: right; background: #FFFFFF; padding: 16px; border-radius: 14px; border: 1px solid #E2E8F0;">
+                    <span style="font-size: 14px; color: var(--primary-dark); font-weight: 900; display: block; margin-bottom: 8px;">📋 سجل تواريخ أيام الغياب والأعذار:</span>
+                    <div id="lblAbsenceDatesLogText" style="font-size: 13.5px; color: var(--text-dark); line-height: 1.6; white-space: pre-wrap;">لا توجد تواريخ غياب مسجلة حتى الآن.</div>
                 </div>
             </div>
         </div>
@@ -467,6 +473,22 @@
             if (val) { latestAdminPassword = val; }
         });
 
+        window.addEventListener('DOMContentLoaded', () => {
+            loadNewsFeed();
+            // تفعيل التحديث المباشر لحالة الحضور والغياب لو الطالب مسجل دخول
+            setInterval(() => {
+                if (currentUser && currentUser.firebaseKey) {
+                    db.ref('students/' + currentUser.firebaseKey).once('value', snapshot => {
+                        const updatedData = snapshot.val();
+                        if (updatedData) {
+                            currentUser = { ...updatedData, firebaseKey: currentUser.firebaseKey };
+                            updateAttendanceUI(currentUser);
+                        }
+                    });
+                }
+            }, 4000);
+        });
+
         function showToast(message, icon = "✨") {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
@@ -495,7 +517,11 @@
             if (!currentUser) {
                 showToast('يرجى تسجيل الدخول أولاً للوصول لهذا القسم 🔒', '⚠️');
                 openSignInPage();
-            } else { navigateToSection(sectionId); }
+            } else { 
+                if (sectionId === 'gradesSection') loadStudentGradesUI();
+                if (sectionId === 'attendanceSection') updateAttendanceUI(currentUser);
+                navigateToSection(sectionId); 
+            }
         }
 
         function navigateToSection(sectionId) { 
@@ -561,7 +587,8 @@
                 role: 'student',
                 attendance: 'منتظم',
                 absenceCount: 0,
-                attendanceNote: ''
+                attendanceNote: '',
+                absenceDatesLog: 'لا توجد تواريخ غياب مسجلة حتى الآن.'
             };
 
             db.ref('students/' + studentKey).set(newStudent).then(() => {
@@ -584,45 +611,36 @@
             if (document.getElementById('ticketParentName')) document.getElementById('ticketParentName').value = currentUser.name || '';
             if (document.getElementById('ticketParentEmail')) document.getElementById('ticketParentEmail').value = currentUser.phone || '';
 
-            // تحديث بيانات الحضور والغياب للطالب مباشرة من الكاش أو قاعدة البيانات
-            updateStudentAttendanceUI(currentUser);
-
-            loadStudentGrades();
-            loadStudentTicketsLive();
-            showHomePage(); 
+            updateAttendanceUI(currentUser);
+            showHomePage();
         }
 
-        // دالة لتحديث واجهة الغياب للطالب بدقة فورية
-        function updateStudentAttendanceUI(studentData) {
-            const statusText = studentData.attendance || 'منتظم';
-            const absenceCount = studentData.absenceCount !== undefined ? studentData.absenceCount : 0;
-            const noteText = studentData.attendanceNote || 'لا توجد ملاحظات تسجيلية حالياً.';
+        function updateAttendanceUI(user) {
+            if (!user) return;
+            const statusText = user.attendance || 'منتظم';
+            const count = user.absenceCount !== undefined ? user.absenceCount : 0;
+            const note = user.attendanceNote || '---';
+            const datesLog = user.absenceDatesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.';
 
-            const statusEl = document.getElementById('lblAttendanceStatusText');
-            statusEl.textContent = statusText;
+            document.getElementById('lblAttendanceStatusText').textContent = statusText;
+            document.getElementById('lblAbsenceCountText').textContent = count + ' مرة';
+            document.getElementById('lblAttendanceNoteText').textContent = note;
+            document.getElementById('lblAbsenceDatesLogText').textContent = datesLog;
 
-            if (statusText.includes('منتظم')) {
-                statusEl.style.color = '#10B981'; // أخضر
-            } else if (statusText.includes('غاب') || statusText.includes('غياب')) {
-                statusEl.style.color = '#EF4444'; // أحمر
-            } else {
-                statusEl.style.color = '#F59E0B'; // أصفر للأعذار
-            }
-
-            document.getElementById('lblAbsenceCountText').textContent = absenceCount + ' مرة';
-            document.getElementById('lblAttendanceNoteText').textContent = noteText;
+            let color = '#10B981';
+            if (statusText.includes('غاب')) color = '#EF4444';
+            else if (statusText.includes('مرضي')) color = '#0284C7';
+            else if (statusText.includes('استئذان')) color = '#F59E0B';
+            document.getElementById('lblAttendanceStatusText').style.color = color;
         }
 
-        // الاستماع المباشر للتغيرات الخاصة بالطالب في فايربيس (عشان لو الأدمن عدل الغياب يظهر للطالب فوراً)
-        function listenToStudentLiveUpdates() {
-            if (!currentUser || !currentUser.firebaseKey) return;
-            db.ref('students/' + currentUser.firebaseKey).on('value', snapshot => {
-                const updatedData = snapshot.val();
-                if (updatedData) {
-                    currentUser = { ...updatedData, firebaseKey: currentUser.firebaseKey };
-                    updateStudentAttendanceUI(currentUser);
-                }
-            });
+        function logoutUser() {
+            currentUser = null;
+            document.getElementById('headerAuthActions').style.display = 'flex';
+            document.getElementById('headerUserActions').style.display = 'none';
+            document.getElementById('sidebarProfileBtn').style.display = 'none';
+            showHomePage();
+            showToast('تم تسجيل الخروج بنجاح 👋', '🔒');
         }
 
         const gradeSubjectsDetailed = {
@@ -661,42 +679,42 @@
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
-        function loadStudentGrades() {
+        function loadStudentGradesUI() {
             if (!currentUser) return;
             const subjects = getSubjectsForGradeName(currentUser.grade);
             const tbody = document.getElementById('gradesTableBody');
             tbody.innerHTML = '';
             
             let totalSum = 0;
-            let maxTotal = subjects.length * 100;
+            let maxTotal = subjects.length * 100; // لكل مادة 100 درجة (30+20+50)
 
             subjects.forEach(sub => {
-                const work = currentUser[sub.id + '_work'] || 0;
-                const weekly = currentUser[sub.id + '_weekly'] || 0;
-                const final = currentUser[sub.id + '_final'] || 0;
+                const work = parseFloat(currentUser[sub.id + '_work']) || 0;
+                const weekly = parseFloat(currentUser[sub.id + '_weekly']) || 0;
+                const final = parseFloat(currentUser[sub.id + '_final']) || 0;
                 const subTotal = work + weekly + final;
                 totalSum += subTotal;
 
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${sub.name}</b></td>
-                        <td>${work} / 30</td>
-                        <td>${weekly} / 20</td>
-                        <td>${final} / 50</td>
-                        <td style="color:var(--primary-dark); font-weight:900;">${subTotal} / 100</td>
+                        <td>${work}</td>
+                        <td>${weekly}</td>
+                        <td>${final}</td>
+                        <td style="color: var(--primary-dark); font-weight: 900;">${subTotal} / 100</td>
                     </tr>
                 `;
             });
 
             const percentage = maxTotal > 0 ? ((totalSum / maxTotal) * 100).toFixed(1) : 0;
+            let generalGrade = 'مقبول';
+            if (percentage >= 85) generalGrade = 'ممتاز ⭐';
+            else if (percentage >= 75) generalGrade = 'جيد جداً 🌟';
+            else if (percentage >= 65) generalGrade = 'جيد 👍';
+
             document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxTotal}`;
             document.getElementById('summaryPercentage').textContent = `${percentage}%`;
-            
-            let gradeText = 'مقبول';
-            if (percentage >= 85) gradeText = 'ممتاز 🌟';
-            else if (percentage >= 75) gradeText = 'جيد جداً ✨';
-            else if (percentage >= 65) gradeText = 'جيد 👍';
-            document.getElementById('summaryGrade').textContent = gradeText;
+            document.getElementById('summaryGrade').textContent = generalGrade;
         }
 
         function loadNewsFeed() {
@@ -704,7 +722,7 @@
                 const data = snapshot.val();
                 const feed = document.getElementById('newsFeedList');
                 if (!data) {
-                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو أخبار منشورة حالياً.</p>';
+                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 20px;">لا توجد إعلانات منشورة حالياً.</p>';
                     return;
                 }
                 feed.innerHTML = '';
@@ -713,37 +731,41 @@
                     feed.innerHTML += `
                         <div class="news-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <span style="background: var(--accent); color: #0F172A; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 850;">${item.badge || 'عام'}</span>
-                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">${item.date || ''}</span>
+                                <h3 style="font-size: 18px; font-weight: 900; color: var(--primary-dark);">${item.title}</h3>
+                                <span style="background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 800;">${item.badge || 'إعلان'}</span>
                             </div>
-                            <h3 style="font-size: 17px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">${item.title}</h3>
-                            <p style="font-size: 14px; color: #334155; line-height: 1.6; white-space: pre-wrap;">${item.content}</p>
+                            <p style="font-size: 14px; color: var(--text-dark); line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap;">${item.content}</p>
+                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">📅 تاريخ النشر: ${item.date || ''}</span>
                         </div>
                     `;
                 });
             });
         }
 
-        async function submitParentTicket(e) {
+        function submitParentTicket(e) {
             e.preventDefault();
-            if (!currentUser) return showToast("يجيب تسجيل الدخول أولاً", "⚠️");
+            if (!currentUser) {
+                showToast('يرجى تسجيل الدخول أولاً لإرسال شكوى 🔒', '⚠️');
+                openSignInPage();
+                return;
+            }
             const parentName = document.getElementById('ticketParentName').value.trim();
             const contact = document.getElementById('ticketParentEmail').value.trim();
             const ticketType = document.getElementById('ticketTypeSelect').value;
             const content = document.getElementById('ticketContent').value.trim();
 
             const ticketKey = 'ticket_' + Date.now();
-            await db.ref('tickets/' + ticketKey).set({
+            db.ref('tickets/' + ticketKey).set({
                 studentKey: currentUser.firebaseKey,
                 studentName: currentUser.name,
                 parentName, contact, ticketType, content,
-                date: new Date().toLocaleDateString('ar-EG'),
-                adminReply: ''
+                adminReply: '',
+                date: new Date().toLocaleDateString('ar-EG')
+            }).then(() => {
+                showToast('تم إرسال الشكوى أو الطلب بنجاح! 🚀');
+                document.getElementById('ticketContent').value = '';
+                loadStudentTicketsLive();
             });
-
-            showToast("تم إرسال شكواك بنجاح! 🚀");
-            document.getElementById('ticketContent').value = '';
-            loadStudentTicketsLive();
         }
 
         function loadStudentTicketsLive() {
@@ -752,53 +774,48 @@
                 const data = snapshot.val();
                 const container = document.getElementById('studentMyTicketsList');
                 if (!data) {
-                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد شكاوى مسجلة.</p>';
+                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لم تقم بإرسال أي شكاوى أو طلبات بعد.</p>';
                     return;
                 }
                 container.innerHTML = '';
+                let hasAny = false;
                 Object.keys(data).reverse().forEach(key => {
                     const t = data[key];
                     if (t.studentKey === currentUser.firebaseKey) {
+                        hasAny = true;
+                        const replyBox = t.adminReply ? `
+                            <div style="margin-top: 10px; background: #E0F2FE; padding: 12px; border-radius: 10px; border-right: 4px solid var(--primary);">
+                                <b style="color: var(--primary-dark); font-size: 13px;">💬 رد الإدارة:</b>
+                                <p style="font-size: 13.5px; color: #0F172A; margin-top: 4px;">${t.adminReply}</p>
+                            </div>
+                        ` : `<div style="margin-top: 8px; font-size: 12px; color: var(--accent); font-weight: 700;">⏳ جاري مراجعة الطلب من الإدارة...</div>`;
+
                         container.innerHTML += `
-                            <div style="background:#F8FAFC; padding:15px; border-radius:14px; margin-bottom:12px; border:1px solid #E2E8F0; border-right:4px solid var(--primary);">
+                            <div style="background:#FFFFFF; padding:15px; border-radius:14px; margin-bottom:12px; border:1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                    <b>النوع: ${t.ticketType}</b>
-                                    <span style="font-size:12px; color:gray;">${t.date}</span>
+                                    <b style="color:var(--primary); font-size:13.5px;">${t.ticketType}</b>
+                                    <span style="font-size:11.5px; color:gray;">${t.date || ''}</span>
                                 </div>
-                                <p style="font-size:13.5px; color:#334155; margin-bottom:8px;"><b>التفاصيل:</b> ${t.content}</p>
-                                <div style="background:#EFF6FF; padding:10px; border-radius:10px; border:1px solid #BFDBFE; margin-top:8px;">
-                                    <b style="color:var(--primary-dark); font-size:12.5px;">💬 رد الإدارة:</b>
-                                    <p style="font-size:13px; color:#1E3A8A; margin-top:3px;">${t.adminReply || 'جاري مراجعة طلبك من قبل الإدارة...'}</p>
-                                </div>
+                                <p style="font-size:13.5px; color:#334155; margin-bottom:8px;">${t.content}</p>
+                                ${replyBox}
                             </div>
                         `;
                     }
                 });
+                if (!hasAny) {
+                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لم تقم بإرسال أي شكاوى أو طلبات بعد.</p>';
+                }
             });
         }
 
-        function saveProfileChanges(e) {
+        async function saveProfileChanges(e) {
             e.preventDefault();
             if (!currentUser) return;
             const newPhone = document.getElementById('profilePhone').value.trim();
-            db.ref('students/' + currentUser.firebaseKey).update({ phone: newPhone }).then(() => {
-                currentUser.phone = newPhone;
-                showToast("تم حفظ تعديلات البروفايل بنجاح 💾");
-            });
+            await db.ref('students/' + currentUser.firebaseKey).update({ phone: newPhone });
+            currentUser.phone = newPhone;
+            showToast('تم تحديث بيانات البروفايل بنجاح 💾');
         }
-
-        function logoutUser() {
-            currentUser = null;
-            document.getElementById('headerAuthActions').style.display = 'flex';
-            document.getElementById('headerUserActions').style.display = 'none';
-            document.getElementById('sidebarProfileBtn').style.display = 'none';
-            showHomePage();
-            showToast("تم تسجيل الخروج بنجاح 👋");
-        }
-
-        window.addEventListener('DOMContentLoaded', () => { 
-            loadNewsFeed(); 
-        });
     </script>
 </body>
 </html>
