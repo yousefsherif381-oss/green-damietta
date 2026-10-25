@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم الإدارية | بوابة التعلم الذكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>لوحة التحكم والإدارة | بوابة التعلم الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
@@ -15,22 +14,26 @@
             --primary-dark: #0369A1;
             --accent: #F59E0B;
             --accent-hover: #D97706;
-            --bg-gradient: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --danger: #EF4444;
+            --success: #10B981;
+            --card-bg: rgba(255, 255, 255, 0.88);
             --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border: #E2E8F0;
+            --border: rgba(255, 255, 255, 0.5);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 
         body {
-            background: var(--bg-gradient);
+            background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
             background-size: 400% 400%;
             animation: oceanWaves 16s ease infinite;
             min-height: 100vh;
             color: var(--text-dark);
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
         }
 
         @keyframes oceanWaves {
@@ -39,167 +42,152 @@
             100% { background-position: 0% 50%; }
         }
 
-        .admin-container {
-            max-width: 1300px;
-            margin: 0 auto;
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(12, 74, 110, 0.5); backdrop-filter: blur(8px);
+            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
-        .admin-header {
-            background: rgba(12, 74, 110, 0.8);
-            backdrop-filter: blur(15px);
+        .sliding-sidebar {
+            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
+            background: rgba(12, 74, 110, 0.78); 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 24px 20px; display: flex; flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sliding-sidebar.active { right: 0; }
+
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
+        .btn-close-sidebar {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); 
+            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
+            transition: all 0.2s ease;
+        }
+        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
+
+        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+            border-radius: 16px; background: rgba(255, 255, 255, 0.12); 
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px 30px;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-item:hover, .sidebar-item.active { 
+            background: rgba(2, 132, 199, 0.5); 
+            border-color: var(--accent); 
+            transform: translateX(-6px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+        }
+        .sidebar-icon { font-size: 22px; }
+        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
+
+        header {
+            background: rgba(12, 74, 110, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         }
 
-        .admin-title {
-            font-size: 22px;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .nav-container {
+            max-width: 1300px; margin: auto; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
         }
 
-        .btn-back-site {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 8px 18px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
+        .btn-sidebar-toggle {
+            background: rgba(255, 255, 255, 0.15); color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px;
+            padding: 9px 16px; font-size: 15px; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px;
         }
-        .btn-back-site:hover { background: var(--accent); border-color: var(--accent); }
+        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.25); border-color: var(--accent); transform: translateY(-2px); }
 
-        .admin-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; margin: auto; }
+        .logo-box {
+            width: 52px; height: 52px; border-radius: 50%; background: #0F172A; padding: 2px;
+            border: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+        }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .logo-text { font-size: 19px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+
+        .btn-header-home {
+            background: var(--accent); color: #fff; border: none; padding: 9px 18px;
+            border-radius: 12px; font-size: 13.5px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); transition: all 0.3s ease;
+        }
+        .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
+
+        .main-wrapper { max-width: 1250px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
+
+        .admin-section {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px; padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
+            display: none; margin-bottom: 25px;
+            border-top: 5px solid var(--accent);
+            animation: smoothSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .admin-section.active { display: block; }
+        .card-title { font-size: 17px; font-weight: 900; color: var(--primary-dark); margin-bottom: 18px; }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 2px solid #F1F5F9;
-            padding-bottom: 10px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-            text-align: right;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 800;
-            color: #475569;
-            margin-bottom: 6px;
-        }
-
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
         .form-control {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            outline: none;
-            background: #FFFFFF;
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+            border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
             transition: all 0.3s ease;
         }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 
-        .btn-action {
-            padding: 12px 24px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 14.5px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        .btn-action:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        input[type="file"] { display: none; }
 
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 14px;
-            border: 1.5px solid var(--border);
-            background: #FFFFFF;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .custom-file-upload {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px 18px; background: #F8FAFC;
+            border: 2px dashed var(--primary); border-radius: 12px;
+            color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
             text-align: center;
-            font-size: 14px;
+        }
+        .custom-file-upload:hover {
+            background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
         }
 
-        th {
-            background: #0284C7;
-            color: #FFFFFF;
-            font-weight: 800;
-            padding: 13px;
-            border: 1px solid #0369A1;
-        }
+        .file-name-preview { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
 
-        td {
-            padding: 12px;
-            border: 1px solid var(--border);
-            font-weight: 700;
-        }
+        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: scale(0.96); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-edit { background: var(--accent); color: white; }
+        .btn-edit:hover { background: var(--accent-hover); }
 
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
+        th, td { padding: 12px 14px; border: 1px solid var(--border); }
+        th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
         tr:nth-child(even) { background-color: #F8FAFC; }
-
-        .btn-table {
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 12.5px;
-            font-weight: 800;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-            margin: 2px;
-        }
-        .btn-grades { background: #0284C7; color: white; }
-        .btn-grades:hover { background: #0369A1; }
-        .btn-edit { background: #F59E0B; color: white; }
-        .btn-edit:hover { background: #D97706; }
-        .btn-delete { background: #EF4444; color: white; }
-        .btn-delete:hover { background: #DC2626; }
 
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: #0F172A; color: white; padding: 12px 24px; border-radius: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--accent);
-            display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13.5px;
-            z-index: 2000; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+            background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
+            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
+            z-index: 3000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
@@ -211,63 +199,177 @@
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
-    <div class="admin-container">
-        <header class="admin-header">
-            <div class="admin-title">⚙️ لوحة التحكم والتحكم في النظام التعليمي</div>
-            <a href="index.html" class="btn-back-site">🌐 الانتقال للموقع الرئيسي</a>
-        </header>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-        <!-- 📢 قسم نشر الإعلانات والأخبار -->
-        <div class="admin-card">
-            <div class="card-title">📢 نشر إعلان أو تنبيه جديد للطلاب</div>
-            <form onsubmit="publishNews(event)">
+    <aside class="sliding-sidebar" id="slidingSidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
+            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="sidebar-item active" id="menuItemNews" onclick="switchAdminSection('newsSection', this)">
+                <span class="sidebar-icon">📢</span>
+                <span class="sidebar-label">نشر وإدارة الأخبار</span>
+            </div>
+            <div class="sidebar-item" id="menuItemGrades" onclick="switchAdminSection('gradesSection', this)">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-label">رصد وتقييم الدرجات</span>
+            </div>
+            <div class="sidebar-item" id="menuItemAttendance" onclick="switchAdminSection('attendanceSection', this)">
+                <span class="sidebar-icon">📅</span>
+                <span class="sidebar-label">متابعة وتسجيل الغياب</span>
+            </div>
+            <div class="sidebar-item" id="menuItemUsers" onclick="switchAdminSection('usersSection', this)">
+                <span class="sidebar-icon">👥</span>
+                <span class="sidebar-label">سجل الحسابات والطلاب</span>
+            </div>
+            <div class="sidebar-item" id="menuItemTickets" onclick="switchAdminSection('ticketsSection', this)">
+                <span class="sidebar-icon">📨</span>
+                <span class="sidebar-label">مركز الشكاوى والردود</span>
+            </div>
+            <div class="sidebar-item" id="menuItemPassword" onclick="switchAdminSection('passwordSection', this)">
+                <span class="sidebar-icon">🔑</span>
+                <span class="sidebar-label">تغيير كلمة المرور</span>
+            </div>
+        </div>
+    </aside>
+
+    <header>
+        <div class="nav-container">
+            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
+            <div class="logo-area" onclick="window.location.href='index.html'">
+                <div class="logo-box">
+                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار بوابة التعلم الذكي">
+                </div>
+                <span class="logo-text">بوابة التعلم الذكي - الإدارة</span>
+            </div>
+            <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+
+        <!-- 1️⃣ قسم الأخبار -->
+        <div class="admin-section active" id="newsSection">
+            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
+            <form onsubmit="postNews(event)">
                 <div class="form-grid">
-                    <div class="form-group"><label>عنوان الخبر / التنبيه</label><input type="text" id="newsTitle" class="form-control" placeholder="مثال: موعد امتحانات الشهر" required></div>
-                    <div class="form-group"><label>التصنيف (الوسم)</label><input type="text" id="newsBadge" class="form-control" placeholder="مثال: هام جداً" required></div>
+                    <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
+                    <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
                 </div>
-                <div class="form-group">
-                    <label>تفاصيل الإعلان</label>
-                    <textarea id="newsContent" class="form-control" rows="3" placeholder="اكتب تفاصيل الإعلان هنا..." required></textarea>
+                <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
+                
+                <div class="form-grid" style="margin-bottom: 15px;">
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان (اختياري):</label>
+                        <label for="newsImageFile" class="custom-file-upload">
+                            <span>📁 اضغط لاختيار صورة الإعلان</span>
+                        </label>
+                        <input type="file" id="newsImageFile" accept="image/*" onchange="updateFileName(this, 'imageNamePreview')">
+                        <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (اختياري):</label>
+                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)" style="padding: 12px;">
+                    </div>
                 </div>
-                <button type="submit" class="btn-action">نشر الإعلان 🚀</button>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز:</label>
+                    <label for="newsVideoFile" class="custom-file-upload">
+                        <span>🎬 اضغط لاختيار فيديو الإعلان</span>
+                    </label>
+                    <input type="file" id="newsVideoFile" accept="video/mp4,video/webm,video/ogg" onchange="updateFileName(this, 'videoNamePreview')">
+                    <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
             </form>
+
+            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
+            <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 📅 قسم إدارة وتحديث الحضور والغياب والملاحظات بالتفصيل -->
-        <div class="admin-card">
-            <div class="card-title">📅 تسجيل وتحديث حالة الحضور والغياب والتواريخ والأعذار</div>
-            <form onsubmit="updateAttendanceData(event)">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>اختر الطالب أو ولي الأمر</label>
-                        <select id="attendanceStudentSelect" class="form-control" required>
-                            <option value="">-- جاري تحميل الحسابات --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>حالة الحضور</label>
-                        <select id="attendanceStatusSelect" class="form-control" required>
-                            <option value="منتظم">منتظم ✅</option>
-                            <option value="غاب بدون عذر">غاب بدون عذر ❌</option>
-                            <option value="غاب بعذر مرضي">غاب بعذر مرضي 🏥</option>
-                            <option value="استئذان رسمي">استئذان رسمي ⏳</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>إعدد مرات الغياب</label><input type="number" id="attendanceAbsenceCount" class="form-control" min="0" value="0" required></div>
-                    <div class="form-group"><label>ملاحظات الإدارة</label><input type="text" id="attendanceNote" class="form-control" placeholder="اكتب الملاحظة هنا"></div>
+        <!-- 2️⃣ قسم الدرجات -->
+        <div class="admin-section" id="gradesSection">
+            <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب لرصد أو تعديل الدرجات:</label>
+                <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
+                    <option value="">-- حدد الطالب من القائمة --</option>
+                </select>
+            </div>
+            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;">رصد الدرجات للطالب: </h4>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المادة الدراسية</th>
+                                <th>أعمال السنة (30)</th>
+                                <th>التقييم الأسبوعي (20)</th>
+                                <th>الامتحان النهائي (50)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminGradesEditTableBody"></tbody>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <label>سجل تواريخ أيام الغياب والأشهر والأسباب بالتفصيل</label>
-                    <textarea id="attendanceDatesLog" class="form-control" rows="2" placeholder="مثال: غاب يوم السبت 15/10/2026 (عذر مرضي)..."></textarea>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button onclick="saveStudentGradesDirect()" class="btn btn-success">حفظ وتقييم الدرجات 💾</button>
+                    <button onclick="document.getElementById('gradesEditFormContainer').style.display='none'" class="btn btn-danger">إغلاق ✕</button>
                 </div>
-                <button type="submit" class="btn-action" style="background: var(--accent);">حفظ وتحديث الحضور 💾</button>
-            </form>
+            </div>
         </div>
 
-        <!-- 📊 قسم جدول الحسابات والطلاب الكامل مع زر التعديل -->
-        <div class="admin-card">
-            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة (مع إمكانية التعديل السريع)</div>
-            <div class="table-responsive">
+        <!-- 3️⃣ قسم الحضور والغياب الدقيق والعداد -->
+        <div class="admin-section" id="attendanceSection">
+            <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية والاحترازية</div>
+            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
+                        <select id="studentAttendanceSelect" class="form-control" onchange="loadStudentAttendanceData()">
+                            <option value="">-- اختر طالب من القائمة --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
+                        <select id="attendanceStatusSelect" class="form-control" onchange="onAttendanceStatusChange()">
+                            <option value="منتظم">منتظم (حاضر) ✅</option>
+                            <option value="غاب يوم واحد">غاب يوم واحد ❌</option>
+                            <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
+                            <option value="استئذان رسمي">استئذان رسمي ⚠️</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-grid" style="grid-template-columns: 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي عدد مرات الغياب:</label>
+                        <input type="number" id="absenceCountInput" class="form-control" value="0" min="0" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر:</label>
+                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر أو تقرير رقم 123...">
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تواريخ أيام الغياب تفصيلياً (اليوم، الشهر، السبب):</label>
+                    <textarea id="absenceDatesLogInput" class="form-control" rows="3" placeholder="مثال:
+- 12 أكتوبر: عذر مرضي
+- 18 أكتوبر: غياب بدون عذر
+- 25 نوفمبر: استئذان رسمي"></textarea>
+                </div>
+
+                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور بدقة 💾</button>
+            </div>
+        </div>
+
+        <!-- 4️⃣ قسم سجل المستخدمين مع كافة تفاصيل الحساب وزر التعديل -->
+        <div class="admin-section" id="usersSection">
+            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة (مع إمكانية التعديل الشامل)</div>
+            <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
@@ -283,97 +385,409 @@
                             <th>إجراء سريع</th>
                         </tr>
                     </thead>
-                    <tbody id="adminStudentsTableBody">
-                        <tr><td colspan="10" style="text-align: center; padding: 20px;">جاري تحميل سجل الحسابات...</td></tr>
+                    <tbody id="adminUsersTableBody">
+                        <tr><td colspan="10" style="text-align: center;">جاري تحميل البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 📨 قسم الشكاوى والاستفسارات ومتابعة الردود -->
-        <div class="admin-card">
-            <div class="card-title">📨 الشكاوى والطلبات الواردة من أولياء الأمور والطلاب</div>
-            <div id="adminTicketsList">جاري تحميل الشكاوى...</div>
+        <!-- 5️⃣ قسم الشكاوى مع زر الرد المباشر -->
+        <div class="admin-section" id="ticketsSection">
+            <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
+            <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
-    </div>
+
+        <!-- 6️⃣ قسم تغيير كلمة المرور -->
+        <div class="admin-section" id="passwordSection">
+            <div class="card-title">🔑 تغيير كلمة مرور لوحة الإدارة</div>
+            <form onsubmit="changeAdminPassword(event)" style="max-width: 500px;">
+                <div style="margin-bottom: 16px;">
+                    <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">كلمة المرور الجديدة</label>
+                    <input type="password" id="newAdminPasswordInput" class="form-control" placeholder="أدخل كلمة المرور الجديدة..." required minlength="4">
+                </div>
+                <button type="submit" class="btn btn-primary" style="background: var(--accent); color: #0F172A; width: 100%;">تحديث وحفظ كلمة المرور 💾</button>
+            </form>
+        </div>
+
+    </main>
 
     <script>
-        const firebaseConfig = { databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
+            authDomain: "green-damietta-b0a29.firebaseapp.com",
+            databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com",
+            projectId: "green-damietta-b0a29",
+            storageBucket: "green-damietta-b0a29.firebasestorage.app",
+            messagingSenderId: "210935345765",
+            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
+            measurementId: "G-CT9KYEKXML"
+        };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAdminData();
-        });
+        let usersCache = {};
+        let currentEditingStudentKey = null;
 
-        function showToast(message, icon = "✨") {
+        function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
             document.getElementById('toastMessage').textContent = message;
             toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
 
-        function publishNews(e) {
-            e.preventDefault();
-            const title = document.getElementById('newsTitle').value.trim();
-            const badge = document.getElementById('newsBadge').value.trim();
-            const content = document.getElementById('newsContent').value.trim();
+        function updateFileName(input, previewId) {
+            const previewSpan = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                previewSpan.textContent = '✅ تم اختيار: ' + input.files[0].name;
+                previewSpan.style.color = '#16A34A';
+            } else {
+                previewSpan.textContent = 'لم يتم اختيار ملف بعد';
+                previewSpan.style.color = '#64748B';
+            }
+        }
 
-            const newsKey = 'news_' + Date.now();
-            db.ref('news/' + newsKey).set({
-                title, badge, content,
-                date: new Date().toLocaleDateString('ar-EG')
-            }).then(() => {
-                showToast('تم نشر الإعلان بنجاح! 📢');
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsBadge').value = '';
-                document.getElementById('newsContent').value = '';
+        const gradeSubjectsDetailed = {
+            lowerPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'discover', name: 'Discover / اكتشف' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            upperPrimary: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
+                { id: 'skills', name: 'المهارات المهنية' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ],
+            prep: [
+                { id: 'ar', name: 'اللغة العربية' },
+                { id: 'en', name: 'اللغة الإنجليزية' },
+                { id: 'math', name: 'الرياضيات Math' },
+                { id: 'science', name: 'العلوم Science' },
+                { id: 'social', name: 'الدراسات الاجتماعية' },
+                { id: 'computer', name: 'الحاسب الآلي' },
+                { id: 'religion', name: 'التربية الدينية' }
+            ]
+        };
+
+        function getSubjectsForGradeName(gradeName) {
+            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
+            if (gradeName.includes('الاعدادي') || gradeName.includes('الإعدادي')) return gradeSubjectsDetailed.prep;
+            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
+            else return gradeSubjectsDetailed.lowerPrimary;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => { loadAllData(); });
+
+        function loadAllData() {
+            db.ref('students').on('value', (snapshot) => {
+                usersCache = snapshot.val() || {};
+                renderUsersTable();
+                loadTicketsLive();
+            });
+            loadNewsLive();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('slidingSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('slidingSidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+
+        function switchAdminSection(sectionId, menuEl) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            const targetSec = document.getElementById(sectionId);
+            if (targetSec) targetSec.classList.add('active');
+            if (menuEl) menuEl.classList.add('active');
+            closeSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function onAttendanceStatusChange() {
+            const status = document.getElementById('attendanceStatusSelect').value;
+            const absenceInput = document.getElementById('absenceCountInput');
+            if (status === 'منتظم') absenceInput.value = 0;
+            else if (status === 'غاب يوم واحد') absenceInput.value = 1;
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('adminUsersTableBody');
+            const selectGradesBox = document.getElementById('studentSelectForGrades');
+            const selectAttBox = document.getElementById('studentAttendanceSelect');
+            tbody.innerHTML = '';
+            selectGradesBox.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
+            selectAttBox.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
+
+            const keys = Object.keys(usersCache);
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">لا يوجد مستخدمين مسجلين حالياً.</td></tr>';
+                return;
+            }
+
+            keys.forEach(k => {
+                const u = usersCache[k];
+                const isStudent = u.role !== 'parent';
+                const name = isStudent ? u.name : (u.parentName || u.name);
+                const nationalIdVal = u.nationalId || u.code || '---';
+                const phoneVal = u.phone || '---';
+                const passVal = u.password || '---';
+                const absenceCount = u.absenceCount !== undefined ? u.absenceCount : 0;
+
+                if (isStudent) {
+                    selectGradesBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
+                    selectAttBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
+                }
+
+                let attColor = '#10B981';
+                let attVal = u.attendance || 'منتظم';
+                if (attVal.includes('غاب')) attColor = '#EF4444';
+                else if (attVal.includes('مرضي')) attColor = '#0284C7';
+                else if (attVal.includes('استئذان')) attColor = '#F59E0B';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${name}</b></td>
+                        <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
+                        <td>${u.grade || 'غير محدد'}</td>
+                        <td><code>${nationalIdVal}</code></td>
+                        <td>${phoneVal}</td>
+                        <td><code>${passVal}</code></td>
+                        <td><span style="font-weight:bold; color:${attColor};">${attVal}</span></td>
+                        <td><span style="background: #F1F5F9; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${absenceCount} مرة</span></td>
+                        <td style="font-size: 12px;">${u.absenceDatesLog || u.attendanceNote || '---'}</td>
+                        <td>
+                            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 10px; font-size: 11px;">📊 درجات</button>` : ''}
+                                <button onclick="editUserAccount('${k}')" class="btn btn-edit" style="padding: 5px 10px; font-size: 11px;">✏️ تعديل</button>
+                                <button onclick="deleteUserAccount('${k}')" class="btn btn-danger" style="padding: 5px 10px; font-size: 11px;">🗑️ حذف</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             });
         }
 
-        function loadAdminData() {
-            db.ref('students').on('value', snapshot => {
-                const data = snapshot.val();
-                const tbody = document.getElementById('adminStudentsTableBody');
-                const select = document.getElementById('attendanceStudentSelect');
-                tbody.innerHTML = '';
-                select.innerHTML = '<option value="">-- اختر الحساب أو الطالب --</option>';
+        // ✏️ دالة تعديل بيانات المستخدم مباشرة من جدول الإدارة
+        function editUserAccount(key) {
+            const u = usersCache[key];
+            if (!u) return;
 
+            const newName = prompt("تعديل الاسم:", u.name || "");
+            if (newName === null) return;
+
+            const newNationalId = prompt("تعديل الكود / الرقم القومي:", u.nationalId || u.code || "");
+            if (newNationalId === null) return;
+
+            const newPhone = prompt("تعديل رقم المحمول:", u.phone || "");
+            if (newPhone === null) return;
+
+            const newPassword = prompt("تعديل كلمة المرور:", u.password || "");
+            if (newPassword === null) return;
+
+            let updates = {
+                name: newName.trim(),
+                nationalId: newNationalId.trim(),
+                phone: newPhone.trim(),
+                password: newPassword.trim()
+            };
+
+            if (u.role !== 'parent') {
+                const newGrade = prompt("تعديل الصف الدراسي:", u.grade || "");
+                if (newGrade !== null) updates.grade = newGrade.trim();
+            }
+
+            db.ref('students/' + key).update(updates).then(() => {
+                showToast("تم تحديث بيانات الحساب بنجاح! 💾");
+            });
+        }
+
+        function deleteUserAccount(key) {
+            if (confirm("هل أنت متأكد من حذف هذا الحساب نهائياً؟")) {
+                db.ref('students/' + key).remove().then(() => {
+                    showToast("تم حذف الحساب بنجاح 🗑️", "⚠️");
+                });
+            }
+        }
+
+        function quickSelectStudent(key) {
+            switchAdminSection('gradesSection', document.getElementById('menuItemGrades'));
+            document.getElementById('studentSelectForGrades').value = key;
+            loadStudentGradesToEdit();
+        }
+
+        function loadStudentGradesToEdit() {
+            const key = document.getElementById('studentSelectForGrades').value;
+            const container = document.getElementById('gradesEditFormContainer');
+            if (!key || !usersCache[key]) {
+                container.style.display = 'none';
+                return;
+            }
+            currentEditingStudentKey = key;
+            const u = usersCache[key];
+            document.getElementById('editingStudentNameTitle').textContent = 'رصد الدرجات للطالب: ' + u.name;
+            
+            const subjects = getSubjectsForGradeName(u.grade);
+            const tbody = document.getElementById('adminGradesEditTableBody');
+            tbody.innerHTML = '';
+
+            subjects.forEach(sub => {
+                const work = u[sub.id + '_work'] || '';
+                const weekly = u[sub.id + '_weekly'] || '';
+                const final = u[sub.id + '_final'] || '';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${sub.name}</b></td>
+                        <td><input type="number" min="0" max="30" id="grade_${sub.id}_work" class="form-control" value="${work}" placeholder="0-30"></td>
+                        <td><input type="number" min="0" max="20" id="grade_${sub.id}_weekly" class="form-control" value="${weekly}" placeholder="0-20"></td>
+                        <td><input type="number" min="0" max="50" id="grade_${sub.id}_final" class="form-control" value="${final}" placeholder="0-50"></td>
+                    </tr>
+                `;
+            });
+            container.style.display = 'block';
+        }
+
+        async function saveStudentGradesDirect() {
+            if (!currentEditingStudentKey || !usersCache[currentEditingStudentKey]) return;
+            const u = usersCache[currentEditingStudentKey];
+            const subjects = getSubjectsForGradeName(u.grade);
+            let updates = {};
+
+            subjects.forEach(sub => {
+                updates[sub.id + '_work'] = parseFloat(document.getElementById(`grade_${sub.id}_work`).value) || 0;
+                updates[sub.id + '_weekly'] = parseFloat(document.getElementById(`grade_${sub.id}_weekly`).value) || 0;
+                updates[sub.id + '_final'] = parseFloat(document.getElementById(`grade_${sub.id}_final`).value) || 0;
+            });
+
+            await db.ref('students/' + currentEditingStudentKey).update(updates);
+            showToast("تم حفظ ورصد درجات الطالب بنجاح! 📊");
+        }
+
+        function loadStudentAttendanceData() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key || !usersCache[key]) return;
+            const u = usersCache[key];
+            document.getElementById('attendanceStatusSelect').value = u.attendance || 'منتظم';
+            document.getElementById('absenceCountInput').value = u.absenceCount !== undefined ? u.absenceCount : 0;
+            document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
+            document.getElementById('absenceDatesLogInput').value = u.absenceDatesLog || '';
+        }
+
+        async function saveStudentAttendance() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key || !usersCache[key]) return showToast("يرجى تحديد الطالب أولاً", "⚠️");
+            const status = document.getElementById('attendanceStatusSelect').value;
+            const absenceCount = parseInt(document.getElementById('absenceCountInput').value) || 0;
+            const note = document.getElementById('attendanceNoteInput').value.trim();
+            const datesLog = document.getElementById('absenceDatesLogInput').value.trim();
+
+            await db.ref('students/' + key).update({
+                attendance: status,
+                absenceCount: absenceCount,
+                attendanceNote: note,
+                absenceDatesLog: datesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.'
+            });
+            showToast("تم تحديث سجل وحالة الحضور والغياب بنجاح! 📅");
+        }
+
+        async function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان';
+            const content = document.getElementById('newsContent').value.trim();
+            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
+
+            const newsKey = 'news_' + Date.now();
+            let newsData = {
+                title, badge, content, videoUrl,
+                date: new Date().toLocaleDateString('ar-EG')
+            };
+
+            const imageFile = document.getElementById('newsImageFile').files[0];
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    newsData.imageUrl = e.target.result;
+                    await db.ref('news/' + newsKey).set(newsData);
+                    finishNewsPost();
+                };
+                reader.readAsDataURL(imageFile);
+                return;
+            }
+
+            const videoFile = document.getElementById('newsVideoFile').files[0];
+            if (videoFile) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    newsData.videoBase64 = e.target.result;
+                    await db.ref('news/' + newsKey).set(newsData);
+                    finishNewsPost();
+                };
+                reader.readAsDataURL(videoFile);
+                return;
+            }
+
+            await db.ref('news/' + newsKey).set(newsData);
+            finishNewsPost();
+        }
+
+        function finishNewsPost() {
+            showToast("تم نشر الإعلان بنجاح! 📢");
+            document.getElementById('newsTitle').value = '';
+            document.getElementById('newsBadge').value = '';
+            document.getElementById('newsContent').value = '';
+            document.getElementById('newsVideoUrl').value = '';
+            document.getElementById('newsImageFile').value = '';
+            document.getElementById('newsVideoFile').value = '';
+            document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+            document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+        }
+
+        function loadNewsLive() {
+            db.ref('news').on('value', snapshot => {
+                const data = snapshot.val();
+                const container = document.getElementById('adminNewsList');
                 if (!data) {
-                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">لا توجد حسابات مسجلة بعد.</td></tr>';
+                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد إعلانات منشورة حالياً.</p>';
                     return;
                 }
-
-                Object.keys(data).forEach(key => {
-                    const s = data[key];
-                    const roleBadge = s.role === 'parent' ? '👨‍👩‍👦 ولي أمر' : '🎓 طالب';
-                    
-                    // ملء قائمة الاختيار
-                    select.innerHTML += `<option value="${key}">${s.name} (${s.role === 'parent' ? 'ولي أمر' : (s.grade || 'طالب')})</option>`;
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><b>${s.name}</b></td>
-                            <td><span style="background:${s.role==='parent'?'#F59E0B':'#0284C7'}; color:white; padding:3px 10px; border-radius:10px; font-size:12px;">${roleBadge}</span></td>
-                            <td>${s.grade || '---'}</td>
-                            <td>${s.nationalId || s.code || '---'}</td>
-                            <td>${s.phone || '---'}</td>
-                            <td><code style="background:#F1F5F9; padding:2px 6px; border-radius:6px;">${s.password || '---'}</code></td>
-                            <td><b style="color:${s.attendance?.includes('غاب')?'#EF4444':'#10B981'}">${s.attendance || 'منتظم'}</b></td>
-                            <td><span style="background:#F1F5F9; padding:2px 8px; border-radius:8px; color:#EF4444;">${s.absenceCount !== undefined ? s.absenceCount : 0} مرة</span></td>
-                            <td style="font-size:12.5px; color:#475569;">${s.absenceDatesLog || s.attendanceNote || '---'}</td>
-                            <td>
-                                ${s.role !== 'parent' ? `<button onclick="openGradesModal('${key}', '${s.name}', '${s.grade || ''}')" class="btn-table btn-grades">📊 درجات</button>` : ''}
-                                <button onclick="editStudentData('${key}')" class="btn-table btn-edit">✏️ تعديل</button>
-                                <button onclick="deleteStudent('${key}')" class="btn-table btn-delete">🗑️ حذف</button>
-                            </td>
-                        </tr>
+                container.innerHTML = '';
+                Object.keys(data).reverse().forEach(key => {
+                    const item = data[key];
+                    container.innerHTML += `
+                        <div style="background: rgba(248, 250, 252, 0.95); padding: 15px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <h4 style="font-size: 15px; font-weight: 900; color: var(--primary-dark);">${item.title}</h4>
+                                <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">🗑️ حذف</button>
+                            </div>
+                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 8px;">${item.content}</p>
+                            <span style="font-size: 11.5px; color: var(--text-muted);">📅 تاريخ النشر: ${item.date || ''}</span>
+                        </div>
                     `;
                 });
             });
+        }
 
-            // تحميل الشكاوى
+        async function deleteNews(key) {
+            if (confirm("هل تريد حذف هذا الخبر نهائياً؟")) {
+                await db.ref('news/' + key).remove();
+                showToast("تم حذف الخبر بنجاح", "⚠️");
+            }
+        }
+
+        function loadTicketsLive() {
             db.ref('tickets').on('value', snapshot => {
                 const data = snapshot.val();
                 const container = document.getElementById('adminTicketsList');
@@ -385,15 +799,15 @@
                 Object.keys(data).reverse().forEach(key => {
                     const t = data[key];
                     container.innerHTML += `
-                        <div style="background:#F8FAFC; padding:16px; border-radius:14px; margin-bottom:12px; border:1px solid #E2E8F0;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                <b>👤 الطالب / ولي الأمر: ${t.parentName || t.studentName} (${t.ticketType})</b>
-                                <span style="font-size:12px; color:gray;">${t.date || ''}</span>
+                        <div style="background: rgba(248, 250, 252, 0.95); padding: 16px; border-radius: 14px; margin-bottom: 14px; border: 1px solid var(--border);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <b style="color: var(--primary-dark); font-size: 14px;">👤 ${t.parentName || t.studentName} (${t.ticketType})</b>
+                                <span style="font-size: 12px; color: gray;">${t.date || ''}</span>
                             </div>
-                            <p style="font-size:13.5px; color:#334155; margin-bottom:10px;">${t.content}</p>
-                            <div style="display:flex; gap:10px;">
-                                <input type="text" id="reply_${key}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}">
-                                <button onclick="sendAdminReply('${key}')" class="btn-action" style="padding: 6px 16px; white-space: nowrap;">إرسال الرد 💬</button>
+                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 10px;">${t.content}</p>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="reply_input_${key}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}">
+                                <button onclick="sendAdminReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 💬</button>
                             </div>
                         </div>
                     `;
@@ -401,88 +815,19 @@
             });
         }
 
-        // ✏️ دالة تعديل بيانات الطالب أو ولي الأمر مباشرة
-        function editStudentData(key) {
-            db.ref('students/' + key).once('value').then(snapshot => {
-                const s = snapshot.val();
-                if (!s) return;
-
-                const newName = prompt("تعديل الاسم:", s.name || "");
-                if (newName === null) return;
-
-                const newNationalId = prompt("تعديل الكود أو الرقم القومي:", s.nationalId || s.code || "");
-                if (newNationalId === null) return;
-
-                const newPhone = prompt("تعديل رقم المحمول:", s.phone || "");
-                if (newPhone === null) return;
-
-                const newPassword = prompt("تعديل كلمة المرور:", s.password || "");
-                if (newPassword === null) return;
-
-                let updates = {
-                    name: newName.trim(),
-                    nationalId: newNationalId.trim(),
-                    phone: newPhone.trim(),
-                    password: newPassword.trim()
-                };
-
-                if (s.role !== 'parent') {
-                    const newGrade = prompt("تعديل الصف الدراسي:", s.grade || "");
-                    if (newGrade !== null) updates.grade = newGrade.trim();
-                }
-
-                db.ref('students/' + key).update(updates).then(() => {
-                    showToast('تم تحديث بيانات الحساب بنجاح! 💾');
-                });
-            });
+        async function sendAdminReply(ticketKey) {
+            const replyText = document.getElementById('reply_input_' + ticketKey).value.trim();
+            if (!replyText) return showToast("يرجى كتابة نص الرد أولاً", "⚠️");
+            await db.ref('tickets/' + ticketKey).update({ adminReply: replyText });
+            showToast("تم إرسال رد الإدارة بنجاح! 💬");
         }
 
-        function updateAttendanceData(e) {
+        async function changeAdminPassword(e) {
             e.preventDefault();
-            const studentKey = document.getElementById('attendanceStudentSelect').value;
-            const attendance = document.getElementById('attendanceStatusSelect').value;
-            const absenceCount = parseInt(document.getElementById('attendanceAbsenceCount').value) || 0;
-            const attendanceNote = document.getElementById('attendanceNote').value.trim();
-            const absenceDatesLog = document.getElementById('attendanceDatesLog').value.trim();
-
-            if (!studentKey) {
-                showToast('يرجى اختيار الطالب أولاً ⚠️', '⚠️');
-                return;
-            }
-
-            db.ref('students/' + studentKey).update({
-                attendance,
-                absenceCount,
-                attendanceNote,
-                absenceDatesLog: absenceDatesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.'
-            }).then(() => {
-                showToast('تم تحديث الحضور والغياب والسجل بنجاح! 📅');
-                document.getElementById('attendanceNote').value = '';
-                document.getElementById('attendanceDatesLog').value = '';
-            });
-        }
-
-        function deleteStudent(key) {
-            if (confirm('هل أنت متأكد من حذف هذا الحساب نهائياً؟')) {
-                db.ref('students/' + key).remove().then(() => {
-                    showToast('تم حذف الحساب بنجاح 🗑️', '🔒');
-                });
-            }
-        }
-
-        function sendAdminReply(ticketKey) {
-            const replyText = document.getElementById('reply_' + ticketKey).value.trim();
-            if (!replyText) {
-                showToast('يرجى كتابة نص الرد أولاً ⚠️', '⚠️');
-                return;
-            }
-            db.ref('tickets/' + ticketKey).update({ adminReply: replyText }).then(() => {
-                showToast('تم إرسال رد الإدارة بنجاح! 💬');
-            });
-        }
-
-        function openGradesModal(key, name, grade) {
-            window.location.href = `grades-admin.html?id=${key}&name=${encodeURIComponent(name)}&grade=${encodeURIComponent(grade)}`;
+            const newPass = document.getElementById('newAdminPasswordInput').value.trim();
+            await db.ref('settings/adminPassword').set(newPass);
+            showToast("تم تحديث كلمة مرور لوحة الإدارة بنجاح! 🔑");
+            document.getElementById('newAdminPasswordInput').value = '';
         }
     </script>
 </body>
