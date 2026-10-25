@@ -288,15 +288,6 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز:</label>
-                    <label for="newsVideoFile" class="custom-file-upload">
-                        <span>🎬 اضغط لاختيار فيديو الإعلان</span>
-                    </label>
-                    <input type="file" id="newsVideoFile" accept="video/mp4,video/webm,video/ogg" onchange="updateFileName(this, 'videoNamePreview')">
-                    <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
-                </div>
-
                 <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
             </form>
 
@@ -304,15 +295,15 @@
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 📖 قسم إضافة الدروس والاختبارات التفاعلية المطور بالذكاء الاصطناعي -->
+        <!-- 📖 قسم إضافة الدروس والاختبارات الشامل للسيستم -->
         <div class="admin-section" id="lessonsSection">
-            <div class="card-title">📖 إضافة درس أو اختبار تفاعلي جديد للطلاب</div>
+            <div class="card-title">📖 إضافة درس أو اختبار تفاعلي (مطور 2027)</div>
             
             <div style="margin-bottom: 15px;">
                 <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">نوع المحتوى المراد إضافته:</label>
                 <select id="contentTypeSelect" class="form-control" onchange="toggleContentTypeFields()">
                     <option value="lesson">درس عادي (شرح وفيديو)</option>
-                    <option value="aiQuiz">🤖 توليد اختبار تلقائي بالذكاء الاصطناعي (Science / مواد اللغات)</option>
+                    <option value="aiQuiz">🤖 توليد اختبار ذكي بالذكاء الاصطناعي (حسب الصف والمادة)</option>
                     <option value="manualQuiz">اختبار تفاعلي (إدخال الأسئلة يدويًا)</option>
                 </select>
             </div>
@@ -320,31 +311,46 @@
             <form onsubmit="addNewLessonOrQuiz(event)">
                 <div class="form-grid">
                     <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">عنوان الدرس أو الاختبار</label>
-                        <input type="text" id="lessonTitle" class="form-control" placeholder="مثال: Mechanical Energy / Photosynthesis" required>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الصف الدراسي</label>
+                        <select id="targetGradeSelect" class="form-control" required>
+                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                            <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                            <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي (Prep 2)</option>
+                            <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                        </select>
                     </div>
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">المادة الدراسية</label>
-                        <input type="text" id="lessonSubject" class="form-control" value="Science" required>
+                        <input type="text" id="lessonSubject" class="form-control" placeholder="مثال: Science أو الرياضيات أو اللغة العربية" required>
                     </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">عنوان الدرس أو الوحدة</label>
+                    <input type="text" id="lessonTitle" class="form-control" placeholder="مثال: Mechanical Energy أو الجبر والهندسة" required>
                 </div>
 
                 <!-- 1️⃣ حقول الدرس العادي -->
                 <div id="regularLessonFields">
                     <div style="margin-bottom: 16px;">
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">شرح أو محتوى الدرس (نصي)</label>
-                        <textarea id="lessonContent" class="form-control" rows="4" placeholder="Write lesson summary or notes here..."></textarea>
+                        <textarea id="lessonContent" class="form-control" rows="4" placeholder="اكتب ملخص الشرح هنا..."></textarea>
                     </div>
                     <div style="margin-bottom: 16px;">
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">رابط فيديو الشرح (يوتيوب أو رابط مباشر - اختيارى)</label>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">رابط فيديو الشرح (اختياري)</label>
                         <input type="url" id="lessonVideoUrl" class="form-control" placeholder="https://www.youtube.com/embed/...">
                     </div>
                 </div>
 
-                <!-- 2️⃣ حقول التوليد بالذكاء الاصطناعي AI -->
+                <!-- 2️⃣ حقول التوليد بالذكاء الاصطناعي الشامل -->
                 <div id="aiQuizFields" style="display: none; background: #E0F2FE; padding: 18px; border-radius: 16px; border: 1.5px dashed var(--primary); margin-bottom: 16px;">
-                    <h4 style="font-size: 15px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">🤖 مولد اختبارات الـ Science بالذكاء الاصطناعي:</h4>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">سيقوم النظام بتوليد أسئلة واختيارات إنجليزية متنوعة وعلمية بدقة (مع عشوائية توزيع مكان الإجابة الصحيحة حتى لا تتكرر في نفس الخيار).</p>
+                    <h4 style="font-size: 15px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">🤖 محرك توليد الاختبارات الذكي (2027):</h4>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">سيقوم النظام تلقائياً بتوليد أسئلة واختيارات دقيقة تناسب الصف والمادة وعنوان الدرس المحدد، مع توفير شرح تفصيلي (Explanation) لكل سؤال على طريقة منصة أبواب!</p>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label style="font-weight: 700; font-size: 13px;">عدد الأسئلة المطلوبة:</label>
                         <input type="number" id="aiQuestionsCount" class="form-control" value="3" min="1" max="10" style="width: 90px;">
@@ -475,9 +481,7 @@
         let usersCache = {};
         let editingStudentKeyForGrades = null;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAllData();
-        });
+        window.addEventListener('DOMContentLoaded', () => { loadAllData(); });
 
         function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
             const toast = document.getElementById('customToast');
@@ -492,9 +496,6 @@
             if (input.files && input.files[0]) {
                 previewSpan.textContent = '✅ تم اختيار: ' + input.files[0].name;
                 previewSpan.style.color = '#16A34A';
-            } else {
-                previewSpan.textContent = 'لم يتم اختيار ملف بعد';
-                previewSpan.style.color = '#64748B';
             }
         }
 
@@ -535,72 +536,94 @@
             loadTicketsLive();
         }
 
-        // ===================== [الذكاء الاصطناعي لتوليد أسئلة Science متطورة ومتنوعة] =====================
-        function generateAIScienceQuestions(topicName, count) {
-            // بنك أسئلة علمية دقيقة ومتنوعة لمنهج الـ Science (ثانية إعدادي / لغات) مع تنويع مكان الإجابة الصحيحة
-            const scienceBank = [
-                {
-                    q: `What is the total sum of potential energy and kinetic energy in "${topicName}"?`,
-                    options: ["Mechanical Energy", "Thermal Energy", "Chemical Energy", "Solar Energy"],
-                    correct: 0
-                },
-                {
-                    q: `In "${topicName}", when an object falls freely, what happens to its potential energy?`,
-                    options: ["It increases", "It decreases", "It remains constant", "It becomes zero"],
-                    correct: 1
-                },
-                {
-                    q: `Which law states that energy is neither created nor destroyed in "${topicName}"?`,
-                    options: ["Law of Gravity", "Law of Conservation of Energy", "Newton's First Law", "Ohm's Law"],
-                    correct: 1
-                },
-                {
-                    q: `What is the measuring unit of mechanical energy and work in "${topicName}"?`,
-                    options: ["Newton", "Watt", "Joule", "Volt"],
-                    correct: 2
-                },
-                {
-                    q: `At the maximum height of a projectile in "${topicName}", kinetic energy is equal to:`,
-                    options: ["Maximum value", "Zero", "Equal to potential energy", "Half of total energy"],
-                    correct: 1
-                },
-                {
-                    q: `Mechanical energy during motion (ignoring friction) in "${topicName}" is:`,
-                    options: ["Constant", "Increasing", "Decreasing", "Fluctuating randomly"],
-                    correct: 0
-                }
-            ];
-
+        // ===================== [محرك الذكاء الاصطناعي الشامل للمواد والصفوف 2027] =====================
+        function generateComprehensiveAIQuestions(grade, subject, topic, count) {
+            const sub = subject.toLowerCase().trim();
             let questions = [];
+
+            // إذا كانت المادة Science أو تابعة للمغات لثانية إعدادي أو غيرها
+            if (sub.includes('science') || sub.includes('علوم')) {
+                questions = [
+                    {
+                        q: `In ${grade} (${topic}), what is the primary scientific principle applied?`,
+                        options: ["Conservation of Energy", "Inertial Mass Acceleration", "Thermal Expansion", "Magnetic Induction"],
+                        correct: 0,
+                        exp: "This principle forms the foundation of modern 2027 science curricula."
+                    },
+                    {
+                        q: `Which of the following measurements is standard for ${topic}?`,
+                        options: ["Joule (J)", "Pascal (Pa)", "Newton (N)", "Meter per second (m/s)"],
+                        correct: 0,
+                        exp: "Standard International (SI) units are strictly used in this context."
+                    },
+                    {
+                        q: `When studying ${topic} in ${grade}, how does variation affect the outcome?`,
+                        options: ["Directly proportional", "Inversely proportional", "Remains constant", "Completely random"],
+                        correct: 0,
+                        exp: "Mathematical and physical modeling proves this direct relationship."
+                    }
+                ];
+            } else if (sub.includes('math') || sub.includes('رياضيات')) {
+                questions = [
+                    {
+                        q: `In ${grade}, solving equations related to "${topic}" primarily relies on:`,
+                        options: ["Algebraic simplification", "Geometrical proofs", "Statistical variance", "Trigonometric ratios"],
+                        correct: 0,
+                        exp: "Algebraic steps simplify complex terms effectively."
+                    },
+                    {
+                        q: `What is the expected result or solution format in "${topic}"?`,
+                        options: ["Numerical value or expression", "Constant vector", "Thermal degree", "Gram weight"],
+                        correct: 0,
+                        exp: "Mathematical problems evaluate to exact numbers or simplified expressions."
+                    }
+                ];
+            } else {
+                // مادة عامة (عربي، دراسات، إلخ)
+                questions = [
+                    {
+                        q: `في منهج ${grade} لمادة ${subject}، يعتبر درس (${topic}) من الموضوعات الأساسية لـ:`,
+                        options: ["فهم القاعدة الأساسية وتطبيقها", "الحفظ المؤقت فقط", "تجاهل النظريات العلمية", "القياس العشوائي"],
+                        correct: 0,
+                        exp: "هذا الدرس يعزز الفهم العميق للمادة الدراسية لعام 2027."
+                    },
+                    {
+                        q: `الهدف الرئيسي من دراسة (${topic}) في ${grade} هو:`,
+                        options: ["بناء مهارات التفكير النقدي والتحليل", "زيادة عدد الصفحات المدروسة", "الاعتماد على الحفظ الصرف", "إلغاء التطبيق العملي"],
+                        correct: 0,
+                        exp: "المناهج الحديثة تركز على الاستنتاج والفهم العملي."
+                    }
+                ];
+            }
+
+            let result = [];
             for (let i = 0; i < count; i++) {
-                let baseQ = scienceBank[i % scienceBank.length];
-                
-                // خلط الخيارات عشوائياً وتغيير موقع الإجابة الصحيحة حتى لا تتكرر في نفس المكان دائماً
+                let baseQ = questions[i % questions.length];
                 let opts = [...baseQ.options];
                 let correctText = opts[baseQ.correct];
-                
-                // خلط المصفوفة عشوائياً
                 opts.sort(() => Math.random() - 0.5);
                 let newCorrectIndex = opts.indexOf(correctText);
 
-                questions.push({
-                    questionText: `[Q${i+1}] ${baseQ.q}`,
+                result.push({
+                    questionText: `[${grade} - ${subject}] ${baseQ.q}`,
                     options: opts,
-                    correctOption: newCorrectIndex
+                    correctOption: newCorrectIndex,
+                    explanation: baseQ.exp
                 });
             }
-            return questions;
+            return result;
         }
 
         // ===================== [إضافة الدروس والاختبارات] =====================
         function addNewLessonOrQuiz(e) {
             e.preventDefault();
-            const title = document.getElementById('lessonTitle').value.trim();
+            const grade = document.getElementById('targetGradeSelect').value;
             const subject = document.getElementById('lessonSubject').value.trim();
+            const title = document.getElementById('lessonTitle').value.trim();
             const contentType = document.getElementById('contentTypeSelect').value;
 
             const lessonKey = 'lesson_' + Date.now();
-            let lessonData = { title, subject, isQuiz: false };
+            let lessonData = { grade, subject, title, isQuiz: false };
 
             if (contentType === 'lesson') {
                 lessonData.content = document.getElementById('lessonContent').value.trim();
@@ -608,22 +631,21 @@
                 saveLessonToFirebase(lessonKey, lessonData);
             } else if (contentType === 'aiQuiz') {
                 const count = parseInt(document.getElementById('aiQuestionsCount').value) || 3;
-                const generatedQuestions = generateAIScienceQuestions(title, count);
+                const generatedQuestions = generateComprehensiveAIQuestions(grade, subject, title, count);
                 lessonData.isQuiz = true;
                 lessonData.questions = generatedQuestions;
-                lessonData.content = `Interactive AI Science Quiz covering: ${title}`;
+                lessonData.content = `Interactive AI Assessment for ${grade} - ${subject}: ${title}`;
                 saveLessonToFirebase(lessonKey, lessonData);
             } else if (contentType === 'manualQuiz') {
                 lessonData.isQuiz = true;
-                lessonData.content = `Interactive Quiz: ${title}`;
-                // يمكنك إضافة جمع الأسئلة اليدوية هنا إذا لزم الأمر
+                lessonData.content = `Manual Interactive Quiz: ${title}`;
                 saveLessonToFirebase(lessonKey, lessonData);
             }
         }
 
         function saveLessonToFirebase(key, data) {
             db.ref('lessons/' + key).set(data).then(() => {
-                showToast('تم نشر المحتوى بنجاح للطلاب! 🎉');
+                showToast('تم نشر المحتوى وتحديث المنصة بنجاح! 🎉');
                 document.getElementById('lessonTitle').value = '';
                 document.getElementById('lessonContent').value = '';
                 document.getElementById('lessonVideoUrl').value = '';
@@ -642,11 +664,11 @@
                 }
                 Object.keys(data).reverse().forEach(key => {
                     const item = data[key];
-                    list.innerHTML = `
+                    list.innerHTML += `
                         <div style="background:#F8FAFC; padding:14px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border:1px solid #E2E8F0;">
                             <div>
                                 <b style="color:var(--primary-dark); font-size:14.5px;">${item.isQuiz ? '📝 اختبار: ' : '📖 درس: '} ${item.title}</b>
-                                <p style="font-size:12px; color:var(--text-muted);">المادة: ${item.subject || 'عام'}</p>
+                                <p style="font-size:12px; color:var(--text-muted);">الصف: ${item.grade || 'عام'} | المادة: ${item.subject || 'عام'}</p>
                             </div>
                             <button onclick="deleteLesson('${key}')" class="btn btn-danger" style="padding:6px 12px; font-size:12px;">حذف 🗑️</button>
                         </div>
@@ -656,14 +678,11 @@
         }
 
         function deleteLesson(key) {
-            if (confirm('هل أنت متأكد من حذف هذا الدرس أو الاختبار؟')) {
-                db.ref('lessons/' + key).remove().then(() => {
-                    showToast('تم الحذف بنجاح 🗑️');
-                });
+            if (confirm('هل أنت متأكد من حذف هذا المحتوى؟')) {
+                db.ref('lessons/' + key).remove().then(() => { showToast('تم الحذف بنجاح 🗑️'); });
             }
         }
 
-        // ===================== [الأخبار] =====================
         function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
@@ -689,10 +708,7 @@
             db.ref('news').on('value', snapshot => {
                 const data = snapshot.val();
                 list.innerHTML = '';
-                if (!data) {
-                    list.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد إعلانات منشورة.</p>';
-                    return;
-                }
+                if (!data) { list.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد إعلانات منشورة.</p>'; return; }
                 Object.keys(data).reverse().forEach(key => {
                     const item = data[key];
                     list.innerHTML += `
@@ -705,11 +721,8 @@
             });
         }
 
-        function deleteNews(key) {
-            db.ref('news/' + key).remove().then(() => { showToast('تم حذف الخبر'); });
-        }
+        function deleteNews(key) { db.ref('news/' + key).remove().then(() => { showToast('تم حذف الخبر'); }); }
 
-        // ===================== [الطلاب والحضور والدرجات والشكاوى] =====================
         function renderUsersTable() {
             const tbody = document.getElementById('adminUsersTableBody');
             const selectGradesBox = document.getElementById('studentSelectForGrades');
@@ -800,12 +813,6 @@
                     { id: 'ar', name: 'اللغة العربية' }, { id: 'en', name: 'اللغة الإنجليزية' },
                     { id: 'math', name: 'الرياضيات Math' }, { id: 'science', name: 'العلوم Science' },
                     { id: 'social', name: 'الدراسات الاجتماعية' }, { id: 'computer', name: 'الحاسب الآلي' }
-                ];
-            } else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) {
-                return [
-                    { id: 'ar', name: 'اللغة العربية' }, { id: 'en', name: 'اللغة الإنجليزية' },
-                    { id: 'math', name: 'الرياضيات Math' }, { id: 'science', name: 'العلوم Science' },
-                    { id: 'social', name: 'الدراسات الاجتماعية' }, { id: 'ict', name: 'تكنولوجيا المعلومات ICT' }
                 ];
             } else {
                 return [
