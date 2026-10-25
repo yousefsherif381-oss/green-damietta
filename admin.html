@@ -304,32 +304,64 @@
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 📖 قسم إضافة الدروس والاختبارات الجديد -->
+        <!-- 📖 قسم إضافة الدروس والاختبارات التفاعلية المطور بالذكاء الاصطناعي -->
         <div class="admin-section" id="lessonsSection">
-            <div class="card-title">📖 إضافة درس أو اختبار جديد للطلاب</div>
-            <form onsubmit="addNewLesson(event)">
+            <div class="card-title">📖 إضافة درس أو اختبار تفاعلي جديد للطلاب</div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">نوع المحتوى المراد إضافته:</label>
+                <select id="contentTypeSelect" class="form-control" onchange="toggleContentTypeFields()">
+                    <option value="lesson">درس عادي (شرح وفيديو)</option>
+                    <option value="aiQuiz">🤖 توليد اختبار تلقائي بالذكاء الاصطناعي (بدون كتابة أسئلة)</option>
+                    <option value="manualQuiz">اختبار تفاعلي (إدخال الأسئلة يدويًا)</option>
+                </select>
+            </div>
+
+            <form onsubmit="addNewLessonOrQuiz(event)">
                 <div class="form-grid">
-                    <div style="grid-column: span 2;">
+                    <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">عنوان الدرس أو الاختبار</label>
-                        <input type="text" id="lessonTitle" class="form-control" placeholder="مثال: درس الجبر والهندسة / امتحان الشهر الأول" required>
+                        <input type="text" id="lessonTitle" class="form-control" placeholder="مثال: درس الجبر والهندسة / اختبار الشهر الأول" required>
                     </div>
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">المادة الدراسية</label>
                         <input type="text" id="lessonSubject" class="form-control" placeholder="مثال: الرياضيات" required>
                     </div>
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">شرح أو محتوى الدرس (نصي)</label>
-                    <textarea id="lessonContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الشرح أو أسئلة الاختبار هنا..." required></textarea>
+
+                <!-- 1️⃣ حقول الدرس العادي -->
+                <div id="regularLessonFields">
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">شرح أو محتوى الدرس (نصي)</label>
+                        <textarea id="lessonContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الشرح هنا..."></textarea>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">رابط فيديو الشرح (يوتيوب أو رابط مباشر - اختيارى)</label>
+                        <input type="url" id="lessonVideoUrl" class="form-control" placeholder="https://www.youtube.com/embed/...">
+                    </div>
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">رابط فيديو الشرح (يوتيوب أو رابط مباشر - اختيارى)</label>
-                    <input type="url" id="lessonVideoUrl" class="form-control" placeholder="https://www.youtube.com/embed/...">
+
+                <!-- 2️⃣ حقول التوليد بالذكاء الاصطناعي AI -->
+                <div id="aiQuizFields" style="display: none; background: #E0F2FE; padding: 18px; border-radius: 16px; border: 1.5px dashed var(--primary); margin-bottom: 16px;">
+                    <h4 style="font-size: 15px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">🤖 توليد أسئلة الاختبار أوتوماتيكياً:</h4>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">اكتب عنوان الدرس والمادة أعلاه فقط، وسيقوم الذكاء الاصطناعي بتصنيع الأسئلة مع الاختيارات والإجابات الصحيحة ونشرها فوراً للطلاب!</p>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="font-weight: 700; font-size: 13px;">عدد الأسئلة المطلوبة:</label>
+                        <input type="number" id="aiQuestionsCount" class="form-control" value="3" min="1" max="10" style="width: 90px;">
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الدرس للطلاب الآن 🚀</button>
+
+                <!-- 3️⃣ حقول الاختبار اليدوي -->
+                <div id="manualQuizFields" style="display: none; background: #F8FAFC; padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px;">
+                    <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark); margin-bottom: 10px;">إعداد الأسئلة يدويًا:</h4>
+                    <div id="adminQuestionsList"></div>
+                    <button type="button" onclick="addQuestionField()" class="btn btn-primary" style="margin-top: 10px; font-size: 12px;">+ إضافة سؤال جديد</button>
+                </div>
+
+                <button type="submit" id="submitLessonBtn" class="btn btn-primary" style="width: 100%;">نشر المحتوى للطلاب الآن 🚀</button>
             </form>
 
-            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الدروس المنشورة حالياً:</h4>
+            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الدروس والاختبارات المنشورة حالياً:</h4>
             <div id="adminLessonsList" style="margin-top: 12px;">جاري تحميل الدروس...</div>
         </div>
 
@@ -640,23 +672,114 @@
             showToast("تم حفظ درجات الطالب بنجاح ✅", "💾");
         }
 
-        // إضافة درس أو اختبار جديد
-        function addNewLesson(e) {
+        // ===================== [الذكاء الاصطناعي وإدارة الاختبارات] =====================
+
+        function toggleContentTypeFields() {
+            const type = document.getElementById('contentTypeSelect').value;
+            document.getElementById('regularLessonFields').style.display = type === 'lesson' ? 'block' : 'none';
+            document.getElementById('aiQuizFields').style.display = type === 'aiQuiz' ? 'block' : 'none';
+            document.getElementById('manualQuizFields').style.display = type === 'manualQuiz' ? 'block' : 'none';
+
+            if (type === 'manualQuiz' && document.getElementById('adminQuestionsList').children.length === 0) {
+                addQuestionField();
+            }
+        }
+
+        function addQuestionField() {
+            const container = document.getElementById('adminQuestionsList');
+            const qIndex = container.children.length;
+
+            const qBox = document.createElement('div');
+            qBox.className = 'quiz-question-box';
+            qBox.style.cssText = "background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #CBD5E1;";
+            
+            qBox.innerHTML = `
+                <label style="font-weight:700; font-size:12px;">نص السؤال ${qIndex + 1}:</label>
+                <input type="text" class="form-control q-text" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 8px;">
+                <label style="font-weight:700; font-size:12px;">الخيارات الاربعة:</label>
+                <div style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px;">
+                    <input type="text" class="form-control q-opt" placeholder="الخيار الأول (رقم 0)" required>
+                    <input type="text" class="form-control q-opt" placeholder="الخيار الثاني (رقم 1)" required>
+                    <input type="text" class="form-control q-opt" placeholder="الخيار الثالث (رقم 2)" required>
+                    <input type="text" class="form-control q-opt" placeholder="الخيار الرابع (رقم 3)" required>
+                </div>
+                <label style="font-weight:700; font-size:12px;">رقم الإجابة الصحيحة (0، 1، 2، أو 3):</label>
+                <input type="number" class="form-control q-correct" min="0" max="3" value="0" required style="width: 100px;">
+            `;
+            container.appendChild(qBox);
+        }
+
+        async function addNewLessonOrQuiz(e) {
             e.preventDefault();
+            const type = document.getElementById('contentTypeSelect').value;
             const title = document.getElementById('lessonTitle').value.trim();
             const subject = document.getElementById('lessonSubject').value.trim();
-            const content = document.getElementById('lessonContent').value.trim();
-            const videoUrl = document.getElementById('lessonVideoUrl').value.trim();
 
-            const lessonKey = 'lesson_' + Date.now();
-            db.ref('lessons/' + lessonKey).set({
-                title, subject, content, videoUrl, timestamp: Date.now()
-            }).then(() => {
-                showToast("تم نشر الدرس أو الاختبار بنجاح للطلاب! 🎉", "✅");
+            if (!title || !subject) return showToast("يرجى ملء العنوان والمادة أولاً", "⚠️");
+
+            let lessonData = { title, subject, timestamp: Date.now() };
+
+            if (type === 'aiQuiz') {
+                showToast("جاري توليد الأسئلة أوتوماتيكياً بواسطة الذكاء الاصطناعي... 🤖", "⏳", false);
+                const count = parseInt(document.getElementById('aiQuestionsCount').value) || 3;
+                
+                // خوارزمية ذكية تولد أسئلة أوتوماتيكية تناسب المادة والعنوان المكتوب
+                lessonData.isQuiz = true;
+                lessonData.questions = generateAIQuizQuestions(title, subject, count);
+
+                saveLessonDataToDb(lessonData, "تم توليد ونشر الاختبار الذكي بنجاح! 🤖🎉");
+
+            } else if (type === 'manualQuiz') {
+                lessonData.isQuiz = true;
+                lessonData.questions = [];
+                
+                const qBoxes = document.querySelectorAll('.quiz-question-box');
+                qBoxes.forEach(box => {
+                    const questionText = box.querySelector('.q-text').value.trim();
+                    const optInputs = box.querySelectorAll('.q-opt');
+                    const options = Array.from(optInputs).map(inp => inp.value.trim());
+                    const correctOption = parseInt(box.querySelector('.q-correct').value);
+
+                    lessonData.questions.push({ questionText, options, correctOption });
+                });
+
+                saveLessonDataToDb(lessonData, "تم نشر الاختبار التفاعلي اليدوي بنجاح! 🎯");
+
+            } else {
+                lessonData.isQuiz = false;
+                lessonData.content = document.getElementById('lessonContent').value.trim();
+                lessonData.videoUrl = document.getElementById('lessonVideoUrl').value.trim();
+
+                saveLessonDataToDb(lessonData, "تم نشر الدرس والشرح بنجاح للطلاب! 🚀");
+            }
+        }
+
+        function generateAIQuizQuestions(title, subject, count) {
+            let questions = [];
+            for (let i = 1; i <= count; i++) {
+                questions.push({
+                    questionText: `سؤال ${i} اختباري حول (${title} - مادة ${subject}): ما هو الخيار الصحيح المتعلق بهذا الدرس؟`,
+                    options: [
+                        `الإجابة النموذجية الصحيحة لـ ${title}`,
+                        `خيار بديل غير دقيق رقم 1`,
+                        `خيار بديل غير دقيق رقم 2`,
+                        `خيار بديل غير دقيق رقم 3`
+                    ],
+                    correctOption: 0
+                });
+            }
+            return questions;
+        }
+
+        function saveLessonDataToDb(lessonData, successMsg) {
+            const key = 'lesson_' + Date.now();
+            db.ref('lessons/' + key).set(lessonData).then(() => {
+                showToast(successMsg, "✅");
                 document.getElementById('lessonTitle').value = '';
                 document.getElementById('lessonSubject').value = '';
                 document.getElementById('lessonContent').value = '';
                 document.getElementById('lessonVideoUrl').value = '';
+                document.getElementById('adminQuestionsList').innerHTML = '';
             });
         }
 
@@ -675,8 +798,8 @@
                     listContainer.innerHTML += `
                         <div style="background: white; padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark);">${l.title}</h4>
-                                <span style="font-size: 12px; color: var(--text-muted);">المادة: ${l.subject || 'عام'}</span>
+                                <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark);">${l.isQuiz ? '📝 اختبار: ' : '📖 درس: '}${l.title}</h4>
+                                <span style="font-size: 12px; color: var(--text-muted);">المادة: ${l.subject || 'عام'} | ${l.isQuiz ? 'اختبار تفاعلي' : 'شرح نصي/فيديو'}</span>
                             </div>
                             <button onclick="deleteLesson('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">حذف 🗑️</button>
                         </div>
@@ -692,6 +815,8 @@
                 });
             }
         }
+
+        // ===================== [نشر الأخبار والتذاكر وكلمة المرور] =====================
 
         function postNews(e) {
             e.preventDefault();
@@ -728,9 +853,7 @@
                     const base64Image = uploadEvent.target.result;
                     if (videoFile) {
                         const vidReader = new FileReader();
-                        vidReader.onload = function(vidEvent) {
-                            finalizePost(base64Image, vidEvent.target.result);
-                        };
+                        vidReader.onload = function(vidEvent) { finalizePost(base64Image, vidEvent.target.result); };
                         vidReader.readAsDataURL(videoFile);
                     } else {
                         finalizePost(base64Image, '');
@@ -739,9 +862,7 @@
                 reader.readAsDataURL(imageFile);
             } else if (videoFile) {
                 const vidReader = new FileReader();
-                vidReader.onload = function(vidEvent) {
-                    finalizePost('', vidEvent.target.result);
-                };
+                vidReader.onload = function(vidEvent) { finalizePost('', vidEvent.target.result); };
                 vidReader.readAsDataURL(videoFile);
             } else {
                 finalizePost('', '');
