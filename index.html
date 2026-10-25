@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة التعلم الذكي | المنصة التعليمية</title>
+    <title>بوابة التعلم الذكي | الدروس والمنهج التعليمي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
     <style>
         :root {
             --primary: #0284C7;
             --primary-dark: #0369A1;
             --accent: #F59E0B;
-            --accent-hover: #D97706;
-            --card-bg: rgba(255, 255, 255, 0.92);
+            --success: #10B981;
+            --pending: #94A3B8;
+            --card-bg: rgba(255, 255, 255, 0.95);
             --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border: rgba(255, 255, 255, 0.6);
-            --shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
@@ -31,10 +28,7 @@
             animation: oceanWaves 16s ease infinite;
             min-height: 100vh;
             color: var(--text-dark);
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            position: relative;
+            padding: 20px;
         }
 
         @keyframes oceanWaves {
@@ -43,768 +37,181 @@
             100% { background-position: 0% 50%; }
         }
 
+        .container { max-width: 900px; margin: 0 auto; }
+
         header {
-            background: rgba(12, 74, 110, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s ease;
+            text-align: center; color: white; margin-bottom: 30px;
         }
+        header h1 { font-size: 28px; font-weight: 900; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        header p { font-size: 14px; opacity: 0.9; }
 
-        .nav-container {
-            max-width: 1200px; margin: auto; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center; position: relative;
-        }
-
-        .btn-sidebar-toggle {
-            background: rgba(255, 255, 255, 0.1); color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
-            padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; z-index: 2;
-        }
-        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
-
-        .logo-area {
-            position: absolute; left: 50%; transform: translateX(-50%);
-            display: flex; align-items: center; gap: 12px; cursor: pointer;
-        }
-        .logo-box {
-            width: 52px; height: 52px; border-radius: 50%; background: #0f172a;
-            padding: 2px; border: 2.5px solid var(--accent); display: flex;
-            align-items: center; justify-content: center; overflow: hidden;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
-        }
-        .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        
-        .logo-text {
-            font-size: 20px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;
-            text-shadow: 0 2px 10px rgba(2, 132, 199, 0.5);
-            background: linear-gradient(45deg, #FFFFFF, #38BDF8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        .header-actions { display: flex; gap: 10px; z-index: 2; }
-        .btn-header {
-            padding: 8px 18px; border-radius: 10px; font-size: 13.5px;
-            font-weight: 800; cursor: pointer; border: none; transition: all 0.3s ease;
-        }
-        .btn-header-outline { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
-        .btn-header-outline:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
-        .btn-header-primary { background: var(--accent); color: #fff; }
-        .btn-header-primary:hover { background: var(--accent-hover); }
-
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
-            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
-        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .sliding-sidebar {
-            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
-            background: rgba(12, 74, 110, 0.85); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-            border-left: 1px solid rgba(255, 255, 255, 0.2); padding: 24px 20px;
-            display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sliding-sidebar.active { right: 0; }
-
-        .sidebar-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        .sidebar-title { font-size: 16px; font-weight: 800; color: #F8FAFC; }
-        .btn-close-sidebar { background: transparent; border: none; font-size: 18px; cursor: pointer; color: #94A3B8; }
-
-        .sidebar-menu { display: flex; flex-direction: column; gap: 10px; }
-        .sidebar-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-            border-radius: 12px; background: rgba(255, 255, 255, 0.08); 
-            border: 1px solid rgba(255, 255, 255, 0.12); cursor: pointer; transition: all 0.2s ease;
-        }
-        .sidebar-item:hover { background: rgba(2, 132, 199, 0.3); border-color: var(--accent); }
-        .sidebar-icon { font-size: 18px; }
-        .sidebar-label { font-size: 14px; font-weight: 700; color: #F8FAFC; }
-
-        .main-wrapper { max-width: 950px; width: 100%; margin: 30px auto; padding: 0 16px; flex: 1; }
-
-        .news-header-title { font-size: 20px; font-weight: 800; color: #FFFFFF; margin-bottom: 20px; text-align: center; }
-        .news-feed { display: flex; flex-direction: column; gap: 16px; }
-        
-        .news-card, .view-section, .auth-page-view {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 20px; padding: 28px;
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px; padding: 25px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            margin-bottom: 25px;
-            display: none;
-            animation: smoothSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
+            margin-bottom: 20px;
         }
 
-        .news-card { display: block; }
-
-        .news-card:hover, .view-section:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-            box-shadow: 0 20px 40px rgba(2, 132, 199, 0.25), 0 0 20px rgba(245, 158, 11, 0.15);
+        .section-title {
+            font-size: 18px; font-weight: 800; color: var(--primary-dark);
+            margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
         }
 
-        @keyframes smoothSlideUp {
-            0% { opacity: 0; transform: translateY(25px) scale(0.98); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+        /* قائمة الدروس */
+        .lessons-list { display: flex; flex-direction: column; gap: 12px; }
+        .lesson-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; background: #F8FAFC; border-radius: 14px;
+            border: 1.5px solid #E2E8F0; transition: all 0.3s ease;
         }
-
-        .btn-back-home {
-            background: rgba(2, 132, 199, 0.1); color: var(--primary-dark); border: 1px solid rgba(2, 132, 199, 0.2);
-            padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer;
-            position: absolute; top: 20px; left: 20px; transition: all 0.2s ease;
-        }
-        .btn-back-home:hover { background: var(--primary); color: white; }
-
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-        .form-group { margin-bottom: 14px; text-align: right; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .lesson-item:hover { border-color: var(--primary); transform: translateY(-2px); }
         
-        .form-control {
-            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
-            border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+        .lesson-info h3 { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+        .lesson-info p { font-size: 12.5px; color: var(--text-muted); }
 
-        .btn-submit {
-            width: 100%; padding: 13px; background: var(--primary); color: white;
-            border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        .lesson-status {
+            display: flex; align-items: center; gap: 12px;
         }
-        .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .btn-submit:active { transform: scale(0.96); }
-
-        .grades-card-box { background: transparent; padding: 0; border: none; }
-        .grades-summary-card {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            color: white; border-radius: 14px; padding: 18px; margin-bottom: 20px;
-            display: flex; justify-content: space-around; text-align: center;
+        .badge {
+            padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
         }
-        .grades-summary-item h4 { font-size: 13px; opacity: 0.9; font-weight: 600; }
-        .grades-summary-item span { font-size: 22px; font-weight: 900; }
+        .badge.completed { background: #D1FAE5; color: #065F46; }
+        .badge.pending { background: #F1F5F9; color: #475569; }
 
-        .table-responsive { overflow-x: auto; border-radius: 12px; border: 2px solid #E2E8F0; background: #FFFFFF; }
-        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 15px; color: #0F172A; }
-        th { background: #0284C7; color: #FFFFFF; font-size: 15px; font-weight: 800; padding: 14px; border: 1px solid #0369A1; }
-        td { padding: 14px; border: 1px solid #E2E8F0; font-weight: 700; }
-        tr:nth-child(even) { background-color: #F8FAFC; }
-
-        .custom-toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: #0F172A; color: white; padding: 12px 24px; border-radius: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--accent);
-            display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13.5px;
-            z-index: 2000; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+        .btn-action {
+            background: var(--primary); color: white; border: none;
+            padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+            transition: background 0.2s;
         }
-        .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .btn-action:hover { background: var(--primary-dark); }
 
-        @media (max-width: 768px) {
-            .logo-area { position: static; transform: none; margin: 0 auto; }
-            .nav-container { flex-wrap: wrap; gap: 10px; justify-content: center; }
-            .header-actions { width: 100%; justify-content: center; }
+        /* مشغل الدرس */
+        .lesson-viewer {
+            display: none; background: white; border-radius: 20px; padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); margin-top: 20px;
         }
+        .btn-back {
+            background: rgba(2, 132, 199, 0.1); color: var(--primary-dark); border: none;
+            padding: 6px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 15px;
+        }
+        .lesson-content-box { margin: 15px 0; font-size: 15px; color: #334155; line-height: 1.8; }
+        .lesson-video { width: 100%; max-height: 400px; border-radius: 12px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="customToast" class="custom-toast">
-        <span id="toastIcon">✨</span>
-        <span id="toastMessage">تمت العملية بنجاح</span>
+    <div class="container">
+        <header>
+            <h1>📚 بوابة التعلم الذكي التفاعلية</h1>
+            <p>تصفح دروسك وتتبع نسبة إنجازك أولاً بأول</p>
+        </header>
+
+        <!-- قسم عرض الدروس -->
+        <div class="card" id="lessonsMainCard">
+            <div class="section-title">📖 قائمة الدروس التعليمية</div>
+            <div class="lessons-list" id="studentLessonsList">
+                <p style="text-align: center; color: var(--text-muted); padding: 20px;">جاري تحميل الدروس...</p>
+            </div>
+        </div>
+
+        <!-- صندوق عرض تفاصيل الدرس عند فتحه -->
+        <div class="lesson-viewer" id="lessonViewerCard">
+            <button class="btn-back" onclick="closeLessonViewer()">⬅️ العودة لقائمة الدروس</button>
+            <h2 id="viewerLessonTitle" style="color: var(--primary-dark); font-weight: 900; margin-bottom: 10px;"></h2>
+            <div class="lesson-content-box" id="viewerLessonContent"></div>
+            <div id="viewerMediaContainer"></div>
+            <button class="btn-action" style="margin-top: 20px; background: var(--success); width: 100%; padding: 12px; font-size: 15px;" onclick="markLessonAsCompleted()">
+                ✨ تم إنهاء ومشاهدة الدرس بنجاح
+            </button>
+        </div>
     </div>
-
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-    <aside class="sliding-sidebar" id="slidingSidebar">
-        <div class="sidebar-header">
-            <span class="sidebar-title">📌 القائمة الرئيسية</span>
-            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
-        </div>
-        <div class="sidebar-menu">
-            <div class="sidebar-item" id="sidebarProfileBtn" style="display: none;" onclick="closeSidebar(); navigateToSection('profileSection');">
-                <span class="sidebar-icon">👤</span>
-                <span class="sidebar-label">البروفايل الشخصي</span>
-            </div>
-            <div class="sidebar-item" onclick="closeSidebar(); checkAuthAndNavigate('gradesSection');">
-                <span class="sidebar-icon">📊</span>
-                <span class="sidebar-label">الدرجات والنتائج</span>
-            </div>
-            <div class="sidebar-item" onclick="closeSidebar(); checkAuthAndNavigate('attendanceSection');">
-                <span class="sidebar-icon">📅</span>
-                <span class="sidebar-label">الحضور والغياب</span>
-            </div>
-            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('ticketsSection');">
-                <span class="sidebar-icon">📨</span>
-                <span class="sidebar-label">الشكاوى والاستفسارات</span>
-            </div>
-            <div class="sidebar-item" onclick="showHomePage()">
-                <span class="sidebar-icon">📢</span>
-                <span class="sidebar-label">الأخبار والإعلانات</span>
-            </div>
-        </div>
-    </aside>
-
-    <header>
-        <div class="nav-container">
-            <div class="header-left">
-                <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ القائمة</button>
-            </div>
-
-            <div class="logo-area" onclick="showHomePage()">
-                <div class="logo-box">
-                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار النظام">
-                </div>
-                <span class="logo-text">بوابة التعلم الذكي</span>
-            </div>
-
-            <div class="header-actions" id="headerAuthActions">
-                <button onclick="openSignInPage()" class="btn-header btn-header-outline">دخول 🔑</button>
-                <button onclick="openSignUpPage()" class="btn-header btn-header-primary">حساب جديد ✨</button>
-            </div>
-            <div class="header-actions" id="headerUserActions" style="display: none;">
-                <button onclick="navigateToSection('profileSection')" class="btn-header btn-header-outline">👤 حسابي</button>
-                <button onclick="logoutUser()" class="btn-header btn-header-primary" style="background: #EF4444;">خروج 🚪</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="main-wrapper">
-        
-        <div id="newsHomeContainer" style="display: block;">
-            <div class="news-header-title">📢 أحدث التنبيهات والإعلانات التعليمية</div>
-            <div class="news-feed" id="newsFeedList">
-                <p style="color: #FFFFFF; text-align: center; padding: 30px;">جاري تحميل الأخبار والتحديثات...</p>
-            </div>
-        </div>
-
-        <div class="view-section" id="profileSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            
-            <div style="text-align: center; margin-bottom: 25px; margin-top: 10px;">
-                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-size: 32px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3);">
-                    👤
-                </div>
-                <h3 id="profileName" style="font-size: 22px; font-weight: 900; color: var(--primary-dark);">اسم المستخدم</h3>
-                <p id="profileRoleBadge" style="font-size: 13px; font-weight: 800; color: var(--accent); margin-top: 4px;">طالب</p>
-                <p id="profileGradeDisplay" style="font-size: 12.5px; font-weight: 700; color: var(--text-muted); margin-top: 2px;"></p>
-            </div>
-            
-            <form onsubmit="saveProfileChanges(event)">
-                <div class="form-grid">
-                    <div class="form-group"><label>الكود / الرقم القومي</label><input type="text" id="profileNationalId" class="form-control" disabled style="background: #F1F5F9; color: var(--text-muted);"></div>
-                    <div class="form-group"><label>رقم المحمول</label><input type="tel" id="profilePhone" class="form-control" required></div>
-                </div>
-                <button type="submit" class="btn-submit" style="background: var(--accent); margin-top: 15px;">حفظ التعديلات 💾</button>
-            </form>
-        </div>
-
-        <div class="view-section" id="gradesSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <div class="grades-card-box">
-                <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 16px; text-align: center; margin-top: 10px;">📊 كشف درجات وتقييم الطالب</h2>
-                
-                <div class="grades-summary-card">
-                    <div class="grades-summary-item">
-                        <h4>المجموع الكلي</h4>
-                        <span id="summaryTotal">-- / --</span>
-                    </div>
-                    <div class="grades-summary-item">
-                        <h4>النسبة المئوية</h4>
-                        <span id="summaryPercentage">--%</span>
-                    </div>
-                    <div class="grades-summary-item">
-                        <h4>التقدير العام</h4>
-                        <span id="summaryGrade">--</span>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>المادة الدراسية</th>
-                                <th>أعمال السنة</th>
-                                <th>التقييم الأسبوعي</th>
-                                <th>الامتحان النهائي</th>
-                                <th>المجموع الكلي</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gradesTableBody">
-                            <tr><td colspan="5" style="text-align:center;">جاري تحميل الدرجات الخاصة بك...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="view-section" id="attendanceSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="font-size: 18px; font-weight: 800; color: var(--primary-dark); margin-bottom: 15px; margin-top: 10px;">📅 سجل انضباط الطالب</h2>
-            <div style="background: rgba(2, 132, 199, 0.05); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
-                <span style="font-size: 13px; color: var(--text-muted);">حالة حضور الطالب الحالية</span>
-                <div id="lblAttendanceStatusText" style="font-size: 22px; font-weight: 900; margin-top: 8px; color: #16A34A;">منتظم 🟢</div>
-                <div id="lblAttendanceNoteText" style="font-size: 13px; color: gray; margin-top: 4px;"></div>
-            </div>
-        </div>
-
-        <!-- 🌟 مركز الشكاوى والمتابعة المحدث -->
-        <div class="view-section" id="ticketsSection">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; margin-top: 10px;">📨 الشكاوى والاستفسارات ومتابعة الردود</h2>
-            
-            <form onsubmit="submitParentTicket(event)" style="background: rgba(248, 250, 252, 0.6); padding: 18px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 25px;">
-                <h4 style="font-size: 15px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">إرسال شكوى أو طلب جديد</h4>
-                <div class="form-grid">
-                    <div class="form-group"><label>اسم ولي الأمر</label><input type="text" id="ticketParentName" class="form-control" required></div>
-                    <div class="form-group"><label>رقم التواصل</label><input type="text" id="ticketParentEmail" class="form-control" required></div>
-                </div>
-
-                <div class="form-group">
-                    <label>نوع الشكوى أو الطلب</label>
-                    <select id="ticketTypeSelect" class="form-control" required>
-                        <option value="">-- اختر نوع الشكوى أو الاستفسار --</option>
-                        <option value="مشكلة في رصد الدرجات">📊 مشكلة في رصد الدرجات</option>
-                        <option value="استفسار عن الغياب والانضباط">📅 استفسار عن الغياب والانضباط</option>
-                        <option value="مشكلة تقنية في الموقع">💻 مشكلة تقنية في الموقع</option>
-                        <option value="طلب تعديل بيانات الطالب">✏️ طلب تعديل بيانات الطالب</option>
-                        <option value="مقترح لتطوير المنصة">💡 مقترح لتطوير المنصة</option>
-                        <option value="أخرى">📌 استفسار أو شكوى أخرى</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>تفاصيل الشكوى أو الاستفسار</label>
-                    <textarea id="ticketContent" class="form-control" rows="3" placeholder="اكتب التفاصيل هنا بوضوح..." required></textarea>
-                </div>
-                <button type="submit" class="btn-submit">إرسال الطلب 🚀</button>
-            </form>
-
-            <h4 style="font-size: 16px; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px;">📋 متابعة الشكاوى المرسلة والردود:</h4>
-            <div id="studentMyTicketsList">جاري تحميل شكاواك...</div>
-        </div>
-
-        <div class="auth-page-view" id="signInView">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">تسجيل الدخول</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل كود الطالب أو الرقم القومي للدخول</p>
-
-            <form onsubmit="handleSignIn(event)">
-                <div class="form-group">
-                    <label>كود الطالب / الرقم القومي</label>
-                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل الكود" required>
-                </div>
-                <div class="form-group">
-                    <label>كلمة المرور</label>
-                    <input type="password" id="authPasswordInput" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-submit">تسجيل الدخول 🔑</button>
-            </form>
-        </div>
-
-        <div class="auth-page-view" id="signUpView">
-            <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
-            <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">إنشاء حساب جديد ✨</h2>
-
-            <form onsubmit="handleSignUp(event)">
-                <div class="form-grid">
-                    <div class="form-group"><label>الاسم الرباعي</label><input type="text" id="signUpName" class="form-control" required></div>
-                    <div class="form-group"><label>الرقم القومي / الكود</label><input type="text" id="signUpNationalId" class="form-control" required></div>
-                    <div class="form-group"><label>الصف الدراسي</label>
-                        <select id="signUpGrade" class="form-control">
-                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                            <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
-                            <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
-                            <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>رقم المحمول</label><input type="tel" id="signUpPhone" class="form-control" required></div>
-                    <div class="form-group" style="grid-column: span 2;"><label>كلمة المرور</label><input type="password" id="signUpPassword" class="form-control" required></div>
-                </div>
-                <button type="submit" class="btn-submit" style="background: var(--accent);">إنشاء الحساب ✨</button>
-            </form>
-        </div>
-
-    </main>
 
     <script>
         const firebaseConfig = { databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
-        let currentUser = null;
-        let latestAdminPassword = "admin123";
 
-        db.ref('settings/adminPassword').on('value', (snapshot) => {
-            const val = snapshot.val();
-            if (val) { latestAdminPassword = val; }
+        // محاكاة كود طالب حالي (يمكن ربطه بنظام تسجيل الدخول لاحقاً)
+        let currentStudentId = "student_demo_01"; 
+        let activeLessonKey = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadStudentLessons();
         });
 
-        function showToast(message, icon = "✨") {
-            const toast = document.getElementById('customToast');
-            document.getElementById('toastIcon').textContent = icon;
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
-        }
-
-        function toggleSidebar() { document.getElementById('slidingSidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
-        function closeSidebar() { document.getElementById('slidingSidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); }
-
-        function showHomePage() { 
-            hideAllViews(); 
-            document.getElementById('newsHomeContainer').style.display = 'block'; 
-            loadNewsFeed(); 
-        }
-
-        function hideAllViews() {
-            document.getElementById('newsHomeContainer').style.display = 'none';
-            document.getElementById('signInView').style.display = 'none';
-            document.getElementById('signUpView').style.display = 'none';
-            document.querySelectorAll('.view-section').forEach(sec => sec.style.display = 'none');
-        }
-
-        function checkAuthAndNavigate(sectionId) {
-            if (!currentUser) {
-                showToast('يرجى تسجيل الدخول أولاً للوصول لهذا القسم 🔒', '⚠️');
-                openSignInPage();
-            } else { navigateToSection(sectionId); }
-        }
-
-        function navigateToSection(sectionId) { 
-            hideAllViews(); 
-            document.getElementById(sectionId).style.display = 'block'; 
-            if (sectionId === 'ticketsSection') {
-                loadStudentTicketsLive();
-            }
-        }
-
-        function openSignInPage() { hideAllViews(); document.getElementById('signInView').style.display = 'block'; }
-        function openSignUpPage() { hideAllViews(); document.getElementById('signUpView').style.display = 'block'; }
-
-        function handleSignIn(e) {
-            e.preventDefault();
-            const identifier = document.getElementById('loginIdentifierInput').value.trim();
-            const password = document.getElementById('authPasswordInput').value.trim();
-
-            if (identifier === 'admin') {
-                if (password === latestAdminPassword) {
-                    showToast('جاري تحويلك لصفحة الإدارة... ⚙️');
-                    setTimeout(() => {
-                        window.location.href = 'admin.html';
-                    }, 1000);
-                } else {
-                    showToast('كلمة مرور الإدارة غير صحيحة ❌', '⚠️');
-                }
-                return;
-            }
-
-            db.ref('students').once('value').then(snapshot => {
-                const students = snapshot.val();
-                let foundKey = null;
-                let foundStudent = null;
-                if (students) {
-                    Object.keys(students).forEach(k => {
-                        const s = students[k];
-                        if ((s.nationalId === identifier || s.code === identifier || s.phone === identifier) && s.password === password) {
-                            foundKey = k;
-                            foundStudent = s;
-                        }
-                    });
-                }
-                if (foundStudent) {
-                    currentUser = { ...foundStudent, firebaseKey: foundKey };
-                    onUserLoginSuccess();
-                    showToast('تم تسجيل الدخول بنجاح! 🔑');
-                } else { showToast('بيانات الدخول غير صحيحة ❌', '⚠️'); }
-            });
-        }
-
-        function handleSignUp(e) {
-            e.preventDefault();
-            const name = document.getElementById('signUpName').value.trim();
-            const nationalId = document.getElementById('signUpNationalId').value.trim();
-            const grade = document.getElementById('signUpGrade').value;
-            const phone = document.getElementById('signUpPhone').value.trim();
-            const password = document.getElementById('signUpPassword').value.trim();
-
-            const studentKey = 'student_' + Date.now();
-            const newStudent = {
-                name, nationalId, grade, phone, password,
-                role: 'student',
-                attendance: 'منتظم',
-                attendanceNote: ''
-            };
-
-            db.ref('students/' + studentKey).set(newStudent).then(() => {
-                currentUser = { ...newStudent, firebaseKey: studentKey };
-                onUserLoginSuccess();
-                showToast('تم إنشاء الحساب بنجاح! 🎉');
-            });
-        }
-
-        function onUserLoginSuccess() {
-            document.getElementById('headerAuthActions').style.display = 'none';
-            document.getElementById('headerUserActions').style.display = 'flex';
-            document.getElementById('sidebarProfileBtn').style.display = 'flex';
+        function loadStudentLessons() {
+            const listContainer = document.getElementById('studentLessonsList');
             
-            document.getElementById('profileName').textContent = currentUser.name;
-            document.getElementById('profileNationalId').value = currentUser.nationalId || '';
-            document.getElementById('profilePhone').value = currentUser.phone || '';
-            document.getElementById('profileGradeDisplay').textContent = currentUser.grade || 'الصف الدراسي غير محدد';
-            
-            if (document.getElementById('ticketParentName')) document.getElementById('ticketParentName').value = currentUser.name || '';
-            if (document.getElementById('ticketParentEmail')) document.getElementById('ticketParentEmail').value = currentUser.phone || '';
+            // جلب الدروس وجلب حالة إنجاز الطالب في نفس الوقت
+            db.ref('lessons').on('value', (lessonsSnapshot) => {
+                const lessons = lessonsSnapshot.val();
+                
+                db.ref('studentProgress/' + currentStudentId).on('value', (progressSnapshot) => {
+                    const progress = progressSnapshot.val() || {};
+                    listContainer.innerHTML = '';
 
-            document.getElementById('lblAttendanceStatusText').textContent = currentUser.attendance || 'منتظم 🟢';
-            document.getElementById('lblAttendanceNoteText').textContent = currentUser.attendanceNote ? `ملاحظة: ${currentUser.attendanceNote}` : '';
+                    if (!lessons) {
+                        listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">لا توجد دروس مضافة حالياً من قبل الإدارة.</p>';
+                        return;
+                    }
 
-            loadStudentGrades();
-            loadStudentTicketsLive();
-            showHomePage(); 
-        }
+                    Object.keys(lessons).forEach(key => {
+                        const lesson = lessons[key];
+                        const isCompleted = progress[key] === true; // هل خلص الدرس؟
 
-        const gradeSubjectsDetailed = {
-            lowerPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'discover', name: 'Discover / اكتشف' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            upperPrimary: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'ict', name: 'تكنولوجيا المعلومات ICT' },
-                { id: 'skills', name: 'المهارات المهنية' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ],
-            prep: [
-                { id: 'ar', name: 'اللغة العربية' },
-                { id: 'en', name: 'اللغة الإنجليزية' },
-                { id: 'math', name: 'الرياضيات Math' },
-                { id: 'science', name: 'العلوم Science' },
-                { id: 'social', name: 'الدراسات الاجتماعية' },
-                { id: 'computer', name: 'الحاسب الآلي' },
-                { id: 'religion', name: 'التربية الدينية' }
-            ]
-        };
-
-        function getSubjectsForGradeName(gradeName) {
-            if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
-            if (gradeName.includes('الإعدادي') || gradeName.includes('اعدادي')) return gradeSubjectsDetailed.prep;
-            else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
-            else return gradeSubjectsDetailed.lowerPrimary;
-        }
-
-        function loadStudentGrades() {
-            const tableBody = document.getElementById('gradesTableBody');
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري تحميل الدرجات...</td></tr>';
-
-            db.ref('students/' + currentUser.firebaseKey).once('value').then(snapshot => {
-                const u = snapshot.val();
-                tableBody.innerHTML = '';
-                let totalScore = 0, maxScore = 0;
-
-                if (u) {
-                    const subjects = getSubjectsForGradeName(u.grade);
-                    subjects.forEach(sub => {
-                        const work = parseFloat(u[sub.id + '_work'] || 0);
-                        const weekly = parseFloat(u[sub.id + '_weekly'] || 0);
-                        const final = parseFloat(u[sub.id + '_final'] || 0);
-                        const sum = work + weekly + final;
-                        totalScore += sum; maxScore += 100;
-
-                        tableBody.innerHTML += `
-                            <tr>
-                                <td><b>${sub.name}</b></td>
-                                <td>${work}</td>
-                                <td>${weekly}</td>
-                                <td>${final}</td>
-                                <td><b style="color: var(--primary);">${sum} / 100</b></td>
-                            </tr>
+                        listContainer.innerHTML += `
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h3>${lesson.title}</h3>
+                                    <p>${lesson.subject || 'مادة عامة'} ⏱️ ${lesson.duration || '15'} دقيقة</p>
+                                </div>
+                                <div class="lesson-status">
+                                    <span class="badge ${isCompleted ? 'completed' : 'pending'}">
+                                        ${isCompleted ? '✅ تم الإنجاز' : '⏳ لم يُكتمل'}
+                                    </span>
+                                    <button class="btn-action" onclick="openLesson('${key}')">فتح الدرس</button>
+                                </div>
+                            </div>
                         `;
                     });
-                    const percentage = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : 0;
-                    document.getElementById('summaryTotal').textContent = totalScore + ' / ' + maxScore;
-                    document.getElementById('summaryPercentage').textContent = percentage + '%';
-                    
-                    // 🌟 حساب التقدير العام بشكل صحيح ودقيق
-                    let gradeText = 'راسب ❌';
-                    if (percentage >= 85) {
-                        gradeText = 'ممتاز 🌟';
-                    } else if (percentage >= 75) {
-                        gradeText = 'جيد جداً 👍';
-                    } else if (percentage >= 65) {
-                        gradeText = 'جيد 👏';
-                    } else if (percentage >= 50) {
-                        gradeText = 'مقبول / ناجح ✅';
-                    } else {
-                        gradeText = 'راسب ❌';
-                    }
-
-                    document.getElementById('summaryGrade').textContent = gradeText;
-
-                    if (percentage >= 85 && typeof confetti === 'function') {
-                        confetti({
-                            particleCount: 120,
-                            spread: 80,
-                            origin: { y: 0.6 }
-                        });
-                    }
-
-                } else {
-                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray;">لا توجد درجات مرصودة بعد.</td></tr>';
-                }
-            });
-        }
-
-        function loadNewsFeed() {
-            const feed = document.getElementById('newsFeedList');
-            db.ref('news').on('value', snapshot => {
-                const data = snapshot.val();
-                feed.innerHTML = '';
-                if (!data) {
-                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو تنبيهات منشورة حالياً.</p>';
-                    return;
-                }
-                Object.keys(data).reverse().forEach(key => {
-                    const item = data[key];
-                    let mediaHtml = '';
-                    if (item.image) {
-                        mediaHtml += `<img src="${item.image}" style="width: 100%; border-radius: 12px; margin-top: 12px; max-height: 300px; object-fit: cover;">`;
-                    }
-                    if (item.video) {
-                        if (item.video.startsWith('data:video') || item.video.startsWith('blob:')) {
-                            mediaHtml += `<video controls style="width: 100%; border-radius: 12px; margin-top: 12px; max-height: 300px;"><source src="${item.video}"></video>`;
-                        } else {
-                            mediaHtml += `<div style="margin-top: 12px;"><a href="${item.video}" target="_blank" style="color: var(--primary); font-weight: bold;">🔗 مشاهدة فيديو الإعلان</a></div>`;
-                        }
-                    }
-
-                    feed.innerHTML += `
-                        <div class="news-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <h3 style="font-size: 17px; font-weight: 800; color: var(--primary-dark);">${item.title}</h3>
-                                <span style="background: rgba(245, 158, 11, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 800;">${item.badge || 'إعلان'}</span>
-                            </div>
-                            <p style="font-size: 14px; color: #334155; line-height: 1.6;">${item.content}</p>
-                            ${mediaHtml}
-                        </div>
-                    `;
                 });
             });
         }
 
-        function submitParentTicket(e) {
-            e.preventDefault();
-            const parentName = document.getElementById('ticketParentName').value.trim();
-            const contact = document.getElementById('ticketParentEmail').value.trim();
-            const ticketType = document.getElementById('ticketTypeSelect').value;
-            const content = document.getElementById('ticketContent').value.trim();
-            const date = new Date().toLocaleDateString('ar-EG');
+        function openLesson(lessonKey) {
+            activeLessonKey = lessonKey;
+            db.ref('lessons/' + lessonKey).once('value').then(snapshot => {
+                const lesson = snapshot.val();
+                if (lesson) {
+                    document.getElementById('lessonsMainCard').style.display = 'none';
+                    document.getElementById('lessonViewerCard').style.display = 'block';
 
-            db.ref('tickets').push({ parentName, contact, ticketType, content, date, adminReply: '' }).then(() => {
-                showToast('تم إرسال الشكوى أو الطلب بنجاح 🚀');
-                document.getElementById('ticketTypeSelect').value = '';
-                document.getElementById('ticketContent').value = '';
-                loadStudentTicketsLive();
-            });
-        }
+                    document.getElementById('viewerLessonTitle').textContent = lesson.title;
+                    document.getElementById('viewerLessonContent').innerHTML = lesson.content || 'لا توجد تفاصيل نصية.';
 
-        function loadStudentTicketsLive() {
-            const container = document.getElementById('studentMyTicketsList');
-            if (!container) return;
-
-            db.ref('tickets').on('value', snapshot => {
-                container.innerHTML = '';
-                const tickets = snapshot.val();
-                let found = false;
-
-                if (tickets) {
-                    Object.keys(tickets).reverse().forEach(key => {
-                        const t = tickets[key];
-                        
-                        const userPhone = currentUser && currentUser.phone ? currentUser.phone.trim() : '';
-                        const userName = currentUser && currentUser.name ? currentUser.name.trim() : '';
-                        const ticketContact = t.contact ? t.contact.trim() : '';
-                        const ticketParentName = t.parentName ? t.parentName.trim() : '';
-
-                        const isMatch = currentUser ? (
-                            (userPhone && ticketContact === userPhone) ||
-                            (userName && ticketParentName.includes(userName)) ||
-                            (ticketParentName && userName.includes(ticketParentName))
-                        ) : true;
-
-                        if (isMatch) {
-                            found = true;
-                            let replyHtml = t.adminReply ? `
-                                <div style="background: #E0F2FE; border: 1px solid #BAE6FD; padding: 10px 14px; border-radius: 10px; margin-top: 10px;">
-                                    <div style="font-size: 12px; font-weight: 800; color: var(--primary-dark); margin-bottom: 2px;">💬 رد الإدارة:</div>
-                                    <p style="font-size: 13.5px; color: #0369A1; font-weight: 700; margin: 0;">${t.adminReply}</p>
-                                </div>
-                            ` : `
-                                <div style="margin-top: 8px; font-size: 12px; color: #D97706; font-weight: 700;">⏳ قيد المراجعة من الإدارة...</div>
-                            `;
-
-                            container.innerHTML += `
-                                <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-right: 4px solid var(--primary); text-align: right;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                        <span style="font-size: 13px; font-weight: 800; color: var(--primary-dark);">النوع: ${t.ticketType || 'عام'}</span>
-                                        <span style="font-size: 11.5px; color: var(--text-muted);">${t.date || ''}</span>
-                                    </div>
-                                    <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 6px;">${t.content}</p>
-                                    ${replyHtml}
-                                </div>
-                            `;
-                        }
-                    });
-                }
-
-                if (!found) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted); text-align: center; padding: 15px;">لم تقم بإرسال أي شكاوى أو استفسارات بعد.</p>';
+                    const mediaContainer = document.getElementById('viewerMediaContainer');
+                    mediaContainer.innerHTML = '';
+                    if (lesson.videoUrl) {
+                        mediaContainer.innerHTML = `<video controls class="lesson-video"><source src="${lesson.videoUrl}" type="video/mp4">متصفحك لا يدعم عرض الفيديو.</video>`;
+                    }
                 }
             });
         }
 
-        function logoutUser() {
-            currentUser = null;
-            document.getElementById('headerAuthActions').style.display = 'flex';
-            document.getElementById('headerUserActions').style.display = 'none';
-            document.getElementById('sidebarProfileBtn').style.display = 'none';
-            showToast('تم تسجيل الخروج 👋');
-            showHomePage();
+        function closeLessonViewer() {
+            document.getElementById('lessonViewerCard').style.display = 'none';
+            document.getElementById('lessonsMainCard').style.display = 'block';
+            activeLessonKey = null;
         }
 
-        function saveProfileChanges(e) {
-            e.preventDefault();
-            const phone = document.getElementById('profilePhone').value.trim();
-            db.ref('students/' + currentUser.firebaseKey).update({ phone }).then(() => {
-                currentUser.phone = phone;
-                showToast('تم تحديث بيانات البروفايل بنجاح 💾');
+        function markLessonAsCompleted() {
+            if (!activeLessonKey) return;
+            // تسجيل أن الطالب أتم هذا الدرس في قاعدة البيانات
+            db.ref('studentProgress/' + currentStudentId + '/' + activeLessonKey).set(true).then(() => {
+                alert('ممتاز! تم تسجيل إنجازك للدرس بنجاح 🎉');
+                closeLessonViewer();
             });
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            showHomePage();
-        });
     </script>
 </body>
 </html>
