@@ -182,12 +182,24 @@
         th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
         tr:nth-child(even) { background-color: #F8FAFC; }
 
+        /* نافذة التعديل المنبثقة (Modal) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
+            z-index: 3500; display: none; align-items: center; justify-content: center;
+        }
+        .modal-card {
+            background: #FFFFFF; width: 100%; max-width: 500px; padding: 25px;
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 2px solid var(--accent); animation: smoothSlideUp 0.3s ease;
+        }
+
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
             display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
-            z-index: 3000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+            z-index: 4000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
@@ -197,6 +209,40 @@
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">تمت العملية بنجاح</span>
+    </div>
+
+    <!-- 🪟 نافذة تعديل بيانات المستخدم المنبثقة -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal-card">
+            <h3 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 15px; text-align: center;">✏️ تعديل بيانات الحساب</h3>
+            <form onsubmit="saveEditedUser(event)">
+                <input type="hidden" id="editModalKey">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الاسم بالكامل:</label>
+                    <input type="text" id="editModalName" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;" id="editModalGradeGroup">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الصف الدراسي:</label>
+                    <input type="text" id="editModalGrade" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الكود / الرقم القومي:</label>
+                    <input type="text" id="editModalNationalId" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">رقم المحمول:</label>
+                    <input type="tel" id="editModalPhone" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">كلمة المرور:</label>
+                    <input type="text" id="editModalPassword" class="form-control" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">حفظ التعديلات 💾</button>
+                    <button type="button" onclick="closeEditModal()" class="btn btn-danger" style="flex: 1;">إلغاء ✕</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -570,7 +616,7 @@
                         <td>
                             <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
                                 ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 10px; font-size: 11px;">📊 درجات</button>` : ''}
-                                <button onclick="editUserAccount('${k}')" class="btn btn-edit" style="padding: 5px 10px; font-size: 11px;">✏️ تعديل</button>
+                                <button onclick="openEditModal('${k}')" class="btn btn-edit" style="padding: 5px 10px; font-size: 11px;">✏️ تعديل</button>
                                 <button onclick="deleteUserAccount('${k}')" class="btn btn-danger" style="padding: 5px 10px; font-size: 11px;">🗑️ حذف</button>
                             </div>
                         </td>
@@ -579,38 +625,53 @@
             });
         }
 
-        // ✏️ دالة تعديل بيانات المستخدم مباشرة من جدول الإدارة
-        function editUserAccount(key) {
+        // 🪟 فتح نافذة التعديل المنبثقة وتعبئة البيانات الحالية للمستخدم
+        function openEditModal(key) {
             const u = usersCache[key];
             if (!u) return;
 
-            const newName = prompt("تعديل الاسم:", u.name || "");
-            if (newName === null) return;
+            document.getElementById('editModalKey').value = key;
+            document.getElementById('editModalName').value = u.name || '';
+            document.getElementById('editModalNationalId').value = u.nationalId || u.code || '';
+            document.getElementById('editModalPhone').value = u.phone || '';
+            document.getElementById('editModalPassword').value = u.password || '';
 
-            const newNationalId = prompt("تعديل الكود / الرقم القومي:", u.nationalId || u.code || "");
-            if (newNationalId === null) return;
+            const gradeGroup = document.getElementById('editModalGradeGroup');
+            if (u.role === 'parent') {
+                gradeGroup.style.display = 'none';
+            } else {
+                gradeGroup.style.display = 'block';
+                document.getElementById('editModalGrade').value = u.grade || '';
+            }
 
-            const newPhone = prompt("تعديل رقم المحمول:", u.phone || "");
-            if (newPhone === null) return;
+            document.getElementById('editUserModal').style.display = 'flex';
+        }
 
-            const newPassword = prompt("تعديل كلمة المرور:", u.password || "");
-            if (newPassword === null) return;
+        function closeEditModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
 
+        // 💾 حفظ التعديلات من النافذة المنبثقة مباشرة لقاعدة البيانات
+        async function saveEditedUser(e) {
+            e.preventDefault();
+            const key = document.getElementById('editModalKey').value;
+            if (!key || !usersCache[key]) return;
+
+            const u = usersCache[key];
             let updates = {
-                name: newName.trim(),
-                nationalId: newNationalId.trim(),
-                phone: newPhone.trim(),
-                password: newPassword.trim()
+                name: document.getElementById('editModalName').value.trim(),
+                nationalId: document.getElementById('editModalNationalId').value.trim(),
+                phone: document.getElementById('editModalPhone').value.trim(),
+                password: document.getElementById('editModalPassword').value.trim()
             };
 
             if (u.role !== 'parent') {
-                const newGrade = prompt("تعديل الصف الدراسي:", u.grade || "");
-                if (newGrade !== null) updates.grade = newGrade.trim();
+                updates.grade = document.getElementById('editModalGrade').value.trim();
             }
 
-            db.ref('students/' + key).update(updates).then(() => {
-                showToast("تم تحديث بيانات الحساب بنجاح! 💾");
-            });
+            await db.ref('students/' + key).update(updates);
+            closeEditModal();
+            showToast("تم تحديث بيانات الحساب بنجاح! 💾");
         }
 
         function deleteUserAccount(key) {
