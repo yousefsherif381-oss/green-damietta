@@ -143,19 +143,6 @@
         }
         .admin-section.active { display: block; }
 
-        .admin-section:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-            box-shadow: 0 20px 40px rgba(2, 132, 199, 0.25), 0 0 20px rgba(245, 158, 11, 0.15);
-        }
-
-        @keyframes smoothSlideUp {
-            0% { opacity: 0; transform: translateY(25px) scale(0.98); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .card-title { font-size: 19px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
         .form-control {
             width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
@@ -331,11 +318,11 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم الحضور -->
+        <!-- 3️⃣ قسم الحضور (معدل بدقة ليكون منظماً تماماً وبدون تداخل) -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">📅 تسجيل ومتابعة انضباط وحضور الطلاب</div>
             <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
-                <div class="form-grid">
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
                         <select id="studentAttendanceSelect" class="form-control" onchange="loadStudentAttendanceData()">
@@ -351,7 +338,7 @@
                         </select>
                     </div>
                 </div>
-                <div style="margin-top: 10px;">
+                <div style="margin-top: 15px;">
                     <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظة على الحالة السلوكية أو سبب الغياب:</label>
                     <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: استئذان بعذر طبي...">
                 </div>
@@ -598,119 +585,85 @@
             const subjects = getSubjectsForGradeName(u.grade);
             let updates = {};
             subjects.forEach(sub => {
-                updates[sub.id + '_work'] = parseFloat(document.getElementById(`edit_${sub.id}_work`).value || 0);
-                updates[sub.id + '_weekly'] = parseFloat(document.getElementById(`edit_${sub.id}_weekly`).value || 0);
-                updates[sub.id + '_final'] = parseFloat(document.getElementById(`edit_${sub.id}_final`).value || 0);
+                updates[sub.id + '_work'] = parseFloat(document.getElementById(`edit_${sub.id}_work`).value) || 0;
+                updates[sub.id + '_weekly'] = parseFloat(document.getElementById(`edit_${sub.id}_weekly`).value) || 0;
+                updates[sub.id + '_final'] = parseFloat(document.getElementById(`edit_${sub.id}_final`).value) || 0;
             });
             await db.ref('students/' + key).update(updates);
-            showToast("تم رصد وتحديث درجات الطالب بنجاح", "📊");
+            showToast("تم حفظ درجات الطالب بنجاح", "✅");
+        }
+
+        async function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim() || 'عام';
+            const content = document.getElementById('newsContent').value.trim();
+            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
+
+            const newsKey = 'news_' + Date.now();
+            await db.ref('news/' + newsKey).set({
+                title, badge, content, videoUrl,
+                date: new Date().toLocaleDateString('ar-EG')
+            });
+            showToast("تم نشر الإعلان بنجاح", "🚀");
+            document.getElementById('newsTitle').value = '';
+            document.getElementById('newsBadge').value = '';
+            document.getElementById('newsContent').value = '';
+            document.getElementById('newsVideoUrl').value = '';
+            document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+            document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
         }
 
         function loadNewsLive() {
-            db.ref('news').on('value', (snapshot) => {
-                const container = document.getElementById('adminNewsList');
-                container.innerHTML = '';
-                const newsData = snapshot.val();
-                if (!newsData) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد إعلانات منشورة حالياً.</p>';
+            db.ref('news').on('value', snapshot => {
+                const data = snapshot.val();
+                const list = document.getElementById('adminNewsList');
+                if (!data) {
+                    list.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد إعلانات منشورة حالياً.</p>';
                     return;
                 }
-                Object.keys(newsData).reverse().forEach(key => {
-                    const item = newsData[key];
-                    container.innerHTML += `
-                        <div style="background: #FFFFFF; padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">${item.title}</h5>
-                                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">${item.content.substring(0, 60)}...</p>
-                            </div>
-                            <button onclick="deleteNewsItem('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">حذف 🗑️</button>
+                list.innerHTML = '';
+                Object.keys(data).reverse().forEach(key => {
+                    const item = data[key];
+                    list.innerHTML += `
+                        <div style="background:#F8FAFC; padding:12px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #E2E8F0;">
+                            <div><b>${item.title}</b> <span style="font-size:11px; color:gray;">(${item.date || ''})</span></div>
+                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding:4px 10px; font-size:11px;">حذف</button>
                         </div>
                     `;
                 });
             });
         }
 
-        function postNews(e) {
-            e.preventDefault();
-            const title = document.getElementById('newsTitle').value.trim();
-            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان';
-            const content = document.getElementById('newsContent').value.trim();
-            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
-            
-            const imageFile = document.getElementById('newsImageFile').files[0];
-            const videoFile = document.getElementById('newsVideoFile').files[0];
-
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    saveNewsToFirebase(title, badge, content, event.target.result, null, videoUrl);
-                };
-                reader.readAsDataURL(imageFile);
-            } else if (videoFile) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    saveNewsToFirebase(title, badge, content, null, event.target.result, videoUrl);
-                };
-                reader.readAsDataURL(videoFile);
-            } else {
-                saveNewsToFirebase(title, badge, content, null, null, videoUrl);
+        async function deleteNews(key) {
+            if (confirm("هل أنت متأكد من حذف هذا الخبر؟")) {
+                await db.ref('news/' + key).remove();
+                showToast("تم حذف الخبر بنجاح", "🗑️");
             }
         }
 
-        function saveNewsToFirebase(title, badge, content, image, video, videoUrl) {
-            const finalVideo = video || videoUrl || '';
-            db.ref('news').push({ title, badge, content, image: image || '', video: finalVideo }).then(() => {
-                showToast("تم نشر الإعلان بنجاح للجميع 🚀", "📢");
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsBadge').value = '';
-                document.getElementById('newsContent').value = '';
-                document.getElementById('newsVideoUrl').value = '';
-                document.getElementById('newsImageFile').value = '';
-                document.getElementById('newsVideoFile').value = '';
-                document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-                document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-            });
-        }
-
-        function deleteNewsItem(key) {
-            if (confirm("هل أنت متأكد من حذف هذا الإعلان؟")) {
-                db.ref('news/' + key).remove().then(() => {
-                    showToast("تم حذف الإعلان بنجاح", "🗑️");
-                });
-            }
-        }
-
-        // 🌟 دالة عرض الشكاوى المحدثة مع حقل الرد للإدارة
         function loadTicketsLive() {
-            db.ref('tickets').on('value', (snapshot) => {
+            db.ref('tickets').on('value', snapshot => {
+                const data = snapshot.val();
                 const container = document.getElementById('adminTicketsList');
-                container.innerHTML = '';
-                const tickets = snapshot.val();
-                if (!tickets) {
-                    container.innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد شكاوى أو استفسارات جديدة.</p>';
+                if (!data) {
+                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد شكاوى واردة حالياً.</p>';
                     return;
                 }
-                Object.keys(tickets).reverse().forEach(key => {
-                    const t = tickets[key];
+                container.innerHTML = '';
+                Object.keys(data).reverse().forEach(key => {
+                    const t = data[key];
                     container.innerHTML += `
-                        <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; margin-bottom: 14px; border: 1px solid var(--border); border-right: 4px solid var(--accent);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <h5 style="font-size: 14.5px; font-weight: 800; color: var(--primary-dark);">ولي الأمر: ${t.parentName} (${t.contact})</h5>
-                                <span style="font-size: 11.5px; color: var(--text-muted);">${t.date || ''}</span>
+                        <div style="background:#F8FAFC; padding:15px; border-radius:12px; margin-bottom:12px; border:1px solid #E2E8F0; border-right:4px solid var(--accent);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <b>ولي الأمر: ${t.parentName} (${t.contact || ''})</b>
+                                <span style="font-size:12px; color:gray;">${t.date || ''}</span>
                             </div>
-                            <div style="font-size: 12.5px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">النوع: ${t.ticketType || 'عام'}</div>
-                            <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 10px;">${t.content}</p>
-                            
-                            <div style="background: #F8FAFC; padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin-top: 10px;">
-                                <label style="font-size: 12px; font-weight: 800; display: block; margin-bottom: 4px; color: var(--primary-dark);">💬 الرد على ولي الأمر:</label>
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="reply_${key}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}" style="font-size: 13px; padding: 8px 12px;">
-                                    <button onclick="saveTicketReply('${key}')" class="btn btn-primary" style="padding: 8px 16px; font-size: 12.5px; white-space: nowrap;">إرسال الرد 💾</button>
-                                </div>
-                            </div>
-
-                            <div style="text-align: left; margin-top: 10px;">
-                                <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding: 5px 12px; font-size: 11.5px;">حذف الطلب 🗑️</button>
+                            <p style="font-size:13px; color:#334155; margin-bottom:6px;"><b>النوع:</b> ${t.ticketType || 'استفسار'}</p>
+                            <p style="font-size:13.5px; color:#0F172A; margin-bottom:10px;"><b>التفاصيل:</b> ${t.content}</p>
+                            <div style="display:flex; gap:8px;">
+                                <input type="text" id="reply_${key}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}">
+                                <button onclick="sendAdminReply('${key}')" class="btn btn-primary" style="white-space:nowrap;">إرسال الرد 💬</button>
                             </div>
                         </div>
                     `;
@@ -718,26 +671,18 @@
             });
         }
 
-        function saveTicketReply(key) {
-            const replyText = document.getElementById(`reply_${key}`).value.trim();
-            db.ref('tickets/' + key).update({ adminReply: replyText }).then(() => {
-                showToast("تم إرسال وتحديث رد الإدارة بنجاح 💬", "✅");
-            });
+        async function sendAdminReply(key) {
+            const replyText = document.getElementById('reply_' + key).value.trim();
+            await db.ref('tickets/' + key).update({ adminReply: replyText });
+            showToast("تم إرسال رد الإدارة بنجاح", "💬");
         }
 
-        function deleteTicket(key) {
-            db.ref('tickets/' + key).remove().then(() => {
-                showToast("تم حذف الشكوى بنجاح", "🗑️");
-            });
-        }
-
-        function changeAdminPassword(e) {
+        async function changeAdminPassword(e) {
             e.preventDefault();
             const newPass = document.getElementById('newAdminPasswordInput').value.trim();
-            db.ref('settings/adminPassword').set(newPass).then(() => {
-                showToast("تم تغيير كلمة مرور الإدارة بنجاح 🔑", "✅");
-                document.getElementById('newAdminPasswordInput').value = '';
-            });
+            await db.ref('settings/adminPassword').set(newPass);
+            showToast("تم تغيير كلمة مرور الإدارة بنجاح", "🔑");
+            document.getElementById('newAdminPasswordInput').value = '';
         }
     </script>
 </body>
