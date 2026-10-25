@@ -288,6 +288,7 @@
             </div>
         </div>
 
+        <!-- 👤 قسم البروفايل الشخصي المعدل بالكامل (يسمح بتعديل كل البيانات) -->
         <div class="view-section" id="profileSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             
@@ -302,8 +303,11 @@
             
             <form onsubmit="saveProfileChanges(event)">
                 <div class="form-grid">
-                    <div class="form-group"><label>الكود / الرقم القومي</label><input type="text" id="profileNationalId" class="form-control" disabled style="background: #F1F5F9; color: var(--text-muted);"></div>
+                    <div class="form-group"><label>الاسم الرباعي</label><input type="text" id="profileFullName" class="form-control" required></div>
+                    <div class="form-group"><label>الكود / الرقم القومي</label><input type="text" id="profileNationalId" class="form-control" required></div>
+                    <div class="form-group"><label>البريد الإلكتروني (Email)</label><input type="email" id="profileEmail" class="form-control" placeholder="example@mail.com" required></div>
                     <div class="form-group"><label>رقم المحمول</label><input type="tel" id="profilePhone" class="form-control" required></div>
+                    <div class="form-group" style="grid-column: span 2;"><label>كلمة المرور الجديدة</label><input type="text" id="profilePassword" class="form-control" required></div>
                 </div>
                 <button type="submit" class="btn-submit" style="background: var(--accent); margin-top: 15px;">حفظ التعديلات 💾</button>
             </form>
@@ -416,11 +420,11 @@
         <div class="auth-page-view" id="signInView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">تسجيل الدخول</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل كود الطالب أو ولي الأمر أو الرقم القومي للدخول</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل كود الطالب أو ولي الأمر أو الرقم القومي أو البريد للدخول</p>
 
             <form onsubmit="handleSignIn(event)">
                 <div class="form-group">
-                    <label>الكود / الرقم القومي / رقم المحمول</label>
+                    <label>الكود / الرقم القومي / البريد / المحمول</label>
                     <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل بيانات الدخول" required>
                 </div>
                 <div class="form-group">
@@ -431,7 +435,7 @@
             </form>
         </div>
 
-        <!-- 👨‍👩‍👦 صفحة إنشاء حساب جديد (طالب أو ولي أمر مربوط بالطالب) -->
+        <!-- 👨‍👩‍👦 صفحة إنشاء حساب جديد (مع إضافة البريد الإلكتروني Email) -->
         <div class="auth-page-view" id="signUpView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">إنشاء حساب جديد ✨</h2>
@@ -446,8 +450,9 @@
                 </div>
 
                 <div class="form-grid">
-                    <div class="form-group" id="groupName"><label>الاسم الرباعي</label><input type="text" id="signUpName" class="form-control"></div>
-                    <div class="form-group" id="groupNationalId"><label>الرقم القومي / الكود</label><input type="text" id="signUpNationalId" class="form-control"></div>
+                    <div class="form-group" id="groupName"><label>الاسم الرباعي</label><input type="text" id="signUpName" class="form-control" required></div>
+                    <div class="form-group" id="groupNationalId"><label>الرقم القومي / الكود</label><input type="text" id="signUpNationalId" class="form-control" required></div>
+                    <div class="form-group"><label>البريد الإلكتروني (Email)</label><input type="email" id="signUpEmail" class="form-control" placeholder="example@mail.com" required></div>
                     <div class="form-group" id="groupGrade"><label>الصف الدراسي</label>
                         <select id="signUpGrade" class="form-control">
                             <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
@@ -462,8 +467,6 @@
                         </select>
                     </div>
 
-                    <!-- حقول خاصة بولي الأمر لربطه بالطالب -->
-                    <div class="form-group" id="groupParentName" style="display: none;"><label>اسم ولي الأمر</label><input type="text" id="signUpParentName" class="form-control" placeholder="اسم ولي الأمر"></div>
                     <div class="form-group" id="groupStudentCodeLink" style="display: none;"><label>كود الطالب المراد ربطه</label><input type="text" id="signUpLinkedStudentCode" class="form-control" placeholder="أدخل كود الطالب أو رقمه القومي"></div>
 
                     <div class="form-group"><label>رقم المحمول</label><input type="tel" id="signUpPhone" class="form-control" required></div>
@@ -508,18 +511,15 @@
         function toggleRoleFields() {
             const role = document.getElementById('signUpRole').value;
             const groupGrade = document.getElementById('groupGrade');
-            const groupParentName = document.getElementById('groupParentName');
             const groupStudentCodeLink = document.getElementById('groupStudentCodeLink');
             const nameLabel = document.querySelector('#groupName label');
 
             if (role === 'parent') {
                 groupGrade.style.display = 'none';
-                groupParentName.style.display = 'block';
                 groupStudentCodeLink.style.display = 'block';
                 nameLabel.textContent = 'اسم ولي الأمر الرباعي';
             } else {
                 groupGrade.style.display = 'block';
-                groupParentName.style.display = 'none';
                 groupStudentCodeLink.style.display = 'none';
                 nameLabel.textContent = 'الاسم الرباعي';
             }
@@ -598,7 +598,7 @@
                 if (students) {
                     Object.keys(students).forEach(k => {
                         const s = students[k];
-                        if ((s.nationalId === identifier || s.code === identifier || s.phone === identifier) && s.password === password) {
+                        if ((s.nationalId === identifier || s.code === identifier || s.phone === identifier || s.email === identifier) && s.password === password) {
                             foundKey = k;
                             foundUser = s;
                         }
@@ -617,11 +617,12 @@
             const role = document.getElementById('signUpRole').value;
             const name = document.getElementById('signUpName').value.trim();
             const nationalId = document.getElementById('signUpNationalId').value.trim();
+            const email = document.getElementById('signUpEmail').value.trim();
             const phone = document.getElementById('signUpPhone').value.trim();
             const password = document.getElementById('signUpPassword').value.trim();
 
             const userKey = (role === 'parent' ? 'parent_' : 'student_') + Date.now();
-            let newUser = { name, nationalId, phone, password, role };
+            let newUser = { name, nationalId, email, phone, password, role };
 
             if (role === 'student') {
                 newUser.grade = document.getElementById('signUpGrade').value;
@@ -631,7 +632,6 @@
                 newUser.absenceDatesLog = 'لا توجد تواريخ غياب مسجلة حتى الآن.';
             } else {
                 const linkedCode = document.getElementById('signUpLinkedStudentCode').value.trim();
-                // البحث عن الطالب المرتبط لكبط الكีย์ بتاعه
                 db.ref('students').once('value').then(snapshot => {
                     const students = snapshot.val();
                     let targetStudentKey = null;
@@ -644,7 +644,6 @@
                         });
                     }
                     newUser.linkedStudentKey = targetStudentKey || '';
-                    newUser.parentName = document.getElementById('signUpParentName').value.trim();
 
                     db.ref('students/' + userKey).set(newUser).then(() => {
                         currentUser = { ...newUser, firebaseKey: userKey };
@@ -667,9 +666,14 @@
             document.getElementById('headerUserActions').style.display = 'flex';
             document.getElementById('sidebarProfileBtn').style.display = 'flex';
             
+            // تعبئة بيانات البروفايل (أصبح بالإمكان تعديل جميع الحقول بما فيها الاسم، الرقم القومي، الإيميل، الهاتف، وكلمة المرور)
             document.getElementById('profileName').textContent = currentUser.name;
-            document.getElementById('profileNationalId').value = currentUser.nationalId || '';
+            document.getElementById('profileFullName').value = currentUser.name || '';
+            document.getElementById('profileNationalId').value = currentUser.nationalId || currentUser.code || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
             document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profilePassword').value = currentUser.password || '';
+
             document.getElementById('profileRoleBadge').textContent = currentUser.role === 'parent' ? '👨‍👩‍👦 ولي أمر' : '🎓 طالب';
             document.getElementById('profileGradeDisplay').textContent = currentUser.grade || (currentUser.role === 'parent' ? 'ولي أمر طالب مربوط' : '');
             
@@ -891,12 +895,23 @@
             });
         }
 
+        // دالة حفظ وتحديث بيانات البروفايل بالكامل (الاسم، الكود، الإيميل، الهاتف، وكلمة المرور)
         async function saveProfileChanges(e) {
             e.preventDefault();
             if (!currentUser) return;
-            const newPhone = document.getElementById('profilePhone').value.trim();
-            await db.ref('students/' + currentUser.firebaseKey).update({ phone: newPhone });
-            currentUser.phone = newPhone;
+
+            const updatedData = {
+                name: document.getElementById('profileFullName').value.trim(),
+                nationalId: document.getElementById('profileNationalId').value.trim(),
+                email: document.getElementById('profileEmail').value.trim(),
+                phone: document.getElementById('profilePhone').value.trim(),
+                password: document.getElementById('profilePassword').value.trim()
+            };
+
+            await db.ref('students/' + currentUser.firebaseKey).update(updatedData);
+            currentUser = { ...currentUser, ...updatedData };
+            
+            document.getElementById('profileName').textContent = currentUser.name;
             showToast('تم تحديث بيانات البروفايل بنجاح 💾');
         }
     </script>
