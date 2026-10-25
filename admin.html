@@ -182,16 +182,17 @@
         th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
         tr:nth-child(even) { background-color: #F8FAFC; }
 
-        /* نافذة التعديل المنبثقة (Modal) */
+        /* نوافذ منبثقة احترافية (Modal) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
             z-index: 3500; display: none; align-items: center; justify-content: center;
         }
         .modal-card {
-            background: #FFFFFF; width: 100%; max-width: 500px; padding: 25px;
+            background: #FFFFFF; width: 100%; max-width: 450px; padding: 25px;
             border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             border: 2px solid var(--accent); animation: smoothSlideUp 0.3s ease;
+            text-align: center;
         }
 
         .custom-toast {
@@ -211,9 +212,22 @@
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
+    <!-- 🗑️ نافذة تأكيد الحذف الاحترافية -->
+    <div class="modal-overlay" id="confirmDeleteModal">
+        <div class="modal-card">
+            <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+            <h3 style="color: var(--danger); font-weight: 900; margin-bottom: 8px;">تأكيد الحذف النهائي</h3>
+            <p id="confirmDeleteText" style="color: var(--text-muted); font-size: 14px; font-weight: 700; margin-bottom: 20px;">هل أنت متأكد من حذف هذا العنصر نهائياً؟</p>
+            <div style="display: flex; gap: 12px;">
+                <button id="confirmDeleteBtn" class="btn btn-danger" style="flex: 1;">نعم، حذف 🗑️</button>
+                <button onclick="closeDeleteModal()" class="btn btn-primary" style="flex: 1; background: #64748B;">تراجع ✕</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 🪟 نافذة تعديل بيانات المستخدم المنبثقة -->
     <div class="modal-overlay" id="editUserModal">
-        <div class="modal-card">
+        <div class="modal-card" style="text-align: right;">
             <h3 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 15px; text-align: center;">✏️ تعديل بيانات الحساب</h3>
             <form onsubmit="saveEditedUser(event)">
                 <input type="hidden" id="editModalKey">
@@ -367,7 +381,7 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم الحضور والغياب الدقيق والعداد -->
+        <!-- 3️⃣ قسم الحضور والغياب -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية والاحترازية</div>
             <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
@@ -412,7 +426,7 @@
             </div>
         </div>
 
-        <!-- 4️⃣ قسم سجل المستخدمين مع كافة تفاصيل الحساب وزر التعديل -->
+        <!-- 4️⃣ قسم سجل المستخدمين -->
         <div class="admin-section" id="usersSection">
             <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة (مع إمكانية التعديل الشامل)</div>
             <div style="overflow-x: auto;">
@@ -438,7 +452,7 @@
             </div>
         </div>
 
-        <!-- 5️⃣ قسم الشكاوى مع زر الرد المباشر -->
+        <!-- 5️⃣ قسم الشكاوى -->
         <div class="admin-section" id="ticketsSection">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
@@ -492,6 +506,26 @@
                 previewSpan.textContent = 'لم يتم اختيار ملف بعد';
                 previewSpan.style.color = '#64748B';
             }
+        }
+
+        // نافذة تأكيد الحذف الاحترافية (Custom Confirm Modal)
+        function showConfirmDelete(text, onConfirmCallback) {
+            const modal = document.getElementById('confirmDeleteModal');
+            document.getElementById('confirmDeleteText').textContent = text;
+            modal.style.display = 'flex';
+
+            const btn = document.getElementById('confirmDeleteBtn');
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', () => {
+                closeDeleteModal();
+                if (onConfirmCallback) onConfirmCallback();
+            });
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('confirmDeleteModal').style.display = 'none';
         }
 
         const gradeSubjectsDetailed = {
@@ -589,59 +623,48 @@
                 const nationalIdVal = u.nationalId || u.code || '---';
                 const phoneVal = u.phone || '---';
                 const passVal = u.password || '---';
-                const absenceCount = u.absenceCount !== undefined ? u.absenceCount : 0;
+                const gradeVal = u.grade || (u.role === 'parent' ? 'ولي أمر (مربوط)' : '---');
+                const roleBadge = u.role === 'parent' ? '👨‍👩‍👦 ولي أمر' : '🎓 طالب';
 
                 if (isStudent) {
-                    selectGradesBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
-                    selectAttBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'غير محدد'})</option>`;
+                    selectGradesBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'بدون صف'})</option>`;
+                    selectAttBox.innerHTML += `<option value="${k}">${u.name} (${u.grade || 'بدون صف'})</option>`;
                 }
-
-                let attColor = '#10B981';
-                let attVal = u.attendance || 'منتظم';
-                if (attVal.includes('غاب')) attColor = '#EF4444';
-                else if (attVal.includes('مرضي')) attColor = '#0284C7';
-                else if (attVal.includes('استئذان')) attColor = '#F59E0B';
 
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${name}</b></td>
-                        <td>${isStudent ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر'}</td>
-                        <td>${u.grade || 'غير محدد'}</td>
-                        <td><code>${nationalIdVal}</code></td>
+                        <td>${roleBadge}</td>
+                        <td>${gradeVal}</td>
+                        <td>${nationalIdVal}</td>
                         <td>${phoneVal}</td>
                         <td><code>${passVal}</code></td>
-                        <td><span style="font-weight:bold; color:${attColor};">${attVal}</span></td>
-                        <td><span style="background: #F1F5F9; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${absenceCount} مرة</span></td>
-                        <td style="font-size: 12px;">${u.absenceDatesLog || u.attendanceNote || '---'}</td>
-                        <td>
-                            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
-                                ${isStudent ? `<button onclick="quickSelectStudent('${k}')" class="btn btn-primary" style="padding: 5px 10px; font-size: 11px;">📊 درجات</button>` : ''}
-                                <button onclick="openEditModal('${k}')" class="btn btn-edit" style="padding: 5px 10px; font-size: 11px;">✏️ تعديل</button>
-                                <button onclick="deleteUserAccount('${k}')" class="btn btn-danger" style="padding: 5px 10px; font-size: 11px;">🗑️ حذف</button>
-                            </div>
+                        <td>${u.attendance || 'منتظم'}</td>
+                        <td><b>${u.absenceCount !== undefined ? u.absenceCount : 0}</b></td>
+                        <td>${u.attendanceNote || '---'}</td>
+                        <td style="display: flex; gap: 6px;">
+                            <button onclick="openEditUserModal('${k}')" class="btn btn-edit" style="padding: 6px 12px; font-size: 12px;">✏️ تعديل</button>
+                            <button onclick="deleteUser('${k}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">🗑️ حذف</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        // 🪟 فتح نافذة التعديل المنبثقة وتعبئة البيانات الحالية للمستخدم
-        function openEditModal(key) {
+        function openEditUserModal(key) {
             const u = usersCache[key];
             if (!u) return;
-
             document.getElementById('editModalKey').value = key;
             document.getElementById('editModalName').value = u.name || '';
+            document.getElementById('editModalGrade').value = u.grade || '';
             document.getElementById('editModalNationalId').value = u.nationalId || u.code || '';
             document.getElementById('editModalPhone').value = u.phone || '';
             document.getElementById('editModalPassword').value = u.password || '';
 
-            const gradeGroup = document.getElementById('editModalGradeGroup');
             if (u.role === 'parent') {
-                gradeGroup.style.display = 'none';
+                document.getElementById('editModalGradeGroup').style.display = 'none';
             } else {
-                gradeGroup.style.display = 'block';
-                document.getElementById('editModalGrade').value = u.grade || '';
+                document.getElementById('editModalGradeGroup').style.display = 'block';
             }
 
             document.getElementById('editUserModal').style.display = 'flex';
@@ -651,79 +674,68 @@
             document.getElementById('editUserModal').style.display = 'none';
         }
 
-        // 💾 حفظ التعديلات من النافذة المنبثقة مباشرة لقاعدة البيانات
-        async function saveEditedUser(e) {
+        function saveEditedUser(e) {
             e.preventDefault();
             const key = document.getElementById('editModalKey').value;
-            if (!key || !usersCache[key]) return;
-
-            const u = usersCache[key];
-            let updates = {
+            const updated = {
                 name: document.getElementById('editModalName').value.trim(),
                 nationalId: document.getElementById('editModalNationalId').value.trim(),
                 phone: document.getElementById('editModalPhone').value.trim(),
                 password: document.getElementById('editModalPassword').value.trim()
             };
+            const gradeVal = document.getElementById('editModalGrade').value.trim();
+            if (gradeVal) updated.grade = gradeVal;
 
-            if (u.role !== 'parent') {
-                updates.grade = document.getElementById('editModalGrade').value.trim();
-            }
-
-            await db.ref('students/' + key).update(updates);
-            closeEditModal();
-            showToast("تم تحديث بيانات الحساب بنجاح! 💾");
+            db.ref('students/' + key).update(updated).then(() => {
+                showToast('تم تحديث بيانات المستخدم بنجاح! 💾');
+                closeEditModal();
+            });
         }
 
-        function deleteUserAccount(key) {
-            if (confirm("هل أنت متأكد من حذف هذا الحساب نهائياً؟")) {
+        function deleteUser(key) {
+            showConfirmDelete('هل أنت متأكد من حذف هذا الحساب نهائياً؟', () => {
                 db.ref('students/' + key).remove().then(() => {
-                    showToast("تم حذف الحساب بنجاح 🗑️", "⚠️");
+                    showToast('تم حذف الحساب بنجاح 🗑️', '⚠️');
                 });
-            }
-        }
-
-        function quickSelectStudent(key) {
-            switchAdminSection('gradesSection', document.getElementById('menuItemGrades'));
-            document.getElementById('studentSelectForGrades').value = key;
-            loadStudentGradesToEdit();
+            });
         }
 
         function loadStudentGradesToEdit() {
             const key = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
-            if (!key || !usersCache[key]) {
+            if (!key) {
                 container.style.display = 'none';
                 return;
             }
             currentEditingStudentKey = key;
-            const u = usersCache[key];
-            document.getElementById('editingStudentNameTitle').textContent = 'رصد الدرجات للطالب: ' + u.name;
+            const student = usersCache[key];
+            document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${student.name} (${student.grade || ''})`;
             
-            const subjects = getSubjectsForGradeName(u.grade);
+            const subjects = getSubjectsForGradeName(student.grade);
             const tbody = document.getElementById('adminGradesEditTableBody');
             tbody.innerHTML = '';
 
             subjects.forEach(sub => {
-                const work = u[sub.id + '_work'] || '';
-                const weekly = u[sub.id + '_weekly'] || '';
-                const final = u[sub.id + '_final'] || '';
+                const work = student[sub.id + '_work'] || '';
+                const weekly = student[sub.id + '_weekly'] || '';
+                const final = student[sub.id + '_final'] || '';
 
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${sub.name}</b></td>
-                        <td><input type="number" min="0" max="30" id="grade_${sub.id}_work" class="form-control" value="${work}" placeholder="0-30"></td>
-                        <td><input type="number" min="0" max="20" id="grade_${sub.id}_weekly" class="form-control" value="${weekly}" placeholder="0-20"></td>
-                        <td><input type="number" min="0" max="50" id="grade_${sub.id}_final" class="form-control" value="${final}" placeholder="0-50"></td>
+                        <td><input type="number" id="grade_${sub.id}_work" class="form-control" value="${work}" min="0" max="30"></td>
+                        <td><input type="number" id="grade_${sub.id}_weekly" class="form-control" value="${weekly}" min="0" max="20"></td>
+                        <td><input type="number" id="grade_${sub.id}_final" class="form-control" value="${final}" min="0" max="50"></td>
                     </tr>
                 `;
             });
             container.style.display = 'block';
         }
 
-        async function saveStudentGradesDirect() {
-            if (!currentEditingStudentKey || !usersCache[currentEditingStudentKey]) return;
-            const u = usersCache[currentEditingStudentKey];
-            const subjects = getSubjectsForGradeName(u.grade);
+        function saveStudentGradesDirect() {
+            if (!currentEditingStudentKey) return;
+            const student = usersCache[currentEditingStudentKey];
+            const subjects = getSubjectsForGradeName(student.grade);
             let updates = {};
 
             subjects.forEach(sub => {
@@ -732,88 +744,57 @@
                 updates[sub.id + '_final'] = parseFloat(document.getElementById(`grade_${sub.id}_final`).value) || 0;
             });
 
-            await db.ref('students/' + currentEditingStudentKey).update(updates);
-            showToast("تم حفظ ورصد درجات الطالب بنجاح! 📊");
+            db.ref('students/' + currentEditingStudentKey).update(updates).then(() => {
+                showToast('تم حفظ ورصد درجات الطالب بنجاح! 📊');
+            });
         }
 
         function loadStudentAttendanceData() {
             const key = document.getElementById('studentAttendanceSelect').value;
-            if (!key || !usersCache[key]) return;
-            const u = usersCache[key];
-            document.getElementById('attendanceStatusSelect').value = u.attendance || 'منتظم';
-            document.getElementById('absenceCountInput').value = u.absenceCount !== undefined ? u.absenceCount : 0;
-            document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
-            document.getElementById('absenceDatesLogInput').value = u.absenceDatesLog || '';
+            if (!key) return;
+            const student = usersCache[key];
+            if (student) {
+                document.getElementById('attendanceStatusSelect').value = student.attendance || 'منتظم';
+                document.getElementById('absenceCountInput').value = student.absenceCount !== undefined ? student.absenceCount : 0;
+                document.getElementById('attendanceNoteInput').value = student.attendanceNote || '';
+                document.getElementById('absenceDatesLogInput').value = student.absenceDatesLog || '';
+            }
         }
 
-        async function saveStudentAttendance() {
+        function saveStudentAttendance() {
             const key = document.getElementById('studentAttendanceSelect').value;
-            if (!key || !usersCache[key]) return showToast("يرجى تحديد الطالب أولاً", "⚠️");
-            const status = document.getElementById('attendanceStatusSelect').value;
-            const absenceCount = parseInt(document.getElementById('absenceCountInput').value) || 0;
-            const note = document.getElementById('attendanceNoteInput').value.trim();
-            const datesLog = document.getElementById('absenceDatesLogInput').value.trim();
-
-            await db.ref('students/' + key).update({
-                attendance: status,
-                absenceCount: absenceCount,
-                attendanceNote: note,
-                absenceDatesLog: datesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.'
-            });
-            showToast("تم تحديث سجل وحالة الحضور والغياب بنجاح! 📅");
-        }
-
-        async function postNews(e) {
-            e.preventDefault();
-            const title = document.getElementById('newsTitle').value.trim();
-            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان';
-            const content = document.getElementById('newsContent').value.trim();
-            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
-
-            const newsKey = 'news_' + Date.now();
-            let newsData = {
-                title, badge, content, videoUrl,
-                date: new Date().toLocaleDateString('ar-EG')
+            if (!key) {
+                showToast('يرجى اختيار الطالب أولاً ⚠️', '⚠️');
+                return;
+            }
+            const updates = {
+                attendance: document.getElementById('attendanceStatusSelect').value,
+                absenceCount: parseInt(document.getElementById('absenceCountInput').value) || 0,
+                attendanceNote: document.getElementById('attendanceNoteInput').value.trim(),
+                absenceDatesLog: document.getElementById('absenceDatesLogInput').value.trim()
             };
 
-            const imageFile = document.getElementById('newsImageFile').files[0];
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    newsData.imageUrl = e.target.result;
-                    await db.ref('news/' + newsKey).set(newsData);
-                    finishNewsPost();
-                };
-                reader.readAsDataURL(imageFile);
-                return;
-            }
-
-            const videoFile = document.getElementById('newsVideoFile').files[0];
-            if (videoFile) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    newsData.videoBase64 = e.target.result;
-                    await db.ref('news/' + newsKey).set(newsData);
-                    finishNewsPost();
-                };
-                reader.readAsDataURL(videoFile);
-                return;
-            }
-
-            await db.ref('news/' + newsKey).set(newsData);
-            finishNewsPost();
+            db.ref('students/' + key).update(updates).then(() => {
+                showToast('تم تحديث عداد وحالة الحضور بنجاح! 📅');
+            });
         }
 
-        function finishNewsPost() {
-            showToast("تم نشر الإعلان بنجاح! 📢");
-            document.getElementById('newsTitle').value = '';
-            document.getElementById('newsBadge').value = '';
-            document.getElementById('newsContent').value = '';
-            document.getElementById('newsVideoUrl').value = '';
-            document.getElementById('newsImageFile').value = '';
-            document.getElementById('newsVideoFile').value = '';
-            document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-            document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+        function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim();
+            const content = document.getElementById('newsContent').value.trim();
+
+            const newsKey = 'news_' + Date.now();
+            db.ref('news/' + newsKey).set({
+                title, badge, content,
+                date: new Date().toLocaleDateString('ar-EG')
+            }).then(() => {
+                showToast('تم نشر الإعلان بنجاح للجميع! 🚀');
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsBadge').value = '';
+                document.getElementById('newsContent').value = '';
+            });
         }
 
         function loadNewsLive() {
@@ -828,24 +809,25 @@
                 Object.keys(data).reverse().forEach(key => {
                     const item = data[key];
                     container.innerHTML += `
-                        <div style="background: rgba(248, 250, 252, 0.95); padding: 15px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <h4 style="font-size: 15px; font-weight: 900; color: var(--primary-dark);">${item.title}</h4>
-                                <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">🗑️ حذف</button>
+                        <div style="background:#FFFFFF; padding:15px; border-radius:14px; margin-bottom:12px; border:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color:var(--primary-dark); font-size:14.5px;">${item.title}</b>
+                                <p style="font-size:13px; color:#334155; margin-top:4px;">${item.content}</p>
+                                <span style="font-size:11.5px; color:gray;">📅 ${item.date || ''}</span>
                             </div>
-                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 8px;">${item.content}</p>
-                            <span style="font-size: 11.5px; color: var(--text-muted);">📅 تاريخ النشر: ${item.date || ''}</span>
+                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding:6px 12px; font-size:12px; height:fit-content;">🗑️ حذف</button>
                         </div>
                     `;
                 });
             });
         }
 
-        async function deleteNews(key) {
-            if (confirm("هل تريد حذف هذا الخبر نهائياً؟")) {
-                await db.ref('news/' + key).remove();
-                showToast("تم حذف الخبر بنجاح", "⚠️");
-            }
+        function deleteNews(key) {
+            showConfirmDelete('هل أنت متأكد من حذف هذا الخبر نهائياً؟', () => {
+                db.ref('news/' + key).remove().then(() => {
+                    showToast('تم حذف الخبر بنجاح 🗑️', '⚠️');
+                });
+            });
         }
 
         function loadTicketsLive() {
@@ -853,22 +835,25 @@
                 const data = snapshot.val();
                 const container = document.getElementById('adminTicketsList');
                 if (!data) {
-                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد شكاوى أو طلبات جديدة.</p>';
+                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">لا توجد شكاوى أو استفسارات جديدة.</p>';
                     return;
                 }
                 container.innerHTML = '';
                 Object.keys(data).reverse().forEach(key => {
                     const t = data[key];
                     container.innerHTML += `
-                        <div style="background: rgba(248, 250, 252, 0.95); padding: 16px; border-radius: 14px; margin-bottom: 14px; border: 1px solid var(--border);">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                                <b style="color: var(--primary-dark); font-size: 14px;">👤 ${t.parentName || t.studentName} (${t.ticketType})</b>
-                                <span style="font-size: 12px; color: gray;">${t.date || ''}</span>
+                        <div style="background:#FFFFFF; padding:18px; border-radius:16px; margin-bottom:15px; border:1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <b style="color:var(--primary-dark); font-size:14px;">🎓 الطالب: ${t.studentName || 'غير معروف'} | ولي الأمر: ${t.parentName}</b>
+                                <span style="font-size:11.5px; color:gray;">${t.date || ''}</span>
                             </div>
-                            <p style="font-size: 13.5px; color: #334155; margin-bottom: 10px;">${t.content}</p>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="reply_input_${key}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}">
-                                <button onclick="sendAdminReply('${key}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 💬</button>
+                            <p style="font-size:13.5px; color:var(--accent); font-weight:800; margin-bottom:4px;">📌 نوع الطلب: ${t.ticketType}</p>
+                            <p style="font-size:13.5px; color:#334155; margin-bottom:12px;">💬 التفاصيل: ${t.content}</p>
+                            
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="text" id="replyInput_${key}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.adminReply || ''}" style="flex:1;">
+                                <button onclick="sendAdminReply('${key}')" class="btn btn-success" style="padding:10px 20px;">إرسال الرد 💬</button>
+                                <button onclick="deleteTicket('${key}')" class="btn btn-danger" style="padding:10px 15px;">حذف 🗑️</button>
                             </div>
                         </div>
                     `;
@@ -876,19 +861,32 @@
             });
         }
 
-        async function sendAdminReply(ticketKey) {
-            const replyText = document.getElementById('reply_input_' + ticketKey).value.trim();
-            if (!replyText) return showToast("يرجى كتابة نص الرد أولاً", "⚠️");
-            await db.ref('tickets/' + ticketKey).update({ adminReply: replyText });
-            showToast("تم إرسال رد الإدارة بنجاح! 💬");
+        function sendAdminReply(key) {
+            const replyText = document.getElementById(`replyInput_${key}`).value.trim();
+            if (!replyText) {
+                showToast('يرجى كتابة نص الرد أولاً ⚠️', '⚠️');
+                return;
+            }
+            db.ref('tickets/' + key).update({ adminReply: replyText }).then(() => {
+                showToast('تم إرسال رد الإدارة بنجاح! 💬');
+            });
         }
 
-        async function changeAdminPassword(e) {
+        function deleteTicket(key) {
+            showConfirmDelete('هل أنت متأكد من حذف هذه الشكوى نهائياً؟', () => {
+                db.ref('tickets/' + key).remove().then(() => {
+                    showToast('تم حذف الشكوى بنجاح 🗑️', '⚠️');
+                });
+            });
+        }
+
+        function changeAdminPassword(e) {
             e.preventDefault();
             const newPass = document.getElementById('newAdminPasswordInput').value.trim();
-            await db.ref('settings/adminPassword').set(newPass);
-            showToast("تم تحديث كلمة مرور لوحة الإدارة بنجاح! 🔑");
-            document.getElementById('newAdminPasswordInput').value = '';
+            db.ref('settings/adminPassword').set(newPass).then(() => {
+                showToast('تم تغيير كلمة مرور لوحة الإدارة بنجاح 🔑');
+                document.getElementById('newAdminPasswordInput').value = '';
+            });
         }
     </script>
 </body>
