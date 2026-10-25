@@ -745,7 +745,7 @@
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
-        // تصحيح دالة عرض وحساب درجات الطالب بدقة تامة منعاً لأي خطأ في المجموع والنسبة والتقدير
+        // تصحيح منطق حساب التقديرات بحيث يظهر راسب لو النسبة أقل من 50%
         function loadStudentGradesUI() {
             if (!currentUser) return;
             let targetKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
@@ -763,7 +763,7 @@
                 tbody.innerHTML = '';
                 
                 let totalSum = 0;
-                let maxTotal = subjects.length * 100; // كل مادة من 100 درجة (30 أعمال سنة + 20 تقييم + 50 نهائي)
+                let maxTotal = subjects.length * 100; // كل مادة من 100 درجة
 
                 subjects.forEach(sub => {
                     const work = parseFloat(studentData[sub.id + '_work']) || 0;
@@ -784,11 +784,13 @@
                 });
 
                 const percentage = maxTotal > 0 ? ((totalSum / maxTotal) * 100).toFixed(1) : 0;
-                let generalGrade = 'مقبول';
+                
+                // تعديل منطقي للتقديرات: أقل من 50% يعتبر راسب (يحتاج إعادة امتحان)
+                let generalGrade = 'راسب (تحتاج إعادة امتحان) ❌';
                 if (percentage >= 85) generalGrade = 'ممتاز ⭐';
                 else if (percentage >= 75) generalGrade = 'جيد جداً 🌟';
                 else if (percentage >= 65) generalGrade = 'جيد 👍';
-                else generalGrade = 'مقبول (تحتاج تحسين)';
+                else if (percentage >= 50) generalGrade = 'مقبول 🟡';
 
                 document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxTotal}`;
                 document.getElementById('summaryPercentage').textContent = `${percentage}%`;
