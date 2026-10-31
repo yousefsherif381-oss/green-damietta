@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الإدارة والحسابات | بوابة التعلم الذكي</title>
+    <title>لوحة التحكم والإدارة | بوابة التعلم الذكي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -103,7 +103,7 @@
         .btn-sidebar-toggle {
             background: rgba(255, 255, 255, 0.15); color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px;
-            padding: 9px 16px; font-size: 15px; cursor: pointer; transition: all 0.3s ease;
+            padding: 9px 16px; font-size: 15px; cursor: pointer;
         }
 
         .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; margin: auto; }
@@ -172,181 +172,145 @@
 
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
-            <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
+            <span class="sidebar-title" id="sidebarTitleText">📌 أقسام لوحة الإدارة</span>
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
-        <div class="sidebar-menu">
-            <div class="sidebar-item active" id="menuTeachers" onclick="switchAdminSection('teachersSection', this)">
-                <span class="sidebar-icon">👨‍🏫</span>
-                <span class="sidebar-label">إدارة المدرسين والفصول</span>
-            </div>
-            <div class="sidebar-item" id="menuControl" onclick="switchAdminSection('controlSection', this)">
-                <span class="sidebar-icon">🏆</span>
-                <span class="sidebar-label">كنترول ورصد النتائج</span>
-            </div>
-            <div class="sidebar-item" id="menuAttendance" onclick="switchAdminSection('attendanceSection', this)">
-                <span class="sidebar-icon">📅</span>
-                <span class="sidebar-label">شؤون الطلاب والغيبات</span>
-            </div>
-            <div class="sidebar-item" id="menuTickets" onclick="switchAdminSection('ticketsSection', this)">
-                <span class="sidebar-icon">📨</span>
-                <span class="sidebar-label">الشكاوى (المدير فقط)</span>
-            </div>
-            <div class="sidebar-item" id="menuNews" onclick="switchAdminSection('newsSection', this)">
-                <span class="sidebar-icon">📢</span>
-                <span class="sidebar-label">نشر الإعلانات والأخبار</span>
-            </div>
-            <div class="sidebar-item" id="menuPasswords" onclick="switchAdminSection('passwordsSection', this)">
-                <span class="sidebar-icon">🔑</span>
-                <span class="sidebar-label">كلمات مرور الإدارة والكنترول</span>
-            </div>
+        <div class="sidebar-menu" id="sidebarMenuContainer">
+            <!-- سيتم تعبئتها ديناميكياً حسب صلاحية المستخدم (مدير أم مدرس) -->
         </div>
     </aside>
 
     <header>
         <div class="nav-container">
-            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ أقسام النظام</button>
+            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ القائمة</button>
             <div class="logo-area" onclick="window.location.href='index.html'">
                 <div class="logo-box">
                     <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار النظام">
                 </div>
-                <span class="logo-text">إدارة المدرسة والكنترول</span>
+                <span class="logo-text" id="headerTitleText">بوابة الإدارة والكنترول</span>
             </div>
-            <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسية ➡️</button>
+            <button onclick="window.location.href='index.html'" class="btn-header-home">الخروج للموقع الرئيسي ➡️</button>
         </div>
     </header>
 
     <main class="main-wrapper">
 
-        <!-- 1️⃣ قسم إدارة المدرسين والتخصصات والفصول -->
-        <div class="admin-section active" id="teachersSection">
-            <div class="card-title">👨‍🏫 إضافة وتعيين بيانات المدرسين وصلاحيات فصولهم</div>
-            <form onsubmit="saveTeacherAccount(event)">
-                <div class="form-grid">
-                    <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
-                    <input type="text" id="teacherSubject" class="form-control" placeholder="المادة الدراسية (مثال: الرياضيات)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول (مثال: الصف الأول الابتدائي, الصف الثاني الإعدادي)" required>
-                    <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس للدخول" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة / تحديث المدرس 💾</button>
-            </form>
+        <!-- 1️⃣ قسم رصد درجات المدرس (يظهر للمدرس فقط) -->
+        <div class="admin-section" id="teacherSection">
+            <div class="card-title" id="teacherWelcomeTitle">👨‍🏫 رصد درجات الطلاب لمادتك وفصولك</div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 6px;">اختر الفصل الدراسي:</label>
+                <select id="teacherClassFilter" class="form-control" style="max-width: 350px;" onchange="renderTeacherStudents()">
+                    <option value="ALL">جميع فصولك المسندة</option>
+                </select>
+            </div>
 
-            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">قائمة المدرسين المسجلين:</h4>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
-                            <th>اسم المدرس</th>
+                            <th>اسم الطالب</th>
+                            <th>الصف / الفصل</th>
+                            <th>أعمال السنة (30)</th>
+                            <th>التقييم الأسبوعي (20)</th>
+                            <th>الامتحان النهائي (50)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacherGradesTableBody">
+                        <tr><td colspan="5" style="text-align: center;">جاري تحميل الطلاب...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="saveTeacherGradesDirect()" class="btn btn-success" style="width: 100%; margin-top: 20px;">حفظ درجات مادتك 💾</button>
+        </div>
+
+        <!-- 2️⃣ قسم إدارة المدرسين (للمدير فقط) -->
+        <div class="admin-section" id="teachersAdminSection">
+            <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين والمواد والفصول</div>
+            <form onsubmit="saveTeacherAccount(event)">
+                <div class="form-grid">
+                    <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
+                    <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة (مثال: الرياضيات)" required>
+                    <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (مثال: math او ar)" required>
+                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول (مثال: الأول الابتدائي, الثاني الإعدادي)" required>
+                    <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
+            </form>
+
+            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">المدرسون المسجلون بالسيستم:</h4>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
                             <th>المادة</th>
-                            <th>الفصول المسندة له</th>
-                            <th>كلمة المرور</th>
+                            <th>معرف المادة</th>
+                            <th>الفصول</th>
+                            <th>الباسورد</th>
                             <th>إجراء</th>
                         </tr>
                     </thead>
-                    <tbody id="teachersTableBody">
-                        <tr><td colspan="5" style="text-align: center;">جاري تحميل قائمة المدرسين...</td></tr>
+                    <tbody id="adminTeachersTableBody">
+                        <tr><td colspan="6" style="text-align: center;">جاري التحميل...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 2️⃣ قسم رئيس كنترول المدرسة (نتائج الترم الأول والثاني) -->
+        <!-- 3️⃣ قسم الكنترول (للمدير/الكنترول) -->
         <div class="admin-section" id="controlSection">
-            <div class="card-title">🏆 كنترول المدرسة - رفع وتحديث نتائج الترم الأول والثاني</div>
+            <div class="card-title">🏆 كنترول المدرسة - نتائج الترمين</div>
             <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب لرصد نتيجته الكلية للترمين:</label>
                 <select id="controlStudentSelect" class="form-control" style="max-width: 400px;" onchange="loadControlStudentData()">
-                    <option value="">-- اختر طالب من قائمة المدرسية --</option>
+                    <option value="">-- اختر طالب من المدرسة --</option>
                 </select>
             </div>
-
             <div id="controlResultBox" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
-                <h4 id="controlStudentName" style="color: var(--primary-dark); margin-bottom: 15px;">نتيجة الطالب: </h4>
-                
+                <h4 id="controlStudentName" style="color: var(--primary-dark); margin-bottom: 15px;"></h4>
                 <div class="form-grid">
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px;">درجة الترم الأول (من 100):</label>
-                        <input type="number" id="term1Grade" class="form-control" placeholder="مثال: 95">
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px;">درجة الترم الثاني (من 100):</label>
-                        <input type="number" id="term2Grade" class="form-control" placeholder="مثال: 98">
-                    </div>
+                    <div><label style="font-weight:700; font-size:13px;">الترم الأول:</label><input type="number" id="term1Grade" class="form-control"></div>
+                    <div><label style="font-weight:700; font-size:13px;">الترم الثاني:</label><input type="number" id="term2Grade" class="form-control"></div>
                 </div>
-
-                <div style="margin-top: 15px;">
-                    <label style="font-weight: 700; font-size: 13px;">حالة نتيجة الكنترول النهائية:</label>
-                    <select id="controlStatusSelect" class="form-control">
-                        <option value="ناجح">ناجح ومُنقول للصف الأعلى 🎉</option>
-                        <option value="له دور ثاني">له دور ثاني ⚠️</option>
-                        <option value="راسب">راسب ❌</option>
-                    </select>
-                </div>
-
-                <button onclick="saveControlResults()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتثبيت نتائج الكنترول 💾</button>
+                <button onclick="saveControlResults()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ نتائج الكنترول 💾</button>
             </div>
         </div>
 
-        <!-- 3️⃣ قسم شؤون الطلبة (الغياب والأعذار) -->
+        <!-- 4️⃣ قسم شؤون الطلاب (للأمين/الشؤون) -->
         <div class="admin-section" id="attendanceSection">
-            <div class="card-title">📅 شؤون الطلاب - رصد الغياب والأعذار الطبية</div>
+            <div class="card-title">📅 شؤون الطلاب - الغياب والأعذار</div>
             <div class="form-grid">
-                <div>
-                    <label style="font-weight: 700; font-size: 13px;">اختر الطالب:</label>
-                    <select id="affairsStudentSelect" class="form-control">
-                        <option value="">-- حدد الطالب --</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-weight: 700; font-size: 13px;">حالة غياب اليوم:</label>
-                    <select id="affairsStatusSelect" class="form-control">
-                        <option value="منتظم">منتظم ✅</option>
-                        <option value="غائب">غائب ❌</option>
-                        <option value="عذر مرضي">عذر مرضي 🏥</option>
-                        <option value="استئذان">استئذان رسمية ⚠️</option>
-                    </select>
-                </div>
+                <div><select id="affairsStudentSelect" class="form-control"><option value="">-- حدد الطالب --</option></select></div>
+                <div><select id="affairsStatusSelect" class="form-control"><option value="منتظم">منتظم ✅</option><option value="غائب">غائب ❌</option><option value="عذر مرضي">عذر مرضي 🏥</option></select></div>
             </div>
-            <div style="margin-top: 15px;">
-                <label style="font-weight: 700; font-size: 13px;">تفاصيل وتاريخ العذر:</label>
-                <input type="text" id="affairsNoteInput" class="form-control" placeholder="اكتب ملاحظة الغياب أو تفاصيل العذر...">
-            </div>
-            <button onclick="saveStudentAffairsAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تسجيل حالة الحضور 💾</button>
+            <input type="text" id="affairsNoteInput" class="form-control" placeholder="ملاحظة أو سبب العذر..." style="margin-top: 10px;">
+            <button onclick="saveStudentAffairsAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تسجيل الحالة 💾</button>
         </div>
 
-        <!-- 4️⃣ قسم الشكاوى (خاص بالمدير) -->
+        <!-- 5️⃣ قسم الشكاوى (مدير فقط) -->
         <div class="admin-section" id="ticketsSection">
-            <div class="card-title">📨 مركز الرد على الشكاوى (صلاحية المدير)</div>
-            <div id="adminTicketsList">جاري تحميل الشكاوى والطلبات...</div>
+            <div class="card-title">📨 مركز الرد على الشكاوى</div>
+            <div id="adminTicketsList">جاري التحميل...</div>
         </div>
 
-        <!-- 5️⃣ قسم الأخبار -->
+        <!-- 6️⃣ قسم الإعلانات والأخبار -->
         <div class="admin-section" id="newsSection">
-            <div class="card-title">📢 نشر إعلان جديد للمدرسة</div>
+            <div class="card-title">📢 نشر إعلان للمدرسة</div>
             <form onsubmit="postNews(event)">
                 <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر" required style="margin-bottom: 10px;">
-                <textarea id="newsContent" class="form-control" rows="3" placeholder="تفاصيل الخبر..." required style="margin-bottom: 10px;"></textarea>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الخبر 🚀</button>
+                <textarea id="newsContent" class="form-control" rows="3" placeholder="التفاصيل..." required style="margin-bottom: 10px;"></textarea>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان 🚀</button>
             </form>
         </div>
 
-        <!-- 6️⃣ قسم كلمات مرور الأقسام (المدير والكنترول وشؤون الطلبة) -->
+        <!-- 7️⃣ قسم الباسوردات -->
         <div class="admin-section" id="passwordsSection">
-            <div class="card-title">🔑 تعيين كلمات مرور الوصول للسلطات والمسؤولين</div>
+            <div class="card-title">🔑 إعداد كلمات مرور الإدارة</div>
             <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
-                <div style="margin-bottom: 12px;">
-                    <label style="font-weight: 700; font-size: 13px;">كلمة مرور المدير (Admin):</label>
-                    <input type="text" id="passAdmin" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="font-weight: 700; font-size: 13px;">كلمة مرور رئيس الكنترول:</label>
-                    <input type="text" id="passControl" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="font-weight: 700; font-size: 13px;">كلمة مرور شؤون الطلبة:</label>
-                    <input type="text" id="passAffairs" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-success" style="width: 100%;">حفظ كلمات المرور 💾</button>
+                <div style="margin-bottom: 12px;"><label>باسورد المدير:</label><input type="text" id="passAdmin" class="form-control" required></div>
+                <div style="margin-bottom: 12px;"><label>باسورد الكنترول:</label><input type="text" id="passControl" class="form-control" required></div>
+                <div style="margin-bottom: 16px;"><label>باسورد شؤون الطلاب:</label><input type="text" id="passAffairs" class="form-control" required></div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">حفظ 💾</button>
             </form>
         </div>
 
@@ -358,6 +322,8 @@
         const db = firebase.database();
 
         let studentsCache = {};
+        let loggedUserRole = sessionStorage.getItem('loggedUserRole') || 'admin';
+        let loggedTeacherData = JSON.parse(sessionStorage.getItem('loggedTeacherData')) || null;
 
         function showToast(msg, icon = "✅") {
             const t = document.getElementById('customToast');
@@ -367,13 +333,49 @@
             setTimeout(() => { t.classList.remove('show'); }, 3000);
         }
 
-        function toggleSidebar() {
-            document.getElementById('slidingSidebar').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
-        }
-        function closeSidebar() {
-            document.getElementById('slidingSidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
+        function toggleSidebar() { document.getElementById('slidingSidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
+        function closeSidebar() { document.getElementById('slidingSidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupRolePermissions();
+            loadStudentsData();
+            loadTeachersAdmin();
+            loadTickets();
+            loadPasswords();
+        });
+
+        function setupRolePermissions() {
+            const menu = document.getElementById('sidebarMenuContainer');
+            menu.innerHTML = '';
+
+            if (loggedUserRole === 'teacher' && loggedTeacherData) {
+                // صلاحيات المدرس المدمجة (يظهر له مادته فقط وكل الإدارة مخفية عنه)
+                document.getElementById('headerTitleText').textContent = `مرحباً أستاذ: ${loggedTeacherData.name} (${loggedTeacherData.subject})`;
+                document.getElementById('sidebarTitleText').textContent = `📌 لوحة المدرس`;
+                
+                menu.innerHTML = `
+                    <div class="sidebar-item active" onclick="switchAdminSection('teacherSection', this)">
+                        <span class="sidebar-icon">📊</span>
+                        <span class="sidebar-label">رصد درجات مادتك</span>
+                    </div>
+                `;
+                switchAdminSection('teacherSection');
+                setupTeacherView();
+            } else {
+                // صلاحيات مدير المدرسة الكاملة
+                document.getElementById('headerTitleText').textContent = `بوابة الإدارة والكنترول`;
+                document.getElementById('sidebarTitleText').textContent = `📌 أقسام لوحة الإدارة`;
+                
+                menu.innerHTML = `
+                    <div class="sidebar-item active" onclick="switchAdminSection('teachersAdminSection', this)"><span class="sidebar-icon">👨‍🏫</span><span class="sidebar-label">إدارة المدرسين</span></div>
+                    <div class="sidebar-item" onclick="switchAdminSection('controlSection', this)"><span class="sidebar-icon">🏆</span><span class="sidebar-label">الكنترول والنتائج</span></div>
+                    <div class="sidebar-item" onclick="switchAdminSection('attendanceSection', this)"><span class="sidebar-icon">📅</span><span class="sidebar-label">شؤون الطلاب</span></div>
+                    <div class="sidebar-item" onclick="switchAdminSection('ticketsSection', this)"><span class="sidebar-icon">📨</span><span class="sidebar-label">مركز الشكاوى</span></div>
+                    <div class="sidebar-item" onclick="switchAdminSection('newsSection', this)"><span class="sidebar-icon">📢</span><span class="sidebar-label">نشر الإعلانات</span></div>
+                    <div class="sidebar-item" onclick="switchAdminSection('passwordsSection', this)"><span class="sidebar-icon">🔑</span><span class="sidebar-label">كلمات المرور</span></div>
+                `;
+                switchAdminSection('teachersAdminSection');
+            }
         }
 
         function switchAdminSection(secId, el) {
@@ -384,56 +386,67 @@
             closeSidebar();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadTeachers();
-            loadStudentsData();
-            loadTickets();
-            loadPasswords();
-        });
-
-        function saveTeacherAccount(e) {
-            e.preventDefault();
-            const name = document.getElementById('teacherName').value.trim();
-            const subject = document.getElementById('teacherSubject').value.trim();
-            const classes = document.getElementById('teacherClasses').value.trim();
-            const password = document.getElementById('teacherPassword').value.trim();
-
-            const key = 'teacher_' + Date.now();
-            db.ref('teachers/' + key).set({ name, subject, classes, password }).then(() => {
-                showToast('تم تعيين بيانات المدرس وحساب بنجاح! 👨‍🏫');
-                document.getElementById('teacherName').value = '';
-                document.getElementById('teacherSubject').value = '';
-                document.getElementById('teacherClasses').value = '';
-                document.getElementById('teacherPassword').value = '';
-            });
+        function setupTeacherView() {
+            document.getElementById('teacherWelcomeTitle').textContent = `👨‍🏫 رصد درجات مادة (${loggedTeacherData.subject})`;
+            const select = document.getElementById('teacherClassFilter');
+            const classesArr = loggedTeacherData.classes ? loggedTeacherData.classes.split(',').map(c => c.trim()) : [];
+            classesArr.forEach(c => { select.innerHTML += `<option value="${c}">${c}</option>`; });
         }
 
-        function loadTeachers() {
-            db.ref('teachers').on('value', snap => {
-                const data = snap.val();
-                const tbody = document.getElementById('teachersTableBody');
-                tbody.innerHTML = '';
-                if(!data) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">لا يوجد مدرسون مسجلون.</td></tr>';
-                    return;
+        function renderTeacherStudents() {
+            if (!loggedTeacherData) return;
+            const tbody = document.getElementById('teacherGradesTableBody');
+            const selectedClass = document.getElementById('teacherClassFilter').value;
+            const teacherClasses = loggedTeacherData.classes ? loggedTeacherData.classes.split(',').map(c => c.trim()) : [];
+            const subId = loggedTeacherData.subjectId || 'ar';
+
+            tbody.innerHTML = '';
+            let count = 0;
+
+            Object.keys(studentsCache).forEach(k => {
+                const s = studentsCache[k];
+                if (s.role !== 'parent') {
+                    const studentGrade = s.grade || '';
+                    const isAssigned = teacherClasses.some(c => studentGrade.includes(c));
+
+                    if (isAssigned && (selectedClass === 'ALL' || studentGrade.includes(selectedClass))) {
+                        count++;
+                        const work = s[subId + '_work'] || '';
+                        const weekly = s[subId + '_weekly'] || '';
+                        const final = s[subId + '_final'] || '';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><b>${s.name}</b></td>
+                                <td>${studentGrade}</td>
+                                <td><input type="number" id="work_${k}" class="form-control" value="${work}" min="0" max="30"></td>
+                                <td><input type="number" id="weekly_${k}" class="form-control" value="${weekly}" min="0" max="20"></td>
+                                <td><input type="number" id="final_${k}" class="form-control" value="${final}" min="0" max="50"></td>
+                            </tr>
+                        `;
+                    }
                 }
-                Object.keys(data).forEach(k => {
-                    const t = data[k];
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><b>${t.name}</b></td>
-                            <td>${t.subject}</td>
-                            <td>${t.classes}</td>
-                            <td><code>${t.password}</code></td>
-                            <td><button onclick="deleteTeacher('${k}')" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">حذف 🗑️</button></td>
-                        </tr>
-                    `;
-                });
             });
+            if (count === 0) tbody.innerHTML = '<tr><td colspan="5">لا توجد طلاب في الفصول المحددة لك.</td></tr>';
         }
 
-        function deleteTeacher(k) {
-            db.ref('teachers/' + k).remove().then(() => showToast('تم حذف حساب المدرس', '⚠️'));
+        function saveTeacherGradesDirect() {
+            if (!loggedTeacherData) return;
+            const subId = loggedTeacherData.subjectId || 'ar';
+            let updates = {};
+
+            Object.keys(studentsCache).forEach(k => {
+                const workEl = document.getElementById(`work_${k}`);
+                if (workEl) {
+                    updates[`students/${k}/${subId}_work`] = parseFloat(workEl.value) || 0;
+                    updates[`students/${k}/${subId}_weekly`] = parseFloat(document.getElementById(`weekly_${k}`).value) || 0;
+                    updates[`students/${k}/${subId}_final`] = parseFloat(document.getElementById(`final_${k}`).value) || 0;
+                }
+            });
+
+            db.ref().update(updates).then(() => {
+                showToast(`تم حفظ درجات مادة (${loggedTeacherData.subject}) بنجاح! 💾`);
+            });
         }
 
         function loadStudentsData() {
@@ -441,16 +454,57 @@
                 studentsCache = snap.val() || {};
                 const controlSel = document.getElementById('controlStudentSelect');
                 const affairsSel = document.getElementById('affairsStudentSelect');
-
-                controlSel.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
-                affairsSel.innerHTML = '<option value="">-- حدد الطالب --</option>';
+                if(controlSel) controlSel.innerHTML = '<option value="">-- اختر طالب --</option>';
+                if(affairsSel) affairsSel.innerHTML = '<option value="">-- حدد الطالب --</option>';
 
                 Object.keys(studentsCache).forEach(k => {
                     const s = studentsCache[k];
                     if (s.role !== 'parent') {
-                        controlSel.innerHTML += `<option value="${k}">${s.name} (${s.grade || ''})</option>`;
-                        affairsSel.innerHTML += `<option value="${k}">${s.name} (${s.grade || ''})</option>`;
+                        if(controlSel) controlSel.innerHTML += `<option value="${k}">${s.name} (${s.grade || ''})</option>`;
+                        if(affairsSel) affairsSel.innerHTML += `<option value="${k}">${s.name} (${s.grade || ''})</option>`;
                     }
+                });
+                if (loggedUserRole === 'teacher') renderTeacherStudents();
+            });
+        }
+
+        function saveTeacherAccount(e) {
+            e.preventDefault();
+            const name = document.getElementById('teacherName').value.trim();
+            const subject = document.getElementById('teacherSubject').value.trim();
+            const subjectId = document.getElementById('teacherSubjectId').value.trim();
+            const classes = document.getElementById('teacherClasses').value.trim();
+            const password = document.getElementById('teacherPassword').value.trim();
+
+            db.ref('teachers/' + ('teacher_' + Date.now())).set({ name, subject, subjectId, classes, password }).then(() => {
+                showToast('تمت إضافة حساب المدرس بنجاح! 👨‍🏫');
+                document.getElementById('teacherName').value = '';
+                document.getElementById('teacherSubject').value = '';
+                document.getElementById('teacherSubjectId').value = '';
+                document.getElementById('teacherClasses').value = '';
+                document.getElementById('teacherPassword').value = '';
+            });
+        }
+
+        function loadTeachersAdmin() {
+            db.ref('teachers').on('value', snap => {
+                const data = snap.val();
+                const tbody = document.getElementById('adminTeachersTableBody');
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                if(!data) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا يوجد مدرسون مسجلون.</td></tr>'; return; }
+                Object.keys(data).forEach(k => {
+                    const t = data[k];
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${t.name}</b></td>
+                            <td>${t.subject}</td>
+                            <td><code>${t.subjectId || 'ar'}</code></td>
+                            <td>${t.classes}</td>
+                            <td><code>${t.password}</code></td>
+                            <td><button onclick="db.ref('teachers/${k}').remove()" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">حذف</button></td>
+                        </tr>
+                    `;
                 });
             });
         }
@@ -459,92 +513,78 @@
             const key = document.getElementById('controlStudentSelect').value;
             const box = document.getElementById('controlResultBox');
             if(!key) { box.style.display = 'none'; return; }
-
             const s = studentsCache[key];
             document.getElementById('controlStudentName').textContent = `نتيجة الطالب: ${s.name}`;
             document.getElementById('term1Grade').value = s.term1Grade || '';
             document.getElementById('term2Grade').value = s.term2Grade || '';
-            document.getElementById('controlStatusSelect').value = s.controlStatus || 'ناجح';
             box.style.display = 'block';
         }
 
         function saveControlResults() {
             const key = document.getElementById('controlStudentSelect').value;
             if(!key) return;
-
-            const term1 = parseFloat(document.getElementById('term1Grade').value) || 0;
-            const term2 = parseFloat(document.getElementById('term2Grade').value) || 0;
-            const controlStatus = document.getElementById('controlStatusSelect').value;
-
-            db.ref('students/' + key).update({ term1Grade: term1, term2Grade: term2, controlStatus }).then(() => {
-                showToast('تم تثبيت نتائج الكنترول بنجاح! 🏆');
-            });
+            db.ref('students/' + key).update({
+                term1Grade: parseFloat(document.getElementById('term1Grade').value) || 0,
+                term2Grade: parseFloat(document.getElementById('term2Grade').value) || 0
+            }).then(() => showToast('تم حفظ نتائج الكنترول بنجاح! 🏆'));
         }
 
         function saveStudentAffairsAttendance() {
             const key = document.getElementById('affairsStudentSelect').value;
             if(!key) return;
-
-            const attendance = document.getElementById('affairsStatusSelect').value;
-            const attendanceNote = document.getElementById('affairsNoteInput').value.trim();
-
-            db.ref('students/' + key).update({ attendance, attendanceNote }).then(() => {
-                showToast('تم تسجيل الغياب والحالة لشؤون الطلاب 📅');
-            });
+            db.ref('students/' + key).update({
+                attendance: document.getElementById('affairsStatusSelect').value,
+                attendanceNote: document.getElementById('affairsNoteInput').value.trim()
+            }).then(() => showToast('تم تسجيل الحضور بنجاح 📅'));
         }
 
         function loadTickets() {
             db.ref('tickets').on('value', snap => {
                 const data = snap.val();
                 const container = document.getElementById('adminTicketsList');
+                if(!container) return;
                 if(!data) { container.innerHTML = 'لا توجد شكاوى حالياً.'; return; }
                 container.innerHTML = '';
                 Object.keys(data).reverse().forEach(k => {
                     const t = data[k];
                     container.innerHTML += `
                         <div style="background:#FFF; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #E2E8F0;">
-                            <b>طالب/ولي أمر: ${t.studentName || t.parentName}</b>
-                            <p>${t.content}</p>
+                            <b>${t.studentName || t.parentName}</b>: ${t.content}
                             <input type="text" id="reply_${k}" placeholder="رد المدير..." value="${t.adminReply || ''}" class="form-control" style="margin:8px 0;">
-                            <button onclick="replyTicket('${k}')" class="btn btn-success">إرسال الرد 💬</button>
+                            <button onclick="db.ref('tickets/${k}').update({adminReply: document.getElementById('reply_${k}').value}).then(()=>showToast('تم الرد'))" class="btn btn-success">إرسال الرد</button>
                         </div>
                     `;
                 });
             });
         }
 
-        function replyTicket(k) {
-            const adminReply = document.getElementById('reply_' + k).value;
-            db.ref('tickets/' + k).update({ adminReply }).then(() => showToast('تم إرسال الرد'));
-        }
-
         function postNews(e) {
             e.preventDefault();
-            const title = document.getElementById('newsTitle').value;
-            const content = document.getElementById('newsContent').value;
-            db.ref('news/' + Date.now()).set({ title, content, date: new Date().toLocaleDateString('ar-EG') }).then(() => {
-                showToast('تم نشر الإعلان 🚀');
-            });
+            db.ref('news/' + Date.now()).set({
+                title: document.getElementById('newsTitle').value,
+                content: document.getElementById('newsContent').value,
+                date: new Date().toLocaleDateString('ar-EG')
+            }).then(() => showToast('تم نشر الخبر 🚀'));
         }
 
         function loadPasswords() {
             db.ref('settings/passwords').once('value', snap => {
                 const p = snap.val() || { admin: 'admin123', control: 'control123', affairs: 'affairs123' };
-                document.getElementById('passAdmin').value = p.admin;
-                document.getElementById('passControl').value = p.control;
-                document.getElementById('passAffairs').value = p.affairs;
+                if(document.getElementById('passAdmin')) {
+                    document.getElementById('passAdmin').value = p.admin;
+                    document.getElementById('passControl').value = p.control;
+                    document.getElementById('passAffairs').value = p.affairs;
+                }
             });
         }
 
         function saveSystemPasswords(e) {
             e.preventDefault();
-            const admin = document.getElementById('passAdmin').value;
-            const control = document.getElementById('passControl').value;
-            const affairs = document.getElementById('passAffairs').value;
-
-            db.ref('settings/passwords').set({ admin, control, affairs }).then(() => {
-                showToast('تم حفظ كلمات مرور الأجهزة والسلطات 🔑');
-            });
+            db.ref('settings/passwords').set({
+                admin: document.getElementById('passAdmin').value,
+                control: document.getElementById('passControl').value,
+                affairs: document.getElementById('passAffairs').value
+            }).then(() => showToast('تم حفظ كلمات المرور 🔑'));
         }
     </script>
 </body>
