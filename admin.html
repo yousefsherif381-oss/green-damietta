@@ -156,6 +156,7 @@
 
         input[type="file"] { display: none; }
 
+        /* تصميم أزرار رفع الصور والفيديوهات متناسقة ومنسقة تماماً */
         .custom-file-upload, .custom-video-upload {
             display: inline-flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; padding: 12px 18px; background: #F8FAFC;
@@ -550,141 +551,325 @@
                 const data = snapshot.val();
                 const tbody = document.getElementById('adminTeachersTableBody');
                 if (!tbody) return;
+                tbody.innerHTML = '';
+
                 if (!data) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا توجد حسابات مدرسين مسجلة.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا توجد حسابات مدرسين مسجلة بعد</td></tr>';
                     return;
                 }
-                let html = '';
+
                 Object.keys(data).forEach(key => {
                     const t = data[key];
-                    html += `<tr>
-                        <td>${t.name}</td>
-                        <td>${t.subject}</td>
-                        <td>${t.subjectId}</td>
-                        <td>${t.classes}</td>
-                        <td>${t.password}</td>
-                        <td><button onclick="deleteTeacher('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">حذف</button></td>
-                    </tr>`;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${t.name || '---'}</b></td>
+                            <td>${t.subject || '---'}</td>
+                            <td><code>${t.subjectId || '---'}</code></td>
+                            <td>${t.classes || '---'}</td>
+                            <td><code>${t.password || '---'}</code></td>
+                            <td><button onclick="deleteTeacherAccount('${key}')" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">حذف 🗑️</button></td>
+                        </tr>
+                    `;
                 });
-                tbody.innerHTML = html;
             });
         }
 
-        function deleteTeacher(key) {
-            if(confirm('هل أنت متأكد من حذف حساب المدرس؟')) {
-                db.ref('teachers/' + key).remove().then(() => showToast('تم الحذف بنجاح', '🗑️'));
+        function deleteTeacherAccount(key) {
+            if (confirm('هل أنت متأكد من حذف حساب هذا المدرس؟')) {
+                db.ref(`teachers/${key}`).remove().then(() => {
+                    showToast('تم حذف حساب المدرس بنجاح 🗑️', '✅');
+                });
             }
         }
 
-        // دالة رفع ونشر الإعلان مع تحويل الفيديو والصورة لـ Base64
+        function loadStudentsDropdowns() {
+            db.ref('users').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const gradesSelect = document.getElementById('studentSelectForGrades');
+                const attendanceSelect = document.getElementById('studentAttendanceSelect');
+                const controlSelect = document.getElementById('controlStudentSelect');
+                
+                if (gradesSelect) gradesSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة بدقة --</option>';
+                if (attendanceSelect) attendanceSelect.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
+                if (controlSelect) controlSelect.innerHTML = '<option value="">-- حدد الطالب --</option>';
+
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const user = data[key];
+                        if (user.role === 'student') {
+                            const studentGrade = (user.grade || '').trim();
+                            if (currentRole === 'teacher') {
+                                if (loggedTeacherClasses && (studentGrade === loggedTeacherClasses || loggedTeacherClasses.includes(studentGrade))) {
+                                    if (gradesSelect) gradesSelect.innerHTML += `<option value="${key}">${user.fullName || user.name} (${studentGrade})</option>`;
+                                }
+                            } else {
+                                const opt = `<option value="${key}">${user.fullName || user.name} (${studentGrade || 'غير محدد'})</option>`;
+                                if (gradesSelect) gradesSelect.innerHTML += opt;
+                                if (attendanceSelect) attendanceSelect.innerHTML += opt;
+                                if (controlSelect) controlSelect.innerHTML += opt;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function loadStudentGradesToEdit() {
+            const studentKey = document.getElementById('studentSelectForGrades').value;
+            const container = document.getElementById('gradesEditFormContainer');
+            const tbody = document.getElementById('adminGradesEditTableBody');
+            
+            if (!studentKey) {
+                container.style.display = 'none';
+                return;
+            }
+
+            db.ref(`users/${studentKey}`).once('value').then((snapshot) => {
+                const user = snapshot.val() || {};
+                const studentName = user.fullName || user.name || 'طالب';
+                const studentGrade = user.grade || 'المرحلة الدراسية';
+
+                document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${studentName}`;
+                document.getElementById('editingStudentGradeBadge').textContent = `📚 الصف الدراسي: ${studentGrade}`;
+                container.style.display = 'block';
+                tbody.innerHTML = '';
+
+                const grades = user.grades || {};
+
+                if (currentRole === 'teacher') {
+                    document.getElementById('tableSubjectHeader').textContent = `المادة: ${loggedTeacherSubject} (${loggedTeacherSubjectId})`;
+                    const subGrade = grades[loggedTeacherSubjectId] || { term1: 0, term2: 0, exam: 0 };
+                    tbody.innerHTML = `
+                        <tr>
+                            <td><b>${loggedTeacherSubject}</b> <code>[${loggedTeacherSubjectId}]</code></td>
+                            <td><input type="number" id="grade_term1" class="form-control" value="${subGrade.term1 || 0}" min="0" max="30"></td>
+                            <td><input type="number" id="grade_term2" class="form-control" value="${subGrade.term2 || 0}" min="0" max="20"></td>
+                            <td><input type="number" id="grade_exam" class="form-control" value="${subGrade.exam || 0}" min="0" max="50"></td>
+                        </tr>
+                    `;
+                } else {
+                    document.getElementById('tableSubjectHeader').textContent = `المادة الدراسية المقررة (Eng ID)`;
+                    let subjects = [
+                        { id: 'arabic', name: 'اللغة العربية (Arabic)' },
+                        { id: 'english', name: 'اللغة الإنجليزية (English)' },
+                        { id: 'math', name: 'الرياضيات (Math)' },
+                        { id: 'science', name: 'العلوم (Science)' },
+                        { id: 'social', name: 'الدراسات الاجتماعية (Social)' },
+                        { id: 'computer', name: 'الحاسب الآلي (Computer)' }
+                    ];
+
+                    subjects.forEach(sub => {
+                        const subGrade = grades[sub.id] || { term1: 0, term2: 0, exam: 0 };
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><b>${sub.name}</b> <code>[${sub.id}]</code></td>
+                                <td><input type="number" id="grade_${sub.id}_term1" class="form-control" value="${subGrade.term1 || 0}" min="0" max="30"></td>
+                                <td><input type="number" id="grade_${sub.id}_term2" class="form-control" value="${subGrade.term2 || 0}" min="0" max="20"></td>
+                                <td><input type="number" id="grade_${sub.id}_exam" class="form-control" value="${subGrade.exam || 0}" min="0" max="50"></td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+        }
+
+        function saveStudentSubjectGradeDirect() {
+            const studentKey = document.getElementById('studentSelectForGrades').value;
+            if (!studentKey) {
+                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
+                return;
+            }
+
+            if (currentRole === 'teacher') {
+                const term1 = document.getElementById('grade_term1').value;
+                const term2 = document.getElementById('grade_term2').value;
+                const exam = document.getElementById('grade_exam').value;
+
+                db.ref(`users/${studentKey}/grades/${loggedTeacherSubjectId}`).set({ term1, term2, exam }).then(() => {
+                    showToast(`تم حفظ درجات مادة ${loggedTeacherSubject} للطالب بنجاح 📊`, '✅');
+                });
+            } else {
+                let subIds = ['arabic', 'english', 'math', 'science', 'social', 'computer'];
+                const newGrades = {};
+                subIds.forEach(subId => {
+                    const t1 = document.getElementById(`grade_${subId}_term1`);
+                    const t2 = document.getElementById(`grade_${subId}_term2`);
+                    const ex = document.getElementById(`grade_${subId}_exam`);
+                    if (t1 && t2 && ex) {
+                        newGrades[subId] = { term1: t1.value, term2: t2.value, exam: ex.value };
+                    }
+                });
+
+                db.ref(`users/${studentKey}/grades`).set(newGrades).then(() => {
+                    showToast('تم حفظ ورصد درجات المواد المقررة بدقة 📊', '✅');
+                });
+            }
+        }
+
+        function loadStudentAttendanceData() {
+            const studentKey = document.getElementById('studentAttendanceSelect').value;
+            if (!studentKey) return;
+
+            db.ref(`users/${studentKey}`).once('value').then((snapshot) => {
+                const user = snapshot.val() || {};
+                document.getElementById('attendanceStatusSelect').value = user.attendanceStatus || 'منتظم';
+                document.getElementById('absenceCountInput').value = user.absenceCount || 0;
+                document.getElementById('attendanceNoteInput').value = user.attendanceNote || '';
+                document.getElementById('absenceDatesLogInput').value = user.absenceDatesLog || '';
+            });
+        }
+
+        function saveStudentAttendance() {
+            const studentKey = document.getElementById('studentAttendanceSelect').value;
+            if (!studentKey) {
+                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
+                return;
+            }
+
+            const attendanceStatus = document.getElementById('attendanceStatusSelect').value;
+            const absenceCount = document.getElementById('absenceCountInput').value;
+            const attendanceNote = document.getElementById('attendanceNoteInput').value;
+            const absenceDatesLog = document.getElementById('absenceDatesLogInput').value;
+
+            db.ref(`users/${studentKey}`).update({
+                attendanceStatus,
+                absenceCount,
+                attendanceNote,
+                absenceDatesLog
+            }).then(() => {
+                showToast('تم تحديث سجل شؤون الطلاب والحضور بنجاح 👥', '✅');
+            });
+        }
+
+        function loadControlStudentData() {
+            const key = document.getElementById('controlStudentSelect').value;
+            const box = document.getElementById('controlResultBox');
+            if (!key) { box.style.display = 'none'; return; }
+
+            db.ref(`users/${key}`).once('value').then(snap => {
+                const u = snap.val() || {};
+                document.getElementById('controlStudentName').textContent = `الطالب: ${u.fullName || u.name}`;
+                document.getElementById('term1Grade').value = u.term1Total || 0;
+                document.getElementById('term2Grade').value = u.term2Total || 0;
+                box.style.display = 'block';
+            });
+        }
+
+        function saveControlResults() {
+            const key = document.getElementById('controlStudentSelect').value;
+            const term1Total = document.getElementById('term1Grade').value;
+            const term2Total = document.getElementById('term2Grade').value;
+
+            db.ref(`users/${key}`).update({ term1Total, term2Total }).then(() => {
+                showToast('تم حفظ نتائج الكنترول بنجاح 🏆', '✅');
+            });
+        }
+
+        // نشر الأخبار (مع دعم رفع الصور والفيديوهات من الجهاز كأزرار متناسقة)
         function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim();
             const content = document.getElementById('newsContent').value.trim();
             
-            const imageFile = document.getElementById('newsImageFile').files[0];
-            const videoFile = document.getElementById('newsVideoFile').files[0];
+            const imageInput = document.getElementById('newsImageFile');
+            const videoInput = document.getElementById('newsVideoFile');
 
-            showToast('جاري رفع ونشر الإعلان...', '⏳');
+            let imageUrl = '';
+            let videoUrl = '';
 
-            const readFileAsDataURL = (file) => {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                    reader.readAsDataURL(file);
+            // دالة مساعدة لرفع البيانات بعد قراءة الملفات
+            const executeSave = () => {
+                db.ref('news').push({
+                    title, badge, content, imageUrl, videoUrl, timestamp: Date.now()
+                }).then(() => {
+                    showToast('تم نشر الخبر بنجاح 🚀', '✅');
+                    document.getElementById('newsTitle').value = '';
+                    document.getElementById('newsBadge').value = '';
+                    document.getElementById('newsContent').value = '';
+                    document.getElementById('newsImageFile').value = '';
+                    document.getElementById('newsVideoFile').value = '';
+                    document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+                    document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
                 });
             };
 
-            async function saveToFirebase() {
-                let imageUrl = '';
-                let videoUrl = '';
-                try {
-                    if (imageFile) imageUrl = await readFileAsDataURL(imageFile);
-                    if (videoFile) videoUrl = await readFileAsDataURL(videoFile);
+            // قراءة صورة الإعلان لو موجودة
+            if (imageInput.files && imageInput.files[0]) {
+                const readerImg = new FileReader();
+                readerImg.onload = function(e1) {
+                    imageUrl = e1.target.result;
+                    processVideo();
+                };
+                readerImg.readAsDataURL(imageInput.files[0]);
+            } else {
+                processVideo();
+            }
 
-                    db.ref('news').push({
-                        title: title,
-                        badge: badge || 'إعلان هـام',
-                        content: content,
-                        imageUrl: imageUrl,
-                        videoUrl: videoUrl,
-                        timestamp: Date.now()
-                    }).then(() => {
-                        showToast('تم نشر الإعلان والفيديو بنجاح 🚀', '✅');
-                        document.getElementById('newsTitle').value = '';
-                        document.getElementById('newsBadge').value = '';
-                        document.getElementById('newsContent').value = '';
-                        document.getElementById('newsImageFile').value = '';
-                        document.getElementById('newsVideoFile').value = '';
-                        document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-                        document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-                        fetchAdminNews();
-                    });
-                } catch (error) {
-                    console.error(error);
-                    showToast('حدث خطأ أثناء رفع الملفات', '❌');
+            // قراءة فيديو الإعلان لو موجود
+            function processVideo() {
+                if (videoInput.files && videoInput.files[0]) {
+                    const readerVid = new FileReader();
+                    readerVid.onload = function(e2) {
+                        videoUrl = e2.target.result;
+                        executeSave();
+                    };
+                    readerVid.readAsDataURL(videoInput.files[0]);
+                } else {
+                    executeSave();
                 }
             }
-            saveToFirebase();
         }
 
-        function fetchAdminNews() {
-            db.ref('news').on('value', (snapshot) => {
+        function fetchAllUsersForAdmin() {
+            db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
-                const container = document.getElementById('adminNewsList');
-                if (!container) return;
+                const tbody = document.getElementById('adminUsersTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
 
                 if (!data) {
-                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 15px;">لا توجد إعلانات منشورة حالياً.</p>';
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">لا توجد حسابات مسجلة بعد</td></tr>';
                     return;
                 }
 
-                let html = '';
-                Object.keys(data).reverse().forEach(key => {
-                    const item = data[key];
-                    html += `
-                        <div style="background: #FFFFFF; border: 1px solid var(--border); padding: 16px; border-radius: 14px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <h4 style="color: var(--primary-dark); font-weight: 900; font-size: 15px;">${item.title}</h4>
-                                <span style="background: var(--accent); color: white; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 800;">${item.badge}</span>
-                            </div>
-                            <p style="color: var(--text-dark); font-size: 13.5px; margin-bottom: 10px; line-height: 1.6;">${item.content}</p>
-                            
-                            ${item.imageUrl ? `<img src="${item.imageUrl}" style="max-width: 100%; height: 140px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; display: block;" alt="صورة الخبر">` : ''}
-                            
-                            ${item.videoUrl ? `
-                                <div style="margin-bottom: 10px;">
-                                    <video controls style="width: 100%; max-height: 200px; border-radius: 10px; background: #000;">
-                                        <source src="${item.videoUrl}" type="video/mp4">
-                                        متصفحك لا يدعم عرض الفيديو
-                                    </video>
-                                </div>
-                            ` : ''}
-
-                            <button onclick="deleteNewsItem('${key}')" class="btn btn-danger" style="padding: 6px 14px; font-size: 12px;">حذف الإعلان 🗑️</button>
-                        </div>
+                Object.keys(data).forEach(key => {
+                    const u = data[key];
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${u.fullName || u.name || '---'}</b></td>
+                            <td>${u.role === 'parent' ? 'ولي أمر' : 'طالب'}</td>
+                            <td>${u.grade || '---'}</td>
+                            <td>${u.nationalId || u.code || '---'}</td>
+                            <td>${u.phone || '---'}</td>
+                            <td><code>${u.password || '---'}</code></td>
+                            <td><b>${u.attendanceStatus || 'منتظم'}</b></td>
+                            <td><b>${u.absenceCount || 0}</b></td>
+                            <td style="font-size: 11px; white-space: pre-wrap;">${u.absenceDatesLog || u.attendanceNote || 'لا توجد ملاحظات'}</td>
+                            <td><button onclick="deleteUserAccount('${key}')" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">حذف 🗑️</button></td>
+                        </tr>
                     `;
                 });
-                container.innerHTML = html;
             });
         }
 
-        function deleteNewsItem(key) {
-            if (confirm('هل أنت متأكد من حذف هذا الإعلان نهائياً؟')) {
-                db.ref('news/' + key).remove().then(() => {
-                    showToast('تم حذف الإعلان بنجاح', '🗑️');
+        function deleteUserAccount(key) {
+            if (confirm('هل أنت متأكد من حذف هذا الحساب نهائياً؟')) {
+                db.ref(`users/${key}`).remove().then(() => {
+                    showToast('تم حذف الحساب بنجاح 🗑️', '✅');
                 });
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            applyRolePermissions();
+        window.onload = function() {
             loadCurrentPasswords();
-            fetchTeachersForAdmin();
-            fetchAdminNews();
-        });
+            applyRolePermissions();
+            loadStudentsDropdowns();
+            if (currentRole === 'admin') {
+                fetchAllUsersForAdmin();
+                fetchTeachersForAdmin();
+            }
+        };
     </script>
 </body>
 </html>
