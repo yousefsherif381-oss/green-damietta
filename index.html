@@ -597,7 +597,7 @@
             });
         }
 
-        // دالة التحقق من تسجيل الدخول (محدثة لتقرأ كل احتمالات كلمات المرور في Firebase)
+        // دالة التحقق وتسجيل الدخول المحدثة لحفظ الصلاحيات والانتقال للوحة التحكم بدقة
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -617,44 +617,69 @@
                 const affairsPass = passwords.affairs || settingsData.affairsPassword || "00112345";
 
                 if (identifier === 'admin' && password === adminPass) {
+                    localStorage.setItem('adminRole', 'admin');
                     window.location.href = 'admin.html';
                     return;
                 }
                 if (identifier === 'control' && password === controlPass) {
+                    localStorage.setItem('adminRole', 'control');
                     window.location.href = 'admin.html';
                     return;
                 }
                 if (identifier === 'affairs' && password === affairsPass) {
+                    localStorage.setItem('adminRole', 'affairs');
                     window.location.href = 'admin.html';
                     return;
                 }
 
-                db.ref('users').once('value').then((userSnap) => {
-                    const users = userSnap.val();
-                    let foundUser = null;
-                    let foundKey = null;
+                db.ref('teachers').once('value').then((teacherSnap) => {
+                    const teachers = teacherSnap.val() || {};
+                    let foundTeacher = null;
 
-                    if (users) {
-                        Object.keys(users).forEach(key => {
-                            const u = users[key];
-                            const matchId = u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier || u.name === identifier;
-                            if (matchId && String(u.password) === String(password)) {
-                                foundUser = u;
-                                foundKey = key;
-                            }
-                        });
+                    Object.keys(teachers).forEach(tKey => {
+                        const t = teachers[tKey];
+                        if ((t.name === identifier || t.subjectId === identifier) && String(t.password) === String(password)) {
+                            foundTeacher = t;
+                        }
+                    });
+
+                    if (foundTeacher) {
+                        localStorage.setItem('adminRole', 'teacher');
+                        localStorage.setItem('loggedTeacherName', foundTeacher.name);
+                        localStorage.setItem('loggedTeacherSubject', foundTeacher.subject);
+                        localStorage.setItem('loggedTeacherSubjectId', foundTeacher.subjectId);
+                        localStorage.setItem('loggedTeacherClasses', foundTeacher.classes);
+                        window.location.href = 'admin.html';
+                        return;
                     }
 
-                    if (foundUser) {
-                        currentUser = { ...foundUser, firebaseKey: foundKey };
-                        localStorage.setItem('currentUserKey', foundKey);
-                        showToast(`أهلاً بك يا ${foundUser.fullName || foundUser.name} ✨`, '🎉');
-                        if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-                        updateHeaderAfterLogin();
-                        showHomePage();
-                    } else {
-                        showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
-                    }
+                    db.ref('users').once('value').then((userSnap) => {
+                        const users = userSnap.val();
+                        let foundUser = null;
+                        let foundKey = null;
+
+                        if (users) {
+                            Object.keys(users).forEach(key => {
+                                const u = users[key];
+                                const matchId = u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier || u.name === identifier;
+                                if (matchId && String(u.password) === String(password)) {
+                                    foundUser = u;
+                                    foundKey = key;
+                                }
+                            });
+                        }
+
+                        if (foundUser) {
+                            currentUser = { ...foundUser, firebaseKey: foundKey };
+                            localStorage.setItem('currentUserKey', foundKey);
+                            showToast(`أهلاً بك يا ${foundUser.fullName || foundUser.name} ✨`, '🎉');
+                            if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                            updateHeaderAfterLogin();
+                            showHomePage();
+                        } else {
+                            showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
+                        }
+                    });
                 });
             });
         }
