@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
 
     <style>
         :root {
@@ -155,6 +154,22 @@
         }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 
+        input[type="file"] { display: none; }
+
+        .custom-file-upload {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px 18px; background: #F8FAFC;
+            border: 2px dashed var(--primary); border-radius: 12px;
+            color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
+            text-align: center;
+        }
+        .custom-file-upload:hover {
+            background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+        }
+
+        .file-name-preview { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
+
         .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s ease; }
         .btn:hover { transform: translateY(-2px); }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
@@ -165,6 +180,17 @@
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
         tr:nth-child(even) { background-color: #F8FAFC; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
+            z-index: 3500; display: none; align-items: center; justify-content: center;
+        }
+        .modal-card {
+            background: #FFFFFF; width: 100%; max-width: 450px; padding: 25px;
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 2px solid var(--accent); text-align: center;
+        }
 
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -187,10 +213,10 @@
 
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
-            <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
+            <span class="sidebar-title" id="sidebarTitleText">📌 أقسام لوحة الإدارة</span>
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
-        <div class="sidebar-menu">
+        <div class="sidebar-menu" id="sidebarMenuContainer">
             <div class="sidebar-item active" onclick="switchAdminSection('newsSection', this)">
                 <span class="sidebar-icon">📢</span>
                 <span class="sidebar-label">نشر وإدارة الأخبار</span>
@@ -202,6 +228,10 @@
             <div class="sidebar-item" onclick="switchAdminSection('gradesSection', this)">
                 <span class="sidebar-icon">📊</span>
                 <span class="sidebar-label">رصد وتقييم الدرجات</span>
+            </div>
+            <div class="sidebar-item" onclick="switchAdminSection('controlSection', this)">
+                <span class="sidebar-icon">🏆</span>
+                <span class="sidebar-label">كنترول المدرسة</span>
             </div>
             <div class="sidebar-item" onclick="switchAdminSection('attendanceSection', this)">
                 <span class="sidebar-icon">📅</span>
@@ -237,7 +267,7 @@
 
     <main class="main-wrapper">
 
-        <!-- 1️⃣ قسم الأخبار (مع إمكانية رفع الصور والفيديوهات) -->
+        <!-- 1️⃣ قسم الأخبار والوسائط -->
         <div class="admin-section active" id="newsSection">
             <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة (مع إمكانية إرفاق صور وفيديوهات)</div>
             <form onsubmit="postNews(event)">
@@ -245,20 +275,28 @@
                     <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
                     <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
                 </div>
-                <textarea id="newsContent" class="form-control" rows="3" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 12px;"></textarea>
+                <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
                 
-                <div style="margin-bottom: 15px; background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1.5px dashed var(--primary);">
-                    <label style="font-size: 13px; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 6px;">📷 إرفاق صورة أو فيديو مع الخبر (اختياري):</label>
-                    <input type="file" id="newsMediaFile" class="form-control" accept="image/*,video/*">
+                <div class="form-grid" style="margin-bottom: 15px;">
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان:</label>
+                        <label for="newsImageFile" class="custom-file-upload"><span>📁 اضغط لاختيار صورة الإعلان</span></label>
+                        <input type="file" id="newsImageFile" accept="image/*" onchange="updateFileName(this, 'imageNamePreview')">
+                        <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو يوتيوب:</label>
+                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="https://youtu.be/xxx" style="padding: 12px;">
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان بالوسائط للجميع 🚀</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
             </form>
             <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2️⃣ قسم إدارة المدرسين -->
+        <!-- 2️⃣ قسم إدارة المدرسين وصلاحياتهم -->
         <div class="admin-section" id="teachersAdminSection">
             <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين وموادهم وفصولهم</div>
             <form onsubmit="saveTeacherAccount(event)">
@@ -271,49 +309,60 @@
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
             </form>
-        </div>
-
-        <!-- 3️⃣ قسم الدرجات (مفعل بالكامل لاختيار الطالب والمادة ورصد الدرجات) -->
-        <div class="admin-section" id="gradesSection">
-            <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
-            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
-                <div class="form-grid">
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
-                        <select id="gradeStudentSelect" class="form-control">
-                            <option value="">-- اختر طالب من القائمة --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر المادة الدراسية:</label>
-                        <select id="gradeSubjectSelect" class="form-control">
-                            <option value="math">الرياضيات (math)</option>
-                            <option value="arabic">اللغة العربية (arabic)</option>
-                            <option value="english">اللغة الإنجليزية (english)</option>
-                            <option value="science">العلوم (science)</option>
-                            <option value="social">الدراسات الاجتماعية (social)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-grid" style="margin-top: 10px;">
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">درجة أعمال السنة:</label>
-                        <input type="number" id="inputTerm1" class="form-control" value="0" min="0" max="30">
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">درجة التقييم الأسبوعي:</label>
-                        <input type="number" id="inputTerm2" class="form-control" value="0" min="0" max="20">
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">درجة الامتحان النهائي:</label>
-                        <input type="number" id="inputExam" class="form-control" value="0" min="0" max="50">
-                    </div>
-                </div>
-                <button onclick="saveStudentGradesByAdmin()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتحديث درجات الطالب فوراً 💾</button>
+            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">المدرسون المسجلون بالسيستم:</h4>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr><th>الاسم</th><th>المادة</th><th>معرف المادة</th><th>الفصول المسندة</th><th>الباسورد</th><th>إجراء</th></tr>
+                    </thead>
+                    <tbody id="adminTeachersTableBody"><tr><td colspan="6" style="text-align: center;">جاري تحميل المدرسين...</td></tr></tbody>
+                </table>
             </div>
         </div>
 
-        <!-- 4️⃣ قسم الغياب وشؤون الطلاب (مفعل بالكامل مع التاريخ والملاحظات والتواريخ المسجلة) -->
+        <!-- 3️⃣ قسم رصد الدرجات -->
+        <div class="admin-section" id="gradesSection">
+            <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
+                <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
+                    <option value="">-- حدد الطالب من القائمة --</option>
+                </select>
+            </div>
+            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;">رصد الدرجات للطالب: </h4>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr><th>المادة الدراسية</th><th>أعمال السنة (30)</th><th>التقييم الأسبوعي (20)</th><th>الامتحان النهائي (50)</th></tr>
+                        </thead>
+                        <tbody id="adminGradesEditTableBody"></tbody>
+                    </table>
+                </div>
+                <button onclick="saveStudentGradesDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ وتقييم الدرجات 💾</button>
+            </div>
+        </div>
+
+        <!-- 🏆 قسم كنترول المدرسة -->
+        <div class="admin-section" id="controlSection">
+            <div class="card-title">🏆 كنترول المدرسة - تحديث نتائج الترم الأول والثاني للمدرسة كلها</div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
+                <select id="controlStudentSelect" class="form-control" style="max-width: 400px;" onchange="loadControlStudentData()">
+                    <option value="">-- حدد الطالب --</option>
+                </select>
+            </div>
+            <div id="controlResultBox" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+                <h4 id="controlStudentName" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;"></h4>
+                <div class="form-grid">
+                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الأول (من 100):</label><input type="number" id="term1Grade" class="form-control"></div>
+                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الثاني (من 100):</label><input type="number" id="term2Grade" class="form-control"></div>
+                </div>
+                <button onclick="saveControlResults()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتثبيت نتائج الكنترول 💾</button>
+            </div>
+        </div>
+
+        <!-- 4️⃣ قسم الغياب وشؤون الطلاب -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية وتواريخ الغياب</div>
             <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
@@ -327,27 +376,32 @@
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
                         <select id="attendanceStatusSelect" class="form-control">
-                            <option value="منتظم ✅">منتظم (حاضر) ✅</option>
-                            <option value="غاب يوم واحد ❌">غاب يوم واحد ❌</option>
-                            <option value="عذر مرضي / تقرير طبي 🏥">عذر مرضي / تقرير طبي 🏥</option>
-                            <option value="استئذان رسمي ⚠️">استئذان رسمي ⚠️</option>
+                            <option value="منتظم">منتظم (حاضر) ✅</option>
+                            <option value="غاب يوم واحد">غاب يوم واحد ❌</option>
+                            <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
+                            <option value="استئذان رسمي">استئذان رسمي ⚠️</option>
                         </select>
                     </div>
                 </div>
-                <div class="form-grid" style="grid-template-columns: 1fr 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
+                
+                <div class="form-grid" style="grid-template-columns: 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
                     <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي الغياب:</label>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي عدد مرات الغياب:</label>
                         <input type="number" id="absenceCountInput" class="form-control" value="0" min="0">
                     </div>
                     <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تاريخ يوم الغياب:</label>
-                        <input type="date" id="absenceDateInput" class="form-control">
-                    </div>
-                    <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر:</label>
-                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر مرضي...">
+                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر...">
                     </div>
                 </div>
+
+                <div style="margin-top: 15px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تواريخ أيام الغياب والأعذار تفصيلياً:</label>
+                    <textarea id="absenceDatesLogInput" class="form-control" rows="3" placeholder="مثال: 
+- 12 أكتوبر: عذر مرضي
+- 18 نوفمبر: غياب بدون عذر"></textarea>
+                </div>
+
                 <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور والتواريخ بدقة 💾</button>
             </div>
         </div>
@@ -359,21 +413,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>الاسم</th>
-                            <th>نوع الحساب</th>
-                            <th>الصف الدراسي</th>
-                            <th>الكود / الرقم القومي</th>
-                            <th>رقم المحمول</th>
-                            <th>كلمة المرور</th>
-                            <th>حالة الحضور</th>
-                            <th>مرات الغياب</th>
-                            <th>ملاحظات</th>
-                            <th>إجراء</th>
+                            <th>الاسم</th><th>نوع الحساب</th><th>الصف الدراسي</th><th>الكود / الرقم القومي</th>
+                            <th>رقم المحمول</th><th>كلمة المرور</th><th>حالة الحضور</th><th>مرات الغياب</th><th>ملاحظات وتواريخ</th><th>إجراء</th>
                         </tr>
                     </thead>
-                    <tbody id="adminUsersTableBody">
-                        <tr><td colspan="10" style="text-align: center;">جاري تحميل الحسابات...</td></tr>
-                    </tbody>
+                    <tbody id="adminUsersTableBody"><tr><td colspan="10" style="text-align: center;">جاري تحميل الحسابات...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -429,6 +473,15 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
+        function updateFileName(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                preview.textContent = "تم اختيار الملف: " + input.files[0].name;
+            } else {
+                preview.textContent = "لم يتم اختيار ملف بعد";
+            }
+        }
+
         function loadCurrentPasswords() {
             db.ref('settings').once('value').then((snapshot) => {
                 const data = snapshot.val() || {};
@@ -458,157 +511,271 @@
             });
         }
 
-        // تحميل قائمة الطلاب في قوائم الاختيار (للكنترول وشؤون الطلاب)
+        // إضافة وحفظ حساب المدرس
+        function saveTeacherAccount(e) {
+            e.preventDefault();
+            const name = document.getElementById('teacherName').value.trim();
+            const subject = document.getElementById('teacherSubject').value.trim();
+            const subjectId = document.getElementById('teacherSubjectId').value.trim();
+            const classes = document.getElementById('teacherClasses').value.trim();
+            const password = document.getElementById('teacherPassword').value.trim();
+
+            db.ref('teachers').push({ name, subject, subjectId, classes, password }).then(() => {
+                showToast('تم إضافة المدرس بنجاح 👨‍🏫', '✅');
+                document.getElementById('teacherName').value = '';
+                document.getElementById('teacherSubject').value = '';
+                document.getElementById('teacherSubjectId').value = '';
+                document.getElementById('teacherClasses').value = '';
+                document.getElementById('teacherPassword').value = '';
+            });
+        }
+
+        // جلب وعرض المدرسين
+        function fetchTeachersForAdmin() {
+            db.ref('teachers').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const tbody = document.getElementById('adminTeachersTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+
+                if (!data) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا توجد حسابات مدرسين مسجلة بعد</td></tr>';
+                    return;
+                }
+
+                Object.keys(data).forEach(key => {
+                    const t = data[key];
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${t.name || '---'}</b></td>
+                            <td>${t.subject || '---'}</td>
+                            <td><code>${t.subjectId || '---'}</code></td>
+                            <td>${t.classes || '---'}</td>
+                            <td><code>${t.password || '---'}</code></td>
+                            <td><button onclick="deleteTeacherAccount('${key}')" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">حذف 🗑️</button></td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        function deleteTeacherAccount(key) {
+            if (confirm('هل أنت متأكد من حذف حساب هذا المدرس؟')) {
+                db.ref(`teachers/${key}`).remove().then(() => {
+                    showToast('تم حذف حساب المدرس بنجاح 🗑️', '✅');
+                });
+            }
+        }
+
+        // جلب الطلاب في القوائم المنسدلة
         function loadStudentsDropdowns() {
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
-                const gradeSelect = document.getElementById('gradeStudentSelect');
+                const gradesSelect = document.getElementById('studentSelectForGrades');
                 const attendanceSelect = document.getElementById('studentAttendanceSelect');
+                const controlSelect = document.getElementById('controlStudentSelect');
                 
-                if (gradeSelect) gradeSelect.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
+                if (gradesSelect) gradesSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
                 if (attendanceSelect) attendanceSelect.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
+                if (controlSelect) controlSelect.innerHTML = '<option value="">-- حدد الطالب --</option>';
 
                 if (data) {
                     Object.keys(data).forEach(key => {
                         const user = data[key];
                         if (user.role === 'student') {
-                            const optionHTML = `<option value="${key}">${user.fullName || user.name} (${user.grade || '---'})</option>`;
-                            if (gradeSelect) gradeSelect.innerHTML += optionHTML;
-                            if (attendanceSelect) attendanceSelect.innerHTML += optionHTML;
+                            const opt = `<option value="${key}">${user.fullName || user.name} (${user.grade || '---'})</option>`;
+                            if (gradesSelect) gradesSelect.innerHTML += opt;
+                            if (attendanceSelect) attendanceSelect.innerHTML += opt;
+                            if (controlSelect) controlSelect.innerHTML += opt;
                         }
                     });
                 }
             });
         }
 
-        // حفظ الدرجات للطالب
-        function saveStudentGradesByAdmin() {
-            const studentKey = document.getElementById('gradeStudentSelect').value;
-            const subjectId = document.getElementById('gradeSubjectSelect').value;
-            const term1 = document.getElementById('inputTerm1').value;
-            const term2 = document.getElementById('inputTerm2').value;
-            const exam = document.getElementById('inputExam').value;
-
+        // تحميل درجات الطالب لتعديلها
+        function loadStudentGradesToEdit() {
+            const studentKey = document.getElementById('studentSelectForGrades').value;
+            const container = document.getElementById('gradesEditFormContainer');
+            const tbody = document.getElementById('adminGradesEditTableBody');
+            
             if (!studentKey) {
-                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
-                return;
-            }
-
-            db.ref(`users/${studentKey}/grades/${subjectId}`).set({
-                term1: term1,
-                term2: term2,
-                exam: exam
-            }).then(() => {
-                showToast('تم رصد وتحديث درجات الطالب بنجاح 📊', '✅');
-            });
-        }
-
-        // تحميل بيانات غياب الطالب عند اختياره
-        function loadStudentAttendanceData() {
-            const studentKey = document.getElementById('studentAttendanceSelect').value;
-            if (!studentKey) return;
-
-            db.ref(`users/${studentKey}`).once('value').then((snapshot) => {
-                const user = snapshot.val();
-                if (user) {
-                    document.getElementById('attendanceStatusSelect').value = user.attendanceStatus || 'منتظم ✅';
-                    document.getElementById('absenceCountInput').value = user.absenceCount || 0;
-                    document.getElementById('attendanceNoteInput').value = user.attendanceNote || '';
-                }
-            });
-        }
-
-        // حفظ سجل الغياب والملاحظات مع التاريخ
-        function saveStudentAttendance() {
-            const studentKey = document.getElementById('studentAttendanceSelect').value;
-            const attendanceStatus = document.getElementById('attendanceStatusSelect').value;
-            const absenceCount = document.getElementById('absenceCountInput').value;
-            const absenceDate = document.getElementById('absenceDateInput').value;
-            const attendanceNote = document.getElementById('attendanceNoteInput').value;
-
-            if (!studentKey) {
-                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
+                container.style.display = 'none';
                 return;
             }
 
             db.ref(`users/${studentKey}`).once('value').then((snapshot) => {
                 const user = snapshot.val() || {};
-                let existingLog = user.absenceDatesLog || '';
-                
-                if (absenceDate) {
-                    const newLogEntry = `• تاريخ: ${absenceDate} - الحالة: ${attendanceStatus} (${attendanceNote || 'بدون ملاحظات'})`;
-                    existingLog = existingLog ? existingLog + '\n' + newLogEntry : newLogEntry;
-                }
+                document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${user.fullName || user.name}`;
+                container.style.display = 'block';
+                tbody.innerHTML = '';
 
-                db.ref(`users/${studentKey}`).update({
-                    attendanceStatus: attendanceStatus,
-                    absenceCount: absenceCount,
-                    attendanceNote: attendanceNote,
-                    absenceDatesLog: existingLog
-                }).then(() => {
-                    showToast('تم تحديث سجل الغياب والتواريخ بنجاح 📅', '✅');
+                const subjects = [
+                    { id: 'math', name: 'الرياضيات' },
+                    { id: 'arabic', name: 'اللغة العربية' },
+                    { id: 'english', name: 'اللغة الإنجليزية' },
+                    { id: 'science', name: 'العلوم' },
+                    { id: 'social', name: 'الدراسات الاجتماعية' }
+                ];
+
+                const grades = user.grades || {};
+                subjects.forEach(sub => {
+                    const subGrade = grades[sub.id] || { term1: 0, term2: 0, exam: 0 };
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${sub.name}</b></td>
+                            <td><input type="number" id="grade_${sub.id}_term1" class="form-control" value="${subGrade.term1 || 0}" min="0" max="30"></td>
+                            <td><input type="number" id="grade_${sub.id}_term2" class="form-control" value="${subGrade.term2 || 0}" min="0" max="20"></td>
+                            <td><input type="number" id="grade_${sub.id}_exam" class="form-control" value="${subGrade.exam || 0}" min="0" max="50"></td>
+                        </tr>
+                    `;
                 });
             });
         }
 
-        // نشر الأخبار (مع دعم رفع الصور والفيديوهات عبر Base64 لتعمل بدون مشاكل في التخزين)
+        function saveStudentGradesDirect() {
+            const studentKey = document.getElementById('studentSelectForGrades').value;
+            if (!studentKey) {
+                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
+                return;
+            }
+
+            const subjects = ['math', 'arabic', 'english', 'science', 'social'];
+            const newGrades = {};
+
+            subjects.forEach(subId => {
+                newGrades[subId] = {
+                    term1: document.getElementById(`grade_${subId}_term1`).value,
+                    term2: document.getElementById(`grade_${subId}_term2`).value,
+                    exam: document.getElementById(`grade_${subId}_exam`).value
+                };
+            });
+
+            db.ref(`users/${studentKey}/grades`).set(newGrades).then(() => {
+                showToast('تم حفظ ورصد درجات الطالب بنجاح 📊', '✅');
+            });
+        }
+
+        // تحميل بيانات الحضور والغياب للطالب
+        function loadStudentAttendanceData() {
+            const studentKey = document.getElementById('studentAttendanceSelect').value;
+            if (!studentKey) return;
+
+            db.ref(`users/${studentKey}`).once('value').then((snapshot) => {
+                const user = snapshot.val() || {};
+                document.getElementById('attendanceStatusSelect').value = user.attendanceStatus || 'منتظم';
+                document.getElementById('absenceCountInput').value = user.absenceCount || 0;
+                document.getElementById('attendanceNoteInput').value = user.attendanceNote || '';
+                document.getElementById('absenceDatesLogInput').value = user.absenceDatesLog || '';
+            });
+        }
+
+        function saveStudentAttendance() {
+            const studentKey = document.getElementById('studentAttendanceSelect').value;
+            if (!studentKey) {
+                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
+                return;
+            }
+
+            const attendanceStatus = document.getElementById('attendanceStatusSelect').value;
+            const absenceCount = document.getElementById('absenceCountInput').value;
+            const attendanceNote = document.getElementById('attendanceNoteInput').value;
+            const absenceDatesLog = document.getElementById('absenceDatesLogInput').value;
+
+            db.ref(`users/${studentKey}`).update({
+                attendanceStatus,
+                absenceCount,
+                attendanceNote,
+                absenceDatesLog
+            }).then(() => {
+                showToast('تم تحديث سجل الحضور والغياب بنجاح 📅', '✅');
+            });
+        }
+
+        function loadControlStudentData() {
+            const key = document.getElementById('controlStudentSelect').value;
+            const box = document.getElementById('controlResultBox');
+            if (!key) { box.style.display = 'none'; return; }
+
+            db.ref(`users/${key}`).once('value').then(snap => {
+                const u = snap.val() || {};
+                document.getElementById('controlStudentName').textContent = `الطالب: ${u.fullName || u.name}`;
+                document.getElementById('term1Grade').value = u.term1Total || 0;
+                document.getElementById('term2Grade').value = u.term2Total || 0;
+                box.style.display = 'block';
+            });
+        }
+
+        function saveControlResults() {
+            const key = document.getElementById('controlStudentSelect').value;
+            const term1Total = document.getElementById('term1Grade').value;
+            const term2Total = document.getElementById('term2Grade').value;
+
+            db.ref(`users/${key}`).update({ term1Total, term2Total }).then(() => {
+                showToast('تم حفظ نتائج الكنترول بنجاح 🏆', '✅');
+            });
+        }
+
+        // نشر الأخبار (مع دعم الصور)
         function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim();
             const content = document.getElementById('newsContent').value.trim();
-            const fileInput = document.getElementById('newsMediaFile');
+            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
+            const fileInput = document.getElementById('newsImageFile');
 
             if (fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(uploadEvent) {
-                    const mediaBase64 = uploadEvent.target.result;
-                    const mediaType = fileInput.files[0].type.startsWith('video') ? 'video' : 'image';
-                    saveNewsToFirebase(title, badge, content, mediaBase64, mediaType);
+                reader.onload = function(e) {
+                    saveNewsToFirebase(title, badge, content, e.target.result, videoUrl);
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                saveNewsToFirebase(title, badge, content, '', '');
+                saveNewsToFirebase(title, badge, content, '', videoUrl);
             }
         }
 
-        function saveNewsToFirebase(title, badge, content, mediaUrl, mediaType) {
+        function saveNewsToFirebase(title, badge, content, imageUrl, videoUrl) {
             db.ref('news').push({
-                title, badge, content, mediaUrl, mediaType, timestamp: Date.now()
+                title, badge, content, imageUrl, videoUrl, timestamp: Date.now()
             }).then(() => {
                 showToast('تم نشر الخبر بنجاح 🚀', '✅');
                 document.getElementById('newsTitle').value = '';
                 document.getElementById('newsBadge').value = '';
                 document.getElementById('newsContent').value = '';
-                document.getElementById('newsMediaFile').value = '';
+                document.getElementById('newsVideoUrl').value = '';
+                document.getElementById('newsImageFile').value = '';
+                document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
             });
         }
 
+        // جلب السجلات في الجدول الشامل
         function fetchAllUsersForAdmin() {
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
-                const tableBody = document.getElementById('adminUsersTableBody');
-                if (!tableBody) return;
-                tableBody.innerHTML = '';
+                const tbody = document.getElementById('adminUsersTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
 
                 if (!data) {
-                    tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center;">لا توجد حسابات مسجلة بعد</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">لا توجد حسابات مسجلة بعد</td></tr>';
                     return;
                 }
 
                 Object.keys(data).forEach(key => {
-                    const user = data[key];
-                    tableBody.innerHTML += `
+                    const u = data[key];
+                    tbody.innerHTML += `
                         <tr>
-                            <td><b>${user.fullName || user.name || '---'}</b></td>
-                            <td><span style="padding: 3px 8px; border-radius: 6px; font-weight: bold; background: ${user.role === 'parent' ? '#FEF3C7' : '#E0F2FE'}; color: ${user.role === 'parent' ? '#D97706' : '#0369A1'};">${user.role === 'parent' ? 'ولي أمر' : 'طالب'}</span></td>
-                            <td>${user.grade || '---'}</td>
-                            <td>${user.nationalId || user.code || '---'}</td>
-                            <td>${user.phone || '---'}</td>
-                            <td><code>${user.password || '---'}</code></td>
-                            <td><b>${user.attendanceStatus || 'منتظم'}</b></td>
-                            <td><b>${user.absenceCount || 0}</b></td>
-                            <td>${user.attendanceNote || 'لا توجد ملاحظات'}</td>
+                            <td><b>${u.fullName || u.name || '---'}</b></td>
+                            <td>${u.role === 'parent' ? 'ولي أمر' : 'طالب'}</td>
+                            <td>${u.grade || '---'}</td>
+                            <td>${u.nationalId || u.code || '---'}</td>
+                            <td>${u.phone || '---'}</td>
+                            <td><code>${u.password || '---'}</code></td>
+                            <td><b>${u.attendanceStatus || 'منتظم'}</b></td>
+                            <td><b>${u.absenceCount || 0}</b></td>
+                            <td style="font-size: 11px; white-space: pre-wrap;">${u.absenceDatesLog || u.attendanceNote || 'لا توجد ملاحظات'}</td>
                             <td><button onclick="deleteUserAccount('${key}')" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">حذف 🗑️</button></td>
                         </tr>
                     `;
@@ -628,6 +795,7 @@
             loadCurrentPasswords();
             loadStudentsDropdowns();
             fetchAllUsersForAdmin();
+            fetchTeachersForAdmin();
         };
     </script>
 </body>
