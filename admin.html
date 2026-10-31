@@ -340,7 +340,7 @@
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-        <!-- 7️⃣ قسم تغيير كلمة المرور (مصحح وشغال 100%) -->
+        <!-- 7️⃣ قسم تغيير كلمة المرور (محدث ومربوط بالمكانين في الفايربيز) -->
         <div class="admin-section" id="passwordSection">
             <div class="card-title">🔑 إعداد كلمات مرور السلطات والمسؤولين</div>
             <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
@@ -389,19 +389,41 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // دالة حفظ وتغيير كلمات المرور في قاعدة البيانات (تم تصحيحها لتعمل فوراً)
+        // جلب كلمات المرور الحالية وعرضها في حقول الإدخال تلقائياً
+        function loadCurrentPasswords() {
+            db.ref('settings').once('value').then((snapshot) => {
+                const data = snapshot.val() || {};
+                const passwords = data.passwords || {};
+                
+                document.getElementById('passAdmin').value = passwords.admin || data.adminPassword || '001123';
+                document.getElementById('passControl').value = passwords.control || data.controlPassword || '0011234';
+                document.getElementById('passAffairs').value = passwords.affairs || data.affairsPassword || '00112345';
+            });
+        }
+
+        // دالة حفظ وتغيير كلمات المرور لتحدث في كل المسارات (المسار الجديد والقديم لضمان القراءة السليمة)
         function saveSystemPasswords(e) {
             e.preventDefault();
             const admin = document.getElementById('passAdmin').value.trim();
             const control = document.getElementById('passControl').value.trim();
             const affairs = document.getElementById('passAffairs').value.trim();
 
-            db.ref('settings/passwords').set({ admin, control, affairs }).then(() => {
+            const updates = {};
+            updates['settings/passwords'] = { admin, control, affairs };
+            updates['settings/adminPassword'] = admin;
+            updates['settings/controlPassword'] = control;
+            updates['settings/affairsPassword'] = affairs;
+
+            db.ref().update(updates).then(() => {
                 showToast('تم حفظ وتغيير كلمات المرور بنجاح 🔑', '✅');
             }).catch((error) => {
                 showToast('حدث خطأ أثناء حفظ كلمات المرور ❌', '⚠️');
             });
         }
+
+        window.onload = function() {
+            loadCurrentPasswords();
+        };
     </script>
 </body>
 </html>
