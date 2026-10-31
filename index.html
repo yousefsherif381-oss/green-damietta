@@ -416,12 +416,12 @@
         <div class="auth-page-view" id="signInView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">تسجيل الدخول</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل كود الطالب أو ولي الأمر أو الرقم القومي أو البريد للدخول</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم المستخدم أو كود الطالب أو الرقم القومي أو البريد للدخول</p>
 
             <form onsubmit="handleSignIn(event)">
                 <div class="form-group">
-                    <label>الكود / الرقم القومي / البريد / المحمول</label>
-                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل بيانات الدخول" required>
+                    <label>اسم المستخدم / الكود / الرقم القومي / البريد</label>
+                    <input type="text" id="loginIdentifierInput" class="form-control" placeholder="أدخل اسم المستخدم أو بيانات الدخول" required>
                 </div>
                 <div class="form-group">
                     <label>كلمة المرور</label>
@@ -449,7 +449,6 @@
                     <div class="form-group" id="groupNationalId"><label>الرقم القومي / الكود</label><input type="text" id="signUpNationalId" class="form-control" required></div>
                     <div class="form-group"><label>البريد الإلكتروني (Email)</label><input type="email" id="signUpEmail" class="form-control" placeholder="example@mail.com" required></div>
                     
-                    <!-- حقل اختيار الصف الدراسي -->
                     <div class="form-group" id="groupGrade"><label>الصف الدراسي</label>
                         <select id="signUpGrade" class="form-control" onchange="updateClassRoomsList()">
                             <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
@@ -464,10 +463,9 @@
                         </select>
                     </div>
 
-                    <!-- حقل اختيار الفصل التلقائي (مثل 2A, 2B, 2C...) -->
                     <div class="form-group" id="groupClassRoom"><label>فصل الطالب</label>
                         <select id="signUpClassRoom" class="form-control">
-                            <!-- سيتم تعبئتها تلقائياً حسب الصف المختار -->
+                            <!-- تعبئة تلقائية -->
                         </select>
                     </div>
 
@@ -489,9 +487,21 @@
         let currentUser = null;
         let latestAdminPassword = "admin123";
 
-        db.ref('settings/adminPassword').on('value', (snapshot) => {
+        // إعدادات يوزر وباسورد الكنترول وشؤون الطلاب الافتراضية (يمكنك تعديلها من Firebase مباشرة تحت settings/credentials)
+        let systemCredentials = {
+            adminUser: "admin",
+            adminPass: "admin123",
+            controlUser: "control",
+            controlPass: "control123",
+            affairsUser: "affairs",
+            affairsPass: "affairs123"
+        };
+
+        db.ref('settings/credentials').on('value', (snapshot) => {
             const val = snapshot.val();
-            if (val) { latestAdminPassword = val; }
+            if (val) {
+                systemCredentials = { ...systemCredentials, ...val };
+            }
         });
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -513,14 +523,13 @@
             }, 4000);
         });
 
-        // دالة لتوليد فصول الصف تلقائياً بناءً على اختيار الصف (مثال: 1A, 1B, 1C, 1D, 1E أو 2A...)
         function updateClassRoomsList() {
             const gradeSelect = document.getElementById('signUpGrade');
             const classSelect = document.getElementById('signUpClassRoom');
             if (!gradeSelect || !classSelect) return;
 
             const selectedGradeText = gradeSelect.value;
-            let prefix = '1'; // افتراضي
+            let prefix = '1';
 
             if (selectedGradeText.includes('الأول')) prefix = '1';
             else if (selectedGradeText.includes('الثاني')) prefix = '2';
@@ -609,7 +618,6 @@
         function openSignInPage() { hideAllViews(); document.getElementById('signInView').style.display = 'block'; }
         function openSignUpPage() { hideAllViews(); document.getElementById('signUpView').style.display = 'block'; }
 
-        // دالة إنشاء الحساب مع إدراج رقم ورقم الفصل التلقائي (مثل 2A)
         function handleSignUp(e) {
             e.preventDefault();
             const role = document.getElementById('signUpRole').value;
@@ -667,74 +675,77 @@
             });
         }
 
-        // دالة تسجيل الدخول
+        // دالة تسجيل الدخول المحدثة باسم المستخدم وكلمة المرور
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            if ((identifier === 'admin' || identifier === 'مدير') && password === latestAdminPassword) {
+            // فحص الأدمن
+            if (identifier === systemCredentials.adminUser && password === systemCredentials.adminPass) {
                 sessionStorage.setItem('loggedUserRole', 'admin');
                 showToast('دخول مدير المدرسة... ⚙️');
                 setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                 return;
             }
 
-            db.ref('settings/passwords').once('value').then(snap => {
-                const passes = snap.val() || { control: 'control123', affairs: 'affairs123' };
-                if (identifier === 'control' && password === passes.control) {
-                    sessionStorage.setItem('loggedUserRole', 'control');
-                    showToast('دخول كنترول المدرسة... 🏆');
-                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
-                    return;
-                }
-                if (identifier === 'affairs' && password === passes.affairs) {
-                    sessionStorage.setItem('loggedUserRole', 'affairs');
-                    showToast('دخول شؤون الطلاب... 📅');
-                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
-                    return;
-                }
+            // فحص الكنترول
+            if (identifier === systemCredentials.controlUser && password === systemCredentials.controlPass) {
+                sessionStorage.setItem('loggedUserRole', 'control');
+                showToast('دخول كنترول المدرسة... 🏆');
+                setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                return;
+            }
 
-                db.ref('teachers').once('value').then(tSnap => {
-                    const teachers = tSnap.val();
-                    let foundTeacher = null;
-                    if(teachers) {
-                        Object.keys(teachers).forEach(k => {
-                            if ((teachers[k].name === identifier || teachers[k].subject === identifier) && teachers[k].password === password) {
-                                foundTeacher = teachers[k];
-                            }
-                        });
-                    }
-                    if (foundTeacher) {
-                        sessionStorage.setItem('loggedUserRole', 'teacher');
-                        sessionStorage.setItem('loggedTeacherData', JSON.stringify(foundTeacher));
-                        showToast(`مرحباً بك أستاذ ${foundTeacher.name} 👨‍🏫`);
-                        setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
-                        return;
-                    }
+            // فحص شؤون الطلاب
+            if (identifier === systemCredentials.affairsUser && password === systemCredentials.affairsPass) {
+                sessionStorage.setItem('loggedUserRole', 'affairs');
+                showToast('دخول شؤون الطلاب... 📅');
+                setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                return;
+            }
 
-                    db.ref('students').once('value').then(sSnap => {
-                        const students = sSnap.val() || {};
-                        let foundUser = null;
-                        let userKey = null;
-
-                        Object.keys(students).forEach(k => {
-                            const s = students[k];
-                            if ((s.nationalId === identifier || s.email === identifier || s.phone === identifier || k === identifier) && s.password === password) {
-                                foundUser = s;
-                                userKey = k;
-                            }
-                        });
-
-                        if (foundUser) {
-                            currentUser = { ...foundUser, firebaseKey: userKey };
-                            showToast('تم تسجيل الدخول بنجاح! 🔑');
-                            showHomePage();
-                            updateHeaderAuthUI();
-                        } else {
-                            showToast('بيانات الدخول غير صحيحة ❌', '⚠️');
+            // فحص المعلمين
+            db.ref('teachers').once('value').then(tSnap => {
+                const teachers = tSnap.val();
+                let foundTeacher = null;
+                if(teachers) {
+                    Object.keys(teachers).forEach(k => {
+                        if ((teachers[k].name === identifier || teachers[k].subject === identifier) && teachers[k].password === password) {
+                            foundTeacher = teachers[k];
                         }
                     });
+                }
+                if (foundTeacher) {
+                    sessionStorage.setItem('loggedUserRole', 'teacher');
+                    sessionStorage.setItem('loggedTeacherData', JSON.stringify(foundTeacher));
+                    showToast(`مرحباً بك أستاذ ${foundTeacher.name} 👨‍🏫`);
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                    return;
+                }
+
+                // فحص الطلاب وأولياء الأمور
+                db.ref('students').once('value').then(sSnap => {
+                    const students = sSnap.val() || {};
+                    let foundUser = null;
+                    let userKey = null;
+
+                    Object.keys(students).forEach(k => {
+                        const s = students[k];
+                        if ((s.nationalId === identifier || s.email === identifier || s.phone === identifier || k === identifier) && s.password === password) {
+                            foundUser = s;
+                            userKey = k;
+                        }
+                    });
+
+                    if (foundUser) {
+                        currentUser = { ...foundUser, firebaseKey: userKey };
+                        showToast('تم تسجيل الدخول بنجاح! 🔑');
+                        showHomePage();
+                        updateHeaderAuthUI();
+                    } else {
+                        showToast('بيانات الدخول غير صحيحة ❌', '⚠️');
+                    }
                 });
             });
         }
@@ -898,7 +909,7 @@
         function submitParentTicket(e) {
             e.preventDefault();
             if (!currentUser) {
-                showToast('يجيب تسجيل الدخول أولاً لإرسال شكوى 🔒', '⚠️');
+                showToast('يجب تسجيل الدخول أولاً لإرسال شكوى 🔒', '⚠️');
                 openSignInPage();
                 return;
             }
