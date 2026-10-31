@@ -211,7 +211,7 @@
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
-    <!-- 🗑️ نافذة تأكيد الحذف الاحترافية -->
+    <!-- نافذة تأكيد الحذف الاحترافية -->
     <div class="modal-overlay" id="confirmDeleteModal">
         <div class="modal-card">
             <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
@@ -224,7 +224,7 @@
         </div>
     </div>
 
-    <!-- 🪟 نافذة تعديل بيانات المستخدم المنبثقة -->
+    <!-- نافذة تعديل بيانات المستخدم المنبثقة -->
     <div class="modal-overlay" id="editUserModal">
         <div class="modal-card" style="text-align: right;">
             <h3 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 15px; text-align: center;">✏️ تعديل بيانات الحساب</h3>
@@ -308,7 +308,7 @@
 
     <main class="main-wrapper">
 
-        <!-- 👨‍🏫 قسم خاص بالمدرس (يظهر له مادته وفصوله فقط عند تسجيل دخوله) -->
+        <!-- 👨‍🏫 قسم خاص بالمدرس -->
         <div class="admin-section" id="teacherSection">
             <div class="card-title" id="teacherWelcomeTitle">👨‍🏫 رصد درجات الطلاب لمادتك وفصولك</div>
             <div style="margin-bottom: 20px;">
@@ -747,6 +747,62 @@
             });
         }
 
+        function loadStudentGradesToEdit() {
+            const studentKey = document.getElementById('studentSelectForGrades').value;
+            const container = document.getElementById('gradesEditFormContainer');
+            const tbody = document.getElementById('adminGradesEditTableBody');
+            
+            if (!studentKey) {
+                container.style.display = 'none';
+                return;
+            }
+
+            const student = usersCache[studentKey];
+            if (!student) return;
+
+            document.getElementById('editingStudentNameTitle').textContent = `رصد وتقييم الدرجات للطالب: ${student.name} (${student.grade || ''})`;
+            const subjects = getSubjectsForGradeName(student.grade);
+            
+            tbody.innerHTML = '';
+            subjects.forEach(sub => {
+                const work = student[sub.id + '_work'] || '';
+                const weekly = student[sub.id + '_weekly'] || '';
+                const final = student[sub.id + '_final'] || '';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${sub.name}</b></td>
+                        <td><input type="number" id="admin_work_${sub.id}" class="form-control" value="${work}" min="0" max="30"></td>
+                        <td><input type="number" id="admin_weekly_${sub.id}" class="form-control" value="${weekly}" min="0" max="20"></td>
+                        <td><input type="number" id="admin_final_${sub.id}" class="form-control" value="${final}" min="0" max="50"></td>
+                    </tr>
+                `;
+            });
+            currentEditingStudentKey = studentKey;
+            container.style.display = 'block';
+        }
+
+        function saveStudentGradesDirect() {
+            if (!currentEditingStudentKey) return;
+            const student = usersCache[currentEditingStudentKey];
+            const subjects = getSubjectsForGradeName(student.grade);
+            let updates = {};
+
+            subjects.forEach(sub => {
+                const w = parseFloat(document.getElementById(`admin_work_${sub.id}`).value) || 0;
+                const wk = parseFloat(document.getElementById(`admin_weekly_${sub.id}`).value) || 0;
+                const f = parseFloat(document.getElementById(`admin_final_${sub.id}`).value) || 0;
+
+                updates[`students/${currentEditingStudentKey}/${sub.id}_work`] = w;
+                updates[`students/${currentEditingStudentKey}/${sub.id}_weekly`] = wk;
+                updates[`students/${currentEditingStudentKey}/${sub.id}_final`] = f;
+            });
+
+            db.ref().update(updates).then(() => {
+                showToast('تم حفظ وتقييم درجات الطالب بنجاح! 💾');
+            });
+        }
+
         function loadNewsLive() {
             db.ref('news').on('value', snap => {
                 const data = snap.val();
@@ -843,6 +899,29 @@
             }).then(() => {
                 closeEditModal();
                 showToast('تم تعديل بيانات الحساب بنجاح 💾');
+            });
+        }
+
+        function loadStudentAttendanceData() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key || !usersCache[key]) return;
+            const s = usersCache[key];
+            document.getElementById('attendanceStatusSelect').value = s.attendance || 'منتظم';
+            document.getElementById('absenceCountInput').value = s.absenceCount || 0;
+            document.getElementById('attendanceNoteInput').value = s.attendanceNote || '';
+            document.getElementById('absenceDatesLogInput').value = s.absenceDatesLog || '';
+        }
+
+        function saveStudentAttendance() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key) return;
+            db.ref('students/' + key).update({
+                attendance: document.getElementById('attendanceStatusSelect').value,
+                absenceCount: parseInt(document.getElementById('absenceCountInput').value) || 0,
+                attendanceNote: document.getElementById('attendanceNoteInput').value.trim(),
+                absenceDatesLog: document.getElementById('absenceDatesLogInput').value.trim()
+            }).then(() => {
+                showToast('تم تحديث عداد وسجل الحضور بنجاح 📅');
             });
         }
     </script>
