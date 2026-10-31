@@ -156,14 +156,15 @@
 
         input[type="file"] { display: none; }
 
-        .custom-file-upload {
+        /* تصميم زر رفع الصورة وزر إدخال فيديو اليوتيوب */
+        .custom-file-upload, .custom-video-btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; padding: 12px 18px; background: #F8FAFC;
             border: 2px dashed var(--primary); border-radius: 12px;
             color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
             text-align: center;
         }
-        .custom-file-upload:hover {
+        .custom-file-upload:hover, .custom-video-btn:hover {
             background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
         }
@@ -265,6 +266,7 @@
                     <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
                 </div>
                 <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
+                
                 <div class="form-grid" style="margin-bottom: 15px;">
                     <div>
                         <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان:</label>
@@ -274,9 +276,14 @@
                     </div>
                     <div>
                         <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو يوتيوب:</label>
-                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="https://youtu.be/xxx" style="padding: 12px;">
+                        <div class="custom-video-btn" onclick="promptForVideoUrl()" style="position: relative;">
+                            <span id="videoBtnText">▶️ اضغط لإضافة رابط فيديو يوتيوب</span>
+                        </div>
+                        <input type="url" id="newsVideoUrl" style="display: none;">
+                        <span id="videoNamePreview" class="file-name-preview">لم يتم إدراج فيديو بعد</span>
                     </div>
                 </div>
+
                 <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
             </form>
             <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
@@ -307,17 +314,15 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (مباشر للطلاب حسب المادة والصف بدقة) -->
+        <!-- 3️⃣ قسم رصد الدرجات -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد درجات وتقييمات الطلاب لفصولك ومادتك</div>
-            
             <div style="margin-bottom: 20px;">
                 <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
                 <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
-                    <option value="">-- حدد الطالب من القائمة --</option>
+                    <option value="">-- حدد الطالب من القائمة بدقة --</option>
                 </select>
             </div>
-
             <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
                 <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 <p id="editingStudentGradeBadge" style="color: var(--accent-hover); font-weight: 800; font-size: 13px; margin-bottom: 15px;"></p>
@@ -436,7 +441,7 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        let currentRole = localStorage.getItem('adminRole') || 'admin'; // admin, affairs, teacher
+        let currentRole = localStorage.getItem('adminRole') || 'admin';
         let loggedTeacherName = localStorage.getItem('loggedTeacherName') || '';
         let loggedTeacherSubject = localStorage.getItem('loggedTeacherSubject') || '';
         let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || 'arabic';
@@ -459,8 +464,6 @@
                 [menuNews, menuTeachersAdmin, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
                 document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) للطلاب الفصول المقررة`;
                 switchAdminSection('gradesSection', menuGrades);
-            } else {
-                console.log('صلاحية مدير كاملة');
             }
         }
 
@@ -500,6 +503,24 @@
             }
         }
 
+        // دالة لإدخال رابط فيديو يوتيوب عبر نافذة منبثقة تفاعلية عند الضغط على الزر
+        function promptForVideoUrl() {
+            const url = prompt("الرجاء إدخال رابط فيديو يوتيوب (مثال: https://youtu.be/xxx):");
+            if (url !== null) {
+                const trimmed = url.trim();
+                document.getElementById('newsVideoUrl').value = trimmed;
+                const btnText = document.getElementById('videoBtnText');
+                const preview = document.getElementById('videoNamePreview');
+                if (trimmed) {
+                    btnText.textContent = "✅ تم ربط الفيديو بنجاح";
+                    preview.textContent = "الرابط: " + trimmed;
+                } else {
+                    btnText.textContent = "▶️ اضغط لإضافة رابط فيديو يوتيوب";
+                    preview.textContent = "لم يتم إدراج فيديو بعد";
+                }
+            }
+        }
+
         function loadCurrentPasswords() {
             db.ref('settings').once('value').then((snapshot) => {
                 const data = snapshot.val() || {};
@@ -531,7 +552,7 @@
             e.preventDefault();
             const name = document.getElementById('teacherName').value.trim();
             const subject = document.getElementById('teacherSubject').value.trim();
-            const subjectId = document.getElementById('teacherSubjectId').value.trim().toLowerCase(); // إنجليزي حصرياً
+            const subjectId = document.getElementById('teacherSubjectId').value.trim().toLowerCase();
             const classes = document.getElementById('teacherClasses').value.trim();
             const password = document.getElementById('teacherPassword').value.trim();
 
@@ -581,7 +602,6 @@
             }
         }
 
-        // جلب الطلاب للمدرس أو المدير بدقة
         function loadStudentsDropdowns() {
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -598,8 +618,6 @@
                         const user = data[key];
                         if (user.role === 'student') {
                             const studentGrade = (user.grade || '').trim();
-                            
-                            // لو مدرس، يظهر له طلاب فصوله ومادته فقط تلقائياً
                             if (currentRole === 'teacher') {
                                 if (loggedTeacherClasses && (studentGrade === loggedTeacherClasses || loggedTeacherClasses.includes(studentGrade))) {
                                     if (gradesSelect) gradesSelect.innerHTML += `<option value="${key}">${user.fullName || user.name} (${studentGrade})</option>`;
@@ -616,7 +634,6 @@
             });
         }
 
-        // تحميل درجات المادة (معرفات إنجليزية دقيقة)
         function loadStudentGradesToEdit() {
             const studentKey = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
@@ -640,7 +657,6 @@
                 const grades = user.grades || {};
 
                 if (currentRole === 'teacher') {
-                    // المدرس يحط درجته لمادته (بمعرف إنجليزي دقيق)
                     document.getElementById('tableSubjectHeader').textContent = `المادة: ${loggedTeacherSubject} (${loggedTeacherSubjectId})`;
                     const subGrade = grades[loggedTeacherSubjectId] || { term1: 0, term2: 0, exam: 0 };
                     tbody.innerHTML = `
@@ -652,7 +668,6 @@
                         </tr>
                     `;
                 } else {
-                    // المدير يشوف مواد الإعدادي/الابتدائي بمعرفاتها الإنجليزية الدقيقة
                     document.getElementById('tableSubjectHeader').textContent = `المادة الدراسية المقررة (Eng ID)`;
                     let subjects = [
                         { id: 'arabic', name: 'اللغة العربية (Arabic)' },
@@ -798,6 +813,8 @@
                 document.getElementById('newsBadge').value = '';
                 document.getElementById('newsContent').value = '';
                 document.getElementById('newsVideoUrl').value = '';
+                document.getElementById('videoBtnText').textContent = '▶️ اضغط لإضافة رابط فيديو يوتيوب';
+                document.getElementById('videoNamePreview').textContent = 'لم يتم إدراج فيديو بعد';
                 document.getElementById('newsImageFile').value = '';
                 document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
             });
