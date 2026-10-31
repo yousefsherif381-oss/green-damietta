@@ -464,8 +464,7 @@
                     </div>
 
                     <div class="form-group" id="groupClassRoom"><label>فصل الطالب</label>
-                        <select id="signUpClassRoom" class="form-control">
-                        </select>
+                        <select id="signUpClassRoom" class="form-control"></select>
                     </div>
 
                     <div class="form-group" id="groupStudentCodeLink" style="display: none;"><label>كود الطالب المراد ربطه</label><input type="text" id="signUpLinkedStudentCode" class="form-control" placeholder="أدخل كود الطالب أو رقمه القومي"></div>
@@ -485,175 +484,12 @@
         const db = firebase.database();
         let currentUser = null;
 
-        // دالة التحقق من تسجيل الدخول (محدثة لتقرأ الباسورد من Firebase بدقة)
-        function handleSignIn(e) {
-            e.preventDefault();
-            const identifier = document.getElementById('loginIdentifierInput').value.trim();
-            const password = document.getElementById('authPasswordInput').value.trim();
-
-            if (!identifier || !password) {
-                showToast('الرجاء إدخال بيانات الدخول وكلمة المرور ⚠️', '❌');
-                return;
-            }
-
-            // 1. فحص حسابات الإدارة والكنترول وشؤون الطلاب من قاعدة البيانات مباشرة
-            db.ref('settings').once('value').then((snapshot) => {
-                const settingsData = snapshot.val() || {};
-                const passwords = settingsData.passwords || {};
-
-                const adminPass = passwords.admin || settingsData.adminPassword || "001123";
-                const controlPass = passwords.control || settingsData.controlPassword || "0011234";
-                const affairsPass = passwords.affairs || settingsData.affairsPassword || "00112345";
-
-                if (identifier === 'admin' && password === adminPass) {
-                    window.location.href = 'admin.html';
-                    return;
-                }
-                if (identifier === 'control' && password === controlPass) {
-                    window.location.href = 'admin.html';
-                    return;
-                }
-                if (identifier === 'affairs' && password === affairsPass) {
-                    window.location.href = 'admin.html';
-                    return;
-                }
-
-                // 2. فحص جدول الطلاب والأولياء والمدرسين في قاعدة البيانات
-                db.ref('users').once('value').then((userSnap) => {
-                    const users = userSnap.val();
-                    let foundUser = null;
-                    let foundKey = null;
-
-                    if (users) {
-                        Object.keys(users).forEach(key => {
-                            const u = users[key];
-                            const matchId = u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier || u.name === identifier;
-                            if (matchId && String(u.password) === String(password)) {
-                                foundUser = u;
-                                foundKey = key;
-                            }
-                        });
-                    }
-
-                    if (foundUser) {
-                        currentUser = { ...foundUser, firebaseKey: foundKey };
-                        localStorage.setItem('currentUserKey', foundKey);
-                        showToast(`أهلاً بك يا ${foundUser.fullName || foundUser.name} ✨`, '🎉');
-                        if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-                        updateHeaderAfterLogin();
-                        showHomePage();
-                    } else {
-                        showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
-                    }
-                });
-            });
-        }
-
-        function handleSignUp(e) {
-            e.preventDefault();
-            const role = document.getElementById('signUpRole').value;
-            const fullName = document.getElementById('signUpName').value.trim();
-            const nationalId = document.getElementById('signUpNationalId').value.trim();
-            const email = document.getElementById('signUpEmail').value.trim();
-            const phone = document.getElementById('signUpPhone').value.trim();
-            const password = document.getElementById('signUpPassword').value.trim();
-            const grade = document.getElementById('signUpGrade').value;
-            const classRoom = document.getElementById('signUpClassRoom').value;
-
-            const newUser = {
-                role,
-                fullName,
-                name: fullName,
-                nationalId,
-                code: nationalId,
-                email,
-                phone,
-                password,
-                grade: role === 'student' ? grade : '',
-                classRoom: role === 'student' ? classRoom : '',
-                attendanceStatus: 'منتظم',
-                absenceCount: 0,
-                attendanceNote: 'لا توجد ملاحظات',
-                absenceDatesLog: ''
-            };
-
-            db.ref('users').push(newUser).then((ref) => {
-                showToast('تم إنشاء الحساب بنجاح، يمكنك تسجيل الدخول الآن ✨', '🎉');
-                openSignInPage();
-            }).catch(() => {
-                showToast('حدث خطأ أثناء التسجيل ❌', '⚠️');
-            });
-        }
-
-        function updateHeaderAfterLogin() {
-            if (currentUser) {
-                document.getElementById('headerAuthActions').style.display = 'none';
-                document.getElementById('headerUserActions').style.display = 'flex';
-                document.getElementById('sidebarProfileBtn').style.display = 'flex';
-                if (currentUser.role === 'student' || currentUser.role === 'parent') {
-                    fetchStudentDataAndGrades();
-                }
-            } else {
-                document.getElementById('headerAuthActions').style.display = 'flex';
-                document.getElementById('headerUserActions').style.display = 'none';
-                document.getElementById('sidebarProfileBtn').style.display = 'none';
-            }
-        }
-
-        function logoutUser() {
-            currentUser = null;
-            localStorage.removeItem('currentUserKey');
-            updateHeaderAfterLogin();
-            showHomePage();
-            showToast('تم تسجيل الخروج بنجاح 👋', 'ℹ️');
-        }
-
-        function showHomePage() {
-            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
-            document.getElementById('newsHomeContainer').style.display = 'block';
-        }
-
-        function navigateToSection(sectionId) {
-            if (!currentUser) {
-                showToast('يجب تسجيل الدخول أولاً ⚠️', '🔒');
-                openSignInPage();
-                return;
-            }
-            document.querySelectorAll('.view-section, .auth-page-view, #newsHomeContainer').forEach(el => el.style.display = 'none');
-            const target = document.getElementById(sectionId);
-            if (target) target.style.display = 'block';
-            
-            if (sectionId === 'profileSection') {
-                document.getElementById('profileFullName').value = currentUser.fullName || currentUser.name || '';
-                document.getElementById('profileNationalId').value = currentUser.nationalId || currentUser.code || '';
-                document.getElementById('profileEmail').value = currentUser.email || '';
-                document.getElementById('profilePhone').value = currentUser.phone || '';
-                document.getElementById('profilePassword').value = currentUser.password || '';
-                document.getElementById('profileName').textContent = currentUser.fullName || currentUser.name;
-                document.getElementById('profileRoleBadge').textContent = currentUser.role === 'parent' ? 'ولي أمر' : 'طالب';
-                document.getElementById('profileGradeDisplay').textContent = currentUser.grade ? `${currentUser.grade} - فصل ${currentUser.classRoom || ''}` : '';
-            }
-        }
-
-        function checkAuthAndNavigate(sectionId) {
-            if (!currentUser) {
-                showToast('يجب تسجيل الدخول أولاً لعرض النتائج والحضور ⚠️', '🔒');
-                openSignInPage();
-            } else {
-                navigateToSection(sectionId);
-            }
-        }
-
-        function openSignInPage() {
-            showHomePage();
-            document.getElementById('newsHomeContainer').style.display = 'none';
-            document.getElementById('signInView').style.display = 'block';
-        }
-
-        function openSignUpPage() {
-            showHomePage();
-            document.getElementById('newsHomeContainer').style.display = 'none';
-            document.getElementById('signUpView').style.display = 'block';
+        function showToast(message, icon = "✨") {
+            const toast = document.getElementById('customToast');
+            document.getElementById('toastIcon').textContent = icon;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
         function toggleSidebar() {
@@ -666,136 +502,31 @@
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
-        function showToast(message, icon = "✨") {
-            const toast = document.getElementById('customToast');
-            document.getElementById('toastIcon').textContent = icon;
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        function showHomePage() {
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            document.getElementById('newsHomeContainer').style.display = 'block';
+            closeSidebar();
         }
 
-        function loadNewsFeed() {
-            db.ref('news').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const feed = document.getElementById('newsFeedList');
-                feed.innerHTML = '';
-                if (!data) {
-                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 20px;">لا توجد إعلانات أو أخبار منشورة حالياً.</p>';
-                    return;
-                }
-                Object.keys(data).reverse().forEach(key => {
-                    const item = data[key];
-                    feed.innerHTML += `
-                        <div class="news-card">
-                            <h3 style="color: var(--primary-dark); font-size: 18px; font-weight: 900; margin-bottom: 8px;">${item.title}</h3>
-                            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; font-weight: 600;">${item.content}</p>
-                        </div>
-                    `;
-                });
-            });
+        function navigateToSection(sectionId) {
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(sectionId);
+            if (target) target.style.display = 'block';
+            closeSidebar();
         }
 
-        function fetchStudentDataAndGrades() {
-            if (!currentUser) return;
-            db.ref(`users/${currentUser.firebaseKey}`).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    currentUser = { ...data, firebaseKey: currentUser.firebaseKey };
-                    updateAttendanceUI(data);
-                    renderStudentGrades(data.grades || {});
-                }
-            });
+        function openSignInPage() {
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            document.getElementById('signInView').style.display = 'block';
         }
 
-        function updateAttendanceUI(user) {
-            document.getElementById('lblAttendanceStatusText').textContent = user.attendanceStatus || 'منتظم ✅';
-            document.getElementById('lblAbsenceCountText').textContent = `${user.absenceCount || 0} مرة`;
-            document.getElementById('lblAttendanceNoteText').textContent = user.attendanceNote || 'لا توجد ملاحظات';
-            document.getElementById('lblAbsenceDatesLogText').textContent = user.absenceDatesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.';
-        }
-
-        function renderStudentGrades(grades) {
-            const tbody = document.getElementById('gradesTableBody');
-            tbody.innerHTML = '';
-            let totalScore = 0;
-            let maxTotal = 0;
-
-            const subjects = [
-                { id: 'math', name: 'الرياضيات' },
-                { id: 'arabic', name: 'اللغة العربية' },
-                { id: 'english', name: 'اللغة الإنجليزية' },
-                { id: 'science', name: 'العلوم' },
-                { id: 'social', name: 'الدراسات الاجتماعية' }
-            ];
-
-            subjects.forEach(sub => {
-                const subGrade = grades[sub.id] || { term1: 0, term2: 0, exam: 0 };
-                const yearWork = parseFloat(subGrade.term1 || 0);
-                const weeklyEval = parseFloat(subGrade.term2 || 0);
-                const finalExam = parseFloat(subGrade.exam || 0);
-                const subTotal = yearWork + weeklyEval + finalExam;
-
-                totalScore += subTotal;
-                maxTotal += 100; // لكل مادة 100 درجة (30 + 20 + 50)
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub.name}</b></td>
-                        <td>${yearWork}</td>
-                        <td>${weeklyEval}</td>
-                        <td>${finalExam}</td>
-                        <td><b>${subTotal} / 100</b></td>
-                    </tr>
-                `;
-            });
-
-            const percentage = maxTotal > 0 ? ((totalScore / maxTotal) * 100).toFixed(1) : 0;
-            document.getElementById('summaryTotal').textContent = `${totalScore} / ${maxTotal}`;
-            document.getElementById('summaryPercentage').textContent = `${percentage}%`;
-            
-            let gradeText = 'ممتاز 🌟';
-            if (percentage < 50) gradeText = 'راسب ⚠️';
-            else if (percentage < 65) gradeText = 'مقبول 👍';
-            else if (percentage < 75) gradeText = 'جيد 📚';
-            else if (percentage < 85) gradeText = 'جيد جداً ⭐';
-            
-            document.getElementById('summaryGrade').textContent = gradeText;
-        }
-
-        function saveProfileChanges(e) {
-            e.preventDefault();
-            if (!currentUser) return;
-            const fullName = document.getElementById('profileFullName').value.trim();
-            const nationalId = document.getElementById('profileNationalId').value.trim();
-            const email = document.getElementById('profileEmail').value.trim();
-            const phone = document.getElementById('profilePhone').value.trim();
-            const password = document.getElementById('profilePassword').value.trim();
-
-            const updates = { fullName, name: fullName, nationalId, code: nationalId, email, phone, password };
-            db.ref(`users/${currentUser.firebaseKey}`).update(updates).then(() => {
-                showToast('تم تحديث البيانات بنجاح ✨', '✅');
-            });
-        }
-
-        function updateClassRoomsList() {
-            const gradeSelect = document.getElementById('signUpGrade');
-            const classSelect = document.getElementById('signUpClassRoom');
-            if (!gradeSelect || !classSelect) return;
-            const selectedGradeText = gradeSelect.value;
-            let prefix = '1';
-            if (selectedGradeText.includes('الأول')) prefix = '1';
-            else if (selectedGradeText.includes('الثاني')) prefix = '2';
-            else if (selectedGradeText.includes('الثالث')) prefix = '3';
-            else if (selectedGradeText.includes('الرابع')) prefix = '4';
-            else if (selectedGradeText.includes('الخامس')) prefix = '5';
-            else if (selectedGradeText.includes('السادس')) prefix = '6';
-
-            const sections = ['A', 'B', 'C', 'D', 'E'];
-            classSelect.innerHTML = '';
-            sections.forEach(sec => {
-                const className = prefix + sec;
-                classSelect.innerHTML += `<option value="${className}">${className}</option>`;
-            });
+        function openSignUpPage() {
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            document.getElementById('signUpView').style.display = 'block';
+            updateClassRoomsList();
         }
 
         function toggleRoleFields() {
@@ -803,37 +534,238 @@
             const groupGrade = document.getElementById('groupGrade');
             const groupClassRoom = document.getElementById('groupClassRoom');
             const groupStudentCodeLink = document.getElementById('groupStudentCodeLink');
-            const nameLabel = document.querySelector('#groupName label');
-
+            
             if (role === 'parent') {
                 groupGrade.style.display = 'none';
                 groupClassRoom.style.display = 'none';
                 groupStudentCodeLink.style.display = 'block';
-                nameLabel.textContent = 'اسم ولي الأمر الرباعي';
             } else {
                 groupGrade.style.display = 'block';
                 groupClassRoom.style.display = 'block';
                 groupStudentCodeLink.style.display = 'none';
-                nameLabel.textContent = 'الاسم الرباعي';
-                updateClassRoomsList();
             }
         }
 
-        window.onload = function() {
-            loadNewsFeed();
-            toggleRoleFields();
-            updateClassRoomsList();
+        function updateClassRoomsList() {
+            const gradeSelect = document.getElementById('signUpGrade');
+            const classSelect = document.getElementById('signUpClassRoom');
+            if (!gradeSelect || !classSelect) return;
+            classSelect.innerHTML = `
+                <option value="الفصل 1">الفصل 1</option>
+                <option value="الفصل 2">الفصل 2</option>
+                <option value="الفصل 3">الفصل 3</option>
+            `;
+        }
+
+        // دالة جلب وعرض الإعلانات والفيديوهات من Firebase لعرضها في الصفحة الرئيسية
+        function loadHomeNewsAndVideos() {
+            db.ref('news').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const feedList = document.getElementById('newsFeedList');
+                if (!feedList) return;
+
+                if (!data) {
+                    feedList.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد تنبيهات أو فيديوهات منشورة حالياً.</p>';
+                    return;
+                }
+
+                let html = '';
+                Object.keys(data).reverse().forEach(key => {
+                    const item = data[key];
+                    html += `
+                        <div class="news-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h3 style="color: var(--primary-dark); font-size: 18px; font-weight: 900;">${item.title}</h3>
+                                <span style="background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800;">${item.badge || 'إعلان'}</span>
+                            </div>
+                            <p style="color: var(--text-dark); font-size: 14.5px; line-height: 1.7; margin-bottom: 15px; font-weight: 600;">${item.content}</p>
+                            
+                            ${item.imageUrl ? `<img src="${item.imageUrl}" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 14px; margin-bottom: 15px;" alt="صورة الخبر">` : ''}
+
+                            ${item.videoUrl ? `
+                                <div style="width: 100%; overflow: hidden; border-radius: 14px; background: #000; margin-top: 10px;">
+                                    <video controls style="width: 100%; max-height: 400px; display: block; border-radius: 14px;">
+                                        <source src="${item.videoUrl}" type="video/mp4">
+                                        متصفحك لا يدعم تشغيل الفيديو.
+                                    </video>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                feedList.innerHTML = html;
+            });
+        }
+
+        function handleSignIn(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('loginIdentifierInput').value.trim();
+            const password = document.getElementById('authPasswordInput').value.trim();
+
+            db.ref('users').once('value').then((userSnap) => {
+                const users = userSnap.val();
+                let foundUser = null;
+                let foundKey = null;
+
+                if (users) {
+                    Object.keys(users).forEach(key => {
+                        const u = users[key];
+                        const matchId = u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier;
+                        if (matchId && String(u.password) === String(password)) {
+                            foundUser = u;
+                            foundKey = key;
+                        }
+                    });
+                }
+
+                if (foundUser) {
+                    currentUser = { ...foundUser, firebaseKey: foundKey };
+                    localStorage.setItem('currentUserKey', foundKey);
+                    showToast(`أهلاً بك يا ${foundUser.fullName} ✨`, '🎉');
+                    if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                    updateHeaderAfterLogin();
+                    showHomePage();
+                } else {
+                    showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
+                }
+            });
+        }
+
+        function handleSignUp(e) {
+            e.preventDefault();
+            const role = document.getElementById('signUpRole').value;
+            const fullName = document.getElementById('signUpName').value.trim();
+            const nationalId = document.getElementById('signUpNationalId').value.trim();
+            const email = document.getElementById('signUpEmail').value.trim();
+            const phone = document.getElementById('signUpPhone').value.trim();
+            const password = document.getElementById('signUpPassword').value.trim();
+            const grade = role === 'student' ? document.getElementById('signUpGrade').value : '';
+            const classRoom = role === 'student' ? document.getElementById('signUpClassRoom').value : '';
+
+            const newUser = { role, fullName, nationalId, email, phone, password, grade, classRoom };
+
+            db.ref('users').push(newUser).then((ref) => {
+                currentUser = { ...newUser, firebaseKey: ref.key };
+                localStorage.setItem('currentUserKey', ref.key);
+                showToast('تم إنشاء الحساب بنجاح ✨', '🎉');
+                if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+                updateHeaderAfterLogin();
+                showHomePage();
+            }).catch(() => {
+                showToast('حدث خطأ أثناء التسجيل، حاول مرة أخرى', '❌');
+            });
+        }
+
+        function updateHeaderAfterLogin() {
+            if (currentUser) {
+                document.getElementById('headerAuthActions').style.display = 'none';
+                document.getElementById('headerUserActions').style.display = 'flex';
+                document.getElementById('sidebarProfileBtn').style.display = 'flex';
+                document.getElementById('profileName').textContent = currentUser.fullName;
+                document.getElementById('profileRoleBadge').textContent = currentUser.role === 'student' ? 'طالب' : 'ولي أمر';
+                document.getElementById('profileGradeDisplay').textContent = currentUser.grade ? `${currentUser.grade} - ${currentUser.classRoom}` : '';
+                
+                document.getElementById('profileFullName').value = currentUser.fullName || '';
+                document.getElementById('profileNationalId').value = currentUser.nationalId || '';
+                document.getElementById('profileEmail').value = currentUser.email || '';
+                document.getElementById('profilePhone').value = currentUser.phone || '';
+                document.getElementById('profilePassword').value = currentUser.password || '';
+            }
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('currentUserKey');
+            document.getElementById('headerAuthActions').style.display = 'flex';
+            document.getElementById('headerUserActions').style.display = 'none';
+            document.getElementById('sidebarProfileBtn').style.display = 'none';
+            showHomePage();
+            showToast('تم تسجيل الخروج بنجاح', '🚪');
+        }
+
+        function checkAuthAndNavigate(sectionId) {
+            if (!currentUser) {
+                showToast('الرجاء تسجيل الدخول أولاً لعرض هذه الصفحة 🔑', '⚠️');
+                openSignInPage();
+                return;
+            }
+            navigateToSection(sectionId);
+            if (sectionId === 'gradesSection') loadUserGrades();
+            if (sectionId === 'attendanceSection') loadUserAttendance();
+        }
+
+        function loadUserGrades() {
+            if (!currentUser) return;
+            db.ref('grades/' + currentUser.firebaseKey).once('value').then((snapshot) => {
+                const data = snapshot.val();
+                const tbody = document.getElementById('gradesTableBody');
+                if (!data) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد درجات مرصودة حتى الآن.</td></tr>';
+                    return;
+                }
+                // عرض الدرجات الحقيقية
+            });
+        }
+
+        function loadUserAttendance() {
+            if (!currentUser) return;
+            db.ref('attendance/' + currentUser.firebaseKey).once('value').then((snapshot) => {
+                const data = snapshot.val() || {};
+                document.getElementById('lblAttendanceStatusText').textContent = data.status || 'منتظم ✅';
+                document.getElementById('lblAbsenceCountText').textContent = (data.absenceCount || 0) + ' مرة';
+                document.getElementById('lblAttendanceNoteText').textContent = data.note || 'لا توجد ملاحظات.';
+                document.getElementById('lblAbsenceDatesLogText').textContent = data.datesLog || 'لا توجد تواريخ غياب مسجلة.';
+            });
+        }
+
+        function saveProfileChanges(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+            const updated = {
+                fullName: document.getElementById('profileFullName').value.trim(),
+                nationalId: document.getElementById('profileNationalId').value.trim(),
+                email: document.getElementById('profileEmail').value.trim(),
+                phone: document.getElementById('profilePhone').value.trim(),
+                password: document.getElementById('profilePassword').value.trim()
+            };
+            db.ref('users/' + currentUser.firebaseKey).update(updated).then(() => {
+                currentUser = { ...currentUser, ...updated };
+                showToast('تم حفظ التعديلات بنجاح 💾', '✅');
+                updateHeaderAfterLogin();
+            });
+        }
+
+        function submitParentTicket(e) {
+            e.preventDefault();
+            const parentName = document.getElementById('ticketParentName').value.trim();
+            const parentEmail = document.getElementById('ticketParentEmail').value.trim();
+            const type = document.getElementById('ticketTypeSelect').value;
+            const content = document.getElementById('ticketContent').value.trim();
+
+            db.ref('tickets').push({
+                parentName, parentEmail, type, content,
+                studentKey: currentUser ? currentUser.firebaseKey : 'guest',
+                studentName: currentUser ? currentUser.fullName : 'زائر',
+                timestamp: Date.now()
+            }).then(() => {
+                showToast('تم إرسال طلبك بنجاح 🚀', '✅');
+                document.getElementById('ticketContent').value = '';
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadHomeNewsAndVideos();
             const savedKey = localStorage.getItem('currentUserKey');
             if (savedKey) {
-                db.ref(`users/${savedKey}`).once('value').then(snapshot => {
-                    const val = snapshot.val();
-                    if (val) {
-                        currentUser = { ...val, firebaseKey: savedKey };
+                db.ref('users/' + savedKey).once('value').then((snapshot) => {
+                    const u = snapshot.val();
+                    if (u) {
+                        currentUser = { ...u, firebaseKey: savedKey };
                         updateHeaderAfterLogin();
                     }
                 });
             }
-        };
+        });
     </script>
 </body>
 </html>
