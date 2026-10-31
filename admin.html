@@ -289,9 +289,9 @@
             <form onsubmit="saveTeacherAccount(event)">
                 <div class="form-grid">
                     <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
-                    <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة (مثال: الرياضيات)" required>
-                    <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (math أو ar)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول المسندة (مثال: الأول الابتدائي)" required>
+                    <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة بالعربي (مثال: الرياضيات)" required>
+                    <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (arabic, math, english..)" required>
+                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول المسندة (مثال: الأول الإعدادي)" required>
                     <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
@@ -300,40 +300,36 @@
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
-                        <tr><th>الاسم</th><th>المادة</th><th>معرف المادة</th><th>الفصول المسندة</th><th>الباسورد</th><th>إجراء</th></tr>
+                        <tr><th>الاسم</th><th>المادة</th><th>معرف المادة (Eng)</th><th>الفصول المسندة</th><th>الباسورد</th><th>إجراء</th></tr>
                     </thead>
                     <tbody id="adminTeachersTableBody"><tr><td colspan="6" style="text-align: center;">جاري تحميل المدرسين...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (للمدرس أو المدير - يعرض طلاب فصوله ومادته فقط) -->
+        <!-- 3️⃣ قسم رصد الدرجات (مباشر للطلاب حسب المادة والصف بدقة) -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد درجات وتقييمات الطلاب لفصولك ومادتك</div>
-            <div style="margin-bottom: 20px;" id="teacherClassFilterBox">
-                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الفصل الدراسي:</label>
-                <select id="teacherClassSelect" class="form-control" style="max-width: 400px;" onchange="loadStudentsByTeacherClass()">
-                    <option value="">-- اختر الفصل --</option>
-                </select>
-            </div>
+            
             <div style="margin-bottom: 20px;">
                 <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
                 <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
-                    <option value="">-- حدد الطالب من الفصول المسندة --</option>
+                    <option value="">-- حدد الطالب من القائمة --</option>
                 </select>
             </div>
+
             <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
                 <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 <p id="editingStudentGradeBadge" style="color: var(--accent-hover); font-weight: 800; font-size: 13px; margin-bottom: 15px;"></p>
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
-                            <tr><th id="tableSubjectHeader">المادة الدراسية</th><th>أعمال السنة (30)</th><th>التقييم الأسبوعي (20)</th><th>الامتحان النهائي (50)</th></tr>
+                            <tr><th id="tableSubjectHeader">المادة الدراسية (Eng/Ar)</th><th>أعمال السنة (30)</th><th>التقييم الأسبوعي (20)</th><th>الامتحان النهائي (50)</th></tr>
                         </thead>
                         <tbody id="adminGradesEditTableBody"></tbody>
                     </table>
                 </div>
-                <button onclick="saveTeacherSubjectGradeDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ درجات مادتك للطالب بدقة 💾</button>
+                <button onclick="saveStudentSubjectGradeDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ درجات مادتك بدقة 💾</button>
             </div>
         </div>
 
@@ -443,7 +439,7 @@
         let currentRole = localStorage.getItem('adminRole') || 'admin'; // admin, affairs, teacher
         let loggedTeacherName = localStorage.getItem('loggedTeacherName') || '';
         let loggedTeacherSubject = localStorage.getItem('loggedTeacherSubject') || '';
-        let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || '';
+        let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || 'arabic';
         let loggedTeacherClasses = localStorage.getItem('loggedTeacherClasses') || '';
 
         function applyRolePermissions() {
@@ -457,17 +453,13 @@
             const menuPassword = document.getElementById('menuPassword');
 
             if (currentRole === 'affairs') {
-                // شؤون الطلاب يشوف الغياب فقط
                 [menuNews, menuTeachersAdmin, menuGrades, menuControl, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
                 switchAdminSection('attendanceSection', menuAttendance);
             } else if (currentRole === 'teacher') {
-                // المدرس يشوف رصد الدرجات لمادته وفصوله فقط
                 [menuNews, menuTeachersAdmin, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
-                document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) لفصولك المسندة`;
+                document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) للطلاب الفصول المقررة`;
                 switchAdminSection('gradesSection', menuGrades);
-                setupTeacherClassesDropdown();
             } else {
-                // المدير يشوف كل حاجة
                 console.log('صلاحية مدير كاملة');
             }
         }
@@ -532,8 +524,6 @@
 
             db.ref().update(updates).then(() => {
                 showToast('تم حفظ وتغيير كلمات المرور بنجاح 🔑', '✅');
-            }).catch(() => {
-                showToast('حدث خطأ أثناء حفظ كلمات المرور ❌', '⚠️');
             });
         }
 
@@ -541,7 +531,7 @@
             e.preventDefault();
             const name = document.getElementById('teacherName').value.trim();
             const subject = document.getElementById('teacherSubject').value.trim();
-            const subjectId = document.getElementById('teacherSubjectId').value.trim();
+            const subjectId = document.getElementById('teacherSubjectId').value.trim().toLowerCase(); // إنجليزي حصرياً
             const classes = document.getElementById('teacherClasses').value.trim();
             const password = document.getElementById('teacherPassword').value.trim();
 
@@ -591,48 +581,7 @@
             }
         }
 
-        // إعداد فصول المدرس المحددة وتعبئة قائمة الفصول
-        function setupTeacherClassesDropdown() {
-            const classSelect = document.getElementById('teacherClassSelect');
-            if (!classSelect) return;
-            classSelect.innerHTML = '<option value="">-- اختر الفصل --</option>';
-
-            if (loggedTeacherClasses) {
-                const classesArr = loggedTeacherClasses.split(/[,،]/);
-                classesArr.forEach(cls => {
-                    const trimmed = cls.trim();
-                    if (trimmed) {
-                        classSelect.innerHTML += `<option value="${trimmed}">${trimmed}</option>`;
-                    }
-                });
-            }
-        }
-
-        // تحميل طلاب الفصل الذي اختاره المدرس
-        function loadStudentsByTeacherClass() {
-            const selectedClass = document.getElementById('teacherClassSelect').value;
-            const studentSelect = document.getElementById('studentSelectForGrades');
-            studentSelect.innerHTML = '<option value="">-- حدد الطالب --</option>';
-
-            if (!selectedClass) return;
-
-            db.ref('users').once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        const user = data[key];
-                        if (user.role === 'student') {
-                            const studentGrade = (user.grade || '').trim();
-                            if (studentGrade === selectedClass || studentGrade.includes(selectedClass)) {
-                                studentSelect.innerHTML += `<option value="${key}">${user.fullName || user.name} (${studentGrade})</option>`;
-                            }
-                        }
-                    });
-                }
-            });
-        }
-
-        // جلب الطلاب للمدير أو شؤون الطلاب
+        // جلب الطلاب للمدرس أو المدير بدقة
         function loadStudentsDropdowns() {
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -640,9 +589,7 @@
                 const attendanceSelect = document.getElementById('studentAttendanceSelect');
                 const controlSelect = document.getElementById('controlStudentSelect');
                 
-                if (currentRole === 'admin' && gradesSelect) {
-                    gradesSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
-                }
+                if (gradesSelect) gradesSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة بدقة --</option>';
                 if (attendanceSelect) attendanceSelect.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
                 if (controlSelect) controlSelect.innerHTML = '<option value="">-- حدد الطالب --</option>';
 
@@ -650,17 +597,26 @@
                     Object.keys(data).forEach(key => {
                         const user = data[key];
                         if (user.role === 'student') {
-                            const opt = `<option value="${key}">${user.fullName || user.name} (${user.grade || 'غير محدد'})</option>`;
-                            if (currentRole === 'admin' && gradesSelect) gradesSelect.innerHTML += opt;
-                            if (attendanceSelect) attendanceSelect.innerHTML += opt;
-                            if (controlSelect) controlSelect.innerHTML += opt;
+                            const studentGrade = (user.grade || '').trim();
+                            
+                            // لو مدرس، يظهر له طلاب فصوله ومادته فقط تلقائياً
+                            if (currentRole === 'teacher') {
+                                if (loggedTeacherClasses && (studentGrade === loggedTeacherClasses || loggedTeacherClasses.includes(studentGrade))) {
+                                    if (gradesSelect) gradesSelect.innerHTML += `<option value="${key}">${user.fullName || user.name} (${studentGrade})</option>`;
+                                }
+                            } else {
+                                const opt = `<option value="${key}">${user.fullName || user.name} (${studentGrade || 'غير محدد'})</option>`;
+                                if (gradesSelect) gradesSelect.innerHTML += opt;
+                                if (attendanceSelect) attendanceSelect.innerHTML += opt;
+                                if (controlSelect) controlSelect.innerHTML += opt;
+                            }
                         }
                     });
                 }
             });
         }
 
-        // تحميل درجات المادة الخاصة بالمدرس أو المدير
+        // تحميل درجات المادة (معرفات إنجليزية دقيقة)
         function loadStudentGradesToEdit() {
             const studentKey = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
@@ -684,33 +640,34 @@
                 const grades = user.grades || {};
 
                 if (currentRole === 'teacher') {
-                    // المدرس يحط درجته لمادته فقط
-                    document.getElementById('tableSubjectHeader').textContent = `المادة: ${loggedTeacherSubject}`;
+                    // المدرس يحط درجته لمادته (بمعرف إنجليزي دقيق)
+                    document.getElementById('tableSubjectHeader').textContent = `المادة: ${loggedTeacherSubject} (${loggedTeacherSubjectId})`;
                     const subGrade = grades[loggedTeacherSubjectId] || { term1: 0, term2: 0, exam: 0 };
                     tbody.innerHTML = `
                         <tr>
-                            <td><b>${loggedTeacherSubject}</b></td>
+                            <td><b>${loggedTeacherSubject}</b> <code>[${loggedTeacherSubjectId}]</code></td>
                             <td><input type="number" id="grade_term1" class="form-control" value="${subGrade.term1 || 0}" min="0" max="30"></td>
                             <td><input type="number" id="grade_term2" class="form-control" value="${subGrade.term2 || 0}" min="0" max="20"></td>
                             <td><input type="number" id="grade_exam" class="form-control" value="${subGrade.exam || 0}" min="0" max="50"></td>
                         </tr>
                     `;
                 } else {
-                    // المدير يشوف كل مواد الصف بدقة
-                    document.getElementById('tableSubjectHeader').textContent = `المادة الدراسية المقررة`;
+                    // المدير يشوف مواد الإعدادي/الابتدائي بمعرفاتها الإنجليزية الدقيقة
+                    document.getElementById('tableSubjectHeader').textContent = `المادة الدراسية المقررة (Eng ID)`;
                     let subjects = [
-                        { id: 'arabic', name: 'اللغة العربية' },
-                        { id: 'math', name: 'الرياضيات' },
-                        { id: 'english', name: 'اللغة الإنجليزية' },
-                        { id: 'science', name: 'العلوم' },
-                        { id: 'social', name: 'الدراسات الاجتماعية' },
-                        { id: 'religion', name: 'التربية الدينية' }
+                        { id: 'arabic', name: 'اللغة العربية (Arabic)' },
+                        { id: 'english', name: 'اللغة الإنجليزية (English)' },
+                        { id: 'math', name: 'الرياضيات (Math)' },
+                        { id: 'science', name: 'العلوم (Science)' },
+                        { id: 'social', name: 'الدراسات الاجتماعية (Social)' },
+                        { id: 'computer', name: 'الحاسب الآلي (Computer)' }
                     ];
+
                     subjects.forEach(sub => {
                         const subGrade = grades[sub.id] || { term1: 0, term2: 0, exam: 0 };
                         tbody.innerHTML += `
                             <tr>
-                                <td><b>${sub.name}</b></td>
+                                <td><b>${sub.name}</b> <code>[${sub.id}]</code></td>
                                 <td><input type="number" id="grade_${sub.id}_term1" class="form-control" value="${subGrade.term1 || 0}" min="0" max="30"></td>
                                 <td><input type="number" id="grade_${sub.id}_term2" class="form-control" value="${subGrade.term2 || 0}" min="0" max="20"></td>
                                 <td><input type="number" id="grade_${sub.id}_exam" class="form-control" value="${subGrade.exam || 0}" min="0" max="50"></td>
@@ -721,7 +678,7 @@
             });
         }
 
-        function saveTeacherSubjectGradeDirect() {
+        function saveStudentSubjectGradeDirect() {
             const studentKey = document.getElementById('studentSelectForGrades').value;
             if (!studentKey) {
                 showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
@@ -737,25 +694,19 @@
                     showToast(`تم حفظ درجات مادة ${loggedTeacherSubject} للطالب بنجاح 📊`, '✅');
                 });
             } else {
-                // حفظ المدير لكل المواد
-                db.ref(`users/${studentKey}`).once('value').then((snap) => {
-                    const user = snap.val() || {};
-                    const studentGrade = (user.grade || '').toLowerCase();
-                    let activeSubIds = ['arabic', 'math', 'english', 'science', 'social', 'religion'];
+                let subIds = ['arabic', 'english', 'math', 'science', 'social', 'computer'];
+                const newGrades = {};
+                subIds.forEach(subId => {
+                    const t1 = document.getElementById(`grade_${subId}_term1`);
+                    const t2 = document.getElementById(`grade_${subId}_term2`);
+                    const ex = document.getElementById(`grade_${subId}_exam`);
+                    if (t1 && t2 && ex) {
+                        newGrades[subId] = { term1: t1.value, term2: t2.value, exam: ex.value };
+                    }
+                });
 
-                    const newGrades = {};
-                    activeSubIds.forEach(subId => {
-                        const t1 = document.getElementById(`grade_${subId}_term1`);
-                        const t2 = document.getElementById(`grade_${subId}_term2`);
-                        const ex = document.getElementById(`grade_${subId}_exam`);
-                        if (t1 && t2 && ex) {
-                            newGrades[subId] = { term1: t1.value, term2: t2.value, exam: ex.value };
-                        }
-                    });
-
-                    db.ref(`users/${studentKey}/grades`).set(newGrades).then(() => {
-                        showToast('تم حفظ ورصد درجات المواد المقررة للطالب بدقة 📊', '✅');
-                    });
+                db.ref(`users/${studentKey}/grades`).set(newGrades).then(() => {
+                    showToast('تم حفظ ورصد درجات المواد المقررة بدقة 📊', '✅');
                 });
             }
         }
@@ -895,12 +846,10 @@
         window.onload = function() {
             loadCurrentPasswords();
             applyRolePermissions();
+            loadStudentsDropdowns();
             if (currentRole === 'admin') {
-                loadStudentsDropdowns();
                 fetchAllUsersForAdmin();
                 fetchTeachersForAdmin();
-            } else if (currentRole === 'attendanceSection' || currentRole === 'affairs') {
-                loadStudentsDropdowns();
             }
         };
     </script>
