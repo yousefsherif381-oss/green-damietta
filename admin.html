@@ -58,7 +58,7 @@
             border-left: 1px solid rgba(255, 255, 255, 0.25);
             padding: 24px 20px; display: flex; flex-direction: column;
             transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow-y: auto; /* تفعيل التمرير لتتمكن من الوصول لجميع الأزرار بكل سلاسة */
+            overflow-y: auto;
         }
         .sliding-sidebar.active { right: 0; }
 
@@ -154,16 +154,47 @@
         }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 
-        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s ease; }
+        input[type="file"] { display: none; }
+
+        .custom-file-upload {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px 18px; background: #F8FAFC;
+            border: 2px dashed var(--primary); border-radius: 12px;
+            color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
+            text-align: center;
+        }
+        .custom-file-upload:hover {
+            background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+        }
+
+        .file-name-preview { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
+
+        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-success { background: var(--success); color: white; }
+        .btn-edit { background: var(--accent); color: white; }
+        .btn-edit:hover { background: var(--accent-hover); }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
         th, td { padding: 12px 14px; border: 1px solid var(--border); }
         th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
         tr:nth-child(even) { background-color: #F8FAFC; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
+            z-index: 3500; display: none; align-items: center; justify-content: center;
+        }
+        .modal-card {
+            background: #FFFFFF; width: 100%; max-width: 450px; padding: 25px;
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 2px solid var(--accent); animation: smoothSlideUp 0.3s ease;
+            text-align: center;
+        }
 
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -182,43 +213,90 @@
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
+    <!-- نافذة تأكيد الحذف الاحترافية -->
+    <div class="modal-overlay" id="confirmDeleteModal">
+        <div class="modal-card">
+            <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+            <h3 style="color: var(--danger); font-weight: 900; margin-bottom: 8px;">تأكيد الحذف النهائي</h3>
+            <p id="confirmDeleteText" style="color: var(--text-muted); font-size: 14px; font-weight: 700; margin-bottom: 20px;">هل أنت متأكد من حذف هذا العنصر نهائياً؟</p>
+            <div style="display: flex; gap: 12px;">
+                <button id="confirmDeleteBtn" class="btn btn-danger" style="flex: 1;">نعم، حذف 🗑️</button>
+                <button onclick="closeDeleteModal()" class="btn btn-primary" style="flex: 1; background: #64748B;">تراجع ✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل بيانات المستخدم المنبثقة -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal-card" style="text-align: right;">
+            <h3 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 15px; text-align: center;">✏️ تعديل بيانات الحساب</h3>
+            <form onsubmit="saveEditedUser(event)">
+                <input type="hidden" id="editModalKey">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الاسم بالكامل:</label>
+                    <input type="text" id="editModalName" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;" id="editModalGradeGroup">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الصف الدراسي:</label>
+                    <input type="text" id="editModalGrade" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الكود / الرقم القومي:</label>
+                    <input type="text" id="editModalNationalId" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">رقم المحمول:</label>
+                    <input type="tel" id="editModalPhone" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">كلمة المرور:</label>
+                    <input type="text" id="editModalPassword" class="form-control" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">حفظ التعديلات 💾</button>
+                    <button type="button" onclick="closeEditModal()" class="btn btn-danger" style="flex: 1;">إلغاء ✕</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
-            <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
+            <span class="sidebar-title" id="sidebarTitleText">📌 أقسام لوحة الإدارة</span>
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
-        <div class="sidebar-menu">
-            <div class="sidebar-item active" onclick="switchAdminSection('newsSection', this)">
+        <div class="sidebar-menu" id="sidebarMenuContainer">
+            <div class="sidebar-item active" id="menuItemNews" onclick="switchAdminSection('newsSection', this)">
                 <span class="sidebar-icon">📢</span>
                 <span class="sidebar-label">نشر وإدارة الأخبار</span>
             </div>
-            <div class="sidebar-item" onclick="switchAdminSection('teachersAdminSection', this)">
+            <div class="sidebar-item" id="menuItemTeachers" onclick="switchAdminSection('teachersAdminSection', this)">
                 <span class="sidebar-icon">👨‍🏫</span>
                 <span class="sidebar-label">إدارة المدرسين والمادة</span>
             </div>
-            <div class="sidebar-item" onclick="switchAdminSection('gradesSection', this)">
+            <div class="sidebar-item" id="menuItemGrades" onclick="switchAdminSection('gradesSection', this)">
                 <span class="sidebar-icon">📊</span>
                 <span class="sidebar-label">رصد وتقييم الدرجات</span>
             </div>
-            <div class="sidebar-item" onclick="switchAdminSection('controlSection', this)">
+            <div class="sidebar-item" id="menuItemControl" onclick="switchAdminSection('controlSection', this)">
                 <span class="sidebar-icon">🏆</span>
                 <span class="sidebar-label">كنترول المدرسة</span>
             </div>
-            <div class="sidebar-item" onclick="switchAdminSection('attendanceSection', this)">
+            <div class="sidebar-item" id="menuItemAttendance" onclick="switchAdminSection('attendanceSection', this)">
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-label">متابعة وتسجيل الغياب</span>
             </div>
-            <div class="sidebar-item" onclick="switchAdminSection('usersSection', this)">
+            <div class="sidebar-item" id="menuItemUsers" onclick="switchAdminSection('usersSection', this)">
                 <span class="sidebar-icon">👥</span>
                 <span class="sidebar-label">سجل الحسابات والطلاب</span>
             </div>
-            <div class="sidebar-item" onclick="switchAdminSection('ticketsSection', this)">
+            <div class="sidebar-item" id="menuItemTickets" onclick="switchAdminSection('ticketsSection', this)">
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
             </div>
-            <div class="sidebar-item" onclick="switchAdminSection('passwordSection', this)">
+            <div class="sidebar-item" id="menuItemPassword" onclick="switchAdminSection('passwordSection', this)">
                 <span class="sidebar-icon">🔑</span>
                 <span class="sidebar-label">تغيير كلمة المرور</span>
             </div>
@@ -227,18 +305,98 @@
 
     <header>
         <div class="nav-container">
-            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span>أقسام الإدارة</span></button>
+            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
             <div class="logo-area" onclick="window.location.href='index.html'">
                 <div class="logo-box">
-                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار">
+                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار بوابة التعلم الذكي">
                 </div>
-                <span class="logo-text">بوابة التعلم الذكي - الإدارة</span>
+                <span class="logo-text" id="headerTitleText">بوابة التعلم الذكي - الإدارة</span>
             </div>
             <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
         </div>
     </header>
 
     <main class="main-wrapper">
+
+        <!-- 👨‍🏫 قسم المدرس -->
+        <div class="admin-section" id="teacherSection">
+            <div class="card-title" id="teacherWelcomeTitle">👨‍🏫 رصد درجات الطلاب لمادتك وفصولك</div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 6px;">اختر الفصل الدراسي:</label>
+                <select id="teacherClassFilter" class="form-control" style="max-width: 350px;" onchange="renderTeacherStudents()">
+                    <option value="ALL">جميع فصولك المسندة</option>
+                </select>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم الطالب</th>
+                            <th>الصف / الفصل</th>
+                            <th>أعمال السنة (30)</th>
+                            <th>التقييم الأسبوعي (20)</th>
+                            <th>الامتحان النهائي (50)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacherGradesTableBody">
+                        <tr><td colspan="5" style="text-align: center;">جاري تحميل الطلاب...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="saveTeacherGradesDirect()" class="btn btn-success" style="width: 100%; margin-top: 20px;">حفظ درجات مادتك 💾</button>
+        </div>
+
+        <!-- 🏆 قسم كنترول المدرسة -->
+        <div class="admin-section" id="controlSection">
+            <div class="card-title">🏆 كنترول المدرسة - رفع وتحديث نتائج الترم الأول والثاني للمدرسة كلها</div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
+                <select id="controlStudentSelect" class="form-control" style="max-width: 400px;" onchange="loadControlStudentData()">
+                    <option value="">-- حدد الطالب --</option>
+                </select>
+            </div>
+            <div id="controlResultBox" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+                <h4 id="controlStudentName" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;"></h4>
+                <div class="form-grid">
+                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الأول (من 100):</label><input type="number" id="term1Grade" class="form-control"></div>
+                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الثاني (من 100):</label><input type="number" id="term2Grade" class="form-control"></div>
+                </div>
+                <button onclick="saveControlResults()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتثبيت نتائج الكنترول 💾</button>
+            </div>
+        </div>
+
+        <!-- 👨‍🏫 قسم إدارة المدرسين وصلاحياتهم -->
+        <div class="admin-section" id="teachersAdminSection">
+            <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين وموادهم وفصولهم</div>
+            <form onsubmit="saveTeacherAccount(event)">
+                <div class="form-grid">
+                    <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
+                    <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة (مثال: الرياضيات)" required>
+                    <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (math أو ar)" required>
+                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول (مثال: الأول الابتدائي, الثاني)" required>
+                    <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
+            </form>
+            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">المدرسون المسجلون بالسيستم:</h4>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>المادة</th>
+                            <th>معرف المادة</th>
+                            <th>الفصول المسندة</th>
+                            <th>الباسورد</th>
+                            <th>إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTeachersTableBody">
+                        <tr><td colspan="6" style="text-align: center;">جاري التحميل...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- 1️⃣ قسم الأخبار -->
         <div class="admin-section active" id="newsSection">
@@ -249,58 +407,147 @@
                     <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
                 </div>
                 <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
+                
+                <div class="form-grid" style="margin-bottom: 15px;">
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان (اختياري):</label>
+                        <label for="newsImageFile" class="custom-file-upload">
+                            <span>📁 اضغط لاختيار صورة الإعلان</span>
+                        </label>
+                        <input type="file" id="newsImageFile" accept="image/*" onchange="updateFileName(this, 'imageNamePreview')">
+                        <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (اختياري):</label>
+                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)" style="padding: 12px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز:</label>
+                    <label for="newsVideoFile" class="custom-file-upload">
+                        <span>🎬 اضغط لاختيار فيديو الإعلان</span>
+                    </label>
+                    <input type="file" id="newsVideoFile" accept="video/mp4,video/webm,video/ogg" onchange="updateFileName(this, 'videoNamePreview')">
+                    <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
+                </div>
+
                 <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
             </form>
+
             <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
         </div>
 
-        <!-- 2️⃣ قسم إدارة المدرسين -->
-        <div class="admin-section" id="teachersAdminSection">
-            <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين وموادهم وفصولهم</div>
-            <form onsubmit="saveTeacherAccount(event)">
-                <div class="form-grid">
-                    <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
-                    <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة (مثال: الرياضيات)" required>
-                    <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (math أو ar)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول (مثال: الأول الابتدائي)" required>
-                    <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
-            </form>
-        </div>
-
-        <!-- 3️⃣ قسم الدرجات -->
+        <!-- 2️⃣ قسم الدرجات -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
-            <p style="color: var(--text-muted); font-weight: 600;">اختر الطالب وقم بتحديث درجاته بكل سهولة.</p>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب لرصد أو تعديل الدرجات:</label>
+                <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
+                    <option value="">-- حدد الطالب من القائمة --</option>
+                </select>
+            </div>
+            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;">رصد الدرجات للطالب: </h4>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المادة الدراسية</th>
+                                <th>أعمال السنة (30)</th>
+                                <th>التقييم الأسبوعي (20)</th>
+                                <th>الامتحان النهائي (50)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminGradesEditTableBody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button onclick="saveStudentGradesDirect()" class="btn btn-success">حفظ وتقييم الدرجات 💾</button>
+                    <button onclick="document.getElementById('gradesEditFormContainer').style.display='none'" class="btn btn-danger">إغلاق ✕</button>
+                </div>
+            </div>
         </div>
 
-        <!-- 4️⃣ قسم كنترول المدرسة -->
-        <div class="admin-section" id="controlSection">
-            <div class="card-title">🏆 كنترول المدرسة - رفع وتحديث نتائج الترم الأول والثاني</div>
-            <p style="color: var(--text-muted); font-weight: 600;">مراجعة النتائج النهائية والكنترول العام.</p>
-        </div>
-
-        <!-- 5️⃣ قسم الحضور والغياب -->
+        <!-- 3️⃣ قسم الحضور والغياب -->
         <div class="admin-section" id="attendanceSection">
-            <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار</div>
-            <p style="color: var(--text-muted); font-weight: 600;">متابعة الانضباط اليومي للطلاب.</p>
+            <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية والاحترازية</div>
+            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
+                        <select id="studentAttendanceSelect" class="form-control" onchange="loadStudentAttendanceData()">
+                            <option value="">-- اختر طالب من القائمة --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
+                        <select id="attendanceStatusSelect" class="form-control" onchange="onAttendanceStatusChange()">
+                            <option value="منتظم">منتظم (حاضر) ✅</option>
+                            <option value="غاب يوم واحد">غاب يوم واحد ❌</option>
+                            <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
+                            <option value="استئذان رسمي">استئذان رسمي ⚠️</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-grid" style="grid-template-columns: 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي عدد مرات الغياب:</label>
+                        <input type="number" id="absenceCountInput" class="form-control" value="0" min="0" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر:</label>
+                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر أو تقرير رقم 123...">
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تواريخ أيام الغياب تفصيلياً (اليوم، الشهر، السبب):</label>
+                    <textarea id="absenceDatesLogInput" class="form-control" rows="3" placeholder="مثال:
+- 12 أكتوبر: عذر مرضي
+- 18 أكتوبر: غياب بدون عذر
+- 25 نوفمبر: استئذان رسمي"></textarea>
+                </div>
+
+                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور بدقة 💾</button>
+            </div>
         </div>
 
-        <!-- 6️⃣ قسم سجل الحسابات والطلاب -->
+        <!-- 4️⃣ قسم سجل المستخدمين -->
         <div class="admin-section" id="usersSection">
-            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
-            <p style="color: var(--text-muted); font-weight: 600;">إدارة كافة حسابات الطلاب وأولياء الأمور.</p>
+            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة (مع إمكانية التعديل الشامل)</div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>نوع الحساب</th>
+                            <th>الصف الدراسي</th>
+                            <th>الكود / الرقم القومي</th>
+                            <th>رقم المحمول</th>
+                            <th>كلمة المرور</th>
+                            <th>حالة الحضور</th>
+                            <th>مرات الغياب</th>
+                            <th>تفاصيل العذر والملاحظة</th>
+                            <th>إجراء سريع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersTableBody">
+                        <tr><td colspan="10" style="text-align: center;">جاري تحميل البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 7️⃣ قسم الشكاوى -->
+        <!-- 5️⃣ قسم الشكاوى -->
         <div class="admin-section" id="ticketsSection">
             <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-        <!-- 8️⃣ قسم تغيير كلمة المرور -->
+        <!-- 6️⃣ قسم تغيير كلمة المرور -->
         <div class="admin-section" id="passwordSection">
             <div class="card-title">🔑 إعداد كلمات مرور السلطات والمسؤولين</div>
             <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
@@ -314,18 +561,14 @@
     </main>
 
     <script>
-        const firebaseConfig = { databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com" };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const db = firebase.database();
-
-        function toggleSidebar() { 
-            document.getElementById('slidingSidebar').classList.toggle('active'); 
-            document.getElementById('sidebarOverlay').classList.toggle('active'); 
+        function toggleSidebar() {
+            document.getElementById('slidingSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        function closeSidebar() { 
-            document.getElementById('slidingSidebar').classList.remove('active'); 
-            document.getElementById('sidebarOverlay').classList.remove('active'); 
+        function closeSidebar() {
+            document.getElementById('slidingSidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
         function switchAdminSection(sectionId, element) {
@@ -339,25 +582,6 @@
                 element.classList.add('active');
             }
             closeSidebar();
-        }
-
-        function showToast(message, icon = "✨") {
-            const toast = document.getElementById('customToast');
-            document.getElementById('toastIcon').textContent = icon;
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
-        }
-
-        function saveSystemPasswords(e) {
-            e.preventDefault();
-            const admin = document.getElementById('passAdmin').value.trim();
-            const control = document.getElementById('passControl').value.trim();
-            const affairs = document.getElementById('passAffairs').value.trim();
-
-            db.ref('settings/passwords').set({ admin, control, affairs }).then(() => {
-                showToast('تم حفظ كلمات المرور بنجاح 🔑');
-            });
         }
     </script>
 </body>
