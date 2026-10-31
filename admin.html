@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
 
     <style>
         :root {
@@ -154,9 +155,9 @@
         }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 
-        .btn { padding: 8px 14px; border-radius: 10px; border: none; font-weight: 800; font-size: 12.5px; cursor: pointer; transition: all 0.25s ease; }
+        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s ease; }
         .btn:hover { transform: translateY(-2px); }
-        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-success { background: var(--success); color: white; }
 
@@ -186,39 +187,35 @@
 
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
-            <span class="sidebar-title" id="sidebarTitleText">📌 أقسام لوحة الإدارة</span>
+            <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
-        <div class="sidebar-menu" id="sidebarMenuContainer">
-            <div class="sidebar-item active" id="menuItemNews" onclick="switchAdminSection('newsSection', this)">
+        <div class="sidebar-menu">
+            <div class="sidebar-item active" onclick="switchAdminSection('newsSection', this)">
                 <span class="sidebar-icon">📢</span>
                 <span class="sidebar-label">نشر وإدارة الأخبار</span>
             </div>
-            <div class="sidebar-item" id="menuItemTeachers" onclick="switchAdminSection('teachersAdminSection', this)">
+            <div class="sidebar-item" onclick="switchAdminSection('teachersAdminSection', this)">
                 <span class="sidebar-icon">👨‍🏫</span>
                 <span class="sidebar-label">إدارة المدرسين والمادة</span>
             </div>
-            <div class="sidebar-item" id="menuItemGrades" onclick="switchAdminSection('gradesSection', this)">
+            <div class="sidebar-item" onclick="switchAdminSection('gradesSection', this)">
                 <span class="sidebar-icon">📊</span>
                 <span class="sidebar-label">رصد وتقييم الدرجات</span>
             </div>
-            <div class="sidebar-item" id="menuItemControl" onclick="switchAdminSection('attendanceSection', this)">
-                <span class="sidebar-icon">👥</span>
-                <span class="sidebar-label">شؤون الطلاب (تسجيل الغياب)</span>
-            </div>
-            <div class="sidebar-item" id="menuItemAttendance" onclick="switchAdminSection('attendanceSection', this)">
+            <div class="sidebar-item" onclick="switchAdminSection('attendanceSection', this)">
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-label">متابعة وتسجيل الغياب</span>
             </div>
-            <div class="sidebar-item" id="menuItemUsers" onclick="switchAdminSection('usersSection', this)">
+            <div class="sidebar-item" onclick="switchAdminSection('usersSection', this)">
                 <span class="sidebar-icon">👥</span>
                 <span class="sidebar-label">سجل الحسابات والطلاب</span>
             </div>
-            <div class="sidebar-item" id="menuItemTickets" onclick="switchAdminSection('ticketsSection', this)">
+            <div class="sidebar-item" onclick="switchAdminSection('ticketsSection', this)">
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
             </div>
-            <div class="sidebar-item" id="menuItemPassword" onclick="switchAdminSection('passwordSection', this)">
+            <div class="sidebar-item" onclick="switchAdminSection('passwordSection', this)">
                 <span class="sidebar-icon">🔑</span>
                 <span class="sidebar-label">تغيير كلمة المرور</span>
             </div>
@@ -227,12 +224,12 @@
 
     <header>
         <div class="nav-container">
-            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
+            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ أقسام الإدارة</button>
             <div class="logo-area" onclick="window.location.href='index.html'">
                 <div class="logo-box">
                     <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار بوابة التعلم الذكي">
                 </div>
-                <span class="logo-text" id="headerTitleText">بوابة التعلم الذكي - الإدارة</span>
+                <span class="logo-text">بوابة التعلم الذكي - الإدارة</span>
             </div>
             <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
         </div>
@@ -240,16 +237,22 @@
 
     <main class="main-wrapper">
 
-        <!-- 1️⃣ قسم الأخبار -->
+        <!-- 1️⃣ قسم الأخبار (مع إمكانية رفع الصور والفيديوهات) -->
         <div class="admin-section active" id="newsSection">
-            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
+            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة (مع إمكانية إرفاق صور وفيديوهات)</div>
             <form onsubmit="postNews(event)">
                 <div class="form-grid">
                     <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
                     <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
                 </div>
-                <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
+                <textarea id="newsContent" class="form-control" rows="3" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 12px;"></textarea>
+                
+                <div style="margin-bottom: 15px; background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1.5px dashed var(--primary);">
+                    <label style="font-size: 13px; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 6px;">📷 إرفاق صورة أو فيديو مع الخبر (اختياري):</label>
+                    <input type="file" id="newsMediaFile" class="form-control" accept="image/*,video/*">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان بالوسائط للجميع 🚀</button>
             </form>
             <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
             <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
@@ -270,15 +273,49 @@
             </form>
         </div>
 
-        <!-- 3️⃣ قسم الدرجات -->
+        <!-- 3️⃣ قسم الدرجات (مفعل بالكامل لاختيار الطالب والمادة ورصد الدرجات) -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
-            <p style="color: var(--text-muted); font-weight: 600;">اختر الطالب وقم بتحديث درجاته بكل سهولة.</p>
+            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
+                <div class="form-grid">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
+                        <select id="gradeStudentSelect" class="form-control">
+                            <option value="">-- اختر طالب من القائمة --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر المادة الدراسية:</label>
+                        <select id="gradeSubjectSelect" class="form-control">
+                            <option value="math">الرياضيات (math)</option>
+                            <option value="arabic">اللغة العربية (arabic)</option>
+                            <option value="english">اللغة الإنجليزية (english)</option>
+                            <option value="science">العلوم (science)</option>
+                            <option value="social">الدراسات الاجتماعية (social)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-top: 10px;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">درجة أعمال السنة:</label>
+                        <input type="number" id="inputTerm1" class="form-control" value="0" min="0" max="30">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">درجة التقييم الأسبوعي:</label>
+                        <input type="number" id="inputTerm2" class="form-control" value="0" min="0" max="20">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">درجة الامتحان النهائي:</label>
+                        <input type="number" id="inputExam" class="form-control" value="0" min="0" max="50">
+                    </div>
+                </div>
+                <button onclick="saveStudentGradesByAdmin()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتحديث درجات الطالب فوراً 💾</button>
+            </div>
         </div>
 
-        <!-- 4️⃣ قسم الغياب (شؤون الطلاب) -->
+        <!-- 4️⃣ قسم الغياب وشؤون الطلاب (مفعل بالكامل مع التاريخ والملاحظات والتواريخ المسجلة) -->
         <div class="admin-section" id="attendanceSection">
-            <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية والاحترازية</div>
+            <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية وتواريخ الغياب</div>
             <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
                 <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
                     <div>
@@ -290,18 +327,32 @@
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
                         <select id="attendanceStatusSelect" class="form-control">
-                            <option value="منتظم">منتظم (حاضر) ✅</option>
-                            <option value="غاب يوم واحد">غاب يوم واحد ❌</option>
-                            <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
-                            <option value="استئذان رسمي">استئذان رسمي ⚠️</option>
+                            <option value="منتظم ✅">منتظم (حاضر) ✅</option>
+                            <option value="غاب يوم واحد ❌">غاب يوم واحد ❌</option>
+                            <option value="عذر مرضي / تقرير طبي 🏥">عذر مرضي / تقرير طبي 🏥</option>
+                            <option value="استئذان رسمي ⚠️">استئذان رسمي ⚠️</option>
                         </select>
                     </div>
                 </div>
-                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور بدقة 💾</button>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي الغياب:</label>
+                        <input type="number" id="absenceCountInput" class="form-control" value="0" min="0">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تاريخ يوم الغياب:</label>
+                        <input type="date" id="absenceDateInput" class="form-control">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر:</label>
+                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر مرضي...">
+                    </div>
+                </div>
+                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور والتواريخ بدقة 💾</button>
             </div>
         </div>
 
-        <!-- 5️⃣ قسم سجل الحسابات والطلاب (مصحح وشغال 100%) -->
+        <!-- 5️⃣ قسم سجل الحسابات والطلاب -->
         <div class="admin-section" id="usersSection">
             <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة</div>
             <div style="overflow-x: auto;">
@@ -364,13 +415,9 @@
         function switchAdminSection(sectionId, element) {
             document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
             const target = document.getElementById(sectionId);
-            if (target) {
-                target.classList.add('active');
-            }
+            if (target) target.classList.add('active');
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
-            if (element) {
-                element.classList.add('active');
-            }
+            if (element) element.classList.add('active');
             closeSidebar();
         }
 
@@ -411,13 +458,137 @@
             });
         }
 
-        // دالة جلب وعرض بيانات المستخدمين والطلاب في الجدول
+        // تحميل قائمة الطلاب في قوائم الاختيار (للكنترول وشؤون الطلاب)
+        function loadStudentsDropdowns() {
+            db.ref('users').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const gradeSelect = document.getElementById('gradeStudentSelect');
+                const attendanceSelect = document.getElementById('studentAttendanceSelect');
+                
+                if (gradeSelect) gradeSelect.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
+                if (attendanceSelect) attendanceSelect.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
+
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const user = data[key];
+                        if (user.role === 'student') {
+                            const optionHTML = `<option value="${key}">${user.fullName || user.name} (${user.grade || '---'})</option>`;
+                            if (gradeSelect) gradeSelect.innerHTML += optionHTML;
+                            if (attendanceSelect) attendanceSelect.innerHTML += optionHTML;
+                        }
+                    });
+                }
+            });
+        }
+
+        // حفظ الدرجات للطالب
+        function saveStudentGradesByAdmin() {
+            const studentKey = document.getElementById('gradeStudentSelect').value;
+            const subjectId = document.getElementById('gradeSubjectSelect').value;
+            const term1 = document.getElementById('inputTerm1').value;
+            const term2 = document.getElementById('inputTerm2').value;
+            const exam = document.getElementById('inputExam').value;
+
+            if (!studentKey) {
+                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
+                return;
+            }
+
+            db.ref(`users/${studentKey}/grades/${subjectId}`).set({
+                term1: term1,
+                term2: term2,
+                exam: exam
+            }).then(() => {
+                showToast('تم رصد وتحديث درجات الطالب بنجاح 📊', '✅');
+            });
+        }
+
+        // تحميل بيانات غياب الطالب عند اختياره
+        function loadStudentAttendanceData() {
+            const studentKey = document.getElementById('studentAttendanceSelect').value;
+            if (!studentKey) return;
+
+            db.ref(`users/${studentKey}`).once('value').then((snapshot) => {
+                const user = snapshot.val();
+                if (user) {
+                    document.getElementById('attendanceStatusSelect').value = user.attendanceStatus || 'منتظم ✅';
+                    document.getElementById('absenceCountInput').value = user.absenceCount || 0;
+                    document.getElementById('attendanceNoteInput').value = user.attendanceNote || '';
+                }
+            });
+        }
+
+        // حفظ سجل الغياب والملاحظات مع التاريخ
+        function saveStudentAttendance() {
+            const studentKey = document.getElementById('studentAttendanceSelect').value;
+            const attendanceStatus = document.getElementById('attendanceStatusSelect').value;
+            const absenceCount = document.getElementById('absenceCountInput').value;
+            const absenceDate = document.getElementById('absenceDateInput').value;
+            const attendanceNote = document.getElementById('attendanceNoteInput').value;
+
+            if (!studentKey) {
+                showToast('الرجاء اختيار الطالب أولاً ⚠️', '❌');
+                return;
+            }
+
+            db.ref(`users/${studentKey}`).once('value').then((snapshot) => {
+                const user = snapshot.val() || {};
+                let existingLog = user.absenceDatesLog || '';
+                
+                if (absenceDate) {
+                    const newLogEntry = `• تاريخ: ${absenceDate} - الحالة: ${attendanceStatus} (${attendanceNote || 'بدون ملاحظات'})`;
+                    existingLog = existingLog ? existingLog + '\n' + newLogEntry : newLogEntry;
+                }
+
+                db.ref(`users/${studentKey}`).update({
+                    attendanceStatus: attendanceStatus,
+                    absenceCount: absenceCount,
+                    attendanceNote: attendanceNote,
+                    absenceDatesLog: existingLog
+                }).then(() => {
+                    showToast('تم تحديث سجل الغياب والتواريخ بنجاح 📅', '✅');
+                });
+            });
+        }
+
+        // نشر الأخبار (مع دعم رفع الصور والفيديوهات عبر Base64 لتعمل بدون مشاكل في التخزين)
+        function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim();
+            const content = document.getElementById('newsContent').value.trim();
+            const fileInput = document.getElementById('newsMediaFile');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(uploadEvent) {
+                    const mediaBase64 = uploadEvent.target.result;
+                    const mediaType = fileInput.files[0].type.startsWith('video') ? 'video' : 'image';
+                    saveNewsToFirebase(title, badge, content, mediaBase64, mediaType);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveNewsToFirebase(title, badge, content, '', '');
+            }
+        }
+
+        function saveNewsToFirebase(title, badge, content, mediaUrl, mediaType) {
+            db.ref('news').push({
+                title, badge, content, mediaUrl, mediaType, timestamp: Date.now()
+            }).then(() => {
+                showToast('تم نشر الخبر بنجاح 🚀', '✅');
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsBadge').value = '';
+                document.getElementById('newsContent').value = '';
+                document.getElementById('newsMediaFile').value = '';
+            });
+        }
+
         function fetchAllUsersForAdmin() {
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
                 const tableBody = document.getElementById('adminUsersTableBody');
                 if (!tableBody) return;
-                
                 tableBody.innerHTML = '';
 
                 if (!data) {
@@ -427,22 +598,20 @@
 
                 Object.keys(data).forEach(key => {
                     const user = data[key];
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><b>${user.fullName || user.name || '---'}</b></td>
-                        <td><span style="padding: 3px 8px; border-radius: 6px; font-weight: bold; background: ${user.role === 'parent' ? '#FEF3C7' : '#E0F2FE'}; color: ${user.role === 'parent' ? '#D97706' : '#0369A1'};">${user.role === 'parent' ? 'ولي أمر' : 'طالب'}</span></td>
-                        <td>${user.grade || '---'}</td>
-                        <td>${user.nationalId || user.code || '---'}</td>
-                        <td>${user.phone || '---'}</td>
-                        <td><code>${user.password || '---'}</code></td>
-                        <td><span style="padding: 3px 8px; border-radius: 6px; font-weight: bold; background: ${user.attendanceStatus === 'منتظم' ? '#E6F4EA' : '#FCE8E6'}; color: ${user.attendanceStatus === 'منتظم' ? '#137333' : '#C5221F'};">${user.attendanceStatus || 'منتظم'}</span></td>
-                        <td><b>${user.absenceCount || 0}</b></td>
-                        <td>${user.attendanceNote || 'لا توجد ملاحظات'}</td>
-                        <td>
-                            <button onclick="deleteUserAccount('${key}')" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">حذف 🗑️</button>
-                        </td>
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td><b>${user.fullName || user.name || '---'}</b></td>
+                            <td><span style="padding: 3px 8px; border-radius: 6px; font-weight: bold; background: ${user.role === 'parent' ? '#FEF3C7' : '#E0F2FE'}; color: ${user.role === 'parent' ? '#D97706' : '#0369A1'};">${user.role === 'parent' ? 'ولي أمر' : 'طالب'}</span></td>
+                            <td>${user.grade || '---'}</td>
+                            <td>${user.nationalId || user.code || '---'}</td>
+                            <td>${user.phone || '---'}</td>
+                            <td><code>${user.password || '---'}</code></td>
+                            <td><b>${user.attendanceStatus || 'منتظم'}</b></td>
+                            <td><b>${user.absenceCount || 0}</b></td>
+                            <td>${user.attendanceNote || 'لا توجد ملاحظات'}</td>
+                            <td><button onclick="deleteUserAccount('${key}')" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">حذف 🗑️</button></td>
+                        </tr>
                     `;
-                    tableBody.appendChild(tr);
                 });
             });
         }
@@ -457,6 +626,7 @@
 
         window.onload = function() {
             loadCurrentPasswords();
+            loadStudentsDropdowns();
             fetchAllUsersForAdmin();
         };
     </script>
