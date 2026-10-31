@@ -457,33 +457,35 @@
         function openSignInPage() { hideAllViews(); document.getElementById('signInView').style.display = 'block'; }
         function openSignUpPage() { hideAllViews(); document.getElementById('signUpView').style.display = 'block'; }
 
-        // إدارة تسجيل الدخول الموحد لجميع السلطات (مدير - كنترول - شؤون طلاب - مدرسين - طلاب)
+        // إدارة تسجيل الدخول الموحد للسلطات والمدرسين والطلاب
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            // فحص تسجيل الدخول للسلطات عبر قواعد البيانات
             db.ref('settings/passwords').once('value').then(snap => {
                 const passes = snap.val() || { admin: 'admin123', control: 'control123', affairs: 'affairs123' };
                 
                 if (identifier === 'admin' && password === passes.admin) {
+                    sessionStorage.setItem('loggedUserRole', 'admin');
                     showToast('دخول مدير المدرسة... ⚙️');
-                    setTimeout(() => { window.location.href = 'admin.html#ticketsSection'; }, 1000);
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                     return;
                 }
                 if (identifier === 'control' && password === passes.control) {
+                    sessionStorage.setItem('loggedUserRole', 'control');
                     showToast('دخول كنترول المدرسة... 🏆');
-                    setTimeout(() => { window.location.href = 'admin.html#controlSection'; }, 1000);
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                     return;
                 }
                 if (identifier === 'affairs' && password === passes.affairs) {
+                    sessionStorage.setItem('loggedUserRole', 'affairs');
                     showToast('دخول شؤون الطلاب... 📅');
-                    setTimeout(() => { window.location.href = 'admin.html#attendanceSection'; }, 1000);
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                     return;
                 }
 
-                // فحص الحسابات للمدرسين
+                // فحص تسجيل دخول المدرسين وتوجيههم لصفحة الإدارة بصلاحياتهم المحددة
                 db.ref('teachers').once('value').then(tSnap => {
                     const teachers = tSnap.val();
                     let foundTeacher = null;
@@ -495,8 +497,10 @@
                         });
                     }
                     if (foundTeacher) {
+                        sessionStorage.setItem('loggedUserRole', 'teacher');
+                        sessionStorage.setItem('loggedTeacherData', JSON.stringify(foundTeacher));
                         showToast(`مرحباً بك أستاذ ${foundTeacher.name} 👨‍🏫`);
-                        setTimeout(() => { window.location.href = 'admin.html#teachersSection'; }, 1000);
+                        setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                         return;
                     }
 
