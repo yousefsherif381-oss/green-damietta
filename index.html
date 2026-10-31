@@ -451,7 +451,7 @@
                     
                     <!-- حقل اختيار الصف الدراسي -->
                     <div class="form-group" id="groupGrade"><label>الصف الدراسي</label>
-                        <select id="signUpGrade" class="form-control">
+                        <select id="signUpGrade" class="form-control" onchange="updateClassRoomsList()">
                             <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
                             <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
                             <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
@@ -464,21 +464,10 @@
                         </select>
                     </div>
 
-                    <!-- حقل اختيار الفصل الدراسي الجديد -->
-                    <div class="form-group" id="groupClassRoom"><label>فصل الطالب (الفصل)</label>
+                    <!-- حقل اختيار الفصل التلقائي (مثل 2A, 2B, 2C...) -->
+                    <div class="form-group" id="groupClassRoom"><label>فصل الطالب</label>
                         <select id="signUpClassRoom" class="form-control">
-                            <option value="أول 1">أول 1</option>
-                            <option value="أول 2">أول 2</option>
-                            <option value="ثاني 1">ثاني 1</option>
-                            <option value="ثاني 2">ثاني 2</option>
-                            <option value="ثالث 1">ثالث 1</option>
-                            <option value="ثالث 2">ثالث 2</option>
-                            <option value="رابع 1">رابع 1</option>
-                            <option value="رابع 2">رابع 2</option>
-                            <option value="خامس 1">خامس 1</option>
-                            <option value="خامس 2">خامس 2</option>
-                            <option value="سادس 1">سادس 1</option>
-                            <option value="سادس 2">سادس 2</option>
+                            <!-- سيتم تعبئتها تلقائياً حسب الصف المختار -->
                         </select>
                     </div>
 
@@ -508,6 +497,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             loadNewsFeed();
             toggleRoleFields();
+            updateClassRoomsList();
             setInterval(() => {
                 if (currentUser && currentUser.firebaseKey) {
                     let targetKey = currentUser.role === 'parent' ? currentUser.linkedStudentKey : currentUser.firebaseKey;
@@ -522,6 +512,30 @@
                 }
             }, 4000);
         });
+
+        // دالة لتوليد فصول الصف تلقائياً بناءً على اختيار الصف (مثال: 1A, 1B, 1C, 1D, 1E أو 2A...)
+        function updateClassRoomsList() {
+            const gradeSelect = document.getElementById('signUpGrade');
+            const classSelect = document.getElementById('signUpClassRoom');
+            if (!gradeSelect || !classSelect) return;
+
+            const selectedGradeText = gradeSelect.value;
+            let prefix = '1'; // افتراضي
+
+            if (selectedGradeText.includes('الأول')) prefix = '1';
+            else if (selectedGradeText.includes('الثاني')) prefix = '2';
+            else if (selectedGradeText.includes('الثالث')) prefix = '3';
+            else if (selectedGradeText.includes('الرابع')) prefix = '4';
+            else if (selectedGradeText.includes('الخامس')) prefix = '5';
+            else if (selectedGradeText.includes('السادس')) prefix = '6';
+
+            const sections = ['A', 'B', 'C', 'D', 'E'];
+            classSelect.innerHTML = '';
+            sections.forEach(sec => {
+                const className = prefix + sec;
+                classSelect.innerHTML += `<option value="${className}">${className}</option>`;
+            });
+        }
 
         function toggleRoleFields() {
             const role = document.getElementById('signUpRole').value;
@@ -540,6 +554,7 @@
                 groupClassRoom.style.display = 'block';
                 groupStudentCodeLink.style.display = 'none';
                 nameLabel.textContent = 'الاسم الرباعي';
+                updateClassRoomsList();
             }
         }
 
@@ -594,7 +609,7 @@
         function openSignInPage() { hideAllViews(); document.getElementById('signInView').style.display = 'block'; }
         function openSignUpPage() { hideAllViews(); document.getElementById('signUpView').style.display = 'block'; }
 
-        // دالة إنشاء الحساب المحدثة لتشمل الصف والفصل
+        // دالة إنشاء الحساب مع إدراج رقم ورقم الفصل التلقائي (مثل 2A)
         function handleSignUp(e) {
             e.preventDefault();
             const role = document.getElementById('signUpRole').value;
@@ -738,7 +753,7 @@
                 document.getElementById('sidebarProfileBtn').style.display = 'flex';
                 document.getElementById('profileName').textContent = currentUser.name;
                 document.getElementById('profileRoleBadge').textContent = currentUser.role === 'parent' ? 'ولي أمر' : 'طالب';
-                document.getElementById('profileGradeDisplay').textContent = currentUser.role === 'student' ? `${currentUser.grade || ''} - ${currentUser.classroom || ''}` : '';
+                document.getElementById('profileGradeDisplay').textContent = currentUser.role === 'student' ? `${currentUser.grade || ''} - فصل (${currentUser.classroom || ''})` : '';
                 document.getElementById('profileFullName').value = currentUser.name || '';
                 document.getElementById('profileNationalId').value = currentUser.nationalId || '';
                 document.getElementById('profileEmail').value = currentUser.email || '';
