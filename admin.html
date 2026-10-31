@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة | بوابة التعلم الذكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>لوحة التحكم الإدارية | بوابة التعلم الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
     <style>
         :root {
@@ -14,16 +16,15 @@
             --primary-dark: #0369A1;
             --accent: #F59E0B;
             --accent-hover: #D97706;
-            --danger: #EF4444;
-            --success: #10B981;
-            --card-bg: rgba(255, 255, 255, 0.88);
+            --card-bg: rgba(255, 255, 255, 0.92);
             --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border: rgba(255, 255, 255, 0.5);
+            --border: rgba(255, 255, 255, 0.6);
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-
+        
         body {
             background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
             background-size: 400% 400%;
@@ -42,109 +43,116 @@
             100% { background-position: 0% 50%; }
         }
 
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(12, 74, 110, 0.5); backdrop-filter: blur(8px);
-            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
-        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .sliding-sidebar {
-            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(12, 74, 110, 0.78); 
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.3);
-            border-left: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 24px 20px; display: flex; flex-direction: column;
-            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .sliding-sidebar.active { right: 0; }
-
-        .sidebar-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .sidebar-title { font-size: 17px; font-weight: 900; color: #F8FAFC; display: flex; align-items: center; gap: 8px; }
-        .btn-close-sidebar {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); 
-            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
-            transition: all 0.2s ease;
-        }
-        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.8); border-color: #EF4444; transform: rotate(90deg); }
-
-        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; }
-        .sidebar-item {
-            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
-            border-radius: 16px; background: rgba(255, 255, 255, 0.12); 
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sidebar-item:hover, .sidebar-item.active { 
-            background: rgba(2, 132, 199, 0.5); 
-            border-color: var(--accent); 
-            transform: translateX(-6px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
-        }
-        .sidebar-icon { font-size: 22px; }
-        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
-
         header {
             background: rgba(12, 74, 110, 0.65);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         .nav-container {
-            max-width: 1300px; margin: auto; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
+            max-width: 1200px; margin: auto; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center; position: relative;
         }
 
         .btn-sidebar-toggle {
-            background: rgba(255, 255, 255, 0.15); color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px;
-            padding: 9px 16px; font-size: 15px; cursor: pointer; transition: all 0.3s ease;
-            display: flex; align-items: center; gap: 8px;
+            background: rgba(255, 255, 255, 0.1); color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+            padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; z-index: 2;
         }
-        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.25); border-color: var(--accent); transform: translateY(-2px); }
+        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
 
-        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; margin: auto; }
+        .logo-area {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+        }
         .logo-box {
-            width: 52px; height: 52px; border-radius: 50%; background: #0F172A; padding: 2px;
-            border: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+            width: 52px; height: 52px; border-radius: 50%; background: #0f172a;
+            padding: 2px; border: 2.5px solid var(--accent); display: flex;
+            align-items: center; justify-content: center; overflow: hidden;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
         }
         .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        .logo-text { font-size: 19px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
-
-        .btn-header-home {
-            background: var(--accent); color: #fff; border: none; padding: 9px 18px;
-            border-radius: 12px; font-size: 13.5px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); transition: all 0.3s ease;
+        
+        .logo-text {
+            font-size: 20px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;
+            background: linear-gradient(45deg, #FFFFFF, #38BDF8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
 
-        .main-wrapper { max-width: 1250px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
+        .header-actions { display: flex; gap: 10px; z-index: 2; }
+        .btn-header {
+            padding: 8px 18px; border-radius: 10px; font-size: 13.5px;
+            font-weight: 800; cursor: pointer; border: none; transition: all 0.3s ease;
+        }
+        .btn-header-outline { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn-header-outline:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); }
+        .btn-header-primary { background: var(--accent); color: #fff; }
+        .btn-header-primary:hover { background: var(--accent-hover); }
+
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+        /* تعديل القائمة الجانبية لتكون قابلة للتمرير (Scrollable) بكل سلاسة */
+        .sliding-sidebar {
+            position: fixed; top: 0; right: -360px; width: 340px; height: 100vh;
+            background: rgba(12, 74, 110, 0.95); backdrop-filter: blur(20px);
+            z-index: 1001; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.2); padding: 25px 20px;
+            display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto; /* تفعيل السكرول لتصل لكل الأزرار أسفل القائمة */
+        }
+        .sliding-sidebar.active { right: 0; }
+
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar-title { font-size: 18px; font-weight: 950; color: #F8FAFC; }
+        .btn-close-sidebar { background: transparent; border: none; font-size: 20px; cursor: pointer; color: #94A3B8; }
+
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+            border-radius: 14px; background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.18); cursor: pointer; transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+        .sidebar-item:hover { background: rgba(2, 132, 199, 0.4); border-color: var(--accent); transform: translateX(-4px); }
+        .sidebar-icon { font-size: 22px; }
+        .sidebar-label { font-size: 14.5px; font-weight: 800; color: #F8FAFC; }
+
+        .main-wrapper { max-width: 1050px; width: 100%; margin: 30px auto; padding: 0 16px; flex: 1; }
 
         .admin-section {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 24px; padding: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
-            display: none; margin-bottom: 25px;
-            border-top: 5px solid var(--accent);
-            animation: smoothSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px; padding: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            margin-bottom: 25px;
+            display: none;
+            animation: smoothSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
         }
-        .admin-section.active { display: block; }
-        .card-title { font-size: 17px; font-weight: 900; color: var(--primary-dark); margin-bottom: 18px; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .admin-section.active-view { display: block; }
+
+        @keyframes smoothSlideUp {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .form-group { margin-bottom: 14px; text-align: right; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        
         .form-control {
             width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
@@ -152,56 +160,30 @@
         }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 
-        input[type="file"] { display: none; }
-
-        .custom-file-upload {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 12px 18px; background: #F8FAFC;
-            border: 2px dashed var(--primary); border-radius: 12px;
-            color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
-            text-align: center;
+        .btn-submit {
+            width: 100%; padding: 13px; background: var(--primary); color: white;
+            border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
+            transition: all 0.25s ease;
         }
-        .custom-file-upload:hover {
-            background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
-        }
+        .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
 
-        .file-name-preview { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
-
-        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn:hover { transform: translateY(-2px); }
-        .btn:active { transform: scale(0.96); }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-edit { background: var(--accent); color: white; }
-        .btn-edit:hover { background: var(--accent-hover); }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
-        th, td { padding: 12px 14px; border: 1px solid var(--border); }
-        th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
+        .table-responsive { overflow-x: auto; border-radius: 12px; border: 2px solid #E2E8F0; background: #FFFFFF; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; color: #0F172A; }
+        th { background: #0284C7; color: #FFFFFF; font-weight: 800; padding: 12px; border: 1px solid #0369A1; }
+        td { padding: 12px; border: 1px solid #E2E8F0; font-weight: 700; }
         tr:nth-child(even) { background-color: #F8FAFC; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
-            z-index: 3500; display: none; align-items: center; justify-content: center;
-        }
-        .modal-card {
-            background: #FFFFFF; width: 100%; max-width: 450px; padding: 25px;
-            border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border: 2px solid var(--accent); animation: smoothSlideUp 0.3s ease;
-            text-align: center;
-        }
 
         .custom-toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
-            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
-            z-index: 4000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+            background: #0F172A; color: white; padding: 12px 24px; border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--accent);
+            display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13.5px;
+            z-index: 2000; opacity: 0; transition: all 0.3s ease; pointer-events: none;
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        .btn-action { padding: 6px 12px; border-radius: 8px; border: none; font-size: 12px; font-weight: 800; cursor: pointer; margin: 2px; }
+        .btn-delete { background: #EF4444; color: white; }
     </style>
 </head>
 <body>
@@ -211,409 +193,374 @@
         <span id="toastMessage">تمت العملية بنجاح</span>
     </div>
 
-    <!-- نافذة تأكيد الحذف الاحترافية -->
-    <div class="modal-overlay" id="confirmDeleteModal">
-        <div class="modal-card">
-            <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
-            <h3 style="color: var(--danger); font-weight: 900; margin-bottom: 8px;">تأكيد الحذف النهائي</h3>
-            <p id="confirmDeleteText" style="color: var(--text-muted); font-size: 14px; font-weight: 700; margin-bottom: 20px;">هل أنت متأكد من حذف هذا العنصر نهائياً؟</p>
-            <div style="display: flex; gap: 12px;">
-                <button id="confirmDeleteBtn" class="btn btn-danger" style="flex: 1;">نعم، حذف 🗑️</button>
-                <button onclick="closeDeleteModal()" class="btn btn-primary" style="flex: 1; background: #64748B;">تراجع ✕</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل بيانات المستخدم المنبثقة -->
-    <div class="modal-overlay" id="editUserModal">
-        <div class="modal-card" style="text-align: right;">
-            <h3 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 15px; text-align: center;">✏️ تعديل بيانات الحساب</h3>
-            <form onsubmit="saveEditedUser(event)">
-                <input type="hidden" id="editModalKey">
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الاسم بالكامل:</label>
-                    <input type="text" id="editModalName" class="form-control" required>
-                </div>
-                <div class="form-group" style="margin-bottom: 12px;" id="editModalGradeGroup">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الصف الدراسي:</label>
-                    <input type="text" id="editModalGrade" class="form-control">
-                </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">الكود / الرقم القومي:</label>
-                    <input type="text" id="editModalNationalId" class="form-control" required>
-                </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">رقم المحمول:</label>
-                    <input type="tel" id="editModalPhone" class="form-control" required>
-                </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px;">كلمة المرور:</label>
-                    <input type="text" id="editModalPassword" class="form-control" required>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn btn-success" style="flex: 1;">حفظ التعديلات 💾</button>
-                    <button type="button" onclick="closeEditModal()" class="btn btn-danger" style="flex: 1;">إلغاء ✕</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <aside class="sliding-sidebar" id="slidingSidebar">
         <div class="sidebar-header">
-            <span class="sidebar-title" id="sidebarTitleText">📌 أقسام لوحة الإدارة</span>
+            <span class="sidebar-title">📌 أقسام لوحة الإدارة</span>
             <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
         </div>
-        <div class="sidebar-menu" id="sidebarMenuContainer">
-            <!-- الأزرار الستة الأساسية موجودة تماماً بالإضافة للأزرار الإضافية -->
-            <div class="sidebar-item active" id="menuItemNews" onclick="switchAdminSection('newsSection', this)">
+        <div class="sidebar-menu">
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('newsSection');">
                 <span class="sidebar-icon">📢</span>
                 <span class="sidebar-label">نشر وإدارة الأخبار</span>
             </div>
-            <div class="sidebar-item" id="menuItemTeachers" onclick="switchAdminSection('teachersAdminSection', this)">
-                <span class="sidebar-icon">👨‍🏫</span>
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('teachersSection');">
+                <span class="sidebar-icon">👩‍🏫</span>
                 <span class="sidebar-label">إدارة المدرسين والمادة</span>
             </div>
-            <div class="sidebar-item" id="menuItemGrades" onclick="switchAdminSection('gradesSection', this)">
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('gradesSection');">
                 <span class="sidebar-icon">📊</span>
                 <span class="sidebar-label">رصد وتقييم الدرجات</span>
             </div>
-            <div class="sidebar-item" id="menuItemControl" onclick="switchAdminSection('controlSection', this)">
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('controlSection');">
                 <span class="sidebar-icon">🏆</span>
                 <span class="sidebar-label">كنترول المدرسة</span>
             </div>
-            <div class="sidebar-item" id="menuItemAttendance" onclick="switchAdminSection('attendanceSection', this)">
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('attendanceSection');">
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-label">متابعة وتسجيل الغياب</span>
             </div>
-            <div class="sidebar-item" id="menuItemUsers" onclick="switchAdminSection('usersSection', this)">
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('accountsSection');">
                 <span class="sidebar-icon">👥</span>
                 <span class="sidebar-label">سجل الحسابات والطلاب</span>
             </div>
-            <div class="sidebar-item" id="menuItemTickets" onclick="switchAdminSection('ticketsSection', this)">
+            <!-- زر تغيير كلمات المرور الإدارية -->
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('passwordsSection');">
+                <span class="sidebar-icon">🔑</span>
+                <span class="sidebar-label">تغيير كلمات المرور الإدارية</span>
+            </div>
+            <!-- زر تنزيل التقارير والبيانات -->
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('downloadSection');">
+                <span class="sidebar-icon">📥</span>
+                <span class="sidebar-label">تنزيل التقارير والبيانات</span>
+            </div>
+            <div class="sidebar-item" onclick="closeSidebar(); switchSection('ticketsSection');">
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
-            </div>
-            <div class="sidebar-item" id="menuItemPassword" onclick="switchAdminSection('passwordSection', this)">
-                <span class="sidebar-icon">🔑</span>
-                <span class="sidebar-label">تغيير كلمة المرور</span>
             </div>
         </div>
     </aside>
 
     <header>
         <div class="nav-container">
-            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ <span style="font-size: 13px; font-weight: bold;">أقسام الإدارة</span></button>
-            <div class="logo-area" onclick="window.location.href='index.html'">
-                <div class="logo-box">
-                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار بوابة التعلم الذكي">
-                </div>
-                <span class="logo-text" id="headerTitleText">بوابة التعلم الذكي - الإدارة</span>
+            <div class="header-left">
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ القائمة</button>
             </div>
-            <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
+
+            <div class="logo-area" onclick="switchSection('newsSection')">
+                <div class="logo-box">
+                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار النظام">
+                </div>
+                <span class="logo-text">لوحة التحكم الإدارية</span>
+            </div>
+
+            <div class="header-actions">
+                <button onclick="window.location.href='index.html'" class="btn-header btn-header-outline">🌐 زيارة الموقع</button>
+                <button onclick="logoutAdmin()" class="btn-header btn-header-primary" style="background: #EF4444;">خروج 🚪</button>
+            </div>
         </div>
     </header>
 
     <main class="main-wrapper">
-
-        <!-- 👨‍🏫 قسم المدرس -->
-        <div class="admin-section" id="teacherSection">
-            <div class="card-title" id="teacherWelcomeTitle">👨‍🏫 رصد درجات الطلاب لمادتك وفصولك</div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 6px;">اختر الفصل الدراسي:</label>
-                <select id="teacherClassFilter" class="form-control" style="max-width: 350px;" onchange="renderTeacherStudents()">
-                    <option value="ALL">جميع فصولك المسندة</option>
-                </select>
-            </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>اسم الطالب</th>
-                            <th>الصف / الفصل</th>
-                            <th>أعمال السنة (30)</th>
-                            <th>التقييم الأسبوعي (20)</th>
-                            <th>الامتحان النهائي (50)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="teacherGradesTableBody">
-                        <tr><td colspan="5" style="text-align: center;">جاري تحميل الطلاب...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <button onclick="saveTeacherGradesDirect()" class="btn btn-success" style="width: 100%; margin-top: 20px;">حفظ درجات مادتك 💾</button>
-        </div>
-
-        <!-- 🏆 قسم كنترول المدرسة -->
-        <div class="admin-section" id="controlSection">
-            <div class="card-title">🏆 كنترول المدرسة - رفع وتحديث نتائج الترم الأول والثاني للمدرسة كلها</div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
-                <select id="controlStudentSelect" class="form-control" style="max-width: 400px;" onchange="loadControlStudentData()">
-                    <option value="">-- حدد الطالب --</option>
-                </select>
-            </div>
-            <div id="controlResultBox" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
-                <h4 id="controlStudentName" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;"></h4>
-                <div class="form-grid">
-                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الأول (من 100):</label><input type="number" id="term1Grade" class="form-control"></div>
-                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الثاني (من 100):</label><input type="number" id="term2Grade" class="form-control"></div>
-                </div>
-                <button onclick="saveControlResults()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتثبيت نتائج الكنترول 💾</button>
-            </div>
-        </div>
-
-        <!-- 👨‍🏫 قسم إدارة المدرسين وصلاحياتهم -->
-        <div class="admin-section" id="teachersAdminSection">
-            <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين وموادهم وفصولهم</div>
-            <form onsubmit="saveTeacherAccount(event)">
-                <div class="form-grid">
-                    <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
-                    <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة (مثال: الرياضيات)" required>
-                    <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (math أو ar)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول (مثال: الأول الابتدائي, الثاني)" required>
-                    <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
-            </form>
-            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">المدرسون المسجلون بالسيستم:</h4>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>الاسم</th>
-                            <th>المادة</th>
-                            <th>معرف المادة</th>
-                            <th>الفصول المسندة</th>
-                            <th>الباسورد</th>
-                            <th>إجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTeachersTableBody">
-                        <tr><td colspan="6" style="text-align: center;">جاري التحميل...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 1️⃣ قسم الأخبار -->
-        <div class="admin-section active" id="newsSection">
-            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
+        
+        <!-- قسم نشر وإدارة الأخبار -->
+        <div class="admin-section active-view" id="newsSection">
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">📢 نشر وإدارة الأخبار والتنبيهات</h2>
             <form onsubmit="postNews(event)">
+                <div class="form-group"><label>عنوان الخبر</label><input type="text" id="newsTitle" class="form-control" required></div>
+                <div class="form-group"><label>محتوى الخبر أو الإعلان</label><textarea id="newsContent" class="form-control" rows="4" required></textarea></div>
+                <button type="submit" class="btn-submit">نشر الخبر الآن 🚀</button>
+            </form>
+            <div id="adminNewsList" style="margin-top: 25px;"></div>
+        </div>
+
+        <!-- قسم إدارة المدرسين والمادة -->
+        <div class="admin-section" id="teachersSection">
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">👩‍🏫 إدارة المدرسين والمواد الدراسية</h2>
+            <form onsubmit="saveTeacher(event)">
                 <div class="form-grid">
-                    <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
-                    <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
+                    <div class="form-group"><label>اسم المعلم</label><input type="text" id="teacherName" class="form-control" required></div>
+                    <div class="form-group"><label>المادة الدراسية</label><input type="text" id="teacherSubject" class="form-control" required></div>
+                    <div class="form-group"><label>كلمة المرور الخاصة بالمعلم</label><input type="text" id="teacherPassword" class="form-control" required></div>
                 </div>
-                <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
-                
-                <div class="form-grid" style="margin-bottom: 15px;">
-                    <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان (اختياري):</label>
-                        <label for="newsImageFile" class="custom-file-upload">
-                            <span>📁 اضغط لاختيار صورة الإعلان</span>
-                        </label>
-                        <input type="file" id="newsImageFile" accept="image/*" onchange="updateFileName(this, 'imageNamePreview')">
-                        <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
-                    </div>
-                    <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو الإعلان (اختياري):</label>
-                        <input type="url" id="newsVideoUrl" class="form-control" placeholder="ضع رابط الفيديو هنا (مثال: https://youtu.be/xxx)" style="padding: 12px;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎥 أو إرفاق فيديو صغير من الجهاز:</label>
-                    <label for="newsVideoFile" class="custom-file-upload">
-                        <span>🎬 اضغط لاختيار فيديو الإعلان</span>
-                    </label>
-                    <input type="file" id="newsVideoFile" accept="video/mp4,video/webm,video/ogg" onchange="updateFileName(this, 'videoNamePreview')">
-                    <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
+                <button type="submit" class="btn-submit">حفظ المعلم 💾</button>
             </form>
-
-            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
-            <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
+            <div id="teachersListTable" class="table-responsive"></div>
         </div>
 
-        <!-- 2️⃣ قسم الدرجات -->
+        <!-- قسم رصد وتقييم الدرجات -->
         <div class="admin-section" id="gradesSection">
-            <div class="card-title">📊 رصد درجات وتقييمات الطلاب المباشرة</div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب لرصد أو تعديل الدرجات:</label>
-                <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
-                    <option value="">-- حدد الطالب من القائمة --</option>
-                </select>
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">📊 رصد وتقييم درجات الطلاب</h2>
+            <div class="form-group">
+                <label>اختر الطالب للتعديل أو رصد الدرجات:</label>
+                <select id="selectStudentForGrades" class="form-control" onchange="loadStudentGradesForm()"></select>
             </div>
-            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
-                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;">رصد الدرجات للطالب: </h4>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>المادة الدراسية</th>
-                                <th>أعمال السنة (30)</th>
-                                <th>التقييم الأسبوعي (20)</th>
-                                <th>الامتحان النهائي (50)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminGradesEditTableBody"></tbody>
-                    </table>
-                </div>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button onclick="saveStudentGradesDirect()" class="btn btn-success">حفظ وتقييم الدرجات 💾</button>
-                    <button onclick="document.getElementById('gradesEditFormContainer').style.display='none'" class="btn btn-danger">إغلاق ✕</button>
-                </div>
-            </div>
+            <div id="studentGradesEditorContainer"></div>
         </div>
 
-        <!-- 3️⃣ قسم الحضور والغياب -->
+        <!-- قسم كنترول المدرسة -->
+        <div class="admin-section" id="controlSection">
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">🏆 كنترول المدرسة العام</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">مراجعة النتائج النهائية والإحصائيات العامة للمدرسة.</p>
+            <div id="controlStatsBox" class="form-grid"></div>
+        </div>
+
+        <!-- قسم متابعة وتسجيل الغياب -->
         <div class="admin-section" id="attendanceSection">
-            <div class="card-title">📅 سجل وحساب عداد الغياب والأعذار الطبية والاحترازية</div>
-            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
-                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
-                        <select id="studentAttendanceSelect" class="form-control" onchange="loadStudentAttendanceData()">
-                            <option value="">-- اختر طالب من القائمة --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
-                        <select id="attendanceStatusSelect" class="form-control" onchange="onAttendanceStatusChange()">
-                            <option value="منتظم">منتظم (حاضر) ✅</option>
-                            <option value="غاب يوم واحد">غاب يوم واحد ❌</option>
-                            <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
-                            <option value="استئذان رسمي">استئذان رسمي ⚠️</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-grid" style="grid-template-columns: 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي عدد مرات الغياب:</label>
-                        <input type="number" id="absenceCountInput" class="form-control" value="0" min="0" placeholder="0">
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر:</label>
-                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر أو تقرير رقم 123...">
-                    </div>
-                </div>
-
-                <div style="margin-top: 15px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تواريخ أيام الغياب تفصيلياً (اليوم، الشهر، السبب):</label>
-                    <textarea id="absenceDatesLogInput" class="form-control" rows="3" placeholder="مثال:
-- 12 أكتوبر: عذر مرضي
-- 18 أكتوبر: غياب بدون عذر
-- 25 نوفمبر: استئذان رسمي"></textarea>
-                </div>
-
-                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل الحضور بدقة 💾</button>
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">📅 متابعة وتسجيل الغياب والانضباط</h2>
+            <div class="form-group">
+                <label>اختر الطالب لتسجيل حالة الحضور أو الغياب:</label>
+                <select id="selectStudentForAttendance" class="form-control" onchange="loadStudentAttendanceForm()"></select>
             </div>
+            <div id="attendanceEditorContainer"></div>
         </div>
 
-        <!-- 4️⃣ قسم سجل المستخدمين -->
-        <div class="admin-section" id="usersSection">
-            <div class="card-title">👥 سجل الحسابات والطلاب المسجلين بالبوابة (مع إمكانية التعديل الشامل)</div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>الاسم</th>
-                            <th>نوع الحساب</th>
-                            <th>الصف الدراسي</th>
-                            <th>الكود / الرقم القومي</th>
-                            <th>رقم المحمول</th>
-                            <th>كلمة المرور</th>
-                            <th>حالة الحضور</th>
-                            <th>مرات الغياب</th>
-                            <th>تفاصيل العذر والملاحظة</th>
-                            <th>إجراء سريع</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminUsersTableBody">
-                        <tr><td colspan="10" style="text-align: center;">جاري تحميل البيانات...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+        <!-- قسم سجل الحسابات والطلاب -->
+        <div class="admin-section" id="accountsSection">
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">👥 سجل حسابات الطلاب وأولياء الأمور</h2>
+            <div id="accountsTableContainer" class="table-responsive"></div>
         </div>
 
-        <!-- 5️⃣ قسم الشكاوى -->
-        <div class="admin-section" id="ticketsSection">
-            <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
-            <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
-        </div>
+        <!-- قسم تغيير كلمات المرور الإدارية الجديد -->
+        <div class="admin-section" id="passwordsSection">
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">🔑 تغيير كلمات المرور الإدارية</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">قم بتحديث اسم المستخدم وكلمة المرور الخاصة بالأدمن، الكنترول، وشؤون الطلاب بسهولة.</p>
+            
+            <form onsubmit="saveAdminCredentials(event)">
+                <div style="background: #F8FAFC; padding: 20px; border-radius: 14px; border: 1.5px solid var(--border); margin-bottom: 15px;">
+                    <h4 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 10px;">⚙️ إعدادات مدير النظام (Admin)</h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label>اسم مستخدم الأدمن</label><input type="text" id="adminUserField" class="form-control" required></div>
+                        <div class="form-group"><label>كلمة مرور الأدمن</label><input type="text" id="adminPassField" class="form-control" required></div>
+                    </div>
+                </div>
 
-        <!-- 6️⃣ قسم تغيير كلمة المرور -->
-        <div class="admin-section" id="passwordSection">
-            <div class="card-title">🔑 إعداد كلمات مرور السلطات والمسؤولين</div>
-            <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
-                <div style="margin-bottom: 12px;"><label style="font-weight:700; font-size:13px;">باسورد المدير:</label><input type="text" id="passAdmin" class="form-control" required></div>
-                <div style="margin-bottom: 12px;"><label style="font-weight:700; font-size:13px;">باسورد الكنترول:</label><input type="text" id="passControl" class="form-control" required></div>
-                <div style="margin-bottom: 16px;"><label style="font-weight:700; font-size:13px;">باسورد شؤون الطلاب:</label><input type="text" id="passAffairs" class="form-control" required></div>
-                <button type="submit" class="btn btn-success" style="width: 100%;">حفظ كلمات المرور 💾</button>
+                <div style="background: #F8FAFC; padding: 20px; border-radius: 14px; border: 1.5px solid var(--border); margin-bottom: 15px;">
+                    <h4 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 10px;">🏆 إعدادات الكنترول</h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label>اسم مستخدم الكنترول</label><input type="text" id="controlUserField" class="form-control" required></div>
+                        <div class="form-group"><label>كلمة مرور الكنترول</label><input type="text" id="controlPassField" class="form-control" required></div>
+                    </div>
+                </div>
+
+                <div style="background: #F8FAFC; padding: 20px; border-radius: 14px; border: 1.5px solid var(--border); margin-bottom: 15px;">
+                    <h4 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 10px;">📅 إعدادات شؤون الطلاب</h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label>اسم مستخدم شؤون الطلاب</label><input type="text" id="affairsUserField" class="form-control" required></div>
+                        <div class="form-group"><label>كلمة مرور شؤون الطلاب</label><input type="text" id="affairsPassField" class="form-control" required></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" style="background: var(--accent);">حفظ وتحديث بيانات الدخول 💾</button>
             </form>
+        </div>
+
+        <!-- قسم تنزيل التقارير والبيانات -->
+        <div class="admin-section" id="downloadSection">
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">📥 تنزيل التقارير والبيانات</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">يمكنك هنا تحميل وسحب تقارير الطلاب والدرجات والحضور بملفات جدولية مباشرة لجهازك.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div style="background: #F8FAFC; padding: 20px; border-radius: 14px; border: 1.5px solid var(--border); text-align: center;">
+                    <span style="font-size: 32px; display: block; margin-bottom: 10px;">📊</span>
+                    <h4 style="font-size: 16px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">تقرير الدرجات الشامل</h4>
+                    <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 15px;">تنزيل ملف يحتوي على درجات جميع الطلاب بالمنصة.</p>
+                    <button onclick="downloadReport('grades')" class="btn-submit" style="margin-top: 0;">تحميل تقرير الدرجات 📄</button>
+                </div>
+
+                <div style="background: #F8FAFC; padding: 20px; border-radius: 14px; border: 1.5px solid var(--border); text-align: center;">
+                    <span style="font-size: 32px; display: block; margin-bottom: 10px;">📅</span>
+                    <h4 style="font-size: 16px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">تقرير الغياب والانضباط</h4>
+                    <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 15px;">تنزيل سجل حالات الغياب وأعذار الطلاب.</p>
+                    <button onclick="downloadReport('attendance')" class="btn-submit" style="margin-top: 0; background: var(--accent);">تحميل تقرير الغياب 📄</button>
+                </div>
+
+                <div style="background: #F8FAFC; padding: 20px; border-radius: 14px; border: 1.5px solid var(--border); text-align: center;">
+                    <span style="font-size: 32px; display: block; margin-bottom: 10px;">👥</span>
+                    <h4 style="font-size: 16px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">قائمة حسابات الطلاب</h4>
+                    <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 15px;">تنزيل بيانات الطلاب وأكوادهم وأرقام هواتفهم.</p>
+                    <button onclick="downloadReport('students')" class="btn-submit" style="margin-top: 0; background: #10B981;">تحميل بيانات الطلاب 📄</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم مركز الشكاوى والردود -->
+        <div class="admin-section" id="ticketsSection">
+            <h2 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 20px;">📨 مركز الشكاوى واستفسارات أولياء الأمور</h2>
+            <div id="adminTicketsListContainer"></div>
         </div>
 
     </main>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAE995CZXAe212KXhrlQjyY2Nw2SCfw8WA",
-            authDomain: "green-damietta-b0a29.firebaseapp.com",
-            databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com",
-            projectId: "green-damietta-b0a29",
-            storageBucket: "green-damietta-b0a29.firebasestorage.app",
-            messagingSenderId: "210935345765",
-            appId: "1:210935345765:web:53ba42e2116f8e432bcc8c",
-            measurementId: "G-CT9KYEKXML"
-        };
+        const firebaseConfig = { databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        let usersCache = {};
-        let currentEditingStudentKey = null;
-        let loggedUserRole = sessionStorage.getItem('loggedUserRole') || 'admin';
-        let loggedTeacherData = JSON.parse(sessionStorage.getItem('loggedTeacherData')) || null;
+        window.addEventListener('DOMContentLoaded', () => {
+            const role = sessionStorage.getItem('loggedUserRole');
+            if (!role) {
+                alert('يجب تسجيل الدخول كمسؤول أولاً!');
+                window.location.href = 'index.html';
+                return;
+            }
+            loadStudentsDropdowns();
+            loadAccountsTable();
+            loadAdminNews();
+            loadAdminTeachers();
+            loadAdminTickets();
+            loadCurrentCredentialsForm();
+        });
 
-        function showToast(message, icon = "✅", autoHide = true, duration = 3500) {
+        function showToast(message, icon = "✨") {
             const toast = document.getElementById('customToast');
             document.getElementById('toastIcon').textContent = icon;
             document.getElementById('toastMessage').textContent = message;
             toast.classList.add('show');
-            if (autoHide) setTimeout(() => { toast.classList.remove('show'); }, duration);
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        function updateFileName(input, previewId) {
-            const previewSpan = document.getElementById(previewId);
-            if (input.files && input.files[0]) {
-                previewSpan.textContent = '✅ تم اختيار: ' + input.files[0].name;
-                previewSpan.style.color = '#16A34A';
-            } else {
-                previewSpan.textContent = 'لم يتم اختيار ملف بعد';
-                previewSpan.style.color = '#64748B';
-            }
+        function toggleSidebar() { document.getElementById('slidingSidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
+        function closeSidebar() { document.getElementById('slidingSidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+
+        function switchSection(sectionId) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active-view'));
+            document.getElementById(sectionId).classList.add('active-view');
         }
 
-        function showConfirmDelete(text, onConfirmCallback) {
-            const modal = document.getElementById('confirmDeleteModal');
-            document.getElementById('confirmDeleteText').textContent = text;
-            modal.style.display = 'flex';
+        function logoutAdmin() {
+            sessionStorage.clear();
+            showToast('تم تسجيل الخروج بنجاح 🚪');
+            setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        }
 
-            const btn = document.getElementById('confirmDeleteBtn');
-            const newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-
-            newBtn.addEventListener('click', () => {
-                closeDeleteModal();
-                if (onConfirmCallback) onConfirmCallback();
+        // جلب وعرض بيانات الدخول الحالية في نموذج التعديل
+        function loadCurrentCredentialsForm() {
+            db.ref('settings/credentials').once('value', snapshot => {
+                const data = snapshot.val() || {
+                    adminUser: "admin", adminPass: "admin123",
+                    controlUser: "control", controlPass: "control123",
+                    affairsUser: "affairs", affairsPass: "affairs123"
+                };
+                document.getElementById('adminUserField').value = data.adminUser || 'admin';
+                document.getElementById('adminPassField').value = data.adminPass || 'admin123';
+                document.getElementById('controlUserField').value = data.controlUser || 'control';
+                document.getElementById('controlPassField').value = data.controlPass || 'control123';
+                document.getElementById('affairsUserField').value = data.affairsUser || 'affairs';
+                document.getElementById('affairsPassField').value = data.affairsPass || 'affairs123';
             });
         }
 
-        function closeDeleteModal() {
-            document.getElementById('confirmDeleteModal').style.display = 'none';
+        // حفظ بيانات الدخول الجديدة في Firebase
+        function saveAdminCredentials(e) {
+            e.preventDefault();
+            const credentials = {
+                adminUser: document.getElementById('adminUserField').value.trim(),
+                adminPass: document.getElementById('adminPassField').value.trim(),
+                controlUser: document.getElementById('controlUserField').value.trim(),
+                controlPass: document.getElementById('controlPassField').value.trim(),
+                affairsUser: document.getElementById('affairsUserField').value.trim(),
+                affairsPass: document.getElementById('affairsPassField').value.trim()
+            };
+
+            db.ref('settings/credentials').set(credentials).then(() => {
+                showToast('تم تحديث كلمات المرور الإدارية بنجاح 🔑');
+            });
+        }
+
+        function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const content = document.getElementById('newsContent').value.trim();
+            db.ref('news').push({
+                title, content, date: new Date().toLocaleDateString('ar-EG')
+            }).then(() => {
+                showToast('تم نشر الخبر بنجاح 🚀');
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsContent').value = '';
+                loadAdminNews();
+            });
+        }
+
+        function loadAdminNews() {
+            db.ref('news').on('value', snapshot => {
+                const data = snapshot.val();
+                const container = document.getElementById('adminNewsList');
+                if (!container) return;
+                if (!data) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد أخبار منشورة.</p>'; return; }
+                container.innerHTML = '<h4 style="font-size:15px; font-weight:800; margin-bottom:10px;">الأخبار المنشورة حالياً:</h4>';
+                Object.keys(data).reverse().forEach(k => {
+                    const n = data[k];
+                    container.innerHTML += `
+                        <div style="background:#F8FAFC; padding:12px 16px; border-radius:12px; margin-bottom:10px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color:var(--primary-dark);">${n.title}</b>
+                                <p style="font-size:13px; color:var(--text-dark);">${n.content}</p>
+                            </div>
+                            <button onclick="deleteNews('${k}')" class="btn-action btn-delete">حذف 🗑️</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function deleteNews(key) {
+            db.ref('news/' + key).remove().then(() => showToast('تم حذف الخبر بنجاح'));
+        }
+
+        function saveTeacher(e) {
+            e.preventDefault();
+            const name = document.getElementById('teacherName').value.trim();
+            const subject = document.getElementById('teacherSubject').value.trim();
+            const password = document.getElementById('teacherPassword').value.trim();
+
+            db.ref('teachers').push({ name, subject, password }).then(() => {
+                showToast('تم حفظ المعلم بنجاح 👨‍🏫');
+                document.getElementById('teacherName').value = '';
+                document.getElementById('teacherSubject').value = '';
+                document.getElementById('teacherPassword').value = '';
+                loadAdminTeachers();
+            });
+        }
+
+        function loadAdminTeachers() {
+            db.ref('teachers').on('value', snapshot => {
+                const data = snapshot.val();
+                const container = document.getElementById('teachersListTable');
+                if (!container) return;
+                if (!data) { container.innerHTML = '<p style="padding:15px; text-align:center;">لا يوجد مدرسين مسجلين.</p>'; return; }
+                let html = `<table><thead><tr><th>اسم المعلم</th><th>المادة</th><th>كلمة المرور</th><th>إجراء</th></tr></thead><tbody>`;
+                Object.keys(data).forEach(k => {
+                    const t = data[k];
+                    html += `<tr><td>${t.name}</td><td>${t.subject}</td><td>${t.password}</td><td><button onclick="deleteTeacher('${k}')" class="btn-action btn-delete">حذف</button></td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            });
+        }
+
+        function deleteTeacher(k) { db.ref('teachers/' + k).remove().then(() => showToast('تم حذف المعلم')); }
+
+        function loadStudentsDropdowns() {
+            db.ref('students').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                const selGrades = document.getElementById('selectStudentForGrades');
+                const selAttendance = document.getElementById('selectStudentForAttendance');
+                if (!selGrades || !selAttendance) return;
+
+                selGrades.innerHTML = '<option value="">-- اختر طالباً --</option>';
+                selAttendance.innerHTML = '<option value="">-- اختر طالباً --</option>';
+
+                Object.keys(data).forEach(k => {
+                    const s = data[k];
+                    if (s.role === 'student') {
+                        const opt = `<option value="${k}">${s.name} (${s.grade || ''} - ${s.classroom || ''})</option>`;
+                        selGrades.innerHTML += opt;
+                        selAttendance.innerHTML += opt;
+                    }
+                });
+            });
         }
 
         const gradeSubjectsDetailed = {
@@ -647,440 +594,214 @@
 
         function getSubjectsForGradeName(gradeName) {
             if (!gradeName) return gradeSubjectsDetailed.lowerPrimary;
-            if (gradeName.includes('الاعدادي') || gradeName.includes('الإعدادي')) return gradeSubjectsDetailed.prep;
+            if (gradeName.includes('الإعدادي') || gradeName.includes('الاعدادي')) return gradeSubjectsDetailed.prep;
             else if (gradeName.includes('الرابع') || gradeName.includes('الخامس') || gradeName.includes('السادس')) return gradeSubjectsDetailed.upperPrimary;
             else return gradeSubjectsDetailed.lowerPrimary;
         }
 
-        window.addEventListener('DOMContentLoaded', () => { 
-            setupRolePermissions();
-            loadAllData(); 
-            loadPasswords();
-        });
+        function loadStudentGradesForm() {
+            const studentKey = document.getElementById('selectStudentForGrades').value;
+            const container = document.getElementById('studentGradesEditorContainer');
+            if (!studentKey) { container.innerHTML = ''; return; }
 
-        function setupRolePermissions() {
-            if (loggedUserRole === 'teacher' && loggedTeacherData) {
-                document.getElementById('headerTitleText').textContent = `أستاذ: ${loggedTeacherData.name} (${loggedTeacherData.subject})`;
-                document.getElementById('sidebarTitleText').textContent = `📌 لوحة المدرس`;
-                document.getElementById('sidebarMenuContainer').innerHTML = `
-                    <div class="sidebar-item active" onclick="switchAdminSection('teacherSection', this)">
-                        <span class="sidebar-icon">📊</span>
-                        <span class="sidebar-label">رصد درجات مادتك</span>
-                    </div>
-                `;
-                switchAdminSection('teacherSection');
-                setupTeacherView();
-            } else if (loggedUserRole === 'control') {
-                document.getElementById('headerTitleText').textContent = `كنترول المدرسة`;
-                document.getElementById('sidebarTitleText').textContent = `📌 كنترول النتائج`;
-                document.getElementById('sidebarMenuContainer').innerHTML = `
-                    <div class="sidebar-item active" onclick="switchAdminSection('controlSection', this)">
-                        <span class="sidebar-icon">🏆</span>
-                        <span class="sidebar-label">رصد نتائج الترمين</span>
-                    </div>
-                `;
-                switchAdminSection('controlSection');
-            } else if (loggedUserRole === 'affairs') {
-                document.getElementById('headerTitleText').textContent = `شؤون الطلاب`;
-                document.getElementById('sidebarTitleText').textContent = `📌 شؤون الطلاب`;
-                document.getElementById('sidebarMenuContainer').innerHTML = `
-                    <div class="sidebar-item active" onclick="switchAdminSection('attendanceSection', this)">
-                        <span class="sidebar-icon">📅</span>
-                        <span class="sidebar-label">متابعة وتسجيل الغياب</span>
-                    </div>
-                `;
-                switchAdminSection('attendanceSection');
-            } else {
-                switchAdminSection('newsSection');
-            }
-        }
+            db.ref('students/' + studentKey).once('value', snapshot => {
+                const student = snapshot.val();
+                if (!student) return;
 
-        function setupTeacherView() {
-            document.getElementById('teacherWelcomeTitle').textContent = `👨‍🏫 رصد درجات مادة (${loggedTeacherData.subject})`;
-            const select = document.getElementById('teacherClassFilter');
-            const classesArr = loggedTeacherData.classes ? loggedTeacherData.classes.split(',').map(c => c.trim()) : [];
-            classesArr.forEach(c => { select.innerHTML += `<option value="${c}">${c}</option>`; });
-        }
+                const subjects = getSubjectsForGradeName(student.grade);
+                let html = `<form onsubmit="saveStudentGrades(event, '${studentKey}')"><div class="table-responsive"><table><thead><tr><th>المادة</th><th>أعمال السنة (30)</th><th>أسبوعي (20)</th><th>نهائي (50)</th></tr></thead><tbody>`;
 
-        function renderTeacherStudents() {
-            if (!loggedTeacherData) return;
-            const tbody = document.getElementById('teacherGradesTableBody');
-            const selectedClass = document.getElementById('teacherClassFilter').value;
-            const teacherClasses = loggedTeacherData.classes ? loggedTeacherData.classes.split(',').map(c => c.trim()) : [];
-            const subId = loggedTeacherData.subjectId || 'ar';
-
-            tbody.innerHTML = '';
-            let count = 0;
-
-            Object.keys(usersCache).forEach(k => {
-                const s = usersCache[k];
-                if (s.role !== 'parent') {
-                    const studentGrade = s.grade || '';
-                    const isAssigned = teacherClasses.some(c => studentGrade.includes(c));
-
-                    if (isAssigned && (selectedClass === 'ALL' || studentGrade.includes(selectedClass))) {
-                        count++;
-                        const work = s[subId + '_work'] || '';
-                        const weekly = s[subId + '_weekly'] || '';
-                        const final = s[subId + '_final'] || '';
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><b>${s.name}</b></td>
-                                <td>${studentGrade}</td>
-                                <td><input type="number" id="work_${k}" class="form-control" value="${work}" min="0" max="30"></td>
-                                <td><input type="number" id="weekly_${k}" class="form-control" value="${weekly}" min="0" max="20"></td>
-                                <td><input type="number" id="final_${k}" class="form-control" value="${final}" min="0" max="50"></td>
-                            </tr>
-                        `;
-                    }
-                }
-            });
-            if (count === 0) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد طلاب في الفصول المحددة لك.</td></tr>';
-        }
-
-        function saveTeacherGradesDirect() {
-            if (!loggedTeacherData) return;
-            const subId = loggedTeacherData.subjectId || 'ar';
-            let updates = {};
-
-            Object.keys(usersCache).forEach(k => {
-                const workEl = document.getElementById(`work_${k}`);
-                if (workEl) {
-                    updates[`students/${k}/${subId}_work`] = parseFloat(workEl.value) || 0;
-                    updates[`students/${k}/${subId}_weekly`] = parseFloat(document.getElementById(`weekly_${k}`).value) || 0;
-                    updates[`students/${k}/${subId}_final`] = parseFloat(document.getElementById(`final_${k}`).value) || 0;
-                }
-            });
-
-            db.ref().update(updates).then(() => {
-                showToast(`تم حفظ درجات مادة (${loggedTeacherData.subject}) بنجاح! 💾`);
-            });
-        }
-
-        function loadAllData() {
-            db.ref('students').on('value', (snapshot) => {
-                usersCache = snapshot.val() || {};
-                renderUsersTable();
-                loadTicketsLive();
-                loadTeachersAdmin();
-                if (loggedUserRole === 'teacher') renderTeacherStudents();
-            });
-            loadNewsLive();
-        }
-
-        function toggleSidebar() {
-            document.getElementById('slidingSidebar').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
-        }
-
-        function closeSidebar() {
-            document.getElementById('slidingSidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-        }
-
-        function switchAdminSection(sectionId, menuEl) {
-            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
-            const targetSec = document.getElementById(sectionId);
-            if (targetSec) targetSec.classList.add('active');
-            if (menuEl) menuEl.classList.add('active');
-            closeSidebar();
-        }
-
-        function renderUsersTable() {
-            const tbody = document.getElementById('adminUsersTableBody');
-            const studentAttendanceSelect = document.getElementById('studentAttendanceSelect');
-            const studentSelectForGrades = document.getElementById('studentSelectForGrades');
-            const controlStudentSelect = document.getElementById('controlStudentSelect');
-
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (studentAttendanceSelect) studentAttendanceSelect.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
-            if (studentSelectForGrades) studentSelectForGrades.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
-            if (controlStudentSelect) controlStudentSelect.innerHTML = '<option value="">-- حدد الطالب --</option>';
-
-            if (!usersCache || Object.keys(usersCache).length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">لا توجد حسابات مسجلة حتى الآن.</td></tr>';
-                return;
-            }
-
-            Object.keys(usersCache).forEach(key => {
-                const user = usersCache[key];
-                if (user.role !== 'parent') {
-                    if (studentAttendanceSelect) studentAttendanceSelect.innerHTML += `<option value="${key}">${user.name} (${user.grade || 'غير محدد'})</option>`;
-                    if (studentSelectForGrades) studentSelectForGrades.innerHTML += `<option value="${key}">${user.name} (${user.grade || 'غير محدد'})</option>`;
-                    if (controlStudentSelect) controlStudentSelect.innerHTML += `<option value="${key}">${user.name} (${user.grade || ''})</option>`;
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${user.name || '---'}</b></td>
-                        <td><span style="background: ${user.role === 'admin' ? '#FEF3C7' : '#E0F2FE'}; padding: 4px 8px; border-radius: 6px; font-size:11px;">${user.role || 'طالب'}</span></td>
-                        <td>${user.grade || '---'}</td>
-                        <td><code>${user.nationalId || '---'}</code></td>
-                        <td>${user.phone || '---'}</td>
-                        <td><code>${user.password || '---'}</code></td>
-                        <td>${user.attendance || 'منتظم'}</td>
-                        <td><b style="color: #EF4444;">${user.absenceCount || 0}</b></td>
-                        <td>${user.attendanceNote || 'لا توجد ملاحظات'}</td>
-                        <td>
-                            <button onclick="openEditModal('${key}')" class="btn btn-edit" style="padding: 4px 8px; font-size: 11px; margin-bottom: 4px;">تعديل ✏️</button>
-                            <button onclick="deleteUser('${key}')" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">حذف 🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function loadStudentGradesToEdit() {
-            const studentKey = document.getElementById('studentSelectForGrades').value;
-            const container = document.getElementById('gradesEditFormContainer');
-            const tbody = document.getElementById('adminGradesEditTableBody');
-            
-            if (!studentKey) {
-                container.style.display = 'none';
-                return;
-            }
-
-            const student = usersCache[studentKey];
-            if (!student) return;
-
-            document.getElementById('editingStudentNameTitle').textContent = `رصد وتقييم الدرجات للطالب: ${student.name} (${student.grade || ''})`;
-            const subjects = getSubjectsForGradeName(student.grade);
-            
-            tbody.innerHTML = '';
-            subjects.forEach(sub => {
-                const work = student[sub.id + '_work'] || '';
-                const weekly = student[sub.id + '_weekly'] || '';
-                const final = student[sub.id + '_final'] || '';
-
-                tbody.innerHTML += `
-                    <tr>
+                subjects.forEach(sub => {
+                    const w = student[sub.id + '_work'] || '';
+                    const wk = student[sub.id + '_weekly'] || '';
+                    const f = student[sub.id + '_final'] || '';
+                    html += `<tr>
                         <td><b>${sub.name}</b></td>
-                        <td><input type="number" id="admin_work_${sub.id}" class="form-control" value="${work}" min="0" max="30"></td>
-                        <td><input type="number" id="admin_weekly_${sub.id}" class="form-control" value="${weekly}" min="0" max="20"></td>
-                        <td><input type="number" id="admin_final_${sub.id}" class="form-control" value="${final}" min="0" max="50"></td>
-                    </tr>
+                        <td><input type="number" class="form-control" name="${sub.id}_work" value="${w}" min="0" max="30"></td>
+                        <td><input type="number" class="form-control" name="${sub.id}_weekly" value="${wk}" min="0" max="20"></td>
+                        <td><input type="number" class="form-control" name="${sub.id}_final" value="${f}" min="0" max="50"></td>
+                    </tr>`;
+                });
+
+                html += `</tbody></table></div><button type="submit" class="btn-submit" style="margin-top:15px;">حفظ درجات الطالب 💾</button></form>`;
+                container.innerHTML = html;
+            });
+        }
+
+        function saveStudentGrades(e, studentKey) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const updates = {};
+            for (let [key, value] of formData.entries()) {
+                updates[key] = parseFloat(value) || 0;
+            }
+
+            db.ref('students/' + studentKey).update(updates).then(() => {
+                showToast('تم حفظ درجات الطالب بنجاح 💾');
+            });
+        }
+
+        function loadStudentAttendanceForm() {
+            const studentKey = document.getElementById('selectStudentForAttendance').value;
+            const container = document.getElementById('attendanceEditorContainer');
+            if (!studentKey) { container.innerHTML = ''; return; }
+
+            db.ref('students/' + studentKey).once('value', snapshot => {
+                const s = snapshot.val();
+                if (!s) return;
+
+                container.innerHTML = `
+                    <form onsubmit="saveStudentAttendance(event, '${studentKey}')">
+                        <div class="form-group">
+                            <label>حالة الحضور</label>
+                            <select id="attStatus" class="form-control">
+                                <option value="منتظم ✅" ${s.attendance === 'منتظم ✅' ? 'selected' : ''}>منتظم ✅</option>
+                                <option value="غائب ❌" ${s.attendance === 'غائب ❌' ? 'selected' : ''}>غائب ❌</option>
+                                <option value="متأخر ⏰" ${s.attendance === 'متأخر ⏰' ? 'selected' : ''}>متأخر ⏰</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>عدد مرات الغياب الإجمالي</label>
+                            <input type="number" id="attCount" class="form-control" value="${s.absenceCount || 0}">
+                        </div>
+                        <div class="form-group">
+                            <label>ملاحظات الإدارة</label>
+                            <input type="text" id="attNote" class="form-control" value="${s.attendanceNote || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>سجل تواريخ أيام الغياب (اكتب التواريخ والأعذار)</label>
+                            <textarea id="attDatesLog" class="form-control" rows="3">${s.absenceDatesLog || ''}</textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">حفظ حالة الحضور 📅</button>
+                    </form>
                 `;
             });
-            currentEditingStudentKey = studentKey;
-            container.style.display = 'block';
         }
 
-        function saveStudentGradesDirect() {
-            if (!currentEditingStudentKey) return;
-            const student = usersCache[currentEditingStudentKey];
-            const subjects = getSubjectsForGradeName(student.grade);
-            let updates = {};
-
-            subjects.forEach(sub => {
-                const w = parseFloat(document.getElementById(`admin_work_${sub.id}`).value) || 0;
-                const wk = parseFloat(document.getElementById(`admin_weekly_${sub.id}`).value) || 0;
-                const f = parseFloat(document.getElementById(`admin_final_${sub.id}`).value) || 0;
-
-                updates[`students/${currentEditingStudentKey}/${sub.id}_work`] = w;
-                updates[`students/${currentEditingStudentKey}/${sub.id}_weekly`] = wk;
-                updates[`students/${currentEditingStudentKey}/${sub.id}_final`] = f;
-            });
-
-            db.ref().update(updates).then(() => {
-                showToast('تم حفظ وتقييم درجات الطالب بنجاح! 💾');
-            });
-        }
-
-        function saveTeacherAccount(e) {
+        function saveStudentAttendance(e, studentKey) {
             e.preventDefault();
-            const name = document.getElementById('teacherName').value.trim();
-            const subject = document.getElementById('teacherSubject').value.trim();
-            const subjectId = document.getElementById('teacherSubjectId').value.trim();
-            const classes = document.getElementById('teacherClasses').value.trim();
-            const password = document.getElementById('teacherPassword').value.trim();
+            const attendance = document.getElementById('attStatus').value;
+            const absenceCount = parseInt(document.getElementById('attCount').value) || 0;
+            const attendanceNote = document.getElementById('attNote').value.trim();
+            const absenceDatesLog = document.getElementById('attDatesLog').value.trim();
 
-            db.ref('teachers/' + ('teacher_' + Date.now())).set({ name, subject, subjectId, classes, password }).then(() => {
-                showToast('تمت إضافة حساب المدرس بنجاح! 👨‍🏫');
-                document.getElementById('teacherName').value = '';
-                document.getElementById('teacherSubject').value = '';
-                document.getElementById('teacherSubjectId').value = '';
-                document.getElementById('teacherClasses').value = '';
-                document.getElementById('teacherPassword').value = '';
+            db.ref('students/' + studentKey).update({
+                attendance, absenceCount, attendanceNote, absenceDatesLog
+            }).then(() => {
+                showToast('تم حفظ بيانات الحضور والغياب بنجاح 📅');
             });
         }
 
-        function loadTeachersAdmin() {
-            db.ref('teachers').on('value', snap => {
-                const data = snap.val();
-                const tbody = document.getElementById('adminTeachersTableBody');
-                if(!tbody) return;
-                tbody.innerHTML = '';
-                if(!data) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا يوجد مدرسون مسجلون.</td></tr>'; return; }
+        function loadAccountsTable() {
+            db.ref('students').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                const container = document.getElementById('accountsTableContainer');
+                if (!container) return;
+
+                let html = `<table><thead><tr><th>الاسم</th><th>نوع الحساب</th><th>الصف / الفصل</th><th>الكود / الرقم القومي</th><th>الهاتف</th><th>إجراء</th></tr></thead><tbody>`;
                 Object.keys(data).forEach(k => {
-                    const t = data[k];
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><b>${t.name}</b></td>
-                            <td>${t.subject}</td>
-                            <td><code>${t.subjectId || 'ar'}</code></td>
-                            <td>${t.classes}</td>
-                            <td><code>${t.password}</code></td>
-                            <td><button onclick="db.ref('teachers/${k}').remove()" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">حذف 🗑️</button></td>
-                        </tr>
-                    `;
+                    const s = data[k];
+                    html += `<tr>
+                        <td>${s.name}</td>
+                        <td><b style="color:${s.role === 'parent' ? 'var(--accent)' : 'var(--primary);'}">${s.role === 'parent' ? 'ولي أمر' : 'طالب'}</b></td>
+                        <td>${s.grade || '--'} (${s.classroom || '--'})</td>
+                        <td>${s.nationalId}</td>
+                        <td>${s.phone}</td>
+                        <td><button onclick="deleteAccount('${k}')" class="btn-action btn-delete">حذف</button></td>
+                    </tr>`;
                 });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
             });
         }
 
-        function loadControlStudentData() {
-            const key = document.getElementById('controlStudentSelect').value;
-            const box = document.getElementById('controlResultBox');
-            if(!key) { box.style.display = 'none'; return; }
-            const s = usersCache[key];
-            document.getElementById('controlStudentName').textContent = `نتيجة الطالب: ${s.name}`;
-            document.getElementById('term1Grade').value = s.term1Grade || '';
-            document.getElementById('term2Grade').value = s.term2Grade || '';
-            box.style.display = 'block';
+        function deleteAccount(k) {
+            if (confirm('هل أنت متأكد من حذف هذا الحساب نهائياً؟')) {
+                db.ref('students/' + k).remove().then(() => showToast('تم حذف الحساب بنجاح'));
+            }
         }
 
-        function saveControlResults() {
-            const key = document.getElementById('controlStudentSelect').value;
-            if(!key) return;
-            db.ref('students/' + key).update({
-                term1Grade: parseFloat(document.getElementById('term1Grade').value) || 0,
-                term2Grade: parseFloat(document.getElementById('term2Grade').value) || 0
-            }).then(() => showToast('تم تثبيت نتائج الكنترول بنجاح! 🏆'));
-        }
+        function downloadReport(type) {
+            db.ref('students').once('value', snapshot => {
+                const data = snapshot.val() || {};
+                let content = '';
+                let filename = '';
 
-        function loadNewsLive() {
-            db.ref('news').on('value', snap => {
-                const data = snap.val();
-                const container = document.getElementById('adminNewsList');
-                if (!container) return;
-                if (!data) { container.innerHTML = 'لا توجد أخبار منشورة حالياً.'; return; }
-                container.innerHTML = '';
-                Object.keys(data).reverse().forEach(k => {
-                    const n = data[k];
-                    container.innerHTML += `
-                        <div style="background:#FFF; padding:12px 16px; border-radius:12px; margin-bottom:8px; border:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
-                            <div><b>${n.title}</b><p style="font-size:12px; color:#64748B;">${n.date}</p></div>
-                            <button onclick="db.ref('news/${k}').remove()" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">حذف</button>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function loadTicketsLive() {
-            db.ref('tickets').on('value', snap => {
-                const data = snap.val();
-                const container = document.getElementById('adminTicketsList');
-                if (!container) return;
-                if (!data) { container.innerHTML = 'لا توجد شكاوى حالياً.'; return; }
-                container.innerHTML = '';
-                Object.keys(data).reverse().forEach(k => {
-                    const t = data[k];
-                    container.innerHTML += `
-                        <div style="background:#FFF; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #E2E8F0;">
-                            <b>طالب/ولي أمر: ${t.studentName || t.parentName}</b>
-                            <p>${t.content}</p>
-                            <input type="text" id="reply_${k}" placeholder="رد الإدارة..." value="${t.adminReply || ''}" class="form-control" style="margin:8px 0;">
-                            <button onclick="db.ref('tickets/${k}').update({adminReply: document.getElementById('reply_${k}').value}).then(()=>showToast('تم إرسال الرد'))" class="btn btn-success">إرسال الرد 💬</button>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function postNews(e) {
-            e.preventDefault();
-            db.ref('news/' + Date.now()).set({
-                title: document.getElementById('newsTitle').value,
-                content: document.getElementById('newsContent').value,
-                date: new Date().toLocaleDateString('ar-EG')
-            }).then(() => {
-                showToast('تم نشر الخبر بنجاح 🚀');
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsContent').value = '';
-            });
-        }
-
-        function loadPasswords() {
-            db.ref('settings/passwords').once('value', snap => {
-                const p = snap.val() || { admin: 'admin123', control: 'control123', affairs: 'affairs123' };
-                if(document.getElementById('passAdmin')) {
-                    document.getElementById('passAdmin').value = p.admin;
-                    document.getElementById('passControl').value = p.control;
-                    document.getElementById('passAffairs').value = p.affairs;
+                if (type === 'grades') {
+                    filename = 'Grades_Report.csv';
+                    content = 'اسم الطالب,الصف,الفصل,المادة,أعمال السنة,أسبوعي,نهائي\n';
+                    Object.keys(data).forEach(k => {
+                        const s = data[k];
+                        if (s.role === 'student') {
+                            const subs = getSubjectsForGradeName(s.grade);
+                            subs.forEach(sub => {
+                                content += `"${s.name}","${s.grade}","${s.classroom}","${sub.name}",${s[sub.id+'_work']||0},${s[sub.id+'_weekly']||0},${s[sub.id+'_final']||0}\n`;
+                            });
+                        }
+                    });
+                } else if (type === 'attendance') {
+                    filename = 'Attendance_Report.csv';
+                    content = 'اسم الطالب,الصف,الفصل,حالة الحضور,عدد مرات الغياب,سجل الغياب\n';
+                    Object.keys(data).forEach(k => {
+                        const s = data[k];
+                        if (s.role === 'student') {
+                            content += `"${s.name}","${s.grade}","${s.classroom}","${s.attendance || 'منتظم'}",${s.absenceCount || 0},"${s.absenceDatesLog || ''}"\n`;
+                        }
+                    });
+                } else if (type === 'students') {
+                    filename = 'Students_List.csv';
+                    content = 'اسم الطالب,نوع الحساب,الصف,الفصل,الرقم القومي/الكود,رقم الهاتف\n';
+                    Object.keys(data).forEach(k => {
+                        const s = data[k];
+                        content += `"${s.name}","${s.role}","${s.grade || '--'}","${s.classroom || '--'}","${s.nationalId}","${s.phone}"\n`;
+                    });
                 }
+
+                const blob = new Blob(["\uFEFF" + content], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast(`تم تنزيل ${filename} بنجاح 📥`);
             });
         }
 
-        function saveSystemPasswords(e) {
-            e.preventDefault();
-            db.ref('settings/passwords').set({
-                admin: document.getElementById('passAdmin').value,
-                control: document.getElementById('passControl').value,
-                affairs: document.getElementById('passAffairs').value
-            }).then(() => showToast('تم حفظ كلمات المرور بنجاح 🔑'));
-        }
+        function loadAdminTickets() {
+            db.ref('tickets').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                const container = document.getElementById('adminTicketsListContainer');
+                if (!container) return;
 
-        function deleteUser(key) {
-            showConfirmDelete("هل أنت متأكد من حذف هذا المستخدم نهائياً؟", () => {
-                db.ref('students/' + key).remove().then(() => showToast('تم حذف الحساب بنجاح', '⚠️'));
+                container.innerHTML = '';
+                Object.keys(data).reverse().forEach(k => {
+                    const t = data[k];
+                    container.innerHTML += `
+                        <div style="background:#F8FAFC; padding:18px; border-radius:14px; margin-bottom:15px; border:1.5px solid var(--border);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; color:var(--text-muted);">
+                                <span><b>الطالب:</b> ${t.studentName} | <b>ولي الأمر:</b> ${t.parentName} (${t.parentEmail})</span>
+                                <span>📅 ${t.date}</span>
+                            </div>
+                            <h4 style="color:var(--primary-dark); font-size:15px; margin-bottom:6px;">النوع: ${t.ticketType}</h4>
+                            <p style="font-size:14px; color:var(--text-dark); margin-bottom:12px;"><b>الشكوى:</b> ${t.content}</p>
+                            
+                            <div style="background:#FFFFFF; padding:12px; border-radius:10px; border:1px solid var(--border);">
+                                <label style="font-size:12.5px; font-weight:700; color:var(--primary-dark); display:block; margin-bottom:4px;">الرد الإداري:</label>
+                                <input type="text" id="reply_${k}" class="form-control" value="${t.adminReply || ''}" placeholder="اكتب رد الإدارة هنا...">
+                                <button onclick="sendTicketReply('${k}')" class="btn-submit" style="margin-top:8px; padding:8px;">إرسال الرد 💬</button>
+                            </div>
+                        </div>
+                    `;
+                });
             });
         }
 
-        function openEditModal(key) {
-            currentEditingStudentKey = key;
-            const u = usersCache[key];
-            if (!u) return;
-            document.getElementById('editModalKey').value = key;
-            document.getElementById('editModalName').value = u.name || '';
-            document.getElementById('editModalGrade').value = u.grade || '';
-            document.getElementById('editModalNationalId').value = u.nationalId || '';
-            document.getElementById('editModalPhone').value = u.phone || '';
-            document.getElementById('editModalPassword').value = u.password || '';
-            document.getElementById('editUserModal').style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('editUserModal').style.display = 'none';
-        }
-
-        function saveEditedUser(e) {
-            e.preventDefault();
-            const key = document.getElementById('editModalKey').value;
-            db.ref('students/' + key).update({
-                name: document.getElementById('editModalName').value,
-                grade: document.getElementById('editModalGrade').value,
-                nationalId: document.getElementById('editModalNationalId').value,
-                phone: document.getElementById('editModalPhone').value,
-                password: document.getElementById('editModalPassword').value
-            }).then(() => {
-                closeEditModal();
-                showToast('تم تعديل بيانات الحساب بنجاح 💾');
-            });
-        }
-
-        function loadStudentAttendanceData() {
-            const key = document.getElementById('studentAttendanceSelect').value;
-            if (!key || !usersCache[key]) return;
-            const s = usersCache[key];
-            document.getElementById('attendanceStatusSelect').value = s.attendance || 'منتظم';
-            document.getElementById('absenceCountInput').value = s.absenceCount || 0;
-            document.getElementById('attendanceNoteInput').value = s.attendanceNote || '';
-            document.getElementById('absenceDatesLogInput').value = s.absenceDatesLog || '';
-        }
-
-        function saveStudentAttendance() {
-            const key = document.getElementById('studentAttendanceSelect').value;
-            if (!key) return;
-            db.ref('students/' + key).update({
-                attendance: document.getElementById('attendanceStatusSelect').value,
-                absenceCount: parseInt(document.getElementById('absenceCountInput').value) || 0,
-                attendanceNote: document.getElementById('attendanceNoteInput').value.trim(),
-                absenceDatesLog: document.getElementById('absenceDatesLogInput').value.trim()
-            }).then(() => {
-                showToast('تم تحديث عداد وسجل الحضور بنجاح 📅');
+        function sendTicketReply(key) {
+            const replyText = document.getElementById('reply_' + key).value.trim();
+            db.ref('tickets/' + key).update({ adminReply: replyText }).then(() => {
+                showToast('تم إرسال رد الإدارة بنجاح 💬');
             });
         }
     </script>
