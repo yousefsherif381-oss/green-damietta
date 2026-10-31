@@ -464,7 +464,8 @@
                     </div>
 
                     <div class="form-group" id="groupClassRoom"><label>فصل الطالب</label>
-                        <select id="signUpClassRoom" class="form-control"></select>
+                        <select id="signUpClassRoom" class="form-control">
+                        </select>
                     </div>
 
                     <div class="form-group" id="groupStudentCodeLink" style="display: none;"><label>كود الطالب المراد ربطه</label><input type="text" id="signUpLinkedStudentCode" class="form-control" placeholder="أدخل كود الطالب أو رقمه القومي"></div>
@@ -547,9 +548,8 @@
         }
 
         function updateClassRoomsList() {
-            const gradeSelect = document.getElementById('signUpGrade');
             const classSelect = document.getElementById('signUpClassRoom');
-            if (!gradeSelect || !classSelect) return;
+            if (!classSelect) return;
             classSelect.innerHTML = `
                 <option value="الفصل 1">الفصل 1</option>
                 <option value="الفصل 2">الفصل 2</option>
@@ -557,7 +557,7 @@
             `;
         }
 
-        // دالة جلب وعرض الإعلانات والفيديوهات من Firebase لعرضها في الصفحة الرئيسية
+        // دالة جلب وعرض الإعلانات والفيديوهات من Firebase في الواجهة الرئيسية
         function loadHomeNewsAndVideos() {
             db.ref('news').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -597,37 +597,65 @@
             });
         }
 
+        // دالة التحقق من تسجيل الدخول (محدثة لتقرأ كل احتمالات كلمات المرور في Firebase)
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            db.ref('users').once('value').then((userSnap) => {
-                const users = userSnap.val();
-                let foundUser = null;
-                let foundKey = null;
+            if (!identifier || !password) {
+                showToast('الرجاء إدخال بيانات الدخول وكلمة المرور ⚠️', '❌');
+                return;
+            }
 
-                if (users) {
-                    Object.keys(users).forEach(key => {
-                        const u = users[key];
-                        const matchId = u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier;
-                        if (matchId && String(u.password) === String(password)) {
-                            foundUser = u;
-                            foundKey = key;
-                        }
-                    });
+            db.ref('settings').once('value').then((snapshot) => {
+                const settingsData = snapshot.val() || {};
+                const passwords = settingsData.passwords || {};
+
+                const adminPass = passwords.admin || settingsData.adminPassword || "001123";
+                const controlPass = passwords.control || settingsData.controlPassword || "0011234";
+                const affairsPass = passwords.affairs || settingsData.affairsPassword || "00112345";
+
+                if (identifier === 'admin' && password === adminPass) {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+                if (identifier === 'control' && password === controlPass) {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+                if (identifier === 'affairs' && password === affairsPass) {
+                    window.location.href = 'admin.html';
+                    return;
                 }
 
-                if (foundUser) {
-                    currentUser = { ...foundUser, firebaseKey: foundKey };
-                    localStorage.setItem('currentUserKey', foundKey);
-                    showToast(`أهلاً بك يا ${foundUser.fullName} ✨`, '🎉');
-                    if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-                    updateHeaderAfterLogin();
-                    showHomePage();
-                } else {
-                    showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
-                }
+                db.ref('users').once('value').then((userSnap) => {
+                    const users = userSnap.val();
+                    let foundUser = null;
+                    let foundKey = null;
+
+                    if (users) {
+                        Object.keys(users).forEach(key => {
+                            const u = users[key];
+                            const matchId = u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier || u.name === identifier;
+                            if (matchId && String(u.password) === String(password)) {
+                                foundUser = u;
+                                foundKey = key;
+                            }
+                        });
+                    }
+
+                    if (foundUser) {
+                        currentUser = { ...foundUser, firebaseKey: foundKey };
+                        localStorage.setItem('currentUserKey', foundKey);
+                        showToast(`أهلاً بك يا ${foundUser.fullName || foundUser.name} ✨`, '🎉');
+                        if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                        updateHeaderAfterLogin();
+                        showHomePage();
+                    } else {
+                        showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
+                    }
+                });
             });
         }
 
@@ -703,7 +731,6 @@
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد درجات مرصودة حتى الآن.</td></tr>';
                     return;
                 }
-                // عرض الدرجات الحقيقية
             });
         }
 
