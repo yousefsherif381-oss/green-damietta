@@ -156,15 +156,15 @@
 
         input[type="file"] { display: none; }
 
-        /* تصميم زر رفع الصورة وزر إدخال فيديو اليوتيوب */
-        .custom-file-upload, .custom-video-btn {
+        /* تصميم أزرار رفع الصور والفيديوهات متناسقة ومنسقة تماماً */
+        .custom-file-upload, .custom-video-upload {
             display: inline-flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; padding: 12px 18px; background: #F8FAFC;
             border: 2px dashed var(--primary); border-radius: 12px;
             color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
             text-align: center;
         }
-        .custom-file-upload:hover, .custom-video-btn:hover {
+        .custom-file-upload:hover, .custom-video-upload:hover {
             background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
         }
@@ -275,12 +275,10 @@
                         <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
                     </div>
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🔗 رابط فيديو يوتيوب:</label>
-                        <div class="custom-video-btn" onclick="promptForVideoUrl()" style="position: relative;">
-                            <span id="videoBtnText">▶️ اضغط لإضافة رابط فيديو يوتيوب</span>
-                        </div>
-                        <input type="url" id="newsVideoUrl" style="display: none;">
-                        <span id="videoNamePreview" class="file-name-preview">لم يتم إدراج فيديو بعد</span>
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎬 إرفاق فيديو الإعلان من الجهاز:</label>
+                        <label for="newsVideoFile" class="custom-video-upload"><span>📁 اضغط لاختيار فيديو من الجهاز</span></label>
+                        <input type="file" id="newsVideoFile" accept="video/*" onchange="updateFileName(this, 'videoNamePreview')">
+                        <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
                     </div>
                 </div>
 
@@ -500,24 +498,6 @@
                 preview.textContent = "تم اختيار الملف: " + input.files[0].name;
             } else {
                 preview.textContent = "لم يتم اختيار ملف بعد";
-            }
-        }
-
-        // دالة لإدخال رابط فيديو يوتيوب عبر نافذة منبثقة تفاعلية عند الضغط على الزر
-        function promptForVideoUrl() {
-            const url = prompt("الرجاء إدخال رابط فيديو يوتيوب (مثال: https://youtu.be/xxx):");
-            if (url !== null) {
-                const trimmed = url.trim();
-                document.getElementById('newsVideoUrl').value = trimmed;
-                const btnText = document.getElementById('videoBtnText');
-                const preview = document.getElementById('videoNamePreview');
-                if (trimmed) {
-                    btnText.textContent = "✅ تم ربط الفيديو بنجاح";
-                    preview.textContent = "الرابط: " + trimmed;
-                } else {
-                    btnText.textContent = "▶️ اضغط لإضافة رابط فيديو يوتيوب";
-                    preview.textContent = "لم يتم إدراج فيديو بعد";
-                }
             }
         }
 
@@ -785,39 +765,60 @@
             });
         }
 
+        // نشر الأخبار (مع دعم رفع الصور والفيديوهات من الجهاز كأزرار متناسقة)
         function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim();
             const content = document.getElementById('newsContent').value.trim();
-            const videoUrl = document.getElementById('newsVideoUrl').value.trim();
-            const fileInput = document.getElementById('newsImageFile');
+            
+            const imageInput = document.getElementById('newsImageFile');
+            const videoInput = document.getElementById('newsVideoFile');
 
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    saveNewsToFirebase(title, badge, content, e.target.result, videoUrl);
+            let imageUrl = '';
+            let videoUrl = '';
+
+            // دالة مساعدة لرفع البيانات بعد قراءة الملفات
+            const executeSave = () => {
+                db.ref('news').push({
+                    title, badge, content, imageUrl, videoUrl, timestamp: Date.now()
+                }).then(() => {
+                    showToast('تم نشر الخبر بنجاح 🚀', '✅');
+                    document.getElementById('newsTitle').value = '';
+                    document.getElementById('newsBadge').value = '';
+                    document.getElementById('newsContent').value = '';
+                    document.getElementById('newsImageFile').value = '';
+                    document.getElementById('newsVideoFile').value = '';
+                    document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+                    document.getElementById('videoNamePreview').textContent = 'لم يتم اختيار ملف بعد';
+                });
+            };
+
+            // قراءة صورة الإعلان لو موجودة
+            if (imageInput.files && imageInput.files[0]) {
+                const readerImg = new FileReader();
+                readerImg.onload = function(e1) {
+                    imageUrl = e1.target.result;
+                    processVideo();
                 };
-                reader.readAsDataURL(fileInput.files[0]);
+                readerImg.readAsDataURL(imageInput.files[0]);
             } else {
-                saveNewsToFirebase(title, badge, content, '', videoUrl);
+                processVideo();
             }
-        }
 
-        function saveNewsToFirebase(title, badge, content, imageUrl, videoUrl) {
-            db.ref('news').push({
-                title, badge, content, imageUrl, videoUrl, timestamp: Date.now()
-            }).then(() => {
-                showToast('تم نشر الخبر بنجاح 🚀', '✅');
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsBadge').value = '';
-                document.getElementById('newsContent').value = '';
-                document.getElementById('newsVideoUrl').value = '';
-                document.getElementById('videoBtnText').textContent = '▶️ اضغط لإضافة رابط فيديو يوتيوب';
-                document.getElementById('videoNamePreview').textContent = 'لم يتم إدراج فيديو بعد';
-                document.getElementById('newsImageFile').value = '';
-                document.getElementById('imageNamePreview').textContent = 'لم يتم اختيار ملف بعد';
-            });
+            // قراءة فيديو الإعلان لو موجود
+            function processVideo() {
+                if (videoInput.files && videoInput.files[0]) {
+                    const readerVid = new FileReader();
+                    readerVid.onload = function(e2) {
+                        videoUrl = e2.target.result;
+                        executeSave();
+                    };
+                    readerVid.readAsDataURL(videoInput.files[0]);
+                } else {
+                    executeSave();
+                }
+            }
         }
 
         function fetchAllUsersForAdmin() {
