@@ -319,7 +319,7 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (الفصول من A لـ E ومطابقة مرنة للطلاب) -->
+        <!-- 3️⃣ قسم رصد الدرجات مع مطابقة مرنة للفصل -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
             
@@ -772,7 +772,6 @@
             });
         }
 
-        // إعداد قائمة الفصول من A لحد E بناءً على رقم الصف ورقم الفصل (مثل 1A أو 2A)
         function setupTeacherClasses() {
             const select = document.getElementById('teacherClassSelect');
             let html = '<option value="">-- اختر الفصل --</option>';
@@ -788,7 +787,7 @@
             const sections = ['A', 'B', 'C', 'D', 'E'];
             
             sections.forEach(sec => {
-                const fullCode = `${gradePrefix}${sec}`; // مثل 1A أو 2A
+                const fullCode = `${gradePrefix}${sec}`; // مثل 1A
                 html += `<option value="${fullCode}">${assignedGrade} (${fullCode})</option>`;
             });
 
@@ -837,7 +836,7 @@
             });
         }
 
-        // فلترة الطلاب بدقة تامة بناءً على الكود المطابق (مثل 1A أو 2A)
+        // دالة الفلترة المعدلة بمرونة تامة لعرض الطلاب فوراً بدون أخطاء
         function filterStudentsByTeacherClass() {
             const selectedClassCode = document.getElementById('teacherClassSelect').value.trim().toUpperCase();
             const studentSelectWrapper = document.getElementById('studentSelectWrapper');
@@ -855,15 +854,15 @@
             let html = '<option value="">-- حدد الطالب من القائمة --</option>';
             let found = false;
 
-            const teacherGradeText = loggedTeacherClasses.trim().toLowerCase();
+            const teacherGradeText = loggedTeacherClasses.trim().toLowerCase().replace(/[أإآء]/g, 'ا');
 
             Object.keys(allStudentsCache).forEach(key => {
                 const u = allStudentsCache[key];
-                const studentGrade = (u.grade || "").trim().toLowerCase();
+                const studentGrade = (u.grade || "").trim().toLowerCase().replace(/[أإآء]/g, 'ا');
                 const studentClass = (u.className || "").trim().toUpperCase();
                 
-                // التأكد من مطابقة السنة والفصل بدقة فائقة
-                const matchesGrade = studentGrade.includes(teacherGradeText) || teacherGradeText.includes(studentGrade);
+                // مطابقة مرنة جداً للرقم والفصل بغض النظر عن طريقة الكتابة
+                const matchesGrade = studentGrade.includes(teacherGradeText) || teacherGradeText.includes(studentGrade) || studentGrade.charAt(0) === teacherGradeText.charAt(0);
                 const matchesClass = studentClass === selectedClassCode || studentClass.endsWith(selectedClassCode);
 
                 if (matchesGrade && matchesClass) {
