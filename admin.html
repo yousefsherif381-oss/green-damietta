@@ -319,7 +319,7 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (يعرض فقط الفصول التابعة للسنة المسندة للمدرس بذكاء) -->
+        <!-- 3️⃣ قسم رصد الدرجات (يعرض الفصول من A لحد E بدمج السنة المحددة) -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
             
@@ -772,46 +772,28 @@
             });
         }
 
-        // استخلاص الفصول التابعة حصرياً للسنة المسندة للمدرس (مثل الصف الاول الاعدادي)
+        // توليد وعرض الفصول من A لحد E بناءً على السنة المسندة للمدرس (مثل أولي اعدادي -> A, B, C, D, E)
         function setupTeacherClasses() {
             const select = document.getElementById('teacherClassSelect');
             let html = '<option value="">-- اختر الفصل --</option>';
 
-            let matchedClasses = new Set();
-            const teacherAssignedGrade = loggedTeacherClasses.trim().toLowerCase();
-
-            // فحص كل الطلاب وجلب الفصول التي تنتمي لنفس السنة المسندة للمدرس
-            Object.keys(allStudentsCache).forEach(key => {
-                const u = allStudentsCache[key];
-                const studentGrade = (u.grade || u.className || "").trim();
-                const studentGradeLower = studentGrade.toLowerCase();
-
-                if (currentRole === 'teacher' && loggedTeacherClasses) {
-                    // مطابقة ذكية للسنة (لو اسم السنة موجود في صف الطالب أو العكس)
-                    if (studentGradeLower.includes(teacherAssignedGrade) || teacherAssignedGrade.includes(studentGradeLower)) {
-                        // إذا كان الفصل مخزناً بشكل مستقل أو يحتوي على رمز الفصل (مثل 1A, 1B)
-                        if (u.className) {
-                            matchedClasses.add(u.className);
-                        } else {
-                            matchedClasses.add(studentGrade);
-                        }
-                    }
-                } else {
-                    // للمدير، عرض كل الفصول المتاحة
-                    if (studentGrade) matchedClasses.add(studentGrade);
-                }
-            });
-
-            // لو مفيش طلاب مسجلين بالسيستم بنفس السنة، بنعرض افتراضياً فصول مطابقة
-            if (matchedClasses.size === 0 && currentRole === 'teacher') {
-                matchedClasses.add("1A");
-                matchedClasses.add("1B");
-                matchedClasses.add("1C");
+            const assignedGrade = loggedTeacherClasses.trim();
+            
+            // قائمة الفصول الثابتة من A لحد E لكل سنة دراسية يحددها المدرس
+            const sections = ['A', 'B', 'C', 'D', 'E'];
+            
+            if (currentRole === 'teacher' && assignedGrade) {
+                sections.forEach(sec => {
+                    // عرض اسم السنة مضافاً إليها الفصل (مثال: "الصف الاول الاعدادي - A" أو ببساطة كود الفصل)
+                    const fullClassName = `${assignedGrade} (${sec})`;
+                    html += `<option value="${sec}">${fullClassName} (فصل ${sec})</option>`;
+                });
+            } else {
+                // لو مدير، عرض أمثلة للفصول من A لحد E
+                sections.forEach(sec => {
+                    html += `<option value="${sec}">فصل ${sec}</option>`;
+                });
             }
-
-            matchedClasses.forEach(cls => {
-                html += `<option value="${cls}">${cls}</option>`;
-            });
 
             select.innerHTML = html;
         }
@@ -858,16 +840,16 @@
             });
         }
 
-        // تصفية الطلاب بدقة حسب الفصل المختار
+        // تصفية الطلاب حسب الفصل المختصر (A, B, C, D, E) بدقة تامة
         function filterStudentsByTeacherClass() {
-            const selectedClass = document.getElementById('teacherClassSelect').value.trim();
+            const selectedSection = document.getElementById('teacherClassSelect').value.trim().toUpperCase();
             const studentSelectWrapper = document.getElementById('studentSelectWrapper');
             const studentSelect = document.getElementById('studentSelectForGrades');
             const gradesContainer = document.getElementById('gradesEditFormContainer');
 
             gradesContainer.style.display = 'none';
 
-            if (!selectedClass) {
+            if (!selectedSection) {
                 studentSelectWrapper.style.display = 'none';
                 return;
             }
@@ -876,18 +858,24 @@
             let html = '<option value="">-- حدد الطالب من القائمة --</option>';
             let found = false;
 
+            const teacherGrade = loggedTeacherClasses.trim().toLowerCase();
+
             Object.keys(allStudentsCache).forEach(key => {
                 const u = allStudentsCache[key];
-                const studentGrade = (u.grade || "").trim();
-                const studentClass = (u.className || "").trim();
+                const studentGrade = (u.grade || "").trim().toLowerCase();
+                const studentClass = (u.className || "").trim().toUpperCase();
                 
-                if (studentGrade.toLowerCase() === selectedClass.toLowerCase() || 
-                    studentClass.toLowerCase() === selectedClass.toLowerCase()) {
+                // مطابقة الطالب الذي ينتمي لنفس السنة ونفس الفصل (A, B, C, D, E)
+                const matchesGrade = studentGrade.includes(teacherGrade) || teacherGrade.includes(studentGrade);
+                const matchesSection = studentClass === selectedSection || studentGrade.endsWith(selectedSection);
+
+                if (matchesGrade && (matchesSection || studentClass.includes(selectedSection))) {
                     found = true;
                     html += `<option value="${key}">${u.fullName} (كود: ${u.nationalId || u.code || 'بدون'})</option>`;
                 }
             });
 
+            // لو الفصل فارغ مفيش طلاب، تظهر القائمة فارغة ومناسبة مع رسالة توضيحية
             if (!found) {
                 html = '<option value="">-- لا توجد طلاب مسجلين في هذا الفصل --</option>';
             }
