@@ -311,9 +311,9 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات -->
+        <!-- 3️⃣ قسم رصد الدرجات (محدث للأدمن لعرض جميع مواد سنة الطالب بدقة) -->
         <div class="admin-section" id="gradesSection">
-            <div class="card-title" id="gradesSectionTitle">📊 رصد درجات وتقييمات الطلاب لفصولك ومادتك</div>
+            <div class="card-title" id="gradesSectionTitle">📊 رصد درجات وتقييمات الطلاب لكل المواد بدقة بناءً على سنة الطالب</div>
             <div style="margin-bottom: 20px;">
                 <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
                 <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
@@ -326,12 +326,12 @@
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
-                            <tr><th id="tableSubjectHeader">المادة الدراسية (Eng/Ar)</th><th>أعمال السنة (30)</th><th>التقييم الأسبوعي (20)</th><th>الامتحان النهائي (50)</th></tr>
+                            <tr><th>المادة الدراسية</th><th>أعمال السنة (30)</th><th>التقييم الأسبوعي (20)</th><th>الامتحان النهائي (50)</th></tr>
                         </thead>
                         <tbody id="adminGradesEditTableBody"></tbody>
                     </table>
                 </div>
-                <button onclick="saveStudentSubjectGradeDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ درجات مادتك بدقة 💾</button>
+                <button onclick="saveAllStudentGradesDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ وتثبيت جميع درجات المواد للطالب 💾</button>
             </div>
         </div>
 
@@ -444,7 +444,83 @@
         let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || 'arabic';
         let loggedTeacherClasses = localStorage.getItem('loggedTeacherClasses') || '';
 
-        // دالة تحديد الصلاحيات عند الدخول (كنترول، شؤون طلاب، مدرس، مدير)
+        // تحديد المواد حسب السنة الدراسية للطالب بدقة شديدة
+        const curriculumByGrade = {
+            "الصف الأول الابتدائي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
+                { id: "religion", name: "التربية الدينية" }
+            ],
+            "الصف الثاني الابتدائي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
+                { id: "religion", name: "التربية الدينية" }
+            ],
+            "الصف الثالث الابتدائي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
+                { id: "religion", name: "التربية الدينية" }
+            ],
+            "الصف الرابع الابتدائي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "science", name: "العلوم" },
+                { id: "social", name: "الدراسات الاجتماعية" },
+                { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
+                { id: "religion", name: "التربية الدينية" }
+            ],
+            "الصف الخامس الابتدائي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "science", name: "العلوم" },
+                { id: "social", name: "الدراسات الاجتماعية" },
+                { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
+                { id: "religion", name: "التربية الدينية" }
+            ],
+            "الصف السادس الابتدائي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "science", name: "العلوم" },
+                { id: "social", name: "الدراسات الاجتماعية" },
+                { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
+                { id: "religion", name: "التربية الدينية" }
+            ],
+            "الصف الأول الإعدادي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات (جبر وهندسة)" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "science", name: "العلوم" },
+                { id: "social", name: "الدراسات الاجتماعية" },
+                { id: "religion", name: "التربية الدينية" },
+                { id: "computer", name: "الحاسب الآلي" }
+            ],
+            "الصف الثاني الإعدادي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "science", name: "العلوم" },
+                { id: "social", name: "الدراسات الاجتماعية" },
+                { id: "religion", name: "التربية الدينية" }
+            ],
+            "الصف الثالث الإعدادي": [
+                { id: "arabic", name: "اللغة العربية" },
+                { id: "math", name: "الرياضيات" },
+                { id: "english", name: "اللغة الإنجليزية" },
+                { id: "science", name: "العلوم" },
+                { id: "social", name: "الدراسات الاجتماعية" },
+                { id: "religion", name: "التربية الدينية" }
+            ]
+        };
+
         function applyRolePermissions() {
             const menuNews = document.getElementById('menuNews');
             const menuTeachersAdmin = document.getElementById('menuTeachersAdmin');
@@ -463,7 +539,7 @@
                 switchAdminSection('controlSection', menuControl);
             } else if (currentRole === 'teacher') {
                 [menuNews, menuTeachersAdmin, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
-                document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) للطلاب الفصول المقررة`;
+                document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) للفصول المقررة`;
                 switchAdminSection('gradesSection', menuGrades);
             }
         }
@@ -504,7 +580,6 @@
             }
         }
 
-        // دالة نشر الإعلانات والفيديوهات مع التحويل السليم لملفات Base64 لتظهر فوراً
         function postNews(e) {
             e.preventDefault();
             const title = document.getElementById('newsTitle').value.trim();
@@ -718,6 +793,7 @@
             }
         }
 
+        // تحميل وتحديد مواد الطالب بدقة شديدة حسب سنته الدراسية للأدمن
         function loadStudentGradesToEdit() {
             const studentKey = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
@@ -729,49 +805,57 @@
             
             db.ref('users/' + studentKey).once('value').then((snap) => {
                 const student = snap.val() || {};
-                document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${student.fullName}`;
-                document.getElementById('editingStudentGradeBadge').textContent = `${student.grade || ''} - ${student.classRoom || ''}`;
-            });
+                document.getElementById('editingStudentNameTitle').textContent = `رصد درجات الطالب: ${student.fullName}`;
+                document.getElementById('editingStudentGradeBadge').textContent = `${student.grade || 'الصف الأول الإعدادي'} - ${student.classRoom || ''}`;
 
-            db.ref('grades/' + studentKey).once('value').then((snap) => {
-                const grades = snap.val() || {};
-                let subId = loggedTeacherSubjectId;
-                let subName = loggedTeacherSubject || 'المادة الدراسية';
+                const studentGrade = student.grade || 'الصف الأول الإعدادي';
+                const subjectsList = curriculumByGrade[studentGrade] || curriculumByGrade["الصف الأول الإعدادي"];
 
-                if (currentRole === 'admin') {
-                    subId = 'arabic';
-                    subName = 'اللغة العربية';
-                }
+                db.ref('grades/' + studentKey).once('value').then((gradeSnap) => {
+                    const allGrades = gradeSnap.val() || {};
+                    let html = '';
 
-                const subGrades = grades[subId] || { termWork: 0, weeklyEval: 0, finalExam: 0 };
-                
-                let html = `
-                    <tr data-subject="${subId}">
-                        <td><strong>${subName}</strong></td>
-                        <td><input type="number" id="gradeTermWork" class="form-control" value="${subGrades.termWork || 0}" min="0" max="30"></td>
-                        <td><input type="number" id="gradeWeeklyEval" class="form-control" value="${subGrades.weeklyEval || 0}" min="0" max="20"></td>
-                        <td><input type="number" id="gradeFinalExam" class="form-control" value="${subGrades.finalExam || 0}" min="0" max="50"></td>
-                    </tr>
-                `;
-                document.getElementById('adminGradesEditTableBody').innerHTML = html;
+                    subjectsList.forEach(sub => {
+                        const subGrades = allGrades[sub.id] || { termWork: 0, weeklyEval: 0, finalExam: 0 };
+                        
+                        if (currentRole === 'teacher' && sub.id !== loggedTeacherSubjectId) {
+                            return; // لو مدرس يعرض فقط مادته، لو أدمن يعرض كل المواد
+                        }
+
+                        html += `
+                            <tr data-subject-id="${sub.id}">
+                                <td><strong>${sub.name}</strong></td>
+                                <td><input type="number" class="form-control grade-termWork" value="${subGrades.termWork || 0}" min="0" max="30"></td>
+                                <td><input type="number" class="form-control grade-weeklyEval" value="${subGrades.weeklyEval || 0}" min="0" max="20"></td>
+                                <td><input type="number" class="form-control grade-finalExam" value="${subGrades.finalExam || 0}" min="0" max="50"></td>
+                            </tr>
+                        `;
+                    });
+
+                    document.getElementById('adminGradesEditTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">لا توجد مواد دراسية مطابقة.</td></tr>';
+                });
             });
         }
 
-        function saveStudentSubjectGradeDirect() {
+        function saveAllStudentGradesDirect() {
             const studentKey = document.getElementById('studentSelectForGrades').value;
             if (!studentKey) return;
 
-            let subId = currentRole === 'teacher' ? loggedTeacherSubjectId : 'arabic';
+            const rows = document.querySelectorAll('#adminGradesEditTableBody tr');
+            const updates = {};
 
-            const termWork = Number(document.getElementById('gradeTermWork').value) || 0;
-            const weeklyEval = Number(document.getElementById('gradeWeeklyEval').value) || 0;
-            const finalExam = Number(document.getElementById('gradeFinalExam').value) || 0;
-            const total = termWork + weeklyEval + finalExam;
+            rows.forEach(row => {
+                const subId = row.getAttribute('data-subject-id');
+                const termWork = Number(row.querySelector('.grade-termWork').value) || 0;
+                const weeklyEval = Number(row.querySelector('.grade-weeklyEval').value) || 0;
+                const finalExam = Number(row.querySelector('.grade-finalExam').value) || 0;
+                const total = termWork + weeklyEval + finalExam;
 
-            const gradeData = { termWork, weeklyEval, finalExam, total };
+                updates[subId] = { termWork, weeklyEval, finalExam, total };
+            });
 
-            db.ref(`grades/${studentKey}/${subId}`).set(gradeData).then(() => {
-                showToast('تم حفظ ورصد درجات الطالب بنجاح 📊', '✅');
+            db.ref(`grades/${studentKey}`).set(updates).then(() => {
+                showToast('تم حفظ ورصد درجات جميع المواد للطالب بنجاح 📊', '✅');
             });
         }
 
