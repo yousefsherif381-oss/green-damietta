@@ -148,7 +148,7 @@
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
         .form-control {
-            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+            width: 100%; padding: 12px 14px; border: 1.5px solid #CBD5E1;
             border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
             transition: all 0.3s ease;
         }
@@ -177,7 +177,7 @@
         .btn-success { background: var(--success); color: white; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
-        th, td { padding: 12px 14px; border: 1px solid var(--border); }
+        th, td { padding: 12px 14px; border: 1px solid #CBD5E1; }
         th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
         tr:nth-child(even) { background-color: #F8FAFC; }
 
@@ -295,7 +295,7 @@
                     <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
                     <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة بالعربي (مثال: الرياضيات)" required>
                     <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (arabic, math..)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول المسندة (مثال: الأول الإعدادي)" required>
+                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول المسندة (مثال: الصف الأول الإعدادي)" required>
                     <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
@@ -311,16 +311,27 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (محدث ليشمل الإنجليزي والمستوى الرفيع بدقة) -->
+        <!-- 3️⃣ قسم رصد الدرجات (محدث حسب فصول المدرس والطلاب المسجلين) -->
         <div class="admin-section" id="gradesSection">
-            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات </div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
-                <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
-                    <option value="">-- حدد الطالب من القائمة بدقة --</option>
+            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
+            
+            <!-- اختيار الفصل المخصص للمدرس أو المدير -->
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الفصل الدراسي:</label>
+                <select id="teacherClassSelect" class="form-control" style="max-width: 450px;" onchange="filterStudentsByTeacherClass()">
+                    <option value="">-- حدد الفصل الدراسي أولاً --</option>
                 </select>
             </div>
-            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+
+            <!-- اختيار الطالب بعد تحديد الفصل -->
+            <div style="margin-bottom: 20px; display: none;" id="studentSelectWrapper">
+                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
+                <select id="studentSelectForGrades" class="form-control" style="max-width: 450px;" onchange="loadStudentGradesToEdit()">
+                    <option value="">-- حدد الطالب من القائمة --</option>
+                </select>
+            </div>
+
+            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid #CBD5E1;">
                 <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 <p id="editingStudentGradeBadge" style="color: var(--accent-hover); font-weight: 800; font-size: 13px; margin-bottom: 15px;"></p>
                 <div style="overflow-x: auto;">
@@ -331,7 +342,7 @@
                         <tbody id="adminGradesEditTableBody"></tbody>
                     </table>
                 </div>
-                <button onclick="saveAllStudentGradesDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ وتثبيت جميع درجات المواد للطالب والمستوى الرفيع 💾</button>
+                <button onclick="saveAllStudentGradesDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ وتثبيت جميع درجات المواد والمستوى الرفيع 💾</button>
             </div>
         </div>
 
@@ -344,7 +355,7 @@
                     <option value="">-- حدد الطالب --</option>
                 </select>
             </div>
-            <div id="controlResultBox" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+            <div id="controlResultBox" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid #CBD5E1;">
                 <h4 id="controlStudentName" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;"></h4>
                 <div class="form-grid">
                     <div><label style="font-weight:700; font-size:13px;">درجة الترم الأول (من 100):</label><input type="number" id="term1Grade" class="form-control"></div>
@@ -357,7 +368,7 @@
         <!-- 4️⃣ قسم شؤون الطلاب والغياب -->
         <div class="admin-section" id="attendanceSection">
             <div class="card-title">👥 شؤون الطلاب - سجل وحساب عداد الغياب والأعذار الطبية وتواريخ الغياب</div>
-            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid var(--border);">
+            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid #CBD5E1;">
                 <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
                     <div>
                         <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
@@ -444,7 +455,9 @@
         let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || 'arabic';
         let loggedTeacherClasses = localStorage.getItem('loggedTeacherClasses') || '';
 
-        // جدول المواد لكل سنة دراسية، مع فصل (اللغة الإنجليزية) عن (اللغة الإنجليزية مستوى رفيع) بدقة
+        let allStudentsCache = {};
+
+        // جدول المواد لكل سنة دراسية
         const curriculumByGrade = {
             "الصف الأول الابتدائي": [
                 { id: "arabic", name: "اللغة العربية" },
@@ -548,7 +561,7 @@
                 switchAdminSection('controlSection', menuControl);
             } else if (currentRole === 'teacher') {
                 [menuNews, menuTeachersAdmin, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
-                document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) للفصول المقررة`;
+                document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) للفصول المقررة لك`;
                 switchAdminSection('gradesSection', menuGrades);
             }
         }
@@ -655,7 +668,7 @@
                 Object.keys(data).reverse().forEach(key => {
                     const item = data[key];
                     html += `
-                        <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                        <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #CBD5E1; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
                             <div>
                                 <h4 style="color: var(--primary-dark); font-size: 15px; font-weight: 900;">${item.title}</h4>
                                 <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">${item.content}</p>
@@ -754,24 +767,45 @@
             });
         }
 
-        function loadStudentsForSelects() {
+        function setupTeacherClasses() {
+            const select = document.getElementById('teacherClassSelect');
+            let html = '<option value="">-- حدد الفصل الدراسي --</option>';
+
+            if (currentRole === 'teacher' && loggedTeacherClasses) {
+                const classesArray = loggedTeacherClasses.split(',').map(c => c.trim());
+                classesArray.forEach(cls => {
+                    if (cls) {
+                        html += `<option value="${cls}">${cls}</option>`;
+                    }
+                });
+            } else {
+                const allGrades = Object.keys(curriculumByGrade);
+                allGrades.forEach(cls => {
+                    html += `<option value="${cls}">${cls}</option>`;
+                });
+            }
+            select.innerHTML = html;
+        }
+
+        function fetchAllStudents() {
             db.ref('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
-                const studentSelectForGrades = document.getElementById('studentSelectForGrades');
+                allStudentsCache = {};
                 const controlStudentSelect = document.getElementById('controlStudentSelect');
                 const studentAttendanceSelect = document.getElementById('studentAttendanceSelect');
                 
-                let optionsHtml = '<option value="">-- حدد الطالب من القائمة --</option>';
+                let optionsHtml = '<option value="">-- حدد الطالب --</option>';
                 let tableHtml = '';
 
                 Object.keys(users).forEach(key => {
                     const u = users[key];
                     if (u.role === 'student') {
+                        allStudentsCache[key] = u;
                         optionsHtml += `<option value="${key}">${u.fullName} (${u.grade || 'غير محدد'} - كود: ${u.nationalId || u.code || 'بدون'})</option>`;
                         tableHtml += `
                             <tr>
                                 <td>${u.fullName}</td>
-                                <td>${u.role === 'student' ? 'طالب' : 'ولي أمر'}</td>
+                                <td>طالب</td>
                                 <td>${u.grade || '---'}</td>
                                 <td>${u.nationalId || u.code || '---'}</td>
                                 <td>${u.phone || '---'}</td>
@@ -785,13 +819,44 @@
                     }
                 });
 
-                if(studentSelectForGrades) studentSelectForGrades.innerHTML = optionsHtml;
                 if(controlStudentSelect) controlStudentSelect.innerHTML = optionsHtml;
                 if(studentAttendanceSelect) studentAttendanceSelect.innerHTML = optionsHtml;
                 
                 const usersTbody = document.getElementById('adminUsersTableBody');
                 if(usersTbody) usersTbody.innerHTML = tableHtml || '<tr><td colspan="10" style="text-align: center;">لا توجد طلاب مسجلين.</td></tr>';
             });
+        }
+
+        function filterStudentsByTeacherClass() {
+            const selectedClass = document.getElementById('teacherClassSelect').value;
+            const studentSelectWrapper = document.getElementById('studentSelectWrapper');
+            const studentSelect = document.getElementById('studentSelectForGrades');
+            const gradesContainer = document.getElementById('gradesEditFormContainer');
+
+            gradesContainer.style.display = 'none';
+
+            if (!selectedClass) {
+                studentSelectWrapper.style.display = 'none';
+                return;
+            }
+
+            studentSelectWrapper.style.display = 'block';
+            let html = '<option value="">-- حدد الطالب من القائمة --</option>';
+            let found = false;
+
+            Object.keys(allStudentsCache).forEach(key => {
+                const u = allStudentsCache[key];
+                if (u.grade === selectedClass) {
+                    found = true;
+                    html += `<option value="${key}">${u.fullName} (كود: ${u.nationalId || u.code || 'بدون'})</option>`;
+                }
+            });
+
+            if (!found) {
+                html = '<option value="">-- لا توجد طلاب مسجلين في هذا الفصل --</option>';
+            }
+
+            studentSelect.innerHTML = html;
         }
 
         function deleteUser(key) {
@@ -805,43 +870,41 @@
         function loadStudentGradesToEdit() {
             const studentKey = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
+            
             if (!studentKey) {
                 container.style.display = 'none';
                 return;
             }
             container.style.display = 'block';
-            
-            db.ref('users/' + studentKey).once('value').then((snap) => {
-                const student = snap.val() || {};
-                document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${student.fullName}`;
-                document.getElementById('editingStudentGradeBadge').textContent = `${student.grade || 'الصف الأول الإعدادي'}`;
 
-                const studentGrade = student.grade || 'الصف الأول الإعدادي';
-                const subjectsList = curriculumByGrade[studentGrade] || curriculumByGrade["الصف الأول الإعدادي"];
+            const student = allStudentsCache[studentKey] || {};
+            document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${student.fullName}`;
+            document.getElementById('editingStudentGradeBadge').textContent = `الفصل الدراسي: ${student.grade || ''}`;
 
-                db.ref('grades/' + studentKey).once('value').then((gradeSnap) => {
-                    const allGrades = gradeSnap.val() || {};
-                    let html = '';
+            const studentGrade = student.grade || 'الصف الأول الإعدادي';
+            const subjectsList = curriculumByGrade[studentGrade] || curriculumByGrade["الصف الأول الإعدادي"];
 
-                    subjectsList.forEach(sub => {
-                        const subGrades = allGrades[sub.id] || { termWork: 0, weeklyEval: 0, finalExam: 0 };
-                        
-                        if (currentRole === 'teacher' && sub.id !== loggedTeacherSubjectId) {
-                            return; 
-                        }
+            db.ref('grades/' + studentKey).once('value').then((gradeSnap) => {
+                const allGrades = gradeSnap.val() || {};
+                let html = '';
 
-                        html += `
-                            <tr data-subject-id="${sub.id}">
-                                <td><strong>${sub.name}</strong></td>
-                                <td><input type="number" class="form-control grade-termWork" value="${subGrades.termWork || 0}" min="0" max="30"></td>
-                                <td><input type="number" class="form-control grade-weeklyEval" value="${subGrades.weeklyEval || 0}" min="0" max="20"></td>
-                                <td><input type="number" class="form-control grade-finalExam" value="${subGrades.finalExam || 0}" min="0" max="50"></td>
-                            </tr>
-                        `;
-                    });
+                subjectsList.forEach(sub => {
+                    if (currentRole === 'teacher' && loggedTeacherSubjectId && sub.id !== loggedTeacherSubjectId) {
+                        return;
+                    }
 
-                    document.getElementById('adminGradesEditTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">لا توجد مواد دراسية مطابقة.</td></tr>';
+                    const subGrades = allGrades[sub.id] || { termWork: 0, weeklyEval: 0, finalExam: 0 };
+                    html += `
+                        <tr data-subject-id="${sub.id}">
+                            <td><strong>${sub.name}</strong></td>
+                            <td><input type="number" class="form-control grade-termWork" value="${subGrades.termWork || 0}" min="0" max="30"></td>
+                            <td><input type="number" class="form-control grade-weeklyEval" value="${subGrades.weeklyEval || 0}" min="0" max="20"></td>
+                            <td><input type="number" class="form-control grade-finalExam" value="${subGrades.finalExam || 0}" min="0" max="50"></td>
+                        </tr>
+                    `;
                 });
+
+                document.getElementById('adminGradesEditTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">لا توجد مواد مطابقة لمادتك.</td></tr>';
             });
         }
 
@@ -862,8 +925,8 @@
                 updates[subId] = { termWork, weeklyEval, finalExam, total };
             });
 
-            db.ref(`grades/${studentKey}`).set(updates).then(() => {
-                showToast('تم حفظ وتثبيت جميع درجات المواد والمستوى الرفيع بنجاح 📊', '✅');
+            db.ref(`grades/${studentKey}`).update(updates).then(() => {
+                showToast('تم حفظ وتثبيت درجات المواد للطالب بنجاح 📊', '✅');
             });
         }
 
@@ -939,7 +1002,8 @@
             loadCurrentPasswords();
             fetchTeachersForAdmin();
             loadAdminNews();
-            loadStudentsForSelects();
+            setupTeacherClasses();
+            fetchAllStudents();
         });
     </script>
 </body>
