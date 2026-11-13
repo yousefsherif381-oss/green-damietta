@@ -303,7 +303,7 @@
                     <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
                     <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة بالعربي (مثال: الرياضيات)" required>
                     <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (arabic, math..)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول المسندة (مثال: 1A, 2E, 2C)" required>
+                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول المسندة مفصولة بفاصلة (مثال: 1A, 2E, 2C)" required>
                     <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
@@ -319,9 +319,9 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (يعرض الفصول مثل 1A, 2E, 2C بدقة) -->
+        <!-- 3️⃣ قسم رصد الدرجات (يعرض فصول المدرس المحددة مثل 1A, 2E, 2C بدقة) -->
         <div class="admin-section" id="gradesSection">
-            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتققيمات حسب الفصول المقررة</div>
+            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
             
             <!-- قائمة اختيار الفصل الملونة والمنسقة -->
             <div style="margin-bottom: 20px;">
@@ -774,12 +774,13 @@
             });
         }
 
-        // عرض فصول المدرس بالضبط كما تم كتابتها (مثال: 1A, 2E, 2C)
+        // استخراج الفصول المحددة للمدرس بدقة (مثل 1A, 2E, 2C) وعرضها في القائمة
         function setupTeacherClasses() {
             const select = document.getElementById('teacherClassSelect');
             let html = '<option value="">-- اختر الفصل --</option>';
 
             if (currentRole === 'teacher' && loggedTeacherClasses) {
+                // فصل الفصول المكتوبة بالفاصلة مثل "1A, 2E, 2C"
                 const classesArray = loggedTeacherClasses.split(',').map(c => c.trim());
                 classesArray.forEach(cls => {
                     if (cls) {
@@ -787,7 +788,7 @@
                     }
                 });
             } else {
-                // للمدير، يتم عرض الفصول الافتراضية أو المتاحة
+                // لو مدير، عرض أمثلة للفصول أو فصول افتراضية مخصصة
                 const defaultClasses = ["1A", "1B", "2A", "2E", "2C", "3A"];
                 defaultClasses.forEach(cls => {
                     html += `<option value="${cls}">${cls}</option>`;
@@ -836,7 +837,7 @@
             });
         }
 
-        // تصفية الطلاب حسب الفصل المحدد (1A, 2E, 2C...)
+        // تصفية الطلاب بناءً على الفصل المحدد (1A, 2E, 2C...) بدقة تامة
         function filterStudentsByTeacherClass() {
             const selectedClass = document.getElementById('teacherClassSelect').value.trim();
             const studentSelectWrapper = document.getElementById('studentSelectWrapper');
@@ -856,7 +857,6 @@
 
             Object.keys(allStudentsCache).forEach(key => {
                 const u = allStudentsCache[key];
-                // مطابقة الفصل المختار مع فصل الطالب المسجل (سواء مخزن في u.grade أو u.className)
                 const studentClass = (u.grade || u.className || "").trim();
                 if (studentClass.toLowerCase() === selectedClass.toLowerCase()) {
                     found = true;
@@ -864,7 +864,7 @@
                 }
             });
 
-            // لو الفصل مفيش فيه حد، القائمة بتفضل فاضية ومناسبة مع رسالة توضيحية
+            // لو الفصل فارغ، تظهر القائمة فارغة ومناسبة مع رسالة توضيحية
             if (!found) {
                 html = '<option value="">-- لا توجد طلاب مسجلين في هذا الفصل --</option>';
             }
@@ -894,7 +894,6 @@
             document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${student.fullName}`;
             document.getElementById('editingStudentGradeBadge').textContent = `الفصل: ${student.grade || student.className || ''}`;
 
-            // استرجاع المناهج بناءً على الصف أو افتراضياً للمرحلة
             const studentGrade = student.grade || student.className || 'الصف الأول الإعدادي';
             const subjectsList = curriculumByGrade[studentGrade] || curriculumByGrade["الصف الأول الإعدادي"];
 
