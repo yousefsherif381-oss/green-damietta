@@ -212,11 +212,11 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل الدخول للإدارة والسلطات -->
+    <!-- نافذة تسجيل دخول الإدارة والسلطات -->
     <div id="adminLoginOverlay">
         <div class="admin-login-box">
             <h3 style="color: var(--primary-dark); font-size: 20px; font-weight: 900; margin-bottom: 8px;">🔐 تسجيل دخول الإدارة</h3>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور للمدير أو الكنترول أو المدرس</p>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور للمدير أو الكنترول</p>
             <form onsubmit="handleAdminLogin(event)">
                 <div class="form-group" style="margin-bottom: 15px; text-align: right;">
                     <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">كلمة المرور / الكود</label>
@@ -346,9 +346,9 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات مع فلترة دقيقة ومنع تداخل الفصول -->
+        <!-- 3️⃣ قسم رصد الدرجات (للمدير يظهر كل المواد وبدون قيود) -->
         <div class="admin-section" id="gradesSection">
-            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
+            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول الدراسية</div>
             
             <div style="margin-bottom: 20px;">
                 <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">🏫 اختر الفصل:</label>
@@ -668,6 +668,13 @@
             const menuTickets = document.getElementById('menuTickets');
             const menuPassword = document.getElementById('menuPassword');
 
+            // إذا كان المستخدم هو المدير (admin)، يرى كل الأقسام وبدون أي قيود أو اختصار
+            if (currentRole === 'admin') {
+                [menuNews, menuTeachersAdmin, menuGrades, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'flex'; });
+                document.getElementById('gradesSectionTitle').textContent = `📊 رصد الدرجات والتقيمات حسب الفصول الدراسية`;
+                return;
+            }
+
             if (currentRole === 'affairs') {
                 [menuNews, menuTeachersAdmin, menuGrades, menuControl, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
                 switchAdminSection('attendanceSection', menuAttendance);
@@ -932,7 +939,6 @@
             });
         }
 
-        // دالة فلترة دقيقة ومنع تداخل الطلاب تماماً
         function filterStudentsByTeacherClass() {
             const selectedClassCode = document.getElementById('teacherClassSelect').value.trim().toUpperCase();
             const studentSelectWrapper = document.getElementById('studentSelectWrapper');
@@ -997,6 +1003,7 @@
                 let html = '';
 
                 subjectsList.forEach(sub => {
+                    // إذا كان الحساب مدير (admin)، يعرض كل المواد بدون أي فلترة أو استثناء
                     if (currentRole === 'teacher' && loggedTeacherSubjectId && sub.id !== loggedTeacherSubjectId) {
                         return;
                     }
@@ -1012,7 +1019,7 @@
                     `;
                 });
 
-                document.getElementById('adminGradesEditTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">لا توجد مواد مطابقة لمادتك.</td></tr>';
+                document.getElementById('adminGradesEditTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">لا توجد مواد دراسية.</td></tr>';
             });
         }
 
