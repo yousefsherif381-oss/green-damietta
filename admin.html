@@ -297,13 +297,13 @@
 
         <!-- 2️⃣ قسم إدارة المدرسين وصلاحياتهم -->
         <div class="admin-section" id="teachersAdminSection">
-            <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين وموادهم وفصولهم</div>
+            <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين وموادهم وفصولهم (أو السنة الدراسية)</div>
             <form onsubmit="saveTeacherAccount(event)">
                 <div class="form-grid">
                     <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
                     <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة بالعربي (مثال: الرياضيات)" required>
                     <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (arabic, math..)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="الفصول المسندة مفصولة بفاصلة (مثال: 1A, 2E, 2C)" required>
+                    <input type="text" id="teacherClasses" class="form-control" placeholder="السنة الدراسية أو الفصول (مثال: الصف الأول الإعدادي)" required>
                     <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
@@ -312,18 +312,18 @@
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
-                        <tr><th>الاسم</th><th>المادة</th><th>معرف المادة (Eng)</th><th>الفصول المسندة</th><th>الباسورد</th><th>إجراء</th></tr>
+                        <tr><th>الاسم</th><th>المادة</th><th>معرف المادة (Eng)</th><th>السنة / الفصول المسندة</th><th>الباسورد</th><th>إجراء</th></tr>
                     </thead>
                     <tbody id="adminTeachersTableBody"><tr><td colspan="6" style="text-align: center;">جاري تحميل المدرسين...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (يعرض فصول المدرس المحددة مثل 1A, 2E, 2C بدقة) -->
+        <!-- 3️⃣ قسم رصد الدرجات (يعرض فصول المدرسة المتاحة للمدرس للاختيار منها) -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
             
-            <!-- قائمة اختيار الفصل الملونة والمنسقة -->
+            <!-- قائمة اختيار الفصل (تظهر جميع الفصول المتاحة في السيستم للمدرس أو المدير) -->
             <div style="margin-bottom: 20px;">
                 <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">🏫 اختر الفصل:</label>
                 <select id="teacherClassSelect" class="form-control" style="max-width: 450px;" onchange="filterStudentsByTeacherClass()">
@@ -331,7 +331,7 @@
                 </select>
             </div>
 
-            <!-- قائمة الطلاب (تظهر تلقائياً بعد اختيار الفصل) -->
+            <!-- قائمة الطلاب (تظهر تلقائياً بعد اختيار الفصل، وإذا كان الفصل فارغاً تظهر فارغة مع تنبيه) -->
             <div style="margin-bottom: 20px; display: none;" id="studentSelectWrapper">
                 <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">👨‍🎓 اختر الطالب:</label>
                 <select id="studentSelectForGrades" class="form-control" style="max-width: 450px;" onchange="loadStudentGradesToEdit()">
@@ -464,6 +464,7 @@
         let loggedTeacherClasses = localStorage.getItem('loggedTeacherClasses') || '';
 
         let allStudentsCache = {};
+        let availableClassesSet = new Set();
 
         const curriculumByGrade = {
             "الصف الأول الابتدائي": [
@@ -774,26 +775,39 @@
             });
         }
 
-        // استخراج الفصول المحددة للمدرس بدقة (مثل 1A, 2E, 2C) وعرضها في القائمة
+        // جلب جميع الفصول المسجلة للطلاب (أو الفصول المتاحة في السيستم) لعرضها في القائمة
         function setupTeacherClasses() {
             const select = document.getElementById('teacherClassSelect');
             let html = '<option value="">-- اختر الفصل --</option>';
 
+            // دمج الفصول المتاحة من بيانات الطلاب المحفوظة ومن الفصول المسندة للمدرس
+            let classesList = new Set();
             if (currentRole === 'teacher' && loggedTeacherClasses) {
-                // فصل الفصول المكتوبة بالفاصلة مثل "1A, 2E, 2C"
-                const classesArray = loggedTeacherClasses.split(',').map(c => c.trim());
-                classesArray.forEach(cls => {
-                    if (cls) {
-                        html += `<option value="${cls}">${cls}</option>`;
-                    }
-                });
-            } else {
-                // لو مدير، عرض أمثلة للفصول أو فصول افتراضية مخصصة
-                const defaultClasses = ["1A", "1B", "2A", "2E", "2C", "3A"];
-                defaultClasses.forEach(cls => {
-                    html += `<option value="${cls}">${cls}</option>`;
-                });
+                // لو المدرس محدد له صف دراسي، نجمع كل الفصول التابعة للسيستم أو الصف ده
+                classesList.add("1A");
+                classesList.add("1B");
+                classesList.add("2A");
+                classesList.add("2E");
+                classesList.add("2C");
+                classesList.add("3A");
             }
+            
+            // إضافة كل الفصول الموجودة في الكاش لو متوفرة
+            Object.keys(allStudentsCache).forEach(key => {
+                const u = allStudentsCache[key];
+                if (u.grade || u.className) {
+                    classesList.add(u.grade || u.className);
+                }
+            });
+
+            if (classesList.size === 0) {
+                classesList = new Set(["1A", "1B", "2A", "2E", "2C", "3A", "الصف الأول الإعدادي", "الصف الثاني الإعدادي", "الصف الثالث الإعدادي"]);
+            }
+
+            classesList.forEach(cls => {
+                html += `<option value="${cls}">${cls}</option>`;
+            });
+
             select.innerHTML = html;
         }
 
@@ -834,10 +848,13 @@
                 
                 const usersTbody = document.getElementById('adminUsersTableBody');
                 if(usersTbody) usersTbody.innerHTML = tableHtml || '<tr><td colspan="10" style="text-align: center;">لا توجد طلاب مسجلين.</td></tr>';
+                
+                // تحديث قائمة الفصول بعد جلب الطلاب
+                setupTeacherClasses();
             });
         }
 
-        // تصفية الطلاب بناءً على الفصل المحدد (1A, 2E, 2C...) بدقة تامة
+        // تصفية الطلاب حسب الفصل المحدد واختيار الطالب بدقة
         function filterStudentsByTeacherClass() {
             const selectedClass = document.getElementById('teacherClassSelect').value.trim();
             const studentSelectWrapper = document.getElementById('studentSelectWrapper');
@@ -864,7 +881,7 @@
                 }
             });
 
-            // لو الفصل فارغ، تظهر القائمة فارغة ومناسبة مع رسالة توضيحية
+            // لو الفصل فارغ مفيش طلاب، تظهر القائمة فاضية ومناسبة مع رسالة توضيحية
             if (!found) {
                 html = '<option value="">-- لا توجد طلاب مسجلين في هذا الفصل --</option>';
             }
@@ -1015,7 +1032,6 @@
             loadCurrentPasswords();
             fetchTeachersForAdmin();
             loadAdminNews();
-            setupTeacherClasses();
             fetchAllStudents();
         });
     </script>
