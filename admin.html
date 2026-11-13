@@ -311,9 +311,9 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (محدث للأدمن لعرض جميع مواد سنة الطالب بدقة) -->
+        <!-- 3️⃣ قسم رصد الدرجات (محدث ليشمل الإنجليزي العادي والمستوى الرفيع بدقة) -->
         <div class="admin-section" id="gradesSection">
-            <div class="card-title" id="gradesSectionTitle">📊 رصد درجات وتقييمات الطلاب لكل المواد بدقة بناءً على سنة الطالب</div>
+            <div class="card-title" id="gradesSectionTitle">📊 رصد درجات وتقييمات الطلاب لكل المواد بدقة بناءً على سنة الطالب والمستوى الرفيع</div>
             <div style="margin-bottom: 20px;">
                 <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
                 <select id="studentSelectForGrades" class="form-control" style="max-width: 400px;" onchange="loadStudentGradesToEdit()">
@@ -444,12 +444,13 @@
         let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || 'arabic';
         let loggedTeacherClasses = localStorage.getItem('loggedTeacherClasses') || '';
 
-        // تحديد المواد حسب السنة الدراسية للطالب بدقة شديدة
+        // جدول المواد لكل سنة دراسية، مع فصل (اللغة الإنجليزية) عن (المستوى الرفيع) بدقة
         const curriculumByGrade = {
             "الصف الأول الابتدائي": [
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
                 { id: "religion", name: "التربية الدينية" }
             ],
@@ -457,6 +458,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
                 { id: "religion", name: "التربية الدينية" }
             ],
@@ -464,6 +466,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
                 { id: "religion", name: "التربية الدينية" }
             ],
@@ -471,6 +474,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
@@ -480,6 +484,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
@@ -489,6 +494,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
@@ -498,6 +504,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات (جبر وهندسة)" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "religion", name: "التربية الدينية" },
@@ -507,6 +514,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "religion", name: "التربية الدينية" }
@@ -515,6 +523,7 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
+                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "religion", name: "التربية الدينية" }
@@ -793,7 +802,6 @@
             }
         }
 
-        // تحميل وتحديد مواد الطالب بدقة شديدة حسب سنته الدراسية للأدمن
         function loadStudentGradesToEdit() {
             const studentKey = document.getElementById('studentSelectForGrades').value;
             const container = document.getElementById('gradesEditFormContainer');
@@ -819,7 +827,7 @@
                         const subGrades = allGrades[sub.id] || { termWork: 0, weeklyEval: 0, finalExam: 0 };
                         
                         if (currentRole === 'teacher' && sub.id !== loggedTeacherSubjectId) {
-                            return; // لو مدرس يعرض فقط مادته، لو أدمن يعرض كل المواد
+                            return; 
                         }
 
                         html += `
@@ -855,7 +863,7 @@
             });
 
             db.ref(`grades/${studentKey}`).set(updates).then(() => {
-                showToast('تم حفظ ورصد درجات جميع المواد للطالب بنجاح 📊', '✅');
+                showToast('تم حفظ ورصد درجات جميع المواد (شاملة المستوى الرفيع) بنجاح 📊', '✅');
             });
         }
 
@@ -888,7 +896,7 @@
             const term2 = Number(document.getElementById('term2Grade').value) || 0;
 
             db.ref('controlResults/' + studentKey).set({ term1, term2 }).then(() => {
-                showToast('تم حفظ تثبيت نتائج الكنترول بنجاح 🏆', '✅');
+                showToast('تم حفظ وتثبيت نتائج الكنترول بنجاح 🏆', '✅');
             });
         }
 
