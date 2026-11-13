@@ -216,7 +216,7 @@
             </div>
             <div class="sidebar-item" id="menuGrades" onclick="switchAdminSection('gradesSection', this)">
                 <span class="sidebar-icon">📊</span>
-                <span class="sidebar-label" id="gradesMenuLabel">رصد وتقييم الدرجات</span>
+                <span class="sidebar-label" id="gradesMenuLabel">رصد وتقييم الدرجات والمستوى الرفيع</span>
             </div>
             <div class="sidebar-item" id="menuControl" onclick="switchAdminSection('controlSection', this)">
                 <span class="sidebar-icon">🏆</span>
@@ -311,7 +311,7 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (محدث ليشمل الإنجليزي العادي والمستوى الرفيع بدقة) -->
+        <!-- 3️⃣ قسم رصد الدرجات (محدث ليشمل الإنجليزي والمستوى الرفيع بدقة) -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد درجات وتقييمات الطلاب لكل المواد بدقة بناءً على سنة الطالب والمستوى الرفيع</div>
             <div style="margin-bottom: 20px;">
@@ -331,7 +331,7 @@
                         <tbody id="adminGradesEditTableBody"></tbody>
                     </table>
                 </div>
-                <button onclick="saveAllStudentGradesDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ وتثبيت جميع درجات المواد للطالب 💾</button>
+                <button onclick="saveAllStudentGradesDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ وتثبيت جميع درجات المواد للطالب والمستوى الرفيع 💾</button>
             </div>
         </div>
 
@@ -444,7 +444,7 @@
         let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || 'arabic';
         let loggedTeacherClasses = localStorage.getItem('loggedTeacherClasses') || '';
 
-        // جدول المواد لكل سنة دراسية، مع فصل (اللغة الإنجليزية) عن (المستوى الرفيع) بدقة
+        // جدول المواد لكل سنة دراسية، مع فصل (اللغة الإنجليزية) عن (اللغة الإنجليزية مستوى رفيع) بدقة
         const curriculumByGrade = {
             "الصف الأول الابتدائي": [
                 { id: "arabic", name: "اللغة العربية" },
@@ -813,8 +813,8 @@
             
             db.ref('users/' + studentKey).once('value').then((snap) => {
                 const student = snap.val() || {};
-                document.getElementById('editingStudentNameTitle').textContent = `رصد درجات الطالب: ${student.fullName}`;
-                document.getElementById('editingStudentGradeBadge').textContent = `${student.grade || 'الصف الأول الإعدادي'} - ${student.classRoom || ''}`;
+                document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${student.fullName}`;
+                document.getElementById('editingStudentGradeBadge').textContent = `${student.grade || 'الصف الأول الإعدادي'}`;
 
                 const studentGrade = student.grade || 'الصف الأول الإعدادي';
                 const subjectsList = curriculumByGrade[studentGrade] || curriculumByGrade["الصف الأول الإعدادي"];
@@ -863,7 +863,7 @@
             });
 
             db.ref(`grades/${studentKey}`).set(updates).then(() => {
-                showToast('تم حفظ ورصد درجات جميع المواد (شاملة المستوى الرفيع) بنجاح 📊', '✅');
+                showToast('تم حفظ وتثبيت جميع درجات المواد والمستوى الرفيع بنجاح 📊', '✅');
             });
         }
 
