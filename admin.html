@@ -197,37 +197,9 @@
             z-index: 4000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-        /* شاشة تسجيل الدخول للإدارة لو لم يتم الاعتماد على الكود القديم */
-        #adminLoginOverlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(15px);
-            z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .admin-login-box {
-            background: rgba(255, 255, 255, 0.95); padding: 35px; border-radius: 24px;
-            width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;
-            border-top: 5px solid var(--accent);
-        }
     </style>
 </head>
 <body>
-
-    <!-- نافذة تسجيل دخول المسؤولين (تظهر تلقائياً إذا لم يتم تسجيل الدخول) -->
-    <div id="adminLoginOverlay">
-        <div class="admin-login-box">
-            <h3 style="color: var(--primary-dark); font-size: 20px; font-weight: 900; margin-bottom: 8px;">🔐 تسجيل دخول الإدارة</h3>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور أو بيانات الاعتماد للمتابعة</p>
-            <form onsubmit="handleAdminLogin(event)">
-                <div class="form-group" style="margin-bottom: 15px; text-align: right;">
-                    <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">كلمة المرور / الكود</label>
-                    <input type="password" id="adminPasswordInput" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">دخول لوحة التحكم 🚀</button>
-            </form>
-            <button onclick="window.location.href='index.html'" class="btn" style="background: transparent; color: var(--text-muted); margin-top: 15px; font-size: 13px;">⬅ العودة للموقع الرئيسي</button>
-        </div>
-    </div>
 
     <div id="customToast" class="custom-toast">
         <span id="toastIcon">✨</span>
@@ -286,7 +258,7 @@
                 </div>
                 <span class="logo-text" id="headerMainTitle">بوابة التعلم الذكي - الإدارة</span>
             </div>
-            <button onclick="logoutAdmin()" class="btn-header-home" style="background: var(--danger);">خروج 🚪</button>
+            <button onclick="window.location.href='index.html'" class="btn-header-home">العودة للموقع الرئيسي ➡️</button>
         </div>
     </header>
 
@@ -347,12 +319,12 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات مع فلترة دقيقة وصحيحة تمنع تداخل الفصول -->
+        <!-- 3️⃣ قسم رصد الدرجات مع مطابقة مرنة للفصل -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
             
             <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">🏫 اختر الفصل:</label>
+                <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">🏫 اختر الفصل المقررة لك:</label>
                 <select id="teacherClassSelect" class="form-control" style="max-width: 450px;" onchange="filterStudentsByTeacherClass()">
                     <option value="">-- اختر الفصل --</option>
                 </select>
@@ -483,7 +455,7 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        let currentRole = localStorage.getItem('adminRole') || '';
+        let currentRole = localStorage.getItem('adminRole') || 'admin';
         let loggedTeacherName = localStorage.getItem('loggedTeacherName') || '';
         let loggedTeacherSubject = localStorage.getItem('loggedTeacherSubject') || '';
         let loggedTeacherSubjectId = localStorage.getItem('loggedTeacherSubjectId') || 'arabic';
@@ -575,90 +547,6 @@
                 { id: "religion", name: "التربية الدينية" }
             ]
         };
-
-        function checkAdminLoginState() {
-            const overlay = document.getElementById('adminLoginOverlay');
-            if (currentRole) {
-                overlay.style.display = 'none';
-                applyRolePermissions();
-            } else {
-                overlay.style.display = 'flex';
-            }
-        }
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const pass = document.getElementById('adminPasswordInput').value.trim();
-
-            db.ref('settings').once('value').then((snapshot) => {
-                const data = snapshot.val() || {};
-                const adminPass = data.adminPassword || '001123';
-                const controlPass = data.controlPassword || '0011234';
-                const affairsPass = data.affairsPassword || '00112345';
-
-                if (pass === adminPass) {
-                    currentRole = 'admin';
-                    localStorage.setItem('adminRole', 'admin');
-                    showToast('أهلاً بك يا مدير النظام 👑', '🎉');
-                    checkAdminLoginState();
-                    fetchAllStudents();
-                } else if (pass === controlPass) {
-                    currentRole = 'control';
-                    localStorage.setItem('adminRole', 'control');
-                    showToast('أهلاً بك يا مسئول الكنترول 🏆', '✨');
-                    checkAdminLoginState();
-                    fetchAllStudents();
-                } else if (pass === affairsPass) {
-                    currentRole = 'affairs';
-                    localStorage.setItem('adminRole', 'affairs');
-                    showToast('أهلاً بك يا مسئول شؤون الطلاب 👥', '✨');
-                    checkAdminLoginState();
-                    fetchAllStudents();
-                } else {
-                    // فحص حسابات المعلمين المسجلين
-                    db.ref('teachers').once('value').then((teacherSnap) => {
-                        const teachers = teacherSnap.val() || {};
-                        let foundTeacher = null;
-                        Object.keys(teachers).forEach(tKey => {
-                            const t = teachers[tKey];
-                            if (t.password === pass) {
-                                foundTeacher = t;
-                            }
-                        });
-
-                        if (foundTeacher) {
-                            currentRole = 'teacher';
-                            loggedTeacherName = foundTeacher.name;
-                            loggedTeacherSubject = foundTeacher.subject;
-                            loggedTeacherSubjectId = foundTeacher.subjectId;
-                            loggedTeacherClasses = foundTeacher.classes;
-
-                            localStorage.setItem('adminRole', 'teacher');
-                            localStorage.setItem('loggedTeacherName', loggedTeacherName);
-                            localStorage.setItem('loggedTeacherSubject', loggedTeacherSubject);
-                            localStorage.setItem('loggedTeacherSubjectId', loggedTeacherSubjectId);
-                            localStorage.setItem('loggedTeacherClasses', loggedTeacherClasses);
-
-                            showToast('أهلاً بالمدرس الفاضل ' + loggedTeacherName, '👨‍🏫');
-                            checkAdminLoginState();
-                            fetchAllStudents();
-                        } else {
-                            showToast('كلمة المرور غير صحيحة ❌', '⚠️');
-                        }
-                    });
-                }
-            });
-        }
-
-        function logoutAdmin() {
-            localStorage.removeItem('adminRole');
-            localStorage.removeItem('loggedTeacherName');
-            localStorage.removeItem('loggedTeacherSubject');
-            localStorage.removeItem('loggedTeacherSubjectId');
-            localStorage.removeItem('loggedTeacherClasses');
-            currentRole = '';
-            location.reload();
-        }
 
         function applyRolePermissions() {
             const menuNews = document.getElementById('menuNews');
@@ -777,7 +665,6 @@
             db.ref('news').on('value', (snapshot) => {
                 const data = snapshot.val();
                 const list = document.getElementById('adminNewsList');
-                if (!list) return;
                 if (!data) {
                     list.innerHTML = '<p style="color: var(--text-muted);">لا توجد إعلانات منشورة حالياً.</p>';
                     return;
@@ -810,19 +697,26 @@
         function loadCurrentPasswords() {
             db.ref('settings').once('value').then((snapshot) => {
                 const data = snapshot.val() || {};
-                document.getElementById('passAdmin').value = data.adminPassword || '001123';
-                document.getElementById('passControl').value = data.controlPassword || '0011234';
-                document.getElementById('passAffairs').value = data.affairsPassword || '00112345';
+                const passwords = data.passwords || {};
+                document.getElementById('passAdmin').value = passwords.admin || data.adminPassword || '001123';
+                document.getElementById('passControl').value = passwords.control || data.controlPassword || '0011234';
+                document.getElementById('passAffairs').value = passwords.affairs || data.affairsPassword || '00112345';
             });
         }
 
         function saveSystemPasswords(e) {
             e.preventDefault();
-            const adminPassword = document.getElementById('passAdmin').value.trim();
-            const controlPassword = document.getElementById('passControl').value.trim();
-            const affairsPassword = document.getElementById('passAffairs').value.trim();
+            const admin = document.getElementById('passAdmin').value.trim();
+            const control = document.getElementById('passControl').value.trim();
+            const affairs = document.getElementById('passAffairs').value.trim();
 
-            db.ref('settings').update({ adminPassword, controlPassword, affairsPassword }).then(() => {
+            const updates = {};
+            updates['settings/passwords'] = { admin, control, affairs };
+            updates['settings/adminPassword'] = admin;
+            updates['settings/controlPassword'] = control;
+            updates['settings/affairsPassword'] = affairs;
+
+            db.ref().update(updates).then(() => {
                 showToast('تم حفظ وتغيير كلمات المرور بنجاح 🔑', '✅');
             });
         }
@@ -850,7 +744,6 @@
             db.ref('teachers').on('value', (snapshot) => {
                 const data = snapshot.val();
                 const tbody = document.getElementById('adminTeachersTableBody');
-                if (!tbody) return;
                 if (!data) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا توجد مدرسين مسجلين.</td></tr>';
                     return;
@@ -881,10 +774,9 @@
 
         function setupTeacherClasses() {
             const select = document.getElementById('teacherClassSelect');
-            if (!select) return;
             let html = '<option value="">-- اختر الفصل --</option>';
 
-            const assignedGrade = currentRole === 'teacher' ? loggedTeacherClasses.trim() : "الصف الأول الإعدادي";
+            const assignedGrade = loggedTeacherClasses.trim();
             let gradePrefix = "1";
             if (assignedGrade.includes("الثاني")) gradePrefix = "2";
             else if (assignedGrade.includes("الثالث")) gradePrefix = "3";
@@ -893,9 +785,10 @@
             else if (assignedGrade.includes("السادس")) gradePrefix = "6";
 
             const sections = ['A', 'B', 'C', 'D', 'E'];
+            
             sections.forEach(sec => {
-                const fullCode = `${gradePrefix}${sec}`;
-                html += `<option value="${fullCode}">فصل (${fullCode})</option>`;
+                const fullCode = `${gradePrefix}${sec}`; // مثل 1A
+                html += `<option value="${fullCode}">${assignedGrade} (${fullCode})</option>`;
             });
 
             select.innerHTML = html;
@@ -943,7 +836,7 @@
             });
         }
 
-        // دالة الفلترة الدقيقة التي تعرض طلاب الفصل المختار بدقة تامة ومنع تداخل الطلاب
+        // دالة الفلترة المعدلة بمرونة تامة لعرض الطلاب فوراً بدون أخطاء
         function filterStudentsByTeacherClass() {
             const selectedClassCode = document.getElementById('teacherClassSelect').value.trim().toUpperCase();
             const studentSelectWrapper = document.getElementById('studentSelectWrapper');
@@ -961,12 +854,18 @@
             let html = '<option value="">-- حدد الطالب من القائمة --</option>';
             let found = false;
 
+            const teacherGradeText = loggedTeacherClasses.trim().toLowerCase().replace(/[أإآء]/g, 'ا');
+
             Object.keys(allStudentsCache).forEach(key => {
                 const u = allStudentsCache[key];
+                const studentGrade = (u.grade || "").trim().toLowerCase().replace(/[أإآء]/g, 'ا');
                 const studentClass = (u.className || "").trim().toUpperCase();
                 
-                // مطابقة الفصل المختار بدقة تامة لضمان عدم ظهور طالب في فصل غير فصله
-                if (studentClass === selectedClassCode) {
+                // مطابقة مرنة جداً للرقم والفصل بغض النظر عن طريقة الكتابة
+                const matchesGrade = studentGrade.includes(teacherGradeText) || teacherGradeText.includes(studentGrade) || studentGrade.charAt(0) === teacherGradeText.charAt(0);
+                const matchesClass = studentClass === selectedClassCode || studentClass.endsWith(selectedClassCode);
+
+                if (matchesGrade && matchesClass) {
                     found = true;
                     html += `<option value="${key}">${u.fullName} (فصل ${studentClass} - كود: ${u.nationalId || u.code || 'بدون'})</option>`;
                 }
@@ -1118,13 +1017,11 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            checkAdminLoginState();
+            applyRolePermissions();
             loadCurrentPasswords();
             fetchTeachersForAdmin();
             loadAdminNews();
-            if (currentRole) {
-                fetchAllStudents();
-            }
+            fetchAllStudents();
         });
     </script>
 </body>
