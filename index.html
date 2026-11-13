@@ -465,7 +465,7 @@
 
                     <div class="form-group" id="groupClassRoom"><label>فصل الطالب</label>
                         <select id="signUpClassRoom" class="form-control">
-                            <!-- سيتم تعبئتها ديناميكياً برقم الصف المختار مع الحروف من A لـ E -->
+                            <!-- سيتم تعبئتها ديناميكياً -->
                         </select>
                     </div>
 
@@ -548,14 +548,13 @@
             }
         }
 
-        // دالة ربط اختيار الصف الدراسي بالفصول (مثلاً: الصف الثاني -> 2A, 2B, 2C...)
         function updateClassRoomsList() {
             const gradeSelect = document.getElementById('signUpGrade');
             const classSelect = document.getElementById('signUpClassRoom');
             if (!gradeSelect || !classSelect) return;
 
             const selectedGradeText = gradeSelect.value;
-            let gradePrefix = "1"; // الافتراضي
+            let gradePrefix = "1";
 
             if (selectedGradeText.includes("الأول")) gradePrefix = "1";
             else if (selectedGradeText.includes("الثاني")) gradePrefix = "2";
@@ -563,90 +562,17 @@
             else if (selectedGradeText.includes("الرابع")) gradePrefix = "4";
             else if (selectedGradeText.includes("الخامس")) gradePrefix = "5";
             else if (selectedGradeText.includes("السادس")) gradePrefix = "6";
+            else if (selectedGradeText.includes("الأول الإعدادي")) gradePrefix = "1";
+            else if (selectedGradeText.includes("الثاني الإعدادي")) gradePrefix = "2";
+            else if (selectedGradeText.includes("الثالث الإعدادي")) gradePrefix = "3";
 
             const sections = ['A', 'B', 'C', 'D', 'E'];
             let html = '';
             sections.forEach(sec => {
-                const classNameVal = `${gradePrefix}${sec}`;
-                html += `<option value="${classNameVal}">فصل ${classNameVal}</option>`;
+                const code = `${gradePrefix}${sec}`;
+                html += `<option value="${code}">فصل (${code})</option>`;
             });
             classSelect.innerHTML = html;
-        }
-
-        // دالة جلب وعرض الإعلانات والفيديوهات من Firebase في الواجهة الرئيسية
-        function loadHomeNewsAndVideos() {
-            db.ref('news').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const feedList = document.getElementById('newsFeedList');
-                if (!feedList) return;
-
-                if (!data) {
-                    feedList.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو أخبار منشورة حالياً.</p>';
-                    return;
-                }
-
-                let html = '';
-                Object.keys(data).reverse().forEach(key => {
-                    const item = data[key];
-                    html += `
-                        <div class="news-card">
-                            <span style="background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; display: inline-block; margin-bottom: 8px;">${item.badge || 'إعلان هـام'}</span>
-                            <h3 style="font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px;">${item.title}</h3>
-                            <p style="font-size: 14px; color: var(--text-dark); line-height: 1.6; margin-bottom: 15px;">${item.content}</p>
-                            ${item.imageUrl ? `<img src="${item.imageUrl}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 12px;" alt="صورة الإعلان">` : ''}
-                            ${item.videoUrl ? `<video controls style="width: 100%; max-height: 320px; border-radius: 12px; background: #000;"><source src="${item.videoUrl}" type="video/mp4">متصفحك لا يدعم عرض الفيديو</video>` : ''}
-                        </div>
-                    `;
-                });
-                feedList.innerHTML = html;
-            });
-        }
-
-        function checkAuthAndNavigate(sectionId) {
-            if (!currentUser) {
-                showToast('الرجاء تسجيل الدخول أولاً لعرض النتائج والحضور ⚠️', '🔒');
-                openSignInPage();
-                return;
-            }
-            navigateToSection(sectionId);
-        }
-
-        function handleSignIn(e) {
-            e.preventDefault();
-            const identifier = document.getElementById('loginIdentifierInput').value.trim();
-            const password = document.getElementById('authPasswordInput').value.trim();
-
-            db.ref('users').once('value').then((snapshot) => {
-                const users = snapshot.val() || {};
-                let foundUser = null;
-                let foundKey = null;
-
-                Object.keys(users).forEach(key => {
-                    const u = users[key];
-                    if (
-                        u.fullName === identifier ||
-                        u.nationalId === identifier ||
-                        u.code === identifier ||
-                        u.email === identifier ||
-                        u.phone === identifier
-                    ) {
-                        if (u.password === password) {
-                            foundUser = u;
-                            foundKey = key;
-                        }
-                    }
-                });
-
-                if (foundUser) {
-                    currentUser = { ...foundUser, id: foundKey };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showToast('تم تسجيل الدخول بنجاح أهلاً بك يا ' + foundUser.fullName, '🎉');
-                    updateAuthUI();
-                    showHomePage();
-                } else {
-                    showToast('بيانات الدخول غير صحيحة، تأكد من الكود والباسورد ❌', '⚠️');
-                }
-            });
         }
 
         function handleSignUp(e) {
@@ -655,234 +581,276 @@
             const fullName = document.getElementById('signUpName').value.trim();
             const nationalId = document.getElementById('signUpNationalId').value.trim();
             const email = document.getElementById('signUpEmail').value.trim();
+            const phone = document.getElementById('signUpPhone').value.trim();
+            const password = document.getElementById('signUpPassword').value.trim();
             const grade = role === 'student' ? document.getElementById('signUpGrade').value : '';
             const className = role === 'student' ? document.getElementById('signUpClassRoom').value : '';
             const linkedCode = role === 'parent' ? document.getElementById('signUpLinkedStudentCode').value.trim() : '';
-            const phone = document.getElementById('signUpPhone').value.trim();
-            const password = document.getElementById('signUpPassword').value.trim();
 
-            const newUser = {
-                role,
-                fullName,
-                nationalId,
-                email,
-                grade,
-                className,
-                linkedCode,
-                phone,
-                password,
-                attendanceStatus: 'منتظم',
-                absenceCount: 0,
-                attendanceNote: '---'
-            };
+            db.ref('users').push({
+                role, fullName, nationalId, code: nationalId, email, phone, password, grade, className, linkedCode,
+                attendanceStatus: 'منتظم', absenceCount: 0, attendanceNote: 'لا توجد ملاحظات', timestamp: Date.now()
+            }).then(() => {
+                showToast('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن', '🎉');
+                openSignInPage();
+            }).catch(err => {
+                showToast('حدث خطأ أثناء التسجيل: ' + err.message, '❌');
+            });
+        }
 
-            db.ref('users').push(newUser).then((ref) => {
-                currentUser = { ...newUser, id: ref.key };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showToast('تم إنشاء الحساب بنجاح وأهلاً بك 🚀', '✨');
-                if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                updateAuthUI();
-                showHomePage();
+        function handleSignIn(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('loginIdentifierInput').value.trim();
+            const password = document.getElementById('authPasswordInput').value.trim();
+
+            db.ref('users').once('value').then(snapshot => {
+                const users = snapshot.val() || {};
+                let foundKey = null;
+                let foundUser = null;
+
+                Object.keys(users).forEach(key => {
+                    const u = users[key];
+                    if ((u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier) && u.password === password) {
+                        foundKey = key;
+                        foundUser = u;
+                    }
+                });
+
+                if (foundUser) {
+                    currentUser = { key: foundKey, ...foundUser };
+                    localStorage.setItem('studentKey', foundKey);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    document.getElementById('headerAuthActions').style.display = 'none';
+                    document.getElementById('headerUserActions').style.display = 'flex';
+                    document.getElementById('sidebarProfileBtn').style.display = 'flex';
+
+                    showToast('أهلاً بك يا ' + foundUser.fullName, '👋');
+                    showHomePage();
+                    loadUserData();
+                } else {
+                    showToast('بيانات الدخول غير صحيحة ❌', '⚠️');
+                }
             });
         }
 
         function logoutUser() {
             currentUser = null;
+            localStorage.removeItem('studentKey');
             localStorage.removeItem('currentUser');
-            updateAuthUI();
+            document.getElementById('headerAuthActions').style.display = 'flex';
+            document.getElementById('headerUserActions').style.display = 'none';
+            document.getElementById('sidebarProfileBtn').style.display = 'none';
+            showToast('تم تسجيل الخروج بنجاح', '🚪');
             showHomePage();
-            showToast('تم تسجيل الخروج بنجاح 👋', '🚪');
         }
 
-        function updateAuthUI() {
-            const authActions = document.getElementById('headerAuthActions');
-            const userActions = document.getElementById('headerUserActions');
-            const sidebarProfileBtn = document.getElementById('sidebarProfileBtn');
-
-            if (currentUser) {
-                if(authActions) authActions.style.display = 'none';
-                if(userActions) userActions.style.display = 'flex';
-                if(sidebarProfileBtn) sidebarProfileBtn.style.display = 'flex';
-
-                document.getElementById('profileName').textContent = currentUser.fullName;
-                document.getElementById('profileRoleBadge').textContent = currentUser.role === 'parent' ? 'ولي أمر' : 'طالب';
-                document.getElementById('profileGradeDisplay').textContent = currentUser.role === 'student' ? `${currentUser.grade} - فصل ${currentUser.className || '2A'}` : `مرتبط بالطالب كود: ${currentUser.linkedCode || '---'}`;
-
-                document.getElementById('profileFullName').value = currentUser.fullName || '';
-                document.getElementById('profileNationalId').value = currentUser.nationalId || '';
-                document.getElementById('profileEmail').value = currentUser.email || '';
-                document.getElementById('profilePhone').value = currentUser.phone || '';
-                document.getElementById('profilePassword').value = currentUser.password || '';
-
-                loadStudentGradesData();
-                loadStudentAttendanceData();
-                loadStudentTicketsData();
+        function checkAuthAndNavigate(sectionId) {
+            if (!currentUser) {
+                showToast('الرجاء تسجيل الدخول أولاً لعرض البيانات 🔒', '⚠️');
+                openSignInPage();
             } else {
-                if(authActions) authActions.style.display = 'flex';
-                if(userActions) userActions.style.display = 'none';
-                if(sidebarProfileBtn) sidebarProfileBtn.style.display = 'none';
+                navigateToSection(sectionId);
             }
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+            document.getElementById('profileName').textContent = currentUser.fullName;
+            document.getElementById('profileRoleBadge').textContent = currentUser.role === 'student' ? 'طالب' : 'ولي أمر';
+            document.getElementById('profileGradeDisplay').textContent = currentUser.grade ? `${currentUser.grade} - فصل ${currentUser.className}` : '';
+            
+            document.getElementById('profileFullName').value = currentUser.fullName || '';
+            document.getElementById('profileNationalId').value = currentUser.nationalId || currentUser.code || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profilePassword').value = currentUser.password || '';
+
+            loadStudentGrades();
+            loadStudentAttendance();
+            loadStudentTickets();
         }
 
         function saveProfileChanges(e) {
             e.preventDefault();
             if (!currentUser) return;
 
-            currentUser.fullName = document.getElementById('profileFullName').value.trim();
-            currentUser.nationalId = document.getElementById('profileNationalId').value.trim();
-            currentUser.email = document.getElementById('profileEmail').value.trim();
-            currentUser.phone = document.getElementById('profilePhone').value.trim();
-            currentUser.password = document.getElementById('profilePassword').value.trim();
+            const updates = {
+                fullName: document.getElementById('profileFullName').value.trim(),
+                nationalId: document.getElementById('profileNationalId').value.trim(),
+                email: document.getElementById('profileEmail').value.trim(),
+                phone: document.getElementById('profilePhone').value.trim(),
+                password: document.getElementById('profilePassword').value.trim()
+            };
 
-            db.ref('users/' + currentUser.id).update(currentUser).then(() => {
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            db.ref('users/' + currentUser.key).update(updates).then(() => {
                 showToast('تم حفظ التعديلات بنجاح 💾', '✅');
-                updateAuthUI();
+                currentUser = { ...currentUser, ...updates };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                loadUserData();
             });
         }
 
-        function loadStudentGradesData() {
+        function loadStudentGrades() {
             if (!currentUser) return;
-            const targetId = currentUser.role === 'parent' ? currentUser.linkedCode : currentUser.id;
+            let targetKey = currentUser.key;
+            if (currentUser.role === 'parent' && currentUser.linkedCode) {
+                // منطق ربط ولي الأمر بالمعرف
+            }
 
-            db.ref('grades/' + currentUser.id).on('value', (snapshot) => {
-                const gradesData = snapshot.val() || {};
+            db.ref('grades/' + targetKey).on('value', snapshot => {
+                const grades = snapshot.val() || {};
                 const tbody = document.getElementById('gradesTableBody');
-                
-                let totalSum = 0;
-                let maxPossible = 0;
                 let html = '';
+                let totalScore = 0;
+                let maxTotal = 0;
 
-                const subjectsMap = {
-                    arabic: "اللغة العربية",
-                    math: "الرياضيات",
-                    english: "اللغة الإنجليزية",
-                    english_advanced: "اللغة الإنجليزية (مستوى رفيع)",
-                    science: "العلوم",
-                    social: "الدراسات الاجتماعية",
-                    ict: "تكنولوجيا المعلومات والاتصالات",
-                    discovery: "متعدد التخصصات (ديسكفري)",
-                    religion: "التربية الدينية",
-                    computer: "الحاسب الآلي"
-                };
+                const curriculum = [
+                    { id: 'arabic', name: 'اللغة العربية' },
+                    { id: 'math', name: 'الرياضيات' },
+                    { id: 'english', name: 'اللغة الإنجليزية' },
+                    { id: 'science', name: 'العلوم' },
+                    { id: 'social', name: 'الدراسات الاجتماعية' },
+                    { id: 'religion', name: 'التربية الدينية' }
+                ];
 
-                Object.keys(subjectsMap).forEach(subId => {
-                    const subGrades = gradesData[subId] || { termWork: 0, weeklyEval: 0, finalExam: 0, total: 0 };
-                    const subTotal = Number(subGrades.total) || (Number(subGrades.termWork) + Number(subGrades.weeklyEval) + Number(subGrades.finalExam));
-                    
-                    totalSum += subTotal;
-                    maxPossible += 100;
+                curriculum.forEach(sub => {
+                    const subData = grades[sub.id] || { termWork: 0, weeklyEval: 0, finalExam: 0, total: 0 };
+                    const subTotal = Number(subData.total) || (Number(subData.termWork) + Number(subData.weeklyEval) + Number(subData.finalExam));
+                    totalScore += subTotal;
+                    maxTotal += 100;
 
                     html += `
                         <tr>
-                            <td><strong>${subjectsMap[subId]}</strong></td>
-                            <td>${subGrades.termWork || 0}</td>
-                            <td>${subGrades.weeklyEval || 0}</td>
-                            <td>${subGrades.finalExam || 0}</td>
-                            <td><strong>${subTotal} / 100</strong></td>
+                            <td><strong>${sub.name}</strong></td>
+                            <td>${subData.termWork || 0}</td>
+                            <td>${subData.weeklyEval || 0}</td>
+                            <td>${subData.finalExam || 0}</td>
+                            <td><strong>${subTotal}</strong></td>
                         </tr>
                     `;
                 });
 
-                tbody.innerHTML = html || '<tr><td colspan="5" style="text-align: center;">لا توجد درجات مرصودة حتى الآن.</td></tr>';
-
-                const percentage = maxPossible > 0 ? ((totalSum / maxPossible) * 100).toFixed(1) : 0;
-                document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxPossible}`;
-                document.getElementById('summaryPercentage').textContent = `${percentage}%`;
-
-                let gradeText = 'ممتاز 🌟';
-                if (percentage < 50) gradeText = 'يحتاج تحسين ⚠️';
-                else if (percentage < 65) gradeText = 'مقبول 👍';
-                else if (percentage < 75) gradeText = 'جيد 📚';
-                else if (percentage < 85) gradeText = 'جيد جداً 🎖️';
+                tbody.innerHTML = html || '<tr><td colspan="5">لا توجد درجات مرصودة حالياً</td></tr>';
+                document.getElementById('summaryTotal').textContent = `${totalScore} / ${maxTotal}`;
+                const perc = maxTotal > 0 ? ((totalScore / maxTotal) * 100).toFixed(1) : 0;
+                document.getElementById('summaryPercentage').textContent = `${perc}%`;
+                
+                let gradeText = 'مقبول';
+                if (perc >= 85) gradeText = 'ممتاز 🌟';
+                else if (perc >= 75) gradeText = 'جيد جداً ⭐';
+                else if (perc >= 65) gradeText = 'جيد 👍';
                 document.getElementById('summaryGrade').textContent = gradeText;
             });
         }
 
-        function loadStudentAttendanceData() {
+        function loadStudentAttendance() {
             if (!currentUser) return;
-            db.ref('attendance/' + currentUser.id).on('value', (snapshot) => {
-                const att = snapshot.val() || { status: currentUser.attendanceStatus || 'منتظم', absenceCount: currentUser.absenceCount || 0, note: currentUser.attendanceNote || '---', datesLog: 'لا توجد تواريخ غياب مسجلة حتى الآن.' };
-                
-                document.getElementById('lblAttendanceStatusText').textContent = att.status;
-                document.getElementById('lblAbsenceCountText').textContent = `${att.absenceCount} مرة`;
-                document.getElementById('lblAttendanceNoteText').textContent = att.note;
-                document.getElementById('lblAbsenceDatesLogText').textContent = att.datesLog;
+            db.ref('attendance/' + currentUser.key).on('value', snapshot => {
+                const att = snapshot.val() || {};
+                document.getElementById('lblAttendanceStatusText').textContent = att.status || 'منتظم ✅';
+                document.getElementById('lblAbsenceCountText').textContent = `${att.absenceCount || 0} مرة`;
+                document.getElementById('lblAttendanceNoteText').textContent = att.note || 'لا توجد ملاحظات إدارية';
+                document.getElementById('lblAbsenceDatesLogText').textContent = att.datesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.';
             });
         }
 
         function submitParentTicket(e) {
             e.preventDefault();
             if (!currentUser) {
-                showToast('يجب تسجيل الدخول أولاً لإرسال شكوى ⚠️', '🔒');
-                openSignInPage();
+                showToast('يجب تسجيل الدخول أولاً لإرسال الشكاوى', '⚠️');
                 return;
             }
 
             const parentName = document.getElementById('ticketParentName').value.trim();
             const parentEmail = document.getElementById('ticketParentEmail').value.trim();
-            const ticketType = document.getElementById('ticketTypeSelect').value;
+            const type = document.getElementById('ticketTypeSelect').value;
             const content = document.getElementById('ticketContent').value.trim();
 
             db.ref('tickets').push({
-                userId: currentUser.id,
+                studentKey: currentUser.key,
                 studentName: currentUser.fullName,
-                parentName,
-                parentEmail,
-                ticketType,
-                content,
+                studentGrade: currentUser.grade || 'غير محدد',
+                studentClass: currentUser.className || 'A',
+                parentName, parentEmail, type, content,
                 reply: 'قيد المراجعة من الإدارة...',
+                status: 'قيد المعالجة',
                 timestamp: Date.now()
             }).then(() => {
                 showToast('تم إرسال الشكوى أو الطلب بنجاح 🚀', '✅');
+                document.getElementById('ticketContent').value = '';
                 document.getElementById('ticketParentName').value = '';
                 document.getElementById('ticketParentEmail').value = '';
-                document.getElementById('ticketTypeSelect').value = '';
-                document.getElementById('ticketContent').value = '';
             });
         }
 
-        function loadStudentTicketsData() {
+        function loadStudentTickets() {
             if (!currentUser) return;
-            db.ref('tickets').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const list = document.getElementById('studentMyTicketsList');
-                if (!list) return;
+            db.ref('tickets').on('value', snapshot => {
+                const tickets = snapshot.val() || {};
+                const listContainer = document.getElementById('studentMyTicketsList');
+                let html = '';
 
+                Object.keys(tickets).reverse().forEach(key => {
+                    const t = tickets[key];
+                    if (t.studentKey === currentUser.key) {
+                        html += `
+                            <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; border: 1px solid #E2E8F0; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                    <strong style="color: var(--primary-dark); font-size: 14px;">${t.type}</strong>
+                                    <span style="font-size: 11.5px; background: #FEF3C7; color: #D97706; padding: 2px 8px; border-radius: 6px; font-weight: 800;">${t.status}</span>
+                                </div>
+                                <p style="font-size: 13.5px; color: var(--text-dark); margin-bottom: 10px;">${t.content}</p>
+                                <div style="background: #F8FAFC; padding: 10px 12px; border-radius: 10px; border-right: 3px solid var(--accent);">
+                                    <span style="font-size: 12px; font-weight: 800; color: var(--primary);">رد الإدارة:</span>
+                                    <p style="font-size: 13px; color: var(--text-dark); margin-top: 2px;">${t.reply}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                listContainer.innerHTML = html || '<p style="color: var(--text-muted); text-align: center; padding: 15px;">لا توجد شكاوى مرسلة حتى الآن.</p>';
+            });
+        }
+
+        function loadNewsFeed() {
+            db.ref('news').on('value', snapshot => {
+                const data = snapshot.val();
+                const feed = document.getElementById('newsFeedList');
                 if (!data) {
-                    list.innerHTML = '<p style="color: var(--text-muted);">لا توجد طلبات أو شكاوى مرسلة.</p>';
+                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو أخبار منشورة حالياً.</p>';
                     return;
                 }
 
                 let html = '';
                 Object.keys(data).reverse().forEach(key => {
                     const item = data[key];
-                    if (item.userId === currentUser.id) {
-                        html += `
-                            <div style="background: #FFFFFF; padding: 16px; border-radius: 14px; border: 1.5px solid #E2E8F0; margin-bottom: 12px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                    <span style="background: #E0F2FE; color: #0369A1; padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 800;">${item.ticketType}</span>
-                                    <span style="font-size: 11.5px; color: var(--text-muted);">${new Date(item.timestamp).toLocaleDateString('ar-EG')}</span>
-                                </div>
-                                <p style="font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">${item.content}</p>
-                                <div style="background: #F8FAFC; padding: 10px 14px; border-radius: 10px; border-right: 3px solid var(--accent);">
-                                    <span style="font-size: 12px; font-weight: 800; color: var(--primary-dark); display: block; margin-bottom: 2px;">💬 رد الإدارة:</span>
-                                    <p style="font-size: 13.5px; color: #334155; font-weight: 700;">${item.reply}</p>
-                                </div>
+                    html += `
+                        <div class="news-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="color: var(--primary-dark); font-size: 18px; font-weight: 900;">${item.title}</h3>
+                                ${item.badge ? `<span style="background: var(--accent); color: white; padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 800;">${item.badge}</span>` : ''}
                             </div>
-                        `;
-                    }
+                            <p style="font-size: 14.5px; color: var(--text-dark); line-height: 1.7; margin-bottom: 15px;">${item.content}</p>
+                            ${item.imageUrl ? `<img src="${item.imageUrl}" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 14px; margin-bottom: 15px;" alt="صورة الإعلان">` : ''}
+                            ${item.videoUrl ? `<video src="${item.videoUrl}" controls style="width: 100%; max-height: 350px; border-radius: 14px; background: #000;"></video>` : ''}
+                        </div>
+                    `;
                 });
-                list.innerHTML = html || '<p style="color: var(--text-muted);">لا توجد شكاوى خاصة بك.</p>';
+                feed.innerHTML = html;
             });
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadHomeNewsAndVideos();
+            loadNewsFeed();
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                updateAuthUI();
+                document.getElementById('headerAuthActions').style.display = 'none';
+                document.getElementById('headerUserActions').style.display = 'flex';
+                document.getElementById('sidebarProfileBtn').style.display = 'flex';
+                loadUserData();
             }
         });
     </script>
