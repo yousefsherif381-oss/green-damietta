@@ -16,10 +16,10 @@
             --accent-hover: #D97706;
             --danger: #EF4444;
             --success: #10B981;
-            --card-bg: rgba(255, 255, 255, 0.88);
+            --card-bg: rgba(255, 255, 255, 0.92);
             --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border: rgba(255, 255, 255, 0.5);
+            --border: rgba(2, 132, 199, 0.25);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
@@ -132,10 +132,10 @@
         .main-wrapper { max-width: 1250px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
         .admin-section {
-            background: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             border-radius: 24px; padding: 30px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
             display: none; margin-bottom: 25px;
@@ -144,15 +144,24 @@
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .admin-section.active { display: block; }
-        .card-title { font-size: 17px; font-weight: 900; color: var(--primary-dark); margin-bottom: 18px; }
+        .card-title { font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        
+        /* تصميم منسق ومميز لقوائم الاختيار (Select) متناسق مع ألوان الموقع */
         .form-control {
-            width: 100%; padding: 12px 14px; border: 1.5px solid #CBD5E1;
-            border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #FFFFFF;
+            width: 100%; padding: 13px 16px; border: 2px solid #BAE6FD;
+            border-radius: 14px; font-size: 14.5px; font-weight: 700; outline: none; background: #F0F9FF;
+            color: var(--primary-dark);
             transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+            cursor: pointer;
         }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+        .form-control:focus { 
+            border-color: var(--accent); 
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2); 
+        }
 
         input[type="file"] { display: none; }
 
@@ -311,27 +320,27 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات (محدث حسب فصول المدرس والطلاب المسجلين) -->
+        <!-- 3️⃣ قسم رصد الدرجات (محدث: "اختر الفصل" فقط ويظهر الطلاب أو يصبح فاضياً) -->
         <div class="admin-section" id="gradesSection">
-            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
+            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتققيمات حسب الفصول المقررة</div>
             
-            <!-- اختيار الفصل المخصص للمدرس أو المدير -->
-            <div style="margin-bottom: 15px;">
-                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الفصل الدراسي:</label>
+            <!-- قائمة اختيار الفصل الملونة والمنسقة -->
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">🏫 اختر الفصل:</label>
                 <select id="teacherClassSelect" class="form-control" style="max-width: 450px;" onchange="filterStudentsByTeacherClass()">
                     <option value="">-- حدد الفصل الدراسي أولاً --</option>
                 </select>
             </div>
 
-            <!-- اختيار الطالب بعد تحديد الفصل -->
+            <!-- قائمة الطلاب (تظهر تلقائياً بعد اختيار الفصل، وإذا كان الفصل فارغاً تظهر فارغة مع تنبيه) -->
             <div style="margin-bottom: 20px; display: none;" id="studentSelectWrapper">
-                <label style="font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 8px;">اختر الطالب:</label>
+                <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">👨‍🎓 اختر الطالب:</label>
                 <select id="studentSelectForGrades" class="form-control" style="max-width: 450px;" onchange="loadStudentGradesToEdit()">
                     <option value="">-- حدد الطالب من القائمة --</option>
                 </select>
             </div>
 
-            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 16px; border: 1px solid #CBD5E1;">
+            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.95); padding: 20px; border-radius: 16px; border: 2px solid #BAE6FD;">
                 <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 <p id="editingStudentGradeBadge" style="color: var(--accent-hover); font-weight: 800; font-size: 13px; margin-bottom: 15px;"></p>
                 <div style="overflow-x: auto;">
@@ -457,7 +466,6 @@
 
         let allStudentsCache = {};
 
-        // جدول المواد لكل سنة دراسية
         const curriculumByGrade = {
             "الصف الأول الابتدائي": [
                 { id: "arabic", name: "اللغة العربية" },
@@ -769,7 +777,7 @@
 
         function setupTeacherClasses() {
             const select = document.getElementById('teacherClassSelect');
-            let html = '<option value="">-- حدد الفصل الدراسي --</option>';
+            let html = '<option value="">-- اختر الفصل --</option>';
 
             if (currentRole === 'teacher' && loggedTeacherClasses) {
                 const classesArray = loggedTeacherClasses.split(',').map(c => c.trim());
@@ -841,7 +849,7 @@
             }
 
             studentSelectWrapper.style.display = 'block';
-            let html = '<option value="">-- حدد الطالب من القائمة --</option>';
+            let html = '<option value="">-- حدد الطالب --</option>';
             let found = false;
 
             Object.keys(allStudentsCache).forEach(key => {
@@ -852,6 +860,7 @@
                 }
             });
 
+            // لو الفصل مش فيه حد، بتبقى القائمة فاضية ومناسبة مع رسالة توضيحية
             if (!found) {
                 html = '<option value="">-- لا توجد طلاب مسجلين في هذا الفصل --</option>';
             }
