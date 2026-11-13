@@ -319,7 +319,7 @@
             </div>
         </div>
 
-        <!-- 3️⃣ قسم رصد الدرجات مع مطابقة ذكية وشاملة للطلاب -->
+        <!-- 3️⃣ قسم رصد الدرجات مع فصل دقيق لكل فصل على حدة -->
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الفصول المقررة</div>
             
@@ -787,7 +787,7 @@
             const sections = ['A', 'B', 'C', 'D', 'E'];
             
             sections.forEach(sec => {
-                const fullCode = `${gradePrefix}${sec}`; // مثل 1E
+                const fullCode = `${gradePrefix}${sec}`; // مثل 1A, 1E, 2A
                 html += `<option value="${fullCode}">${assignedGrade} (${fullCode})</option>`;
             });
 
@@ -836,7 +836,7 @@
             });
         }
 
-        // دالة الفلترة الذكية المطورة لتطابق أي فصل (مثل 1E) مهما كانت طريقة إدخال الطالب
+        // دالة الفلترة الدقيقة: تضمن عدم تداخل الطلاب وعرض طلاب الفصل المختار فقط
         function filterStudentsByTeacherClass() {
             const selectedClassCode = document.getElementById('teacherClassSelect').value.trim().toUpperCase();
             const studentSelectWrapper = document.getElementById('studentSelectWrapper');
@@ -861,9 +861,9 @@
                 const studentGrade = (u.grade || "").trim().toLowerCase().replace(/[أإآء]/g, 'ا');
                 const studentClass = (u.className || "").trim().toUpperCase();
                 
-                // مطابقة فائقة المرونة تتجاهل الفروقات البسيطة وتطابق الكود (مثل 1E) بدقة
+                // مطابقة صارمة: يجب أن يتطابق الصف ورقم الفصل تماماً (مثل 1E مع 1E) لضمان عدم ظهور طالب في فصل آخر
                 const matchesGrade = studentGrade.includes(teacherGradeText) || teacherGradeText.includes(studentGrade) || studentGrade.charAt(0) === teacherGradeText.charAt(0);
-                const matchesClass = studentClass === selectedClassCode || studentClass.includes(selectedClassCode) || selectedClassCode.includes(studentClass);
+                const matchesClass = studentClass === selectedClassCode;
 
                 if (matchesGrade && matchesClass) {
                     found = true;
