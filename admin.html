@@ -1,544 +1,350 @@
-ده كود الادمن 
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة | بوابة التعلم الذكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم والإدارة | بوابة التعلم الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-    <style>
-        :root {
-            --primary: #0284C7;
-            --primary-dark: #0369A1;
-            --accent: #F59E0B;
-            --accent-hover: #D97706;
-            --danger: #EF4444;
-            --success: #10B981;
-            --card-bg: rgba(255, 255, 255, 0.92);
-            --text-dark: #0F172A;
-            --text-muted: #64748B;
-            --border: rgba(2, 132, 199, 0.25);
-        }
+    <style>
+        :root {
+            --primary: #0284C7;
+            --primary-dark: #0369A1;
+            --accent: #F59E0B;
+            --accent-hover: #D97706;
+            --danger: #EF4444;
+            --success: #10B981;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --text-dark: #0F172A;
+            --text-muted: #64748B;
+            --border: rgba(2, 132, 199, 0.25);
+        }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 
-        body {
-            background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
-            background-size: 400% 400%;
-            animation: oceanWaves 16s ease infinite;
-            min-height: 100vh;
-            color: var(--text-dark);
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            position: relative;
-            transition: all 0.35s ease;
-        }
+        body {
+            background: linear-gradient(-45deg, #0284C7, #0F172A, #0369A1, #0C4A6E);
+            background-size: 400% 400%;
+            animation: oceanWaves 16s ease infinite;
+            min-height: 100vh;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-        body.sidebar-open { overflow: hidden; }
+        @keyframes oceanWaves {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-        @keyframes oceanWaves {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(12, 74, 110, 0.6); backdrop-filter: blur(10px);
+            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+        }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(12, 74, 110, 0.6); backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
-        }
-        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+        .sliding-sidebar {
+            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
+            background: rgba(12, 74, 110, 0.96); backdrop-filter: blur(25px);
+            z-index: 2000; box-shadow: -15px 0 50px rgba(0,0,0,0.4);
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 24px 20px; display: flex; flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+        }
+        .sliding-sidebar.active { right: 0; }
 
-        .sliding-sidebar {
-            position: fixed; top: 0; right: -350px; width: 320px; height: 100vh;
-            background: rgba(12, 74, 110, 0.96); 
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            z-index: 2000; box-shadow: -15px 0 50px rgba(0,0,0,0.4);
-            border-left: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 24px 20px; display: flex; flex-direction: column;
-            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow-y: auto;
-        }
-        .sliding-sidebar.active { right: 0; }
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar-title { 
+            font-size: 15.5px; font-weight: 900; 
+            background: linear-gradient(45deg, #FFFFFF, #38BDF8, #F59E0B);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .btn-close-sidebar {
+            background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); 
+            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+        }
 
-        .sidebar-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            gap: 10px;
-        }
-        .sidebar-title { 
-            font-size: 15.5px; font-weight: 900; 
-            background: linear-gradient(45deg, #FFFFFF, #38BDF8, #F59E0B);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-        }
-        .btn-close-sidebar {
-            background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); 
-            width: 36px; height: 36px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; color: #FFFFFF;
-            transition: all 0.2s ease; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-close-sidebar:hover { background: rgba(239, 68, 68, 0.9); border-color: #EF4444; transform: rotate(90deg); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; padding-bottom: 20px; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+            border-radius: 16px; background: rgba(255, 255, 255, 0.12); 
+            border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; transition: all 0.3s ease;
+        }
+        .sidebar-item:hover, .sidebar-item.active { 
+            background: rgba(2, 132, 199, 0.5); border-color: var(--accent); transform: translateX(-6px);
+        }
+        .sidebar-icon { font-size: 22px; }
+        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
 
-        .sidebar-menu { display: flex; flex-direction: column; gap: 14px; padding-bottom: 20px; }
-        .sidebar-item {
-            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
-            border-radius: 16px; background: rgba(255, 255, 255, 0.12); 
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            flex-shrink: 0;
-        }
-        .sidebar-item:hover, .sidebar-item.active { 
-            background: rgba(2, 132, 199, 0.5); 
-            border-color: var(--accent); 
-            transform: translateX(-6px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
-        }
-        .sidebar-icon { font-size: 22px; }
-        .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
+        header {
+            background: rgba(12, 74, 110, 0.75); backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15); position: sticky; top: 0; z-index: 100;
+        }
+        .nav-container {
+            max-width: 1300px; margin: auto; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center; gap: 15px;
+        }
+        .btn-sidebar-toggle {
+            background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; }
+        .logo-box {
+            width: 48px; height: 48px; border-radius: 50%; background: #0F172A; padding: 2px;
+            border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .logo-text { 
+            font-size: 17.5px; font-weight: 900; background: linear-gradient(45deg, #FFFFFF, #38BDF8, #F59E0B);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; 
+        }
+        .btn-header-home {
+            background: var(--danger); color: #fff; border: none; padding: 9px 18px;
+            border-radius: 12px; font-size: 13.5px; font-weight: 800; cursor: pointer;
+        }
 
-        header {
-            background: rgba(12, 74, 110, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-        }
+        .main-wrapper { max-width: 1250px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
+        .admin-section {
+            background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px);
+            border-radius: 24px; padding: 30px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
+            display: none; margin-bottom: 25px; border-top: 5px solid var(--accent);
+        }
+        .admin-section.active { display: block; }
+        .card-title { font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; }
 
-        .nav-container {
-            max-width: 1300px; margin: auto; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center; gap: 15px;
-        }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .form-control {
+            width: 100%; padding: 13px 16px; border: 2px solid #BAE6FD; border-radius: 14px;
+            font-size: 14.5px; font-weight: 700; outline: none; background: #F0F9FF; color: var(--primary-dark);
+        }
+        .form-control:focus { border-color: var(--accent); background: #FFFFFF; }
+        input[type="file"] { display: none; }
+        .custom-file-upload {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px 18px; background: #F8FAFC; border: 2px dashed var(--primary);
+            border-radius: 12px; color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer;
+        }
+        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
 
-        .btn-sidebar-toggle {
-            background: rgba(255, 255, 255, 0.15); color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px;
-            padding: 9px 16px; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s ease;
-            display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-        }
-        .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.25); border-color: var(--accent); transform: translateY(-2px); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
+        th, td { padding: 12px 14px; border: 1px solid #CBD5E1; }
+        th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
 
-        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; }
-        .logo-box {
-            width: 48px; height: 48px; border-radius: 50%; background: #0F172A; padding: 2px;
-            border: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
-        }
-        .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        
-        .logo-text { 
-            font-size: 17.5px; font-weight: 900; letter-spacing: 0.5px;
-            background: linear-gradient(45deg, #FFFFFF, #38BDF8, #F59E0B);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(2, 132, 199, 0.4); white-space: nowrap; 
-        }
-
-        .btn-header-home {
-            background: var(--danger); color: #fff; border: none; padding: 9px 18px;
-            border-radius: 12px; font-size: 13.5px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35); transition: all 0.3s ease; flex-shrink: 0;
-        }
-        .btn-header-home:hover { background: #DC2626; transform: translateY(-2px); }
-
-        .main-wrapper { max-width: 1250px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
-
-        .admin-section {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 24px; padding: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
-            display: none; margin-bottom: 25px;
-            border-top: 5px solid var(--accent);
-            animation: smoothSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .admin-section.active { display: block; }
-        .card-title { font-size: 18px; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
-        
-        .form-control {
-            width: 100%; padding: 13px 16px; border: 2px solid #BAE6FD;
-            border-radius: 14px; font-size: 14.5px; font-weight: 700; outline: none; background: #F0F9FF;
-            color: var(--primary-dark); transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08); cursor: pointer;
-        }
-        .form-control:focus { 
-            border-color: var(--accent); background: #FFFFFF;
-            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2); 
-        }
-
-        input[type="file"] { display: none; }
-
-        .custom-file-upload, .custom-video-upload {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 12px 18px; background: #F8FAFC;
-            border: 2px dashed var(--primary); border-radius: 12px;
-            color: var(--primary-dark); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
-            text-align: center;
-        }
-        .custom-file-upload:hover, .custom-video-upload:hover {
-            background: #E0F2FE; border-color: var(--accent); transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
-        }
-
-        .file-name-preview { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
-
-        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s ease; }
-        .btn:hover { transform: translateY(-2px); }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 13px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
-        th, td { padding: 12px 14px; border: 1px solid #CBD5E1; }
-        th { background: #0284C7; color: #FFFFFF; font-weight: 800; }
-        tr:nth-child(even) { background-color: #F8FAFC; }
-
-        .custom-toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
-            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
-            z-index: 4000; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
-        }
-        .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-        #customConfirmModal {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
-            z-index: 6000; display: none; align-items: center; justify-content: center; padding: 20px;
-        }
-        .confirm-modal-box {
-            background: #FFFFFF; padding: 30px; border-radius: 24px;
-            width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;
-            border-top: 5px solid var(--danger); animation: smoothSlideUp 0.3s ease forwards;
-        }
-
-        #adminLoginOverlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
-            z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .admin-login-box {
-            background: rgba(255, 255, 255, 0.98); padding: 35px; border-radius: 24px;
-            width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;
-            border-top: 5px solid var(--accent);
-        }
-
-        @media (max-width: 768px) {
-            .logo-text { font-size: 13px; }
-            .nav-container { padding: 10px; gap: 8px; }
-        }
-    </style>
+        .custom-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #0F172A; color: white; padding: 16px 28px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--accent);
+            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 14.5px;
+            z-index: 4000; opacity: 0; transition: all 0.4s ease; pointer-events: none;
+        }
+        .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    </style>
 </head>
 <body>
 
-    <div id="customConfirmModal">
-        <div class="confirm-modal-box">
-            <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
-            <h3 id="confirmModalTitle" style="color: var(--text-dark); font-size: 18px; font-weight: 900; margin-bottom: 8px;">تأكيد عملية الحذف</h3>
-            <p id="confirmModalText" style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px; line-height: 1.6;">هل أنت متأكد من حذف هذا العنصر وسجله بالكامل؟</p>
-            <div style="display: flex; gap: 12px;">
-                <button id="confirmBtnYes" class="btn btn-danger" style="flex: 1; padding: 12px;">تأكيد الحذف 🗑️</button>
-                <button onclick="closeCustomConfirm()" class="btn" style="flex: 1; background: #E2E8F0; color: var(--text-dark); padding: 12px;">إلغاء ❌</button>
-            </div>
-        </div>
-    </div>
+    <div id="customToast" class="custom-toast">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">تمت العملية بنجاح</span>
+    </div>
 
-    <div id="adminLoginOverlay">
-        <div class="admin-login-box">
-            <h3 style="color: var(--primary-dark); font-size: 20px; font-weight: 900; margin-bottom: 8px;">🔐 تسجيل دخول الإدارة</h3>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور للمدير أو الكنترول</p>
-            <form onsubmit="handleAdminLogin(event)">
-                <div class="form-group" style="margin-bottom: 15px; text-align: right;">
-                    <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">كلمة المرور / الكود</label>
-                    <input type="password" id="adminPasswordInput" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">دخول لوحة التحكم 🚀</button>
-            </form>
-            <button onclick="window.location.href='index.html'" class="btn" style="background: transparent; color: var(--text-muted); margin-top: 15px; font-size: 13px;">⬅ العودة للموقع الرئيسي</button>
-        </div>
-    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <div id="customToast" class="custom-toast">
-        <span id="toastIcon">✨</span>
-        <span id="toastMessage">تمت العملية بنجاح</span>
-    </div>
+    <aside class="sliding-sidebar" id="slidingSidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">📌 لوحة التحكم والإدارة</span>
+            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="sidebar-item active" onclick="switchAdminSection('newsSection', this)">
+                <span class="sidebar-icon">📢</span><span class="sidebar-label">نشر وإدارة الأخبار</span>
+            </div>
+            <div class="sidebar-item" onclick="switchAdminSection('teachersAdminSection', this)">
+                <span class="sidebar-icon">👨‍🏫</span><span class="sidebar-label">إدارة المدرسين والمادة</span>
+            </div>
+            <div class="sidebar-item" onclick="switchAdminSection('passwordSection', this)">
+                <span class="sidebar-icon">🔑</span><span class="sidebar-label">تغيير كلمة المرور</span>
+            </div>
+        </div>
+    </aside>
 
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <header>
+        <div class="nav-container">
+            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ أقسام الإدارة</button>
+            <div class="logo-area" onclick="window.location.href='index.html'">
+                <div class="logo-box">
+                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار">
+                </div>
+                <span class="logo-text">بوابة التعلم الذكي - الإدارة</span>
+            </div>
+            <button onclick="window.location.href='index.html'" class="btn-header-home">الرئيسية 🏠</button>
+        </div>
+    </header>
 
-    <aside class="sliding-sidebar" id="slidingSidebar">
-        <div class="sidebar-header">
-            <span class="sidebar-title" id="sidebarTitleText">📌 لوحة التحكم والإدارة</span>
-            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
-        </div>
-        <div class="sidebar-menu" id="sidebarMenuContainer">
-            <div class="sidebar-item active" id="menuNews" onclick="switchAdminSection('newsSection', this)">
-                <span class="sidebar-icon">📢</span>
-                <span class="sidebar-label">نشر وإدارة الأخبار</span>
-            </div>
-            <div class="sidebar-item" id="menuTeachersAdmin" onclick="switchAdminSection('teachersAdminSection', this)">
-                <span class="sidebar-icon">👨‍🏫</span>
-                <span class="sidebar-label">إدارة المدرسين والمادة</span>
-            </div>
-            <div class="sidebar-item" id="menuGrades" onclick="switchAdminSection('gradesSection', this)">
-                <span class="sidebar-icon">📊</span>
-                <span class="sidebar-label" id="gradesMenuLabel">رصد الدرجات والتقيمات</span>
-            </div>
-            <div class="sidebar-item" id="menuControl" onclick="switchAdminSection('controlSection', this)">
-                <span class="sidebar-icon">🏆</span>
-                <span class="sidebar-label">كنترول المدرسة</span>
-            </div>
-            <div class="sidebar-item" id="menuAttendance" onclick="switchAdminSection('attendanceSection', this)">
-                <span class="sidebar-icon">👥</span>
-                <span class="sidebar-label">شؤون الطلاب (الغياب والأعذار)</span>
-            </div>
-            <div class="sidebar-item" id="menuUsers" onclick="switchAdminSection('usersSection', this)">
-                <span class="sidebar-icon">📁</span>
-                <span class="sidebar-label">سجل الحسابات والطلاب</span>
-            </div>
-            <div class="sidebar-item" id="menuTickets" onclick="switchAdminSection('ticketsSection', this)">
-                <span class="sidebar-icon">📨</span>
-                <span class="sidebar-label">مركز الشكاوى والردود</span>
-            </div>
+    <main class="main-wrapper">
+        <div class="admin-section active" id="newsSection">
+            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
+            <form onsubmit="postNews(event)">
+                <div class="form-grid">
+                    <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
+                    <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
+                </div>
+                <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
+            </form>
+            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
+            <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
+        </div>
 
-            <div class="sidebar-item" id="menuMinistry" onclick="window.open('https://ellibrary.moe.gov.eg', '_blank')">
-                <span class="sidebar-icon">🌐</span>
-                <span class="sidebar-label">موقع وزارة التربية والتعليم</span>
-            </div>
+        <div class="admin-section" id="teachersAdminSection">
+            <div class="card-title">👨‍🏫 إدارة المدرسين والمواد</div>
+            <form onsubmit="saveTeacherAccount(event)">
+                <div class="form-grid">
+                    <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس" required>
+                    <input type="text" id="teacherSubject" class="form-control" placeholder="المادة" required>
+                    <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس 💾</button>
+            </form>
+            <div style="overflow-x: auto; margin-top: 20px;">
+                <table>
+                    <thead><tr><th>الاسم</th><th>المادة</th><th>الباسورد</th><th>إجراء</th></tr></thead>
+                    <tbody id="adminTeachersTableBody"><tr><td colspan="4" style="text-align: center;">جاري التحميل...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
 
-            <div class="sidebar-item" id="menuPassword" onclick="switchAdminSection('passwordSection', this)">
-                <span class="sidebar-icon">🔑</span>
-                <span class="sidebar-label">تغيير كلمة المرور</span>
-            </div>
-        </div>
-    </aside>
+        <div class="admin-section" id="passwordSection">
+            <div class="card-title">🔑 إعداد كلمات مرور السلطات</div>
+            <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
+                <div style="margin-bottom: 12px;"><label style="font-weight:700; font-size:13px;">باسورد الكنترول:</label><input type="text" id="passControl" class="form-control" required></div>
+                <button type="submit" class="btn btn-success" style="margin-top: 10px;">حفظ كلمات المرور 💾</button>
+            </form>
+        </div>
+    </main>
 
-    <header>
-        <div class="nav-container">
-            <button class="btn-sidebar-toggle" onclick="toggleSidebar()">☰ أقسام الإدارة</button>
-            <div class="logo-area" onclick="window.location.href='index.html'">
-                <div class="logo-box">
-                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=150&auto=format&fit=crop&q=80" alt="شعار بوابة التعلم الذكي">
-                </div>
-                <span class="logo-text" id="headerMainTitle">بوابة التعلم الذكي - الإدارة</span>
-            </div>
-            <button onclick="logoutAdmin()" class="btn-header-home">خروج 🚪</button>
-        </div>
-    </header>
+    <script>
+        const firebaseConfig = { databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com" };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
 
-    <main class="main-wrapper">
+        function showToast(message, icon = "✨") {
+            const toast = document.getElementById('customToast');
+            document.getElementById('toastIcon').textContent = icon;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
 
-        <div class="admin-section active" id="newsSection">
-            <div class="card-title">📢 نشر إعلان أو خبر جديد للمدرسة</div>
-            <form onsubmit="postNews(event)">
-                <div class="form-grid">
-                    <input type="text" id="newsTitle" class="form-control" placeholder="عنوان الخبر الرئيسي" required>
-                    <input type="text" id="newsBadge" class="form-control" placeholder="وسم الخبر (مثال: هام جداً)">
-                </div>
-                <textarea id="newsContent" class="form-control" rows="4" placeholder="اكتب تفاصيل الإعلان هنا..." required style="margin-bottom: 15px;"></textarea>
-                
-                <div class="form-grid" style="margin-bottom: 15px;">
-                    <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🖼️ إرفاق صورة الإعلان:</label>
-                        <label for="newsImageFile" class="custom-file-upload"><span>📁 اضغط لاختيار صورة الإعلان</span></label>
-                        <input type="file" id="newsImageFile" accept="image/*" onchange="updateFileName(this, 'imageNamePreview')">
-                        <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
-                    </div>
-                    <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎬 إرفاق فيديو الإعلان من الجهاز:</label>
-                        <label for="newsVideoFile" class="custom-video-upload"><span>📁 اضغط لاختيار فيديو من الجهاز</span></label>
-                        <input type="file" id="newsVideoFile" accept="video/*" onchange="updateFileName(this, 'videoNamePreview')">
-                        <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
-                    </div>
-                </div>
+        function toggleSidebar() {
+            document.getElementById('slidingSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">نشر الإعلان للجميع 🚀</button>
-            </form>
-            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">الإعلانات المنشورة حالياً:</h4>
-            <div id="adminNewsList" style="margin-top: 12px;">جاري تحميل الأخبار...</div>
-        </div>
+        function closeSidebar() {
+            document.getElementById('slidingSidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
 
-        <div class="admin-section" id="teachersAdminSection">
-            <div class="card-title">👨‍🏫 إضافة وتعيين حسابات المدرسين وموادهم والسنة المسندة</div>
-            <form onsubmit="saveTeacherAccount(event)">
-                <div class="form-grid">
-                    <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
-                    <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة بالعربي (مثال: الرياضيات)" required>
-                    <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (arabic, math..)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="السنة المسندة (مثال: الصف الاول الاعدادي)" required>
-                    <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
-            </form>
-            <h4 style="margin-top: 25px; font-size: 15px; font-weight: 800; color: var(--primary-dark);">المدرسون المسجلون بالسيستم:</h4>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr><th>الاسم</th><th>المادة</th><th>معرف المادة (Eng)</th><th>السنة / الفصول المسندة</th><th>الباسورد</th><th>إجراء</th></tr>
-                    </thead>
-                    <tbody id="adminTeachersTableBody"><tr><td colspan="6" style="text-align: center;">جاري تحميل المدرسين...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
+        function switchAdminSection(sectionId, el) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            if(el) el.classList.add('active');
+            closeSidebar();
+        }
 
-        <div class="admin-section" id="gradesSection">
-            <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الصف والفصل الدراسي</div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">📚 اختر الصف الدراسي:</label>
-                <select id="adminGradeSelect" class="form-control" style="max-width: 450px;" onchange="onAdminGradeChange()">
-                    <option value="">-- اختر الصف الدراسي --</option>
-                    <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                    <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                    <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                    <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                    <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                    <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                    <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
-                    <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
-                    <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
-                </select>
-            </div>
+        function loadAdminNews() {
+            db.ref('news').on('value', snap => {
+                const data = snap.val();
+                const container = document.getElementById('adminNewsList');
+                if (!data) { container.innerHTML = '<p style="color:var(--text-muted)">لا توجد إعلانات.</p>'; return; }
+                let html = '';
+                Object.keys(data).reverse().forEach(key => {
+                    const item = data[key];
+                    html += `<div style="background:#F8FAFC; padding:15px; border-radius:12px; border:1px solid #CBD5E1; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <div><strong style="color:var(--primary-dark);">${item.title}</strong><p style="font-size:13px; color:var(--text-muted);">${item.content}</p></div>
+                        <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding:6px 12px; font-size:12px;">حذف 🗑️</button>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            });
+        }
 
-            <div style="margin-bottom: 20px; display: none;" id="adminClassSelectWrapper">
-                <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">🏫 اختر الفصل:</label>
-                <select id="teacherClassSelect" class="form-control" style="max-width: 450px;" onchange="filterStudentsByGradeAndClass()">
-                    <option value="">-- اختر الفصل --</option>
-                </select>
-            </div>
+        function postNews(e) {
+            e.preventDefault();
+            const title = document.getElementById('newsTitle').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim() || 'إعلان';
+            const content = document.getElementById('newsContent').value.trim();
+            db.ref('news').push({ title, badge, content, timestamp: Date.now() }).then(() => {
+                showToast('تم نشر الخبر بنجاح 🚀', '✅');
+                e.target.reset();
+            });
+        }
 
-            <div style="margin-bottom: 20px; display: none;" id="studentSelectWrapper">
-                <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">👨‍🎓 اختر الطالب:</label>
-                <select id="studentSelectForGrades" class="form-control" style="max-width: 450px;" onchange="loadStudentGradesToEdit()">
-                    <option value="">-- حدد الطالب من القائمة --</option>
-                </select>
-            </div>
+        function deleteNews(key) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
+                db.ref('news/' + key).remove().then(() => showToast('تم الحذف بنجاح', '⚠️'));
+            }
+        }
 
-            <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.95); padding: 20px; border-radius: 16px; border: 2px solid #BAE6FD;">
-                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للطالب: </h4>
-                <p id="editingStudentGradeBadge" style="color: var(--accent-hover); font-weight: 800; font-size: 13px; margin-bottom: 15px;"></p>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr><th>المادة الدراسية</th><th>أعمال السنة (30)</th><th>التقييم الأسبوعي (20)</th><th>الامتحان النهائي (50)</th></tr>
-                        </thead>
-                        <tbody id="adminGradesEditTableBody"></tbody>
-                    </table>
-                </div>
-                <button onclick="saveAllStudentGradesDirect()" class="btn btn-success" style="margin-top: 15px; width: 100%;">حفظ وتثبيت جميع درجات المواد 💾</button>
-            </div>
-        </div>
+        function saveTeacherAccount(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('teacherName').value.trim();
+            const subject = document.getElementById('teacherSubject').value.trim();
+            const password = document.getElementById('teacherPassword').value.trim();
+            db.ref('teachers').push({ fullName, subject, password }).then(() => {
+                showToast('تم إضافة المدرس بنجاح', '✅');
+                e.target.reset();
+                loadAdminTeachers();
+            });
+        }
 
-        <!-- قسم كنترول المدرسة المحدث للترم الأول والثاني -->
-        <div class="admin-section" id="controlSection">
-            <div class="card-title">🏆 كنترول المدرسة - تحديث نتائج الترم الأول والثاني</div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
-                <select id="controlStudentSelect" class="form-control" style="max-width: 400px;" onchange="loadControlStudentData()">
-                    <option value="">-- حدد الطالب --</option>
-                </select>
-            </div>
-            <div id="controlResultBox" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid #CBD5E1;">
-                <h4 id="controlStudentName" style="color: var(--primary-dark); margin-bottom: 15px; font-weight: 900;"></h4>
-                <div class="form-grid">
-                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الأول (من 100):</label><input type="number" id="controlTerm1Input" class="form-control"></div>
-                    <div><label style="font-weight:700; font-size:13px;">درجة الترم الثاني (من 100):</label><input type="number" id="controlTerm2Input" class="form-control"></div>
-                </div>
-                <button onclick="saveControlResults()" class="btn btn-success" style="width: 100%; margin-top: 15px;">حفظ وتثبيت نتائج الكنترول 💾</button>
-            </div>
-        </div>
+        function loadAdminTeachers() {
+            db.ref('teachers').on('value', snap => {
+                const data = snap.val();
+                const tbody = document.getElementById('adminTeachersTableBody');
+                if (!data) { tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">لا توجد بيانات.</td></tr>'; return; }
+                let html = '';
+                Object.keys(data).forEach(key => {
+                    const t = data[key];
+                    html += `<tr><td>${t.fullName}</td><td>${t.subject}</td><td>${t.password}</td><td><button onclick="deleteTeacher('${key}')" class="btn btn-danger" style="padding:4px 10px; font-size:11px;">حذف</button></td></tr>`;
+                });
+                tbody.innerHTML = html;
+            });
+        }
 
-        <div class="admin-section" id="attendanceSection">
-            <div class="card-title">👥 شؤون الطلاب - سجل وحساب عداد الغياب والأعذار الطبية وتواريخ الغياب</div>
-            <div style="background: rgba(248, 250, 252, 0.9); padding: 20px; border-radius: 18px; border: 1px solid #CBD5E1;">
-                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">اختر الطالب:</label>
-                        <select id="studentAttendanceSelect" class="form-control" onchange="loadStudentAttendanceData()">
-                            <option value="">-- اختر طالب من القائمة --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">حالة الحضور والغياب:</label>
-                        <select id="attendanceStatusSelect" class="form-control">
-                            <option value="منتظم">منتظم (حاضر) ✅</option>
-                            <option value="غاب يوم واحد">غاب يوم واحد ❌</option>
-                            <option value="عذر مرضي / تقرير طبي">عذر مرضي / تقرير طبي 🏥</option>
-                            <option value="استئذان رسمي">استئذان رسمي ⚠️</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-grid" style="grid-template-columns: 1fr 2fr; gap: 15px; margin-top: 15px; align-items: center;">
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">🔢 إجمالي عدد مرات الغياب:</label>
-                        <input type="number" id="absenceCountInput" class="form-control" value="0" min="0">
-                    </div>
-                    <div>
-                        <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📝 ملاحظات أو سبب العذر:</label>
-                        <input type="text" id="attendanceNoteInput" class="form-control" placeholder="مثال: غياب بعذر...">
-                    </div>
-                </div>
+        function deleteTeacher(key) {
+            db.ref('teachers/' + key).remove().then(() => showToast('تم الحذف', '⚠️'));
+        }
 
-                <div style="margin-top: 15px;">
-                    <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">📅 تواريخ أيام الغياب والأعذار تفصيلياً:</label>
-                    <textarea id="absenceDatesLogInput" class="form-control" rows="3" placeholder="مثال: 
-- 12 أكتوبر: عذر مرضي
-- 18 نوفمبر: غياب بدون عذر"></textarea>
-                </div>
+        function saveSystemPasswords(e) {
+            e.preventDefault();
+            const control = document.getElementById('passControl').value.trim();
+            db.ref('settings/passwords').set({ control }).then(() => showToast('تم حفظ كلمة المرور', '✅'));
+        }
 
-                <button onclick="saveStudentAttendance()" class="btn btn-success" style="width: 100%; margin-top: 15px;">تحديث عداد وسجل شؤون الطلاب والحضور بدقة 💾</button>
-            </div>
-        </div>
-
-        <div class="admin-section" id="usersSection">
-            <div class="card-title">📁 سجل الحسابات والطلاب المسجلين بالبوابة</div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>الاسم</th><th>نوع الحساب</th><th>الصف الدراسي</th><th>فصل الطالب</th><th>الكود / الرقم القومي</th>
-                            <th>رقم المحمول</th><th>كلمة المرور</th><th>حالة الحضور</th><th>مرات الغياب</th><th>إجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminUsersTableBody"><tr><td colspan="10" style="text-align: center;">جاري تحميل الحسابات...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="admin-section" id="ticketsSection">
-            <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
-            <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
-        </div>
-
-        <div class="admin-section" id="passwordSection">
-            <div class="card-title">🔑 إعداد كلمات مرور السلطات والمسؤولين</div>
-            <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
-                <div style="margin-bottom: 12px;"><label style="font-weight:700; font-size:13px;">باسورد المدير:</label><input type="text" id="passAdmin" class="form-control" required></div>
-                <div style="margin-bottom: 12px;"><label style="font-weight:700; font-size:13px;">باسورد الكنترول:</label><input type="text" id="passControl" class="form-control" required></div>
-                <div style="margin-bottom: 12px;"><label style="font-weight:700; font-size:13px;">باسورد شؤون الطلاب:</label><input type="text" id="passAffairs" class="form-control" required></div>
-                <button type="submit" class="btn btn-success" style="margin-top: 10px;">حفظ كلمات المرور 💾</button>
-            </form>
-        </div>
-
-    </main>
-
-    <script>
-        const firebaseConfig = { databaseURL: "https://green-damietta-b0a29-default-rtdb.firebaseio.com" };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const db = firebase.database();
-        let currentAdminRole = null;
-
-        const curriculumByGrade = {
-           
+        window.onload = function() {
+            loadAdminNews();
+            loadAdminTeachers();
+            db.ref('settings/passwords/control').once('value').then(snap => {
+                if(snap.val()) document.getElementById('passControl').value = snap.val();
+            });
+        };
+    </script>
+</body>
+</html>
