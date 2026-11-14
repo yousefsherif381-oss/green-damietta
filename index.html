@@ -249,7 +249,6 @@
                 <span class="sidebar-label">الشكاوى والاستفسارات</span>
             </div>
             
-            <!-- زرار موقع الوزارة للطلاب في القائمة الجانبية -->
             <div class="sidebar-item" onclick="window.open('https://ellibrary.moe.gov.eg', '_blank')">
                 <span class="sidebar-icon">🌐</span>
                 <span class="sidebar-label">موقع وزارة التربية والتعليم</span>
@@ -498,31 +497,24 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
                 { id: "religion", name: "التربية الدينية" }
             ],
             "الصف الثاني الابتدائي": [
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
                 { id: "religion", name: "التربية الدينية" }
             ],
             "الصف الثالث الابتدائي": [
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
                 { id: "religion", name: "التربية الدينية" }
             ],
             "الصف الرابع الابتدائي": [
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
@@ -532,7 +524,6 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
@@ -542,7 +533,6 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
                 { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
@@ -552,29 +542,23 @@
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات (جبر وهندسة)" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
                 { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "religion", name: "التربية الدينية" },
                 { id: "computer", name: "الحاسب الآلي" }
             ],
             "الصف الثاني الإعدادي": [
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "religion", name: "التربية الدينية" }
+                { id: "social", name: "الدراسات الاجتماعية" }
             ],
             "الصف الثالث الإعدادي": [
                 { id: "arabic", name: "اللغة العربية" },
                 { id: "math", name: "الرياضيات" },
                 { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
                 { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "religion", name: "التربية الدينية" }
+                { id: "social", name: "الدراسات الاجتماعية" }
             ]
         };
 
@@ -596,31 +580,34 @@
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
-        function showHomePage() {
-            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
-            document.getElementById('newsHomeContainer').style.display = 'block';
-            closeSidebar();
+        function hideAllViews() {
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'none';
+            document.getElementById('gradesSection').style.display = 'none';
+            document.getElementById('attendanceSection').style.display = 'none';
+            document.getElementById('ticketsSection').style.display = 'none';
+            document.getElementById('signInView').style.display = 'none';
+            document.getElementById('signUpView').style.display = 'none';
         }
 
-        function navigateToSection(sectionId) {
-            document.getElementById('newsHomeContainer').style.display = 'none';
-            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
-            const target = document.getElementById(sectionId);
-            if (target) target.style.display = 'block';
+        function showHomePage() {
+            hideAllViews();
+            document.getElementById('newsHomeContainer').style.display = 'block';
+            loadPublicNewsFeed();
             closeSidebar();
         }
 
         function openSignInPage() {
-            document.getElementById('newsHomeContainer').style.display = 'none';
-            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            hideAllViews();
             document.getElementById('signInView').style.display = 'block';
+            closeSidebar();
         }
 
         function openSignUpPage() {
-            document.getElementById('newsHomeContainer').style.display = 'none';
-            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            hideAllViews();
             document.getElementById('signUpView').style.display = 'block';
             updateClassRoomsList();
+            closeSidebar();
         }
 
         function toggleRoleFields() {
@@ -628,7 +615,7 @@
             const groupGrade = document.getElementById('groupGrade');
             const groupClassRoom = document.getElementById('groupClassRoom');
             const groupStudentCodeLink = document.getElementById('groupStudentCodeLink');
-            
+
             if (role === 'parent') {
                 groupGrade.style.display = 'none';
                 groupClassRoom.style.display = 'none';
@@ -641,64 +628,67 @@
         }
 
         function updateClassRoomsList() {
-            const gradeSelect = document.getElementById('signUpGrade');
+            const grade = document.getElementById('signUpGrade').value;
             const classSelect = document.getElementById('signUpClassRoom');
-            if (!gradeSelect || !classSelect) return;
-
-            const selectedGradeText = gradeSelect.value;
             let gradePrefix = "1";
+            if (grade.includes("الثاني")) gradePrefix = "2";
+            else if (grade.includes("الثالث")) gradePrefix = "3";
+            else if (grade.includes("الرابع")) gradePrefix = "4";
+            else if (grade.includes("الخامس")) gradePrefix = "5";
+            else if (grade.includes("السادس")) gradePrefix = "6";
 
-            if (selectedGradeText.includes("الأول")) gradePrefix = "1";
-            else if (selectedGradeText.includes("الثاني")) gradePrefix = "2";
-            else if (selectedGradeText.includes("الثالث")) gradePrefix = "3";
-            else if (selectedGradeText.includes("الرابع")) gradePrefix = "4";
-            else if (selectedGradeText.includes("الخامس")) gradePrefix = "5";
-            else if (selectedGradeText.includes("السادس")) gradePrefix = "6";
-
-            const sections = ['A', 'B', 'C', 'D', 'E'];
             let html = '';
-            sections.forEach(sec => {
+            ['A', 'B', 'C', 'D', 'E'].forEach(sec => {
                 const code = `${gradePrefix}${sec}`;
                 html += `<option value="${code}">فصل (${code})</option>`;
             });
             classSelect.innerHTML = html;
         }
 
-        function handleSignIn(e) {
-            e.preventDefault();
-            const identifier = document.getElementById('loginIdentifierInput').value.trim();
-            const password = document.getElementById('authPasswordInput').value.trim();
+        function navigateToSection(sectionId) {
+            if (!currentUser && sectionId !== 'ticketsSection') {
+                showToast('الرجاء تسجيل الدخول أولاً لعرض هذه الصفحة', '⚠️');
+                openSignInPage();
+                return;
+            }
+            hideAllViews();
+            document.getElementById(sectionId).style.display = 'block';
 
-            db.ref('users').once('value').then((snapshot) => {
-                const users = snapshot.val() || {};
-                let foundKey = null;
-                let foundUser = null;
+            if (sectionId === 'profileSection') loadUserDataIntoProfile();
+            else if (sectionId === 'gradesSection') loadStudentGradesView();
+            else if (sectionId === 'attendanceSection') loadStudentAttendanceView();
+            else if (sectionId === 'ticketsSection') loadStudentTicketsView();
+        }
 
-                Object.keys(users).forEach(key => {
-                    const u = users[key];
-                    const userCode = (u.nationalId || u.code || '').trim();
-                    const userName = (u.fullName || '').trim();
-                    const userEmail = (u.email || '').trim();
-                    const userPass = (u.password || '').trim();
+        function checkAuthAndNavigate(sectionId) {
+            if (!currentUser) {
+                showToast('يجب تسجيل الدخول أولاً!', '🔒');
+                openSignInPage();
+                return;
+            }
+            navigateToSection(sectionId);
+        }
 
-                    const matchesIdentifier = (userCode === identifier || userName === identifier || userEmail === identifier);
-                    const matchesPassword = (userPass === password);
-
-                    if (matchesIdentifier && matchesPassword) {
-                        foundKey = key;
-                        foundUser = u;
-                    }
-                });
-
-                if (foundKey && foundUser) {
-                    currentUser = { id: foundKey, ...foundUser };
-                    localStorage.setItem('activeUserKey', foundKey);
-                    showToast('أهلاً بك يا بطل، تم تسجيل الدخول بنجاح 🎓', '🎉');
-                    updateAuthUIState();
-                    showHomePage();
-                } else {
-                    showToast('خطأ في اسم المستخدم أو كلمة المرور غير مطابقة ❌', '⚠️');
+        function loadPublicNewsFeed() {
+            db.ref('news').on('value', snap => {
+                const data = snap.val();
+                const container = document.getElementById('newsFeedList');
+                if (!data) {
+                    container.innerHTML = '<p style="color:#FFF; text-align:center; padding:20px;">لا توجد إعلانات أو أخبار منشورة حالياً.</p>';
+                    return;
                 }
+                let html = '';
+                Object.keys(data).reverse().forEach(key => {
+                    const item = data[key];
+                    html += `
+                        <div class="news-card">
+                            <span style="background:var(--accent); color:#0F172A; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:800;">${item.badge || 'إعلان رسمي'}</span>
+                            <h3 style="color:var(--primary-dark); font-size:18px; font-weight:900; margin:10px 0 6px;">${item.title}</h3>
+                            <p style="font-size:14px; color:var(--text-muted); line-height:1.6; white-space:pre-wrap;">${item.content}</p>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
             });
         }
 
@@ -710,75 +700,79 @@
             const email = document.getElementById('signUpEmail').value.trim();
             const phone = document.getElementById('signUpPhone').value.trim();
             const password = document.getElementById('signUpPassword').value.trim();
-            
-            let grade = '';
-            let className = '';
-            let linkedCode = '';
+            const grade = role === 'student' ? document.getElementById('signUpGrade').value : '';
+            const className = role === 'student' ? document.getElementById('signUpClassRoom').value : '';
+            const linkedStudentCode = role === 'parent' ? document.getElementById('signUpLinkedStudentCode').value.trim() : '';
 
-            if (role === 'student') {
-                grade = document.getElementById('signUpGrade').value;
-                className = document.getElementById('signUpClassRoom').value;
-            } else {
-                linkedCode = document.getElementById('signUpLinkedStudentCode').value.trim();
-            }
-
-            const newUserRef = db.ref('users').push();
-            const userData = {
-                role, fullName, nationalId, email, phone, password, grade, className, linkedCode,
-                attendanceStatus: 'منتظم', absenceCount: 0, attendanceNote: '---', absenceDatesLog: 'لا توجد تواريخ غياب مسجلة حتى الآن.'
-            };
-
-            newUserRef.set(userData).then(() => {
-                currentUser = { id: newUserRef.key, ...userData };
-                localStorage.setItem('activeUserKey', newUserRef.key);
-                showToast('تم إنشاء الحساب بنجاح 🚀', '✅');
-                if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                updateAuthUIState();
-                showHomePage();
+            db.ref('users').push({
+                role, fullName, nationalId, email, phone, password, grade, className, linkedStudentCode, createdAt: Date.now()
+            }).then((snap) => {
+                showToast('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن ✨', '🎉');
+                openSignInPage();
+            }).catch(err => {
+                showToast('حدث خطأ أثناء التسجيل: ' + err.message, '❌');
             });
+        }
+
+        function handleSignIn(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('loginIdentifierInput').value.trim();
+            const password = document.getElementById('authPasswordInput').value.trim();
+
+            db.ref('users').once('value').then(snap => {
+                const users = snap.val() || {};
+                let foundKey = null;
+                let foundData = null;
+
+                Object.keys(users).forEach(k => {
+                    const u = users[k];
+                    if ((u.nationalId === identifier || u.email === identifier || u.fullName === identifier) && u.password === password) {
+                        foundKey = k;
+                        foundData = u;
+                    }
+                });
+
+                if (foundKey) {
+                    currentUser = { id: foundKey, ...foundData };
+                    localStorage.setItem('smartSchoolUser', JSON.stringify(currentUser));
+                    updateHeaderAuthState();
+                    showToast(`أهلاً بك يا ${currentUser.fullName} 👋`, '✅');
+                    showHomePage();
+                } else {
+                    showToast('بيانات الدخول غير صحيحة، تأكد من الكود أو كلمة المرور', '❌');
+                }
+            });
+        }
+
+        function updateHeaderAuthState() {
+            const authActions = document.getElementById('headerAuthActions');
+            const userActions = document.getElementById('headerUserActions');
+            const sidebarProfileBtn = document.getElementById('sidebarProfileBtn');
+
+            if (currentUser) {
+                authActions.style.display = 'none';
+                userActions.style.display = 'flex';
+                sidebarProfileBtn.style.display = 'flex';
+            } else {
+                authActions.style.display = 'flex';
+                userActions.style.display = 'none';
+                sidebarProfileBtn.style.display = 'none';
+            }
         }
 
         function logoutUser() {
             currentUser = null;
-            localStorage.removeItem('activeUserKey');
-            showToast('تم تسجيل الخروج بنجاح', '🚪');
-            updateAuthUIState();
+            localStorage.removeItem('smartSchoolUser');
+            updateHeaderAuthState();
+            showToast('تم تسجيل الخروج بنجاح', '👋');
             showHomePage();
         }
 
-        function updateAuthUIState() {
-            const btnAuth = document.getElementById('headerAuthActions');
-            const btnUser = document.getElementById('headerUserActions');
-            const sidebarProfileBtn = document.getElementById('sidebarProfileBtn');
-
-            if (currentUser) {
-                if(btnAuth) btnAuth.style.display = 'none';
-                if(btnUser) btnUser.style.display = 'flex';
-                if(sidebarProfileBtn) sidebarProfileBtn.style.display = 'flex';
-                loadUserDataToViews();
-            } else {
-                if(btnAuth) btnAuth.style.display = 'flex';
-                if(btnUser) btnUser.style.display = 'none';
-                if(sidebarProfileBtn) sidebarProfileBtn.style.display = 'none';
-            }
-        }
-
-        function checkAuthAndNavigate(sectionId) {
-            if (!currentUser) {
-                showToast('الرجاء تسجيل الدخول أولاً لعرض النتائج والحضور 🔒', '⚠️');
-                openSignInPage();
-            } else {
-                navigateToSection(sectionId);
-                if (sectionId === 'gradesSection') loadStudentGrades();
-                if (sectionId === 'attendanceSection') loadStudentAttendance();
-            }
-        }
-
-        function loadUserDataToViews() {
+        function loadUserDataIntoProfile() {
             if (!currentUser) return;
-            document.getElementById('profileName').textContent = currentUser.fullName || '---';
-            document.getElementById('profileRoleBadge').textContent = currentUser.role === 'student' ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر';
-            document.getElementById('profileGradeDisplay').textContent = currentUser.role === 'student' ? `الصف: ${currentUser.grade || ''} | فصل: ${currentUser.className || ''}` : `مرتبط بالطالب كود: ${currentUser.linkedCode || ''}`;
+            document.getElementById('profileName').textContent = currentUser.fullName;
+            document.getElementById('profileRoleBadge').textContent = currentUser.role === 'student' ? 'طالب 🎓' : 'ولي أمر 👨‍👩‍👦';
+            document.getElementById('profileGradeDisplay').textContent = currentUser.role === 'student' ? `${currentUser.grade} - فصل (${currentUser.className})` : 'حساب ولي أمر مرتبطه بالطالب';
 
             document.getElementById('profileFullName').value = currentUser.fullName || '';
             document.getElementById('profileNationalId').value = currentUser.nationalId || '';
@@ -801,98 +795,97 @@
 
             db.ref('users/' + currentUser.id).update(updatedData).then(() => {
                 currentUser = { ...currentUser, ...updatedData };
-                showToast('تم حفظ تعديلات البروفايل بنجاح 💾', '✅');
-                loadUserDataToViews();
+                localStorage.setItem('smartSchoolUser', JSON.stringify(currentUser));
+                showToast('تم حفظ التعديلات بنجاح 💾', '✅');
+                loadUserDataIntoProfile();
             });
         }
 
-        function loadStudentGrades() {
+        function loadStudentGradesView() {
             if (!currentUser) return;
             let targetStudentId = currentUser.id;
-            
-            if (currentUser.role === 'parent' && currentUser.linkedCode) {
-                db.ref('users').once('value').then((snap) => {
-                    const allUsers = snap.val() || {};
-                    Object.keys(allUsers).forEach(k => {
-                        const u = allUsers[k];
-                        if (u.role === 'student' && (u.nationalId === currentUser.linkedCode || u.code === currentUser.linkedCode)) {
-                            targetStudentId = k;
+
+            if (currentUser.role === 'parent') {
+                db.ref('users').once('value').then(snap => {
+                    const users = snap.val() || {};
+                    let found = null;
+                    Object.keys(users).forEach(k => {
+                        const u = users[k];
+                        if (u.role === 'student' && (u.nationalId === currentUser.linkedStudentCode || u.fullName === currentUser.linkedStudentCode)) {
+                            found = { id: k, ...u };
                         }
                     });
-                    fetchAndRenderGrades(targetStudentId);
+                    if (found) renderStudentGradesTable(found);
+                    else document.getElementById('gradesTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">لم يتم العثور على الطالب المرتبط بحساب ولي الأمر!</td></tr>';
                 });
             } else {
-                fetchAndRenderGrades(targetStudentId);
+                renderStudentGradesTable(currentUser);
             }
         }
 
-        function fetchAndRenderGrades(studentId) {
-            db.ref('users/' + studentId).once('value').then((userSnap) => {
-                const studentData = userSnap.val() || currentUser;
-                const studentGrade = studentData.grade || 'الصف الأول الإعدادي';
-                const subjects = curriculumByGrade[studentGrade] || curriculumByGrade["الصف الأول الإعدادي"];
+        function renderStudentGradesTable(student) {
+            const subjects = curriculumByGrade[student.grade] || curriculumByGrade["الصف الأول الإعدادي"];
+            db.ref('grades/' + student.id).once('value').then(snap => {
+                const gradesData = snap.val() || {};
+                let tbody = '';
+                let totalSum = 0;
+                let maxPossibleSum = subjects.length * 100;
 
-                db.ref('grades/' + studentId).once('value').then((gradeSnap) => {
-                    const gradesData = gradeSnap.val() || {};
-                    let tbodyHtml = '';
-                    let totalSum = 0;
-                    let maxTotalSum = subjects.length * 100;
+                subjects.forEach(sub => {
+                    const g = gradesData[sub.id] || { term1: 0, term2: 0, exam: 0 };
+                    const subTotal = (Number(g.term1) || 0) + (Number(g.term2) || 0) + (Number(g.exam) || 0);
+                    totalSum += subTotal;
 
-                    subjects.forEach(sub => {
-                        const subGrades = gradesData[sub.id] || { termWork: 0, weeklyEval: 0, finalExam: 0 };
-                        const subTotal = (Number(subGrades.termWork) || 0) + (Number(subGrades.weeklyEval) || 0) + (Number(subGrades.finalExam) || 0);
-                        totalSum += subTotal;
-
-                        tbodyHtml += `
-                            <tr>
-                                <td><strong>${sub.name}</strong></td>
-                                <td>${subGrades.termWork || 0} / 30</td>
-                                <td>${subGrades.weeklyEval || 0} / 20</td>
-                                <td>${subGrades.finalExam || 0} / 50</td>
-                                <td style="color: var(--primary-dark); font-weight: 900;">${subTotal} / 100</td>
-                            </tr>
-                        `;
-                    });
-
-                    document.getElementById('gradesTableBody').innerHTML = tbodyHtml;
-                    const percentage = maxTotalSum > 0 ? ((totalSum / maxTotalSum) * 100).toFixed(1) : 0;
-                    document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxTotalSum}`;
-                    document.getElementById('summaryPercentage').textContent = `${percentage}%`;
-                    
-                    let gradeWord = 'ممتاز 🌟';
-                    if (percentage < 50) gradeWord = 'راسب ⚠️';
-                    else if (percentage < 65) gradeWord = 'مقبول 👍';
-                    else if (percentage < 75) gradeWord = 'جيد 🥈';
-                    else if (percentage < 85) gradeWord = 'جيد جداً 🥇';
-                    document.getElementById('summaryGrade').textContent = gradeWord;
+                    tbody += `
+                        <tr>
+                            <td style="font-weight:800; text-align:right;">${sub.name}</td>
+                            <td>${g.term1 || 0} / 30</td>
+                            <td>${g.term2 || 0} / 20</td>
+                            <td>${g.exam || 0} / 50</td>
+                            <td style="font-weight:900; color:var(--primary-dark);">${subTotal} / 100</td>
+                        </tr>
+                    `;
                 });
+
+                document.getElementById('gradesTableBody').innerHTML = tbody;
+                const percentage = maxPossibleSum > 0 ? ((totalSum / maxPossibleSum) * 100).toFixed(1) : 0;
+                
+                let gradeText = 'ممتاز 🌟';
+                if (percentage < 50) gradeText = 'راسب ❌';
+                else if (percentage < 65) gradeText = 'مقبول 👍';
+                else if (percentage < 75) gradeText = 'جيد ✌️';
+                else if (percentage < 85) gradeText = 'جيد جداً ⭐';
+
+                document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxPossibleSum}`;
+                document.getElementById('summaryPercentage').textContent = `${percentage}%`;
+                document.getElementById('summaryGrade').textContent = gradeText;
             });
         }
 
-        function loadStudentAttendance() {
+        function loadStudentAttendanceView() {
             if (!currentUser) return;
-            let targetStudentId = currentUser.id;
+            let targetId = currentUser.id;
 
-            if (currentUser.role === 'parent' && currentUser.linkedCode) {
-                db.ref('users').once('value').then((snap) => {
-                    const allUsers = snap.val() || {};
-                    Object.keys(allUsers).forEach(k => {
-                        const u = allUsers[k];
-                        if (u.role === 'student' && (u.nationalId === currentUser.linkedCode || u.code === currentUser.linkedCode)) {
-                            targetStudentId = k;
+            if (currentUser.role === 'parent') {
+                db.ref('users').once('value').then(snap => {
+                    const users = snap.val() || {};
+                    Object.keys(users).forEach(k => {
+                        const u = users[k];
+                        if (u.role === 'student' && (u.nationalId === currentUser.linkedStudentCode || u.fullName === currentUser.linkedStudentCode)) {
+                            targetId = k;
                         }
                     });
-                    fetchAndRenderAttendance(targetStudentId);
+                    fetchAttendanceData(targetId);
                 });
             } else {
-                fetchAndRenderAttendance(targetStudentId);
+                fetchAttendanceData(targetId);
             }
         }
 
-        function fetchAndRenderAttendance(studentId) {
-            db.ref('attendance/' + studentId).once('value').then((snap) => {
-                const att = snap.val() || { status: 'منتظم', absenceCount: 0, note: 'لا توجد ملاحظات', datesLog: 'لا توجد تواريخ غياب مسجلة حتى الآن.' };
-                document.getElementById('lblAttendanceStatusText').textContent = att.status || 'منتظم';
+        function fetchAttendanceData(studentId) {
+            db.ref('attendance/' + studentId).once('value').then(snap => {
+                const att = snap.val() || { status: 'منتظم', absenceCount: 0, note: 'لا توجد ملاحظات تسجيلية حالياً.', datesLog: 'لا توجد تواريخ غياب مسجلة.' };
+                document.getElementById('lblAttendanceStatusText').textContent = att.status || 'منتظم ✅';
                 document.getElementById('lblAbsenceCountText').textContent = `${att.absenceCount || 0} مرة`;
                 document.getElementById('lblAttendanceNoteText').textContent = att.note || '---';
                 document.getElementById('lblAbsenceDatesLogText').textContent = att.datesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.';
@@ -902,7 +895,7 @@
         function submitParentTicket(e) {
             e.preventDefault();
             if (!currentUser) {
-                showToast('الرجاء تسجيل الدخول أولاً لإرسال الشكاوى ⚠️', '❌');
+                showToast('يجب تسجيل الدخول أولاً لإرسال شكوى', '⚠️');
                 openSignInPage();
                 return;
             }
@@ -913,96 +906,65 @@
             const content = document.getElementById('ticketContent').value.trim();
 
             db.ref('tickets').push({
-                studentId: currentUser.id,
-                studentName: currentUser.fullName,
-                parentName, parentEmail, type, content,
+                userId: currentUser.id,
+                parentName,
+                parentEmail,
+                type,
+                content,
                 reply: 'جاري مراجعة الطلب من الإدارة...',
-                status: 'قيد المراجعة',
+                status: 'قيد المراجعة ⏳',
                 timestamp: Date.now()
             }).then(() => {
-                showToast('تم إرسال الشكوى والاستفسار بنجاح 🚀', '✅');
+                showToast('تم إرسال الشكوى أو الطلب بنجاح 🚀', '✅');
                 document.getElementById('ticketContent').value = '';
-                loadMyTickets();
+                loadStudentTicketsView();
             });
         }
 
-        function loadMyTickets() {
+        function loadStudentTicketsView() {
             if (!currentUser) return;
-            db.ref('tickets').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const list = document.getElementById('studentMyTicketsList');
-                if (!list) return;
-                if (!data) {
-                    list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد شكاوى أو طلبات مرسلة حالياً.</p>';
-                    return;
-                }
+            db.ref('tickets').on('value', snap => {
+                const tickets = snap.val() || {};
+                const container = document.getElementById('studentMyTicketsList');
                 let html = '';
-                Object.keys(data).reverse().forEach(key => {
-                    const t = data[key];
-                    if (t.studentId === currentUser.id) {
+                let hasAny = false;
+
+                Object.keys(tickets).reverse().forEach(key => {
+                    const t = tickets[key];
+                    if (t.userId === currentUser.id) {
+                        hasAny = true;
                         html += `
-                            <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #CBD5E1; margin-bottom: 12px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                    <strong style="color: var(--primary-dark); font-size: 14px;">${t.type}</strong>
-                                    <span style="background: #E0F2FE; color: #0369A1; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 800;">${t.status}</span>
+                            <div style="background:#F8FAFC; padding:16px; border-radius:14px; border:1px solid #CBD5E1; margin-bottom:12px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <span style="background:var(--accent); color:#FFF; padding:2px 10px; border-radius:20px; font-size:11.5px; font-weight:800;">${t.type}</span>
+                                    <span style="font-size:12px; color:var(--text-muted); font-weight:700;">الحالة: ${t.status}</span>
                                 </div>
-                                <p style="font-size: 13.5px; color: var(--text-dark); margin-bottom: 8px;"><strong>تفاصيل الطلب:</strong> ${t.content}</p>
-                                <div style="background: #FFFFFF; padding: 10px 14px; border-radius: 10px; border: 1px dashed var(--accent);">
-                                    <span style="font-size: 12.5px; font-weight: 800; color: var(--accent-hover); display: block; margin-bottom: 2px;">💬 رد الإدارة:</span>
-                                    <p style="font-size: 13px; color: var(--text-dark);">${t.reply}</p>
+                                <p style="font-size:14px; color:var(--text-dark); margin-bottom:8px;"><strong>شكواك:</strong> ${t.content}</p>
+                                <div style="background:#E0F2FE; padding:10px 14px; border-radius:10px; border-right:4px solid var(--primary); margin-top:8px;">
+                                    <span style="font-size:12px; color:var(--primary-dark); font-weight:900; display:block; margin-bottom:2px;">💬 رد الإدارة:</span>
+                                    <p style="font-size:13.5px; color:#0F172A; font-weight:700;">${t.reply}</p>
                                 </div>
                             </div>
                         `;
                     }
                 });
-                list.innerHTML = html || '<p style="color: var(--text-muted); text-align: center;">لا توجد شكاوى مرسلة حتى الآن.</p>';
-            });
-        }
 
-        function loadNewsFeed() {
-            db.ref('news').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const list = document.getElementById('newsFeedList');
-                if (!list) return;
-                if (!data) {
-                    list.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو أخبار منشورة حالياً.</p>';
-                    return;
+                if (!hasAny) {
+                    container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:15px;">لم تقم بإرسال أي شكاوى أو استفسارات بعد.</p>';
+                } else {
+                    container.innerHTML = html;
                 }
-                let html = '';
-                Object.keys(data).reverse().forEach(key => {
-                    const item = data[key];
-                    html += `
-                        <div class="news-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <h3 style="color: var(--primary-dark); font-size: 17px; font-weight: 900;">${item.title}</h3>
-                                <span style="background: #FEF3C7; color: #D97706; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800;">${item.badge || 'تنبيه'}</span>
-                            </div>
-                            <p style="font-size: 14px; color: var(--text-dark); line-height: 1.6; margin-bottom: 15px;">${item.content}</p>
-                            ${item.imageUrl ? `<img src="${item.imageUrl}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 15px;" alt="صورة الخبر">` : ''}
-                            ${item.videoUrl ? `<video src="${item.videoUrl}" controls style="width: 100%; max-height: 300px; border-radius: 12px; margin-bottom: 15px;"></video>` : ''}
-                            <span style="font-size: 11.5px; color: var(--text-muted);">🕒 تم النشر بتاريخ حديث</span>
-                        </div>
-                    `;
-                });
-                list.innerHTML = html;
             });
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadNewsFeed();
-            const savedUserKey = localStorage.getItem('activeUserKey');
-            if (savedUserKey) {
-                db.ref('users/' + savedUserKey).once('value').then((snap) => {
-                    if (snap.exists()) {
-                        currentUser = { id: savedUserKey, ...snap.val() };
-                        updateAuthUIState();
-                        loadMyTickets();
-                    } else {
-                        localStorage.removeItem('activeUserKey');
-                    }
-                });
+        window.onload = function() {
+            const savedUser = localStorage.getItem('smartSchoolUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateHeaderAuthState();
             }
-        });
+            showHomePage();
+        };
     </script>
 </body>
 </html>
