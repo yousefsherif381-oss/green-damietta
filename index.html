@@ -318,7 +318,6 @@
             </form>
         </div>
 
-        <!-- جدول درجات الطالب المحدث للترم الأول والثاني -->
         <div class="view-section" id="gradesSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div class="grades-card-box">
@@ -670,6 +669,7 @@
                 if(btnUser) btnUser.style.display = 'flex';
                 if(sidebarProfileBtn) sidebarProfileBtn.style.display = 'flex';
                 loadUserDataToViews();
+                loadMyTickets();
             } else {
                 if(btnAuth) btnAuth.style.display = 'flex';
                 if(btnUser) btnUser.style.display = 'none';
@@ -856,13 +856,14 @@
                     const t = data[key];
                     if (t.studentId === currentUser.id) {
                         html += `
-                            <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #CBD5E1; margin-bottom: 12px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #CBD5E1; margin-bottom: 12px; position: relative;">
+                                <button onclick="deleteMyTicketItem('${key}')" class="btn btn-danger" style="position: absolute; top: 16px; left: 16px; padding: 4px 10px; font-size: 11px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer;">حذف 🗑️</button>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-left: 70px;">
                                     <strong style="color: var(--primary-dark); font-size: 14px;">${t.type}</strong>
                                     <span style="background: #E0F2FE; color: #0369A1; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 800;">${t.status}</span>
                                 </div>
                                 <p style="font-size: 13.5px; color: var(--text-dark); margin-bottom: 8px;"><strong>تفاصيل الطلب:</strong> ${t.content}</p>
-                                <div style="background: #FFFFFF; padding: 10px 14px; border-radius: 10px; border: 1px dashed var(--accent);">
+                                <div style="background: #FFFFFF; padding: 10px 14px; border-radius: 10px; border: 1.5px dashed var(--accent);">
                                     <span style="font-size: 12.5px; font-weight: 800; color: var(--accent-hover); display: block; margin-bottom: 2px;">💬 رد الإدارة:</span>
                                     <p style="font-size: 13px; color: var(--text-dark);">${t.reply}</p>
                                 </div>
@@ -871,6 +872,12 @@
                     }
                 });
                 list.innerHTML = html || '<p style="color: var(--text-muted); text-align: center;">لا توجد شكاوى مرسلة حتى الآن.</p>';
+            });
+        }
+
+        function deleteMyTicketItem(key) {
+            db.ref('tickets/' + key).remove().then(() => {
+                showToast('تم حذف الشكوى بنجاح 🗑️', '✅');
             });
         }
 
@@ -910,7 +917,6 @@
                     if (snap.exists()) {
                         currentUser = { id: savedUserKey, ...snap.val() };
                         updateAuthUIState();
-                        loadMyTickets();
                     } else {
                         localStorage.removeItem('activeUserKey');
                     }
