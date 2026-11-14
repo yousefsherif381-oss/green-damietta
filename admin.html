@@ -266,7 +266,7 @@
             </div>
             <div class="sidebar-item" id="menuPassword" onclick="switchAdminSection('passwordSection', this)">
                 <span class="sidebar-icon">🔑</span>
-                <span class="sidebar-label">تغيير كلمة المرور</span>
+                <span class="sidebar-label">إعداد وتغيير كلمات المرور</span>
             </div>
         </div>
     </aside>
@@ -305,7 +305,7 @@
                     </div>
                     <div>
                         <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎬 رابط فيديو الإعلان أو يوتيوب:</label>
-                        <input type="text" id="newsVideoUrlInput" class="form-control" placeholder="أدخل رابط الفيديو (اختياري)">
+                        <input type="text" id="newsVideoUrlInput" class="form-control" placeholder="أدخل رابط الفيديو أو اembed (اختياري)">
                     </div>
                 </div>
 
@@ -473,15 +473,23 @@
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-        <!-- 7️⃣ قسم تغيير كلمة المرور المحدث والمربوط بفايربيز -->
+        <!-- 7️⃣ قسم إعداد وتغيير كلمات المرور للأقسام (إدارة، كنترول، شؤون طلاب) -->
         <div class="admin-section" id="passwordSection">
-            <div class="card-title">🔑 إعداد وتغيير كلمة مرور الإدارة (مباشر بـ Firebase)</div>
+            <div class="card-title">🔑 إعداد وتغيير كلمات المرور للأقسام (مباشر بـ Firebase)</div>
             <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
-                <div style="margin-bottom: 12px;">
-                    <label style="font-weight:700; font-size:13px;">كلمة المرور الجديدة للإدارة:</label>
-                    <input type="text" id="passAdmin" class="form-control" placeholder="أدخل الباسورد الجديد" required>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">كلمة مرور لوحة الإدارة العامة:</label>
+                    <input type="text" id="passAdmin" class="form-control" placeholder="باسورد الإدارة" required>
                 </div>
-                <button type="submit" class="btn btn-success" style="width: 100%;">تحديث وحفظ كلمة المرور في الداتابيز 💾</button>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">كلمة مرور كنترول المدرسة:</label>
+                    <input type="text" id="passControl" class="form-control" placeholder="باسورد الكنترول" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">كلمة مرور قسم شؤون الطلاب:</label>
+                    <input type="text" id="passAttendance" class="form-control" placeholder="باسورد شؤون الطلاب" required>
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">تحديث وحفظ كلمات المرور في الداتابيز 💾</button>
             </form>
         </div>
 
@@ -611,20 +619,23 @@
 
         function loadCurrentPasswordConfig() {
             db.ref('adminConfig').once('value').then(snap => {
-                const config = snap.val() || { pass: "1234" };
+                const config = snap.val() || { pass: "1234", passControl: "1234", passAttendance: "1234" };
                 document.getElementById('passAdmin').value = config.pass || "1234";
+                document.getElementById('passControl').value = config.passControl || "1234";
+                document.getElementById('passAttendance').value = config.passAttendance || "1234";
             });
         }
 
         function saveSystemPasswords(e) {
             e.preventDefault();
-            const newPass = document.getElementById('passAdmin').value.trim();
+            const pass = document.getElementById('passAdmin').value.trim();
+            const passControl = document.getElementById('passControl').value.trim();
+            const passAttendance = document.getElementById('passAttendance').value.trim();
 
             db.ref('adminConfig').set({
-                user: "admin",
-                pass: newPass
+                pass, passControl, passAttendance
             }).then(() => {
-                showToast("تم تحديث وحفظ كلمة المرور في فايربيز بنجاح 🔑", "✅");
+                showToast("تم تحديث وحفظ كلمات المرور للأقسام في فايربيز بنجاح 🔑", "✅");
             }).catch(err => {
                 showToast("حدث خطأ أثناء التحديث: " + err.message, "❌");
             });
