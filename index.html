@@ -535,47 +535,22 @@
         }
 
         function openSignInPage() {
-            navigateToSection('signInView');
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            document.getElementById('signInView').style.display = 'block';
         }
 
         function openSignUpPage() {
-            navigateToSection('signUpView');
+            document.getElementById('newsHomeContainer').style.display = 'none';
+            document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
+            document.getElementById('signUpView').style.display = 'block';
             updateClassRoomsList();
-        }
-
-        function checkAuthAndNavigate(sectionId) {
-            if (!currentUser) {
-                showToast('الرجاء تسجيل الدخول أولاً لعرض البيانات 🔑', '⚠️');
-                openSignInPage();
-                return;
-            }
-            navigateToSection(sectionId);
-            if (sectionId === 'gradesSection') loadStudentGradesView();
-            if (sectionId === 'attendanceSection') loadStudentAttendanceView();
-        }
-
-        function updateClassRoomsList() {
-            const grade = document.getElementById('signUpGrade').value;
-            const select = document.getElementById('signUpClassRoom');
-            let gradePrefix = "1";
-            if (grade.includes("الأول")) gradePrefix = "1";
-            else if (grade.includes("الثاني")) gradePrefix = "2";
-            else if (grade.includes("الثالث")) gradePrefix = "3";
-            else if (grade.includes("الرابع")) gradePrefix = "4";
-            else if (grade.includes("الخامس")) gradePrefix = "5";
-            else if (grade.includes("السادس")) gradePrefix = "6";
-
-            const sections = ['A', 'B', 'C', 'D', 'E'];
-            let html = '';
-            sections.forEach(sec => {
-                const code = `${gradePrefix}${sec}`;
-                html += `<option value="${code}">فصل (${code})</option>`;
-            });
-            select.innerHTML = html;
         }
 
         function toggleRoleFields() {
             const role = document.getElementById('signUpRole').value;
+            const groupName = document.getElementById('groupName');
+            const groupNationalId = document.getElementById('groupNationalId');
             const groupGrade = document.getElementById('groupGrade');
             const groupClassRoom = document.getElementById('groupClassRoom');
             const groupStudentCodeLink = document.getElementById('groupStudentCodeLink');
@@ -584,11 +559,33 @@
                 groupGrade.style.display = 'none';
                 groupClassRoom.style.display = 'none';
                 groupStudentCodeLink.style.display = 'block';
+                groupName.querySelector('label').textContent = 'اسم ولي الأمر الرباعي';
+                groupNationalId.querySelector('label').textContent = 'الرقم القومي لولي الأمر';
             } else {
                 groupGrade.style.display = 'block';
                 groupClassRoom.style.display = 'block';
                 groupStudentCodeLink.style.display = 'none';
+                groupName.querySelector('label').textContent = 'الاسم الرباعي';
+                groupNationalId.querySelector('label').textContent = 'الرقم القومي / الكود';
             }
+        }
+
+        function updateClassRoomsList() {
+            const grade = document.getElementById('signUpGrade').value;
+            const classSelect = document.getElementById('signUpClassRoom');
+            let gradePrefix = "1";
+            if(grade.includes("الثاني")) gradePrefix = "2";
+            else if(grade.includes("الثالث")) gradePrefix = "3";
+            else if(grade.includes("الرابع")) gradePrefix = "4";
+            else if(grade.includes("الخامس")) gradePrefix = "5";
+            else if(grade.includes("السادس")) gradePrefix = "6";
+
+            let html = '';
+            ['A', 'B', 'C', 'D', 'E'].forEach(sec => {
+                const code = `${gradePrefix}${sec}`;
+                html += `<option value="${code}">فصل (${code})</option>`;
+            });
+            classSelect.innerHTML = html;
         }
 
         function handleSignUp(e) {
@@ -599,142 +596,121 @@
             const email = document.getElementById('signUpEmail').value.trim();
             const phone = document.getElementById('signUpPhone').value.trim();
             const password = document.getElementById('signUpPassword').value.trim();
-            const grade = role === 'student' ? document.getElementById('signUpGrade').value : '';
-            const className = role === 'student' ? document.getElementById('signUpClassRoom').value : '';
-            const linkedStudentCode = role === 'parent' ? document.getElementById('signUpLinkedStudentCode').value.trim() : '';
+            
+            let grade = '';
+            let className = '';
+            let linkedStudentCode = '';
+
+            if (role === 'student') {
+                grade = document.getElementById('signUpGrade').value;
+                className = document.getElementById('signUpClassRoom').value;
+            } else {
+                linkedStudentCode = document.getElementById('signUpLinkedStudentCode').value.trim();
+            }
 
             db.ref('users').push({
-                role, fullName, nationalId, email, phone, password, grade, className, linkedStudentCode
-            }).then(snap => {
-                showToast('تم إنشاء الحساب بنجاح، مرحباً بك! 🎉', '✅');
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                currentUser = { id: snap.key, role, fullName, nationalId, email, phone, grade, className, linkedStudentCode };
-                localStorage.setItem('smartPortalUser', JSON.stringify(currentUser));
-                updateHeaderUI();
-                showHomePage();
+                role, fullName, nationalId, email, phone, password, grade, className, linkedStudentCode, timestamp: Date.now()
+            }).then(() => {
+                showToast('تم إنشاء الحساب بنجاح! سجل دخولك الآن 🚀', '🎉');
+                openSignInPage();
+            }).catch(err => {
+                showToast('حدث خطأ أثناء التسجيل ❌', '⚠️');
             });
         }
 
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
-            const pass = document.getElementById('authPasswordInput').value.trim();
+            const password = document.getElementById('authPasswordInput').value.trim();
 
             db.ref('users').once('value').then(snap => {
                 const users = snap.val() || {};
-                let found = null;
+                let foundKey = null;
+                let foundUser = null;
+
                 Object.keys(users).forEach(key => {
                     const u = users[key];
-                    const matchesId = (u.nationalId === identifier || u.fullName === identifier || u.email === identifier || u.phone === identifier);
-                    const matchesPass = (String(u.password).trim() === String(pass).trim());
-                    if (matchesId && matchesPass) {
-                        found = { id: key, ...u };
+                    if ((u.nationalId === identifier || u.email === identifier || u.fullName === identifier || u.linkedStudentCode === identifier) && u.password === password) {
+                        foundKey = key;
+                        foundUser = u;
                     }
                 });
 
-                if (found) {
-                    currentUser = found;
-                    localStorage.setItem('smartPortalUser', JSON.stringify(currentUser));
-                    showToast(`أهلاً بك يا ${currentUser.fullName} 🚀`, '✨');
-                    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-                    updateHeaderUI();
+                if (foundUser) {
+                    currentUser = { id: foundKey, ...foundUser };
+                    localStorage.setItem('smartSchoolUser', JSON.stringify(currentUser));
+                    updateUIAfterLogin();
+                    showToast(`أهلاً بك يا ${foundUser.fullName} 🌟`, '👑');
                     showHomePage();
                 } else {
-                    showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
+                    showToast('بيانات الدخول غير صحيحة ❌', '⚠️');
                 }
             });
         }
 
         function logoutUser() {
             currentUser = null;
-            localStorage.removeItem('smartPortalUser');
-            updateHeaderUI();
-            showHomePage();
+            localStorage.removeItem('smartSchoolUser');
+            document.getElementById('headerAuthActions').style.display = 'flex';
+            document.getElementById('headerUserActions').style.display = 'none';
+            document.getElementById('sidebarProfileBtn').style.display = 'none';
             showToast('تم تسجيل الخروج بنجاح 🚪', '✨');
+            showHomePage();
         }
 
-        function updateHeaderUI() {
-            const authActions = document.getElementById('headerAuthActions');
-            const userActions = document.getElementById('headerUserActions');
-            const sidebarProfileBtn = document.getElementById('sidebarProfileBtn');
-
-            if (currentUser) {
-                authActions.style.display = 'none';
-                userActions.style.display = 'flex';
-                sidebarProfileBtn.style.display = 'flex';
-            } else {
-                authActions.style.display = 'flex';
-                userActions.style.display = 'none';
-                sidebarProfileBtn.style.display = 'none';
-            }
-        }
-
-        function loadProfileData() {
+        function updateUIAfterLogin() {
             if (!currentUser) return;
+            document.getElementById('headerAuthActions').style.display = 'none';
+            document.getElementById('headerUserActions').style.display = 'flex';
+            document.getElementById('sidebarProfileBtn').style.display = 'flex';
+
             document.getElementById('profileName').textContent = currentUser.fullName;
-            document.getElementById('profileRoleBadge').textContent = currentUser.role === 'student' ? '🎓 طالب' : '👨‍👩‍👦 ولي أمر';
-            document.getElementById('profileGradeDisplay').textContent = currentUser.role === 'student' ? `الصف: ${currentUser.grade} | الفصل: ${currentUser.className}` : `ولي أمر الطالب المرتبط: ${currentUser.linkedStudentCode || '---'}`;
-            
-            document.getElementById('profileFullName').value = currentUser.fullName || '';
-            document.getElementById('profileNationalId').value = currentUser.nationalId || '';
-            document.getElementById('profileEmail').value = currentUser.email || '';
-            document.getElementById('profilePhone').value = currentUser.phone || '';
-            document.getElementById('profilePassword').value = currentUser.password || '';
+            document.getElementById('profileRoleBadge').textContent = currentUser.role === 'student' ? 'طالب' : 'ولي أمر';
+            document.getElementById('profileGradeDisplay').textContent = currentUser.grade ? `${currentUser.grade} - فصل (${currentUser.className})` : 'ولي أمر';
+
+            document.getElementById('profileFullName').value = currentUser.fullName;
+            document.getElementById('profileNationalId').value = currentUser.nationalId;
+            document.getElementById('profileEmail').value = currentUser.email;
+            document.getElementById('profilePhone').value = currentUser.phone;
+            document.getElementById('profilePassword').value = currentUser.password;
         }
 
-        function saveProfileChanges(e) {
-            e.preventDefault();
-            if (!currentUser) return;
-            
-            const fullName = document.getElementById('profileFullName').value.trim();
-            const nationalId = document.getElementById('profileNationalId').value.trim();
-            const email = document.getElementById('profileEmail').value.trim();
-            const phone = document.getElementById('profilePhone').value.trim();
-            const password = document.getElementById('profilePassword').value.trim();
-
-            db.ref('users/' + currentUser.id).update({
-                fullName, nationalId, email, phone, password
-            }).then(() => {
-                currentUser.fullName = fullName;
-                currentUser.nationalId = nationalId;
-                currentUser.email = email;
-                currentUser.phone = phone;
-                currentUser.password = password;
-                localStorage.setItem('smartPortalUser', JSON.stringify(currentUser));
-                showToast('تم حفظ التعديلات بنجاح 💾', '✅');
-                loadProfileData();
-            });
+        function checkAuthAndNavigate(sectionId) {
+            if (!currentUser) {
+                showToast('يجب تسجيل الدخول أولاً لعرض هذه الصفحة 🔒', '⚠️');
+                openSignInPage();
+                return;
+            }
+            navigateToSection(sectionId);
+            if (sectionId === 'gradesSection') loadStudentGrades();
+            if (sectionId === 'attendanceSection') loadStudentAttendance();
         }
 
-        function loadStudentGradesView() {
+        function loadStudentGrades() {
             if (!currentUser) return;
-            let targetId = currentUser.id;
-
+            let targetStudentId = currentUser.id;
             if (currentUser.role === 'parent') {
+                // البحث عن الطالب المرتبط بولي الأمر
                 db.ref('users').once('value').then(snap => {
                     const users = snap.val() || {};
-                    Object.keys(users).forEach(key => {
-                        const u = users[key];
-                        if (u.role === 'student' && (u.nationalId === currentUser.linkedStudentCode || u.fullName.includes(currentUser.linkedStudentCode))) {
-                            targetId = key;
+                    Object.keys(users).forEach(k => {
+                        if (users[k].nationalId === currentUser.linkedStudentCode || users[k].fullName === currentUser.linkedStudentCode) {
+                            targetStudentId = k;
                         }
                     });
-                    fetchAndRenderGrades(targetId);
+                    fetchGradesData(targetStudentId);
                 });
             } else {
-                fetchAndRenderGrades(targetId);
+                fetchGradesData(targetStudentId);
             }
         }
 
-        function fetchAndRenderGrades(studentId) {
+        function fetchGradesData(studentId) {
             db.ref('users/' + studentId).once('value').then(uSnap => {
                 const student = uSnap.val();
-                if (!student) {
-                    document.getElementById('gradesTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;">لم يتم العثور على بيانات الطالب.</td></tr>';
-                    return;
-                }
-
+                if (!student) return;
                 const subjects = curriculumByGrade[student.grade] || curriculumByGrade["الصف الأول الإعدادي"];
+
                 db.ref('grades/' + studentId).once('value').then(gSnap => {
                     const grades = gSnap.val() || {};
                     let html = '';
@@ -743,62 +719,38 @@
 
                     subjects.forEach(sub => {
                         const subData = grades[sub.id] || { term1: 0, term2: 0, exam: 0 };
-                        const t1 = Number(subData.term1) || 0;
-                        const t2 = Number(subData.term2) || 0;
-                        const exam = Number(subData.exam) || 0;
-                        const subTotal = t1 + t2 + exam;
-                        totalSum += subTotal;
-
+                        const sum = (Number(subData.term1) || 0) + (Number(subData.term2) || 0) + (Number(subData.exam) || 0);
+                        totalSum += sum;
                         html += `
                             <tr>
                                 <td><strong>${sub.name}</strong></td>
-                                <td>${t1}</td>
-                                <td>${t2}</td>
-                                <td>${exam}</td>
-                                <td style="color:var(--primary-dark); font-weight:900;">${subTotal} / 100</td>
+                                <td>${subData.term1 || 0}</td>
+                                <td>${subData.term2 || 0}</td>
+                                <td>${subData.exam || 0}</td>
+                                <td style="font-weight:900; color:var(--primary-dark);">${sum} / 100</td>
                             </tr>
                         `;
                     });
 
                     document.getElementById('gradesTableBody').innerHTML = html;
+                    const percentage = Math.round((totalSum / maxTotal) * 100) || 0;
                     document.getElementById('summaryTotal').textContent = `${totalSum} / ${maxTotal}`;
-                    const percentage = maxTotal > 0 ? ((totalSum / maxTotal) * 100).toFixed(1) : 0;
                     document.getElementById('summaryPercentage').textContent = `${percentage}%`;
-
-                    let gradeText = 'ممتاز 🌟';
-                    if (percentage < 50) gradeText = 'راسب ❌';
-                    else if (percentage < 65) gradeText = 'مقبول ⚠️';
-                    else if (percentage < 75) gradeText = 'جيد 👍';
-                    else if (percentage < 85) gradeText = 'جيد جداً 👏';
+                    
+                    let gradeText = 'مقبول';
+                    if (percentage >= 85) gradeText = 'ممتاز 🌟';
+                    else if (percentage >= 75) gradeText = 'جيد جداً ⭐';
+                    else if (percentage >= 65) gradeText = 'جيد 👍';
                     document.getElementById('summaryGrade').textContent = gradeText;
                 });
             });
         }
 
-        function loadStudentAttendanceView() {
+        function loadStudentAttendance() {
             if (!currentUser) return;
-            let targetId = currentUser.id;
-
-            if (currentUser.role === 'parent') {
-                db.ref('users').once('value').then(snap => {
-                    const users = snap.val() || {};
-                    Object.keys(users).forEach(key => {
-                        const u = users[key];
-                        if (u.role === 'student' && (u.nationalId === currentUser.linkedStudentCode || u.fullName.includes(currentUser.linkedStudentCode))) {
-                            targetId = key;
-                        }
-                    });
-                    fetchAndRenderAttendance(targetId);
-                });
-            } else {
-                fetchAndRenderAttendance(targetId);
-            }
-        }
-
-        function fetchAndRenderAttendance(studentId) {
-            db.ref('attendance/' + studentId).once('value').then(snap => {
-                const att = snap.val() || { status: 'منتظم', absenceCount: 0, note: '---', datesLog: 'لا توجد تواريخ غياب مسجلة حتى الآن.' };
-                document.getElementById('lblAttendanceStatusText').textContent = att.status || 'منتظم';
+            db.ref('attendance/' + currentUser.id).once('value').then(snap => {
+                const att = snap.val() || { status: 'منتظم', absenceCount: 0, note: 'لا توجد ملاحظات حالياً', datesLog: 'لا توجد تواريخ غياب مسجلة.' };
+                document.getElementById('lblAttendanceStatusText').textContent = `${att.status} ${att.status === 'منتظم' ? '✅' : '❌'}`;
                 document.getElementById('lblAbsenceCountText').textContent = `${att.absenceCount || 0} مرة`;
                 document.getElementById('lblAttendanceNoteText').textContent = att.note || '---';
                 document.getElementById('lblAbsenceDatesLogText').textContent = att.datesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.';
@@ -808,7 +760,7 @@
         function submitParentTicket(e) {
             e.preventDefault();
             if (!currentUser) {
-                showToast('الرجاء تسجيل الدخول أولاً لإرسال الشكاوى ⚠️', '❌');
+                showToast('يجب تسجيل الدخول أولاً لإرسال شكوى 🔒', '⚠️');
                 openSignInPage();
                 return;
             }
@@ -826,14 +778,13 @@
                 status: 'قيد المراجعة ⏳',
                 timestamp: Date.now()
             }).then(() => {
-                showToast('تم إرسال شكواك بنجاح للإدارة 🚀', '✅');
+                showToast('تم إرسال شكواك بنجاح 🚀', '✅');
                 e.target.reset();
-                loadStudentMyTickets();
+                loadStudentTickets();
             });
         }
 
-        function loadStudentMyTickets() {
-            if (!currentUser) return;
+        function loadStudentTickets() {
             db.ref('tickets').on('value', snap => {
                 const data = snap.val();
                 const list = document.getElementById('studentMyTicketsList');
@@ -845,7 +796,7 @@
                 let html = '';
                 Object.keys(data).reverse().forEach(key => {
                     const t = data[key];
-                    if (t.studentId === currentUser.id) {
+                    if (!currentUser || t.studentId === currentUser.id) {
                         html += `
                             <div style="background:#F8FAFC; padding:18px; border-radius:16px; border:1px solid #CBD5E1; margin-bottom:15px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -866,12 +817,12 @@
         }
 
         function loadNewsFeed() {
-            db.ref('news').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const list = document.getElementById('newsFeedList');
-                if (!list) return;
+            db.ref('news').on('value', snap => {
+                const data = snap.val();
+                const feed = document.getElementById('newsFeedList');
+                if (!feed) return;
                 if (!data) {
-                    list.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو أخبار منشورة حالياً.</p>';
+                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد أخبار منشورة حالياً.</p>';
                     return;
                 }
                 let html = '';
@@ -879,40 +830,25 @@
                     const item = data[key];
                     html += `
                         <div class="news-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <h3 style="color: var(--primary-dark); font-size: 17px; font-weight: 900;">${item.title}</h3>
-                                <span style="background: #FEF3C7; color: #D97706; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800;">${item.badge || 'تنبيه'}</span>
-                            </div>
-                            <p style="font-size: 14px; color: var(--text-dark); line-height: 1.6; margin-bottom: 15px;">${item.content}</p>
-                            
-                            ${item.imageUrl ? `<img src="${item.imageUrl}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 15px;" alt="صورة الخبر">` : ''}
-                            
-                            ${item.videoUrl ? `
-                                <div style="margin-bottom: 15px;">
-                                    <video controls style="width: 100%; max-height: 350px; border-radius: 12px; background: #000;">
-                                        <source src="${item.videoUrl}" type="video/mp4">
-                                        متصفحك لا يدعم عرض الفيديو.
-                                    </video>
-                                </div>
-                            ` : ''}
-
-                            <span style="font-size: 11.5px; color: var(--text-muted);">🕒 تم النشر حديثاً</span>
+                            <span style="background:var(--accent); color:#FFF; padding:4px 12px; border-radius:20px; font-size:11.5px; font-weight:800; display:inline-block; margin-bottom:10px;">${item.badge}</span>
+                            <h3 style="font-size:17.5px; font-weight:900; color:var(--primary-dark); margin-bottom:8px;">${item.title}</h3>
+                            <p style="font-size:14px; color:var(--text-dark); line-height:1.7; margin-bottom:12px;">${item.content}</p>
+                            ${item.imageUrl ? `<img src="${item.imageUrl}" style="width:100%; max-height:300px; object-fit:cover; border-radius:12px; margin-top:10px;" />` : ''}
                         </div>
                     `;
                 });
-                list.innerHTML = html;
+                feed.innerHTML = html;
             });
         }
 
         window.onload = function() {
-            const savedUser = localStorage.getItem('smartPortalUser');
+            const savedUser = localStorage.getItem('smartSchoolUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                updateHeaderUI();
-                loadProfileData();
+                updateUIAfterLogin();
             }
             loadNewsFeed();
-            loadStudentMyTickets();
+            loadStudentTickets();
         };
     </script>
 </body>
