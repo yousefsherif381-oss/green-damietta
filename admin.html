@@ -92,7 +92,7 @@
         .sidebar-label { font-size: 15px; font-weight: 800; color: #FFFFFF; }
 
         header {
-            background: rgba(12, 74, 110, 0.65);
+            background: rgba(12, 74, 110, 0.75);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -102,32 +102,33 @@
 
         .nav-container {
             max-width: 1300px; margin: auto; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
+            display: flex; justify-content: space-between; align-items: center; gap: 15px;
         }
 
         .btn-sidebar-toggle {
             background: rgba(255, 255, 255, 0.15); color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px;
-            padding: 9px 16px; font-size: 15px; cursor: pointer; transition: all 0.3s ease;
-            display: flex; align-items: center; gap: 8px;
+            padding: 9px 16px; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px; flex-shrink: 0;
         }
         .btn-sidebar-toggle:hover { background: rgba(255, 255, 255, 0.25); border-color: var(--accent); transform: translateY(-2px); }
 
-        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; margin: auto; }
+        /* تنسيق اللوجو والعنوان بدقة تامة لمنع التداخل */
+        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; }
         .logo-box {
-            width: 52px; height: 52px; border-radius: 50%; background: #0F172A; padding: 2px;
+            width: 48px; height: 48px; border-radius: 50%; background: #0F172A; padding: 2px;
             border: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
         }
         .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        .logo-text { font-size: 19px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+        .logo-text { font-size: 17.5px; font-weight: 900; color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); white-space: nowrap; }
 
         .btn-header-home {
-            background: var(--accent); color: #fff; border: none; padding: 9px 18px;
+            background: var(--danger); color: #fff; border: none; padding: 9px 18px;
             border-radius: 12px; font-size: 13.5px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35); transition: all 0.3s ease; flex-shrink: 0;
         }
-        .btn-header-home:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        .btn-header-home:hover { background: #DC2626; transform: translateY(-2px); }
 
         .main-wrapper { max-width: 1250px; width: 100%; margin: 30px auto; padding: 0 20px; flex: 1; }
 
@@ -198,6 +199,18 @@
         }
         .custom-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+        /* نافذة التأكيد المخصصة الشيك جداً */
+        #customConfirmModal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+            z-index: 6000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .confirm-modal-box {
+            background: #FFFFFF; padding: 30px; border-radius: 24px;
+            width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;
+            border-top: 5px solid var(--danger); animation: smoothSlideUp 0.3s ease forwards;
+        }
+
         #adminLoginOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
@@ -208,9 +221,27 @@
             width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;
             border-top: 5px solid var(--accent);
         }
+
+        @media (max-width: 768px) {
+            .logo-text { font-size: 14px; }
+            .nav-container { padding: 10px; gap: 8px; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- نافذة التأكيد المخصصة للحذف -->
+    <div id="customConfirmModal">
+        <div class="confirm-modal-box">
+            <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+            <h3 id="confirmModalTitle" style="color: var(--text-dark); font-size: 18px; font-weight: 900; margin-bottom: 8px;">تأكيد عملية الحذف</h3>
+            <p id="confirmModalText" style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px; line-height: 1.6;">هل أنت متأكد من حذف هذا العنصر وسجله بالكامل؟</p>
+            <div style="display: flex; gap: 12px;">
+                <button id="confirmBtnYes" class="btn btn-danger" style="flex: 1; padding: 12px;">تأكيد الحذف 🗑️</button>
+                <button onclick="closeCustomConfirm()" class="btn" style="flex: 1; background: #E2E8F0; color: var(--text-dark); padding: 12px;">إلغاء ❌</button>
+            </div>
+        </div>
+    </div>
 
     <div id="adminLoginOverlay">
         <div class="admin-login-box">
@@ -284,7 +315,7 @@
                 </div>
                 <span class="logo-text" id="headerMainTitle">بوابة التعلم الذكي - الإدارة</span>
             </div>
-            <button onclick="logoutAdmin()" class="btn-header-home" style="background: var(--danger);">خروج 🚪</button>
+            <button onclick="logoutAdmin()" class="btn-header-home">خروج 🚪</button>
         </div>
     </header>
 
@@ -349,7 +380,6 @@
         <div class="admin-section" id="gradesSection">
             <div class="card-title" id="gradesSectionTitle">📊 رصد الدرجات والتقيمات حسب الصف والفصل الدراسي</div>
             
-            <!-- الخطوة 1: اختيار الصف الدراسي أولاً -->
             <div style="margin-bottom: 20px;">
                 <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">📚 اختر الصف الدراسي:</label>
                 <select id="adminGradeSelect" class="form-control" style="max-width: 450px;" onchange="onAdminGradeChange()">
@@ -366,7 +396,6 @@
                 </select>
             </div>
 
-            <!-- الخطوة 2: اختيار الفصل (يظهر بعد تحديد الصف) -->
             <div style="margin-bottom: 20px; display: none;" id="adminClassSelectWrapper">
                 <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">🏫 اختر الفصل:</label>
                 <select id="teacherClassSelect" class="form-control" style="max-width: 450px;" onchange="filterStudentsByGradeAndClass()">
@@ -374,7 +403,6 @@
                 </select>
             </div>
 
-            <!-- الخطوة 3: اختيار الطالب (يظهر بعد تحديد الفصل) -->
             <div style="margin-bottom: 20px; display: none;" id="studentSelectWrapper">
                 <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: var(--primary-dark);">👨‍🎓 اختر الطالب:</label>
                 <select id="studentSelectForGrades" class="form-control" style="max-width: 450px;" onchange="loadStudentGradesToEdit()">
@@ -382,7 +410,6 @@
                 </select>
             </div>
 
-            <!-- جدول رصد وتعديل الدرجات -->
             <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.95); padding: 20px; border-radius: 16px; border: 2px solid #BAE6FD;">
                 <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 <p id="editingStudentGradeBadge" style="color: var(--accent-hover); font-weight: 800; font-size: 13px; margin-bottom: 15px;"></p>
@@ -737,6 +764,28 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
+        // دوال نافذة التأكيد المخصصة الشيك
+        function showCustomConfirm(title, message, onConfirmCallback) {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalText').textContent = message;
+            const modal = document.getElementById('customConfirmModal');
+            modal.style.display = 'flex';
+
+            const btnYes = document.getElementById('confirmBtnYes');
+            // إزالة الأحداث القديمة لمنع التكرار
+            const newBtn = btnYes.cloneNode(true);
+            btnYes.parentNode.replaceChild(newBtn, btnYes);
+
+            newBtn.addEventListener('click', () => {
+                closeCustomConfirm();
+                if (onConfirmCallback) onConfirmCallback();
+            });
+        }
+
+        function closeCustomConfirm() {
+            document.getElementById('customConfirmModal').style.display = 'none';
+        }
+
         function updateFileName(input, previewId) {
             const preview = document.getElementById(previewId);
             if (input.files && input.files[0]) {
@@ -827,11 +876,11 @@
         }
 
         function deleteNewsItem(key) {
-            if (confirm('هل أنت متأكد من حذف هذا الخبر؟')) {
+            showCustomConfirm('حذف الخبر', 'هل أنت متأكد من حذف هذا الخبر أو الإعلان من المنصة؟', () => {
                 db.ref('news/' + key).remove().then(() => {
                     showToast('تم حذف الخبر بنجاح', '🗑️');
                 });
-            }
+            });
         }
 
         function loadCurrentPasswords() {
@@ -906,8 +955,10 @@
         }
 
         function deleteTeacher(key) {
-            db.ref('teachers/' + key).remove().then(() => {
-                showToast('تم حذف المدرس بنجاح', '🗑️');
+            showCustomConfirm('حذف المدرس', 'هل أنت متأكد من حذف حساب هذا المدرس نهائياً؟', () => {
+                db.ref('teachers/' + key).remove().then(() => {
+                    showToast('تم حذف المدرس بنجاح', '🗑️');
+                });
             });
         }
 
@@ -951,7 +1002,6 @@
             });
         }
 
-        // 🏫 دوال الاختيار التدريجي (الصف ⬅️ الفصل ⬅️ الطالب)
         function onAdminGradeChange() {
             const selectedGrade = document.getElementById('adminGradeSelect').value;
             const classWrapper = document.getElementById('adminClassSelectWrapper');
@@ -1019,11 +1069,11 @@
         }
 
         function deleteUser(key) {
-            if(confirm('هل أنت متأكد من حذف هذا الطالب وسجله بالكامل؟')) {
+            showCustomConfirm('حذف الطالب', 'هل أنت متأكد من حذف هذا الطالب وسجله بالكامل من المنصة؟', () => {
                 db.ref('users/' + key).remove().then(() => {
                     showToast('تم حذف الطالب بنجاح', '🗑️');
                 });
-            }
+            });
         }
 
         function loadStudentGradesToEdit() {
