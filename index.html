@@ -244,11 +244,6 @@
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-label">الحضور والغياب</span>
             </div>
-            
-            <a href="admin.html" class="sidebar-item">
-                <span class="sidebar-icon">⚙️</span>
-                <span class="sidebar-label">لوحة التحكم والإدارة</span>
-            </a>
 
             <div class="sidebar-item" onclick="window.open('https://ellibrary.moe.gov.eg', '_blank')">
                 <span class="sidebar-icon">🌐</span>
@@ -276,12 +271,10 @@
             </div>
 
             <div class="header-actions" id="headerAuthActions">
-                <a href="admin.html" class="btn-header btn-header-primary" style="background: var(--accent);">الإدارة ⚙️</a>
                 <button onclick="openSignInPage()" class="btn-header btn-header-outline">دخول 🔑</button>
                 <button onclick="openSignUpPage()" class="btn-header btn-header-primary">حساب جديد ✨</button>
             </div>
             <div class="header-actions" id="headerUserActions" style="display: none;">
-                <a href="admin.html" class="btn-header btn-header-primary" style="background: var(--accent);">الإدارة ⚙️</a>
                 <button onclick="navigateToSection('profileSection')" class="btn-header btn-header-outline">👤 حسابي</button>
                 <button onclick="logoutUser()" class="btn-header btn-header-primary" style="background: #EF4444;">خروج 🚪</button>
             </div>
@@ -679,11 +672,19 @@
                 let html = '';
                 Object.keys(data).reverse().forEach(key => {
                     const item = data[key];
+                    
+                    // معالجة عرض الفيديو إن وجد أو إخفاؤه بذكاء
+                    let mediaContent = '';
+                    if (item.videoUrl) {
+                        mediaContent = `<div style="margin-top:12px; width:100%; border-radius:12px; overflow:hidden;"><video controls style="width:100%; max-height:300px; border-radius:12px;"><source src="${item.videoUrl}" type="video/mp4">متصفحك لا يدعم عرض الفيديو.</video></div>`;
+                    }
+
                     html += `
                         <div class="news-card">
                             <span style="background:var(--accent); color:#0F172A; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:800;">${item.badge || 'إعلان رسمي'}</span>
                             <h3 style="color:var(--primary-dark); font-size:18px; font-weight:900; margin:10px 0 6px;">${item.title}</h3>
                             <p style="font-size:14px; color:var(--text-muted); line-height:1.6; white-space:pre-wrap;">${item.content}</p>
+                            ${mediaContent}
                         </div>
                     `;
                 });
