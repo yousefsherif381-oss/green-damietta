@@ -635,7 +635,7 @@
             db.ref('adminConfig').set({
                 pass, passControl, passAttendance
             }).then(() => {
-                showToast("تم تحديث وحفظ كلمات المرور للأقسام في فايربيز بنجاح 🔑", "✅");
+                showToast("تم تحديث  كلمة المرور  🔑", "✅");
             }).catch(err => {
                 showToast("حدث خطأ أثناء التحديث: " + err.message, "❌");
             });
