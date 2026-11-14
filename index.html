@@ -248,6 +248,13 @@
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">الشكاوى والاستفسارات</span>
             </div>
+            
+            <!-- زرار موقع الوزارة للطلاب في القائمة الجانبية -->
+            <div class="sidebar-item" onclick="window.open('https://ellibrary.moe.gov.eg', '_blank')">
+                <span class="sidebar-icon">🌐</span>
+                <span class="sidebar-label">موقع وزارة التربية والتعليم</span>
+            </div>
+
             <div class="sidebar-item" onclick="showHomePage()">
                 <span class="sidebar-icon">📢</span>
                 <span class="sidebar-label">الأخبار والإعلانات</span>
@@ -657,7 +664,6 @@
             classSelect.innerHTML = html;
         }
 
-        // دالة تسجيل الدخول الصارمة والآمنة الجديدة
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -675,7 +681,6 @@
                     const userEmail = (u.email || '').trim();
                     const userPass = (u.password || '').trim();
 
-                    // شرط المطابقة الصارم جداً لمنع أي تداخل
                     const matchesIdentifier = (userCode === identifier || userName === identifier || userEmail === identifier);
                     const matchesPassword = (userPass === password);
 
@@ -806,7 +811,6 @@
             let targetStudentId = currentUser.id;
             
             if (currentUser.role === 'parent' && currentUser.linkedCode) {
-                // البحث عن الطالب المرتبط بولي الأمر
                 db.ref('users').once('value').then((snap) => {
                     const allUsers = snap.val() || {};
                     Object.keys(allUsers).forEach(k => {
