@@ -233,7 +233,7 @@
     <div id="adminLoginOverlay">
         <div class="admin-login-box">
             <h3 style="color: var(--primary-dark); font-size: 20px; font-weight: 900; margin-bottom: 8px;">🔐 تسجيل دخول الإدارة</h3>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور (الافتراضي: admin123, control123, affairs123)</p>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور (جرب: admin123 أو control123 أو affairs123)</p>
             <form onsubmit="handleAdminLogin(event)">
                 <div class="form-group" style="margin-bottom: 15px; text-align: right;">
                     <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">كلمة المرور / الكود</label>
@@ -564,57 +564,56 @@
             }
         }
 
-        // دالة تسجيل الدخول المحسنة (تقرأ من القاعدة أو تقبل الأكواد الافتراضية المضمونة مباشرة)
+        // دالة تسجيل الدخول المضمونة 100% (تقبل الباسوردات الافتراضية مباشرة وبدون تعقيد)
         function handleAdminLogin(e) {
             e.preventDefault();
             const val = document.getElementById('adminPasswordInput').value.trim();
 
-            db.ref('settings/passwords').once('value').then(snap => {
-                const p = snap.val() || { admin: "admin123", control: "control123", affairs: "affairs123" };
-                
-                if (val === p.admin || val === "admin123") {
-                    currentAdminRole = 'admin';
-                    document.getElementById('adminLoginOverlay').style.display = 'none';
-                    showToast('أهلاً بك يا مدير النظام 👑', '🚀');
-                    loadAdminData();
-                } else if (val === p.control || val === "control123") {
-                    currentAdminRole = 'control';
-                    document.getElementById('adminLoginOverlay').style.display = 'none';
-                    setupControlRoleUI();
-                    showToast('أهلاً بك يا مسؤل الكنترول 📊', '🏆');
-                    loadAdminData();
-                } else if (val === p.affairs || val === "affairs123") {
-                    currentAdminRole = 'affairs';
-                    document.getElementById('adminLoginOverlay').style.display = 'none';
-                    setupAffairsRoleUI();
-                    showToast('أهلاً بك يا مسؤل شؤون الطلاب 👥', '✨');
-                    loadAdminData();
-                } else {
+            if (val === "admin123") {
+                currentAdminRole = 'admin';
+                document.getElementById('adminLoginOverlay').style.display = 'none';
+                showToast('أهلاً بك يا مدير النظام 👑', '🚀');
+                loadAdminData();
+            } else if (val === "control123") {
+                currentAdminRole = 'control';
+                document.getElementById('adminLoginOverlay').style.display = 'none';
+                setupControlRoleUI();
+                showToast('أهلاً بك يا مسؤل الكنترول 📊', '🏆');
+                loadAdminData();
+            } else if (val === "affairs123") {
+                currentAdminRole = 'affairs';
+                document.getElementById('adminLoginOverlay').style.display = 'none';
+                setupAffairsRoleUI();
+                showToast('أهلاً بك يا مسؤل شؤون الطلاب 👥', '✨');
+                loadAdminData();
+            } else {
+                // محاولة التحقق من قاعدة البيانات كخيار إضافي
+                db.ref('settings/passwords').once('value').then(snap => {
+                    const p = snap.val() || {};
+                    if (val === p.admin) {
+                        currentAdminRole = 'admin';
+                        document.getElementById('adminLoginOverlay').style.display = 'none';
+                        showToast('أهلاً بك يا مدير النظام 👑', '🚀');
+                        loadAdminData();
+                    } else if (val === p.control) {
+                        currentAdminRole = 'control';
+                        document.getElementById('adminLoginOverlay').style.display = 'none';
+                        setupControlRoleUI();
+                        showToast('أهلاً بك يا مسؤل الكنترول 📊', '🏆');
+                        loadAdminData();
+                    } else if (val === p.affairs) {
+                        currentAdminRole = 'affairs';
+                        document.getElementById('adminLoginOverlay').style.display = 'none';
+                        setupAffairsRoleUI();
+                        showToast('أهلاً بك يا مسؤل شؤون الطلاب 👥', '✨');
+                        loadAdminData();
+                    } else {
+                        showToast('كود المرور غير صحيح ❌ (جرب: admin123)', '⚠️');
+                    }
+                }).catch(() => {
                     showToast('كود المرور غير صحيح ❌', '⚠️');
-                }
-            }).catch(() => {
-                // في حال حدوث أي خطأ في الاتصال، السماح بالدخول بالباسوردات الافتراضية
-                if (val === "admin123") {
-                    currentAdminRole = 'admin';
-                    document.getElementById('adminLoginOverlay').style.display = 'none';
-                    showToast('أهلاً بك يا مدير النظام 👑', '🚀');
-                    loadAdminData();
-                } else if (val === "control123") {
-                    currentAdminRole = 'control';
-                    document.getElementById('adminLoginOverlay').style.display = 'none';
-                    setupControlRoleUI();
-                    showToast('أهلاً بك يا مسؤل الكنترول 📊', '🏆');
-                    loadAdminData();
-                } else if (val === "affairs123") {
-                    currentAdminRole = 'affairs';
-                    document.getElementById('adminLoginOverlay').style.display = 'none';
-                    setupAffairsRoleUI();
-                    showToast('أهلاً بك يا مسؤل شؤون الطلاب 👥', '✨');
-                    loadAdminData();
-                } else {
-                    showToast('كود المرور غير صحيح ❌', '⚠️');
-                }
-            });
+                });
+            }
         }
 
         function setupControlRoleUI() {
@@ -1050,7 +1049,7 @@
             });
         }
 
-        // دالة الحذف النهائي للشكوى من الإدارة (تتحذف من عند الطالب والإدارة فوراً)
+        // دالة الحذف النهائي للشكوى (تتحذف من عند الطالب والإدارة في نفس اللحظة)
         function deleteAdminTicket(key) {
             if(confirm('هل أنت متأكد من حذف هذه الشكوى نهائياً من السيستم؟')) {
                 db.ref('tickets/' + key).remove().then(() => {
