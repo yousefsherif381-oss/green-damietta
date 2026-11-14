@@ -603,7 +603,7 @@
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            // التحقق من بوابات الإدارة والكنترول وشؤون الطلاب والمدرسين من قاعدة البيانات
+            // فحص باسورد المدير من مسار adminConfig في الفايربيز
             db.ref('adminConfig').once('value').then(adminSnap => {
                 const adminData = adminSnap.val() || {};
                 const adminPass = adminData.pass || '001123';
@@ -615,14 +615,12 @@
 
                     if (password === adminPass || password === controlPass || password === affairsPass) {
                         localStorage.setItem('adminRole', password === adminPass ? 'admin' : (password === controlPass ? 'control' : 'affairs'));
-                        showToast('تم التحقق من صلاحيات الإدارة بنجاح 👑', '🎉');
-                        setTimeout(() => {
-                            window.location.href = 'admin.html';
-                        }, 800);
+                        showToast('أهلاً بك، جاري تحويلك لوحة التحكم الإدارية...', '👑');
+                        setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                         return;
                     }
 
-                    // التحقق من حسابات المدرسين
+                    // فحص حسابات المدرسين
                     db.ref('teachers').once('value').then(teacherSnap => {
                         const teachers = teacherSnap.val() || {};
                         let foundTeacher = false;
@@ -638,14 +636,12 @@
                         });
 
                         if (foundTeacher) {
-                            showToast('أهلاً بك يا فندم، جاري تحويلك لوحة التحكم الإدارية...', '👨‍🏫');
-                            setTimeout(() => {
-                                window.location.href = 'admin.html';
-                            }, 800);
+                            showToast('أهلاً بالمدرس الفاضل، جاري تحويلك للوحة التحكم...', '👨‍🏫');
+                            setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                             return;
                         }
 
-                        // التحقق من تسجيل دخول الطلاب وأولياء الأمور
+                        // فحص حسابات الطلاب وأولياء الأمور
                         db.ref('users').once('value').then(snapshot => {
                             const users = snapshot.val() || {};
                             let foundKey = null;
