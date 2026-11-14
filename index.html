@@ -249,7 +249,6 @@
                 <span class="sidebar-label">الشكاوى والاستفسارات</span>
             </div>
             
-            <!-- زرار موقع الوزارة للطلاب في القائمة الجانبية -->
             <div class="sidebar-item" onclick="window.open('https://ellibrary.moe.gov.eg', '_blank')">
                 <span class="sidebar-icon">🌐</span>
                 <span class="sidebar-label">موقع وزارة التربية والتعليم</span>
@@ -319,6 +318,7 @@
             </form>
         </div>
 
+        <!-- جدول درجات الطالب المحدث للترم الأول والثاني -->
         <div class="view-section" id="gradesSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <div class="grades-card-box">
@@ -344,14 +344,13 @@
                         <thead>
                             <tr>
                                 <th>المادة الدراسية</th>
-                                <th>أعمال السنة</th>
-                                <th>التقييم الأسبوعي</th>
-                                <th>الامتحان النهائي</th>
+                                <th>درجة الترم الأول</th>
+                                <th>درجة الترم الثاني</th>
                                 <th>المجموع الكلي</th>
                             </tr>
                         </thead>
                         <tbody id="gradesTableBody">
-                            <tr><td colspan="5" style="text-align:center;">جاري تحميل الدرجات الخاصة بك...</td></tr>
+                            <tr><td colspan="4" style="text-align:center;">جاري تحميل الدرجات الخاصة بك...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -471,9 +470,7 @@
                     </div>
 
                     <div class="form-group" id="groupClassRoom"><label>فصل الطالب</label>
-                        <select id="signUpClassRoom" class="form-control">
-                            <!-- سيتم تعبئتها ديناميكياً -->
-                        </select>
+                        <select id="signUpClassRoom" class="form-control"></select>
                     </div>
 
                     <div class="form-group" id="groupStudentCodeLink" style="display: none;"><label>كود الطالب المراد ربطه</label><input type="text" id="signUpLinkedStudentCode" class="form-control" placeholder="أدخل كود الطالب أو رقمه القومي"></div>
@@ -494,88 +491,15 @@
         let currentUser = null;
 
         const curriculumByGrade = {
-            "الصف الأول الابتدائي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
-                { id: "religion", name: "التربية الدينية" }
-            ],
-            "الصف الثاني الابتدائي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
-                { id: "religion", name: "التربية الدينية" }
-            ],
-            "الصف الثالث الابتدائي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "discovery", name: "متعدد الاستורים (الديسكفري)" },
-                { id: "religion", name: "التربية الدينية" }
-            ],
-            "الصف الرابع الابتدائي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
-                { id: "religion", name: "التربية الدينية" }
-            ],
-            "الصف الخامس الابتدائي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
-                { id: "religion", name: "التربية الدينية" }
-            ],
-            "الصف السادس الابتدائي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "ict", name: "تكنولوجيا المعلومات والاتصالات" },
-                { id: "religion", name: "التربية الدينية" }
-            ],
-            "الصف الأول الإعدادي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات (جبر وهندسة)" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "religion", name: "التربية الدينية" },
-                { id: "computer", name: "الحاسب الآلي" }
-            ],
-            "الصف الثاني الإعدادي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "religion", name: "التربية الدينية" }
-            ],
-            "الصف الثالث الإعدادي": [
-                { id: "arabic", name: "اللغة العربية" },
-                { id: "math", name: "الرياضيات" },
-                { id: "english", name: "اللغة الإنجليزية" },
-                { id: "english_advanced", name: "اللغة الإنجليزية (مستوى رفيع)" },
-                { id: "science", name: "العلوم" },
-                { id: "social", name: "الدراسات الاجتماعية" },
-                { id: "religion", name: "التربية الدينية" }
-            ]
+            "الصف الأول الابتدائي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }],
+            "الصف الثاني الابتدائي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }],
+            "الصف الثالث الابتدائي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }],
+            "الصف الرابع الابتدائي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }, { id: "science", name: "العلوم" }, { id: "social", name: "الدراسات الاجتماعية" }],
+            "الصف الخامس الابتدائي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }, { id: "science", name: "العلوم" }, { id: "social", name: "الدراسات الاجتماعية" }],
+            "الصف السادس الابتدائي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }, { id: "science", name: "العلوم" }, { id: "social", name: "الدراسات الاجتماعية" }],
+            "الصف الأول الإعدادي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات (جبر وهندسة)" }, { id: "english", name: "اللغة الإنجليزية" }, { id: "science", name: "العلوم" }, { id: "social", name: "الدراسات الاجتماعية" }, { id: "computer", name: "الحاسب الآلي" }],
+            "الصف الثاني الإعدادي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }, { id: "science", name: "العلوم" }, { id: "social", name: "الدراسات الاجتماعية" }],
+            "الصف الثالث الإعدادي": [{ id: "arabic", name: "اللغة العربية" }, { id: "math", name: "الرياضيات" }, { id: "english", name: "اللغة الإنجليزية" }, { id: "science", name: "العلوم" }, { id: "social", name: "الدراسات الاجتماعية" }]
         };
 
         function showToast(message, icon = "✨") {
@@ -681,10 +605,7 @@
                     const userEmail = (u.email || '').trim();
                     const userPass = (u.password || '').trim();
 
-                    const matchesIdentifier = (userCode === identifier || userName === identifier || userEmail === identifier);
-                    const matchesPassword = (userPass === password);
-
-                    if (matchesIdentifier && matchesPassword) {
+                    if ((userCode === identifier || userName === identifier || userEmail === identifier) && userPass === password) {
                         foundKey = key;
                         foundUser = u;
                     }
@@ -711,16 +632,9 @@
             const phone = document.getElementById('signUpPhone').value.trim();
             const password = document.getElementById('signUpPassword').value.trim();
             
-            let grade = '';
-            let className = '';
-            let linkedCode = '';
-
-            if (role === 'student') {
-                grade = document.getElementById('signUpGrade').value;
-                className = document.getElementById('signUpClassRoom').value;
-            } else {
-                linkedCode = document.getElementById('signUpLinkedStudentCode').value.trim();
-            }
+            let grade = role === 'student' ? document.getElementById('signUpGrade').value : '';
+            let className = role === 'student' ? document.getElementById('signUpClassRoom').value : '';
+            let linkedCode = role === 'parent' ? document.getElementById('signUpLinkedStudentCode').value.trim() : '';
 
             const newUserRef = db.ref('users').push();
             const userData = {
@@ -839,16 +753,17 @@
                     let maxTotalSum = subjects.length * 100;
 
                     subjects.forEach(sub => {
-                        const subGrades = gradesData[sub.id] || { termWork: 0, weeklyEval: 0, finalExam: 0 };
-                        const subTotal = (Number(subGrades.termWork) || 0) + (Number(subGrades.weeklyEval) || 0) + (Number(subGrades.finalExam) || 0);
+                        const subGrades = gradesData[sub.id] || { term1: 0, term2: 0 };
+                        const t1 = Number(subGrades.term1) || Number(gradesData.term1) || 0;
+                        const t2 = Number(subGrades.term2) || Number(gradesData.term2) || 0;
+                        const subTotal = t1 + t2;
                         totalSum += subTotal;
 
                         tbodyHtml += `
                             <tr>
                                 <td><strong>${sub.name}</strong></td>
-                                <td>${subGrades.termWork || 0} / 30</td>
-                                <td>${subGrades.weeklyEval || 0} / 20</td>
-                                <td>${subGrades.finalExam || 0} / 50</td>
+                                <td>${t1} / 50</td>
+                                <td>${t2} / 50</td>
                                 <td style="color: var(--primary-dark); font-weight: 900;">${subTotal} / 100</td>
                             </tr>
                         `;
@@ -979,8 +894,7 @@
                             </div>
                             <p style="font-size: 14px; color: var(--text-dark); line-height: 1.6; margin-bottom: 15px;">${item.content}</p>
                             ${item.imageUrl ? `<img src="${item.imageUrl}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 15px;" alt="صورة الخبر">` : ''}
-                            ${item.videoUrl ? `<video src="${item.videoUrl}" controls style="width: 100%; max-height: 300px; border-radius: 12px; margin-bottom: 15px;"></video>` : ''}
-                            <span style="font-size: 11.5px; color: var(--text-muted);">🕒 تم النشر بتاريخ حديث</span>
+                            <span style="font-size: 11.5px; color: var(--text-muted);">🕒 تم النشر حديثاً</span>
                         </div>
                     `;
                 });
