@@ -312,6 +312,13 @@
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والردود</span>
             </div>
+
+            <!-- زرار موقع الوزارة الجديد في المنتصف -->
+            <div class="sidebar-item" id="menuMinistry" onclick="window.open('https://ellibrary.moe.gov.eg', '_blank')">
+                <span class="sidebar-icon">🌐</span>
+                <span class="sidebar-label">موقع وزارة التربية والتعليم</span>
+            </div>
+
             <div class="sidebar-item" id="menuPassword" onclick="switchAdminSection('passwordSection', this)">
                 <span class="sidebar-icon">🔑</span>
                 <span class="sidebar-label">تغيير كلمة المرور</span>
@@ -729,22 +736,26 @@
             const menuAttendance = document.getElementById('menuAttendance');
             const menuUsers = document.getElementById('menuUsers');
             const menuTickets = document.getElementById('menuTickets');
+            const menuMinistry = document.getElementById('menuMinistry');
             const menuPassword = document.getElementById('menuPassword');
 
             if (currentRole === 'admin') {
-                [menuNews, menuTeachersAdmin, menuGrades, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'flex'; });
+                [menuNews, menuTeachersAdmin, menuGrades, menuControl, menuAttendance, menuUsers, menuTickets, menuMinistry, menuPassword].forEach(el => { if(el) el.style.display = 'flex'; });
                 document.getElementById('gradesSectionTitle').textContent = `📊 رصد الدرجات والتقيمات حسب الصف والفصل الدراسي`;
                 return;
             }
 
             if (currentRole === 'affairs') {
                 [menuNews, menuTeachersAdmin, menuGrades, menuControl, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
+                if(menuMinistry) menuMinistry.style.display = 'flex';
                 switchAdminSection('attendanceSection', menuAttendance);
             } else if (currentRole === 'control') {
                 [menuNews, menuTeachersAdmin, menuGrades, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
+                if(menuMinistry) menuMinistry.style.display = 'flex';
                 switchAdminSection('controlSection', menuControl);
             } else if (currentRole === 'teacher') {
                 [menuNews, menuTeachersAdmin, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'none'; });
+                if(menuMinistry) menuMinistry.style.display = 'flex';
                 document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات مادتك (${loggedTeacherSubject}) للصفوف المقررة لك`;
                 switchAdminSection('gradesSection', menuGrades);
             }
