@@ -222,17 +222,6 @@
             border-top: 5px solid var(--danger); animation: smoothSlideUp 0.3s ease forwards;
         }
 
-        #adminLoginOverlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
-            z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .admin-login-box {
-            background: rgba(255, 255, 255, 0.98); padding: 35px; border-radius: 24px;
-            width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;
-            border-top: 5px solid var(--accent);
-        }
-
         @media (max-width: 768px) {
             .logo-text { font-size: 13px; }
             .nav-container { padding: 10px; gap: 8px; }
@@ -250,21 +239,6 @@
                 <button id="confirmBtnYes" class="btn btn-danger" style="flex: 1; padding: 12px;">تأكيد الحذف 🗑️</button>
                 <button onclick="closeCustomConfirm()" class="btn" style="flex: 1; background: #E2E8F0; color: var(--text-dark); padding: 12px;">إلغاء ❌</button>
             </div>
-        </div>
-    </div>
-
-    <div id="adminLoginOverlay">
-        <div class="admin-login-box">
-            <h3 style="color: var(--primary-dark); font-size: 20px; font-weight: 900; margin-bottom: 8px;">🔐 تسجيل دخول الإدارة</h3>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كلمة المرور الخاصة بالإدارة للدخول</p>
-            <form onsubmit="handleAdminLogin(event)">
-                <div class="form-group" style="margin-bottom: 15px; text-align: right;">
-                    <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">كلمة المرور / الكود</label>
-                    <input type="password" id="adminPasswordInput" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">دخول لوحة التحكم 🚀</button>
-            </form>
-            <button onclick="window.location.href='index.html'" class="btn" style="background: transparent; color: var(--text-muted); margin-top: 15px; font-size: 13px;">⬅ العودة للموقع الرئيسي</button>
         </div>
     </div>
 
@@ -329,7 +303,7 @@
                 </div>
                 <span class="logo-text" id="headerMainTitle">بوابة التعلم الذكي - الإدارة</span>
             </div>
-            <button onclick="logoutAdmin()" class="btn-header-home">خروج 🚪</button>
+            <button onclick="window.location.href='index.html'" class="btn-header-home">خروج 🚪</button>
         </div>
     </header>
 
@@ -649,29 +623,6 @@
             } else {
                 preview.textContent = "لم يتم اختيار ملف بعد";
             }
-        }
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const enteredPass = document.getElementById('adminPasswordInput').value.trim();
-
-            db.ref('adminConfig').once('value').then(snap => {
-                const config = snap.val() || { pass: "1234" };
-                const correctPass = config.pass || "1234";
-
-                if (enteredPass === correctPass || enteredPass === "1123") {
-                    document.getElementById('adminLoginOverlay').style.display = 'none';
-                    showToast("أهلاً بك يا سيادة المدير 🚀", "👑");
-                    initAdminData();
-                } else {
-                    showToast("كلمة المرور غير صحيحة!", "❌");
-                }
-            });
-        }
-
-        function logoutAdmin() {
-            document.getElementById('adminLoginOverlay').style.display = 'flex';
-            document.getElementById('adminPasswordInput').value = '';
         }
 
         function initAdminData() {
@@ -1053,6 +1004,11 @@
                 showToast("تم تحديث سجل شؤون الطلاب بنجاح 👥", "✅");
             });
         }
+
+        // تشغيل لوحة التحكم مباشرة فور فتح الصفحة بدون شاشة الباسورد
+        window.onload = function() {
+            initAdminData();
+        };
     </script>
 </body>
 </html>
