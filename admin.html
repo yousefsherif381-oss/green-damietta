@@ -589,62 +589,67 @@
             e.preventDefault();
             const pass = document.getElementById('adminPasswordInput').value.trim();
 
-            db.ref('settings').once('value').then((snapshot) => {
-                const data = snapshot.val() || {};
-                const adminPass = data.adminPassword || '001123';
-                const controlPass = data.controlPassword || '0011234';
-                const affairsPass = data.affairsPassword || '00112345';
+            // قراءة الباسورد من مسار adminConfig الموجود في قاعدة البيانات الخاصة بك
+            db.ref('adminConfig').once('value').then((snapshot) => {
+                const adminData = snapshot.val() || {};
+                const adminPass = adminData.pass || '001123';
 
-                if (pass === adminPass) {
-                    currentRole = 'admin';
-                    localStorage.setItem('adminRole', 'admin');
-                    showToast('أهلاً بك يا مدير النظام 👑', '🎉');
-                    checkAdminLoginState();
-                    fetchAllStudents();
-                } else if (pass === controlPass) {
-                    currentRole = 'control';
-                    localStorage.setItem('adminRole', 'control');
-                    showToast('أهلاً بك يا مسئول الكنترول 🏆', '✨');
-                    checkAdminLoginState();
-                    fetchAllStudents();
-                } else if (pass === affairsPass) {
-                    currentRole = 'affairs';
-                    localStorage.setItem('adminRole', 'affairs');
-                    showToast('أهلاً بك يا مسئول شؤون الطلاب 👥', '✨');
-                    checkAdminLoginState();
-                    fetchAllStudents();
-                } else {
-                    db.ref('teachers').once('value').then((teacherSnap) => {
-                        const teachers = teacherSnap.val() || {};
-                        let foundTeacher = null;
-                        Object.keys(teachers).forEach(tKey => {
-                            const t = teachers[tKey];
-                            if (t.password === pass) {
-                                foundTeacher = t;
+                db.ref('settings').once('value').then((settingSnap) => {
+                    const settingsData = settingSnap.val() || {};
+                    const controlPass = settingsData.controlPassword || '0011234';
+                    const affairsPass = settingsData.affairsPassword || '00112345';
+
+                    if (pass === adminPass) {
+                        currentRole = 'admin';
+                        localStorage.setItem('adminRole', 'admin');
+                        showToast('أهلاً بك يا مدير النظام 👑', '🎉');
+                        checkAdminLoginState();
+                        fetchAllStudents();
+                    } else if (pass === controlPass) {
+                        currentRole = 'control';
+                        localStorage.setItem('adminRole', 'control');
+                        showToast('أهلاً بك يا مسئول الكنترول 🏆', '✨');
+                        checkAdminLoginState();
+                        fetchAllStudents();
+                    } else if (pass === affairsPass) {
+                        currentRole = 'affairs';
+                        localStorage.setItem('adminRole', 'affairs');
+                        showToast('أهلاً بك يا مسئول شؤون الطلاب 👥', '✨');
+                        checkAdminLoginState();
+                        fetchAllStudents();
+                    } else {
+                        db.ref('teachers').once('value').then((teacherSnap) => {
+                            const teachers = teacherSnap.val() || {};
+                            let foundTeacher = null;
+                            Object.keys(teachers).forEach(tKey => {
+                                const t = teachers[tKey];
+                                if (t.password === pass) {
+                                    foundTeacher = t;
+                                }
+                            });
+
+                            if (foundTeacher) {
+                                currentRole = 'teacher';
+                                loggedTeacherName = foundTeacher.name;
+                                loggedTeacherSubject = foundTeacher.subject;
+                                loggedTeacherSubjectId = foundTeacher.subjectId;
+                                loggedTeacherClasses = foundTeacher.classes;
+
+                                localStorage.setItem('adminRole', 'teacher');
+                                localStorage.setItem('loggedTeacherName', loggedTeacherName);
+                                localStorage.setItem('loggedTeacherSubject', loggedTeacherSubject);
+                                localStorage.setItem('loggedTeacherSubjectId', loggedTeacherSubjectId);
+                                localStorage.setItem('loggedTeacherClasses', loggedTeacherClasses);
+
+                                showToast('أهلاً بالمدرس الفاضل ' + loggedTeacherName, '👨‍🏫');
+                                checkAdminLoginState();
+                                fetchAllStudents();
+                            } else {
+                                showToast('كلمة المرور غير صحيحة ❌', '⚠️');
                             }
                         });
-
-                        if (foundTeacher) {
-                            currentRole = 'teacher';
-                            loggedTeacherName = foundTeacher.name;
-                            loggedTeacherSubject = foundTeacher.subject;
-                            loggedTeacherSubjectId = foundTeacher.subjectId;
-                            loggedTeacherClasses = foundTeacher.classes;
-
-                            localStorage.setItem('adminRole', 'teacher');
-                            localStorage.setItem('loggedTeacherName', loggedTeacherName);
-                            localStorage.setItem('loggedTeacherSubject', loggedTeacherSubject);
-                            localStorage.setItem('loggedTeacherSubjectId', loggedTeacherSubjectId);
-                            localStorage.setItem('loggedTeacherClasses', loggedTeacherClasses);
-
-                            showToast('أهلاً بالمدرس الفاضل ' + loggedTeacherName, '👨‍🏫');
-                            checkAdminLoginState();
-                            fetchAllStudents();
-                        } else {
-                            showToast('كلمة المرور غير صحيحة ❌', '⚠️');
-                        }
-                    });
-                }
+                    }
+                });
             });
         }
 
@@ -668,7 +673,6 @@
             const menuTickets = document.getElementById('menuTickets');
             const menuPassword = document.getElementById('menuPassword');
 
-            // إذا كان المستخدم هو المدير (admin)، يرى كل الأقسام وبدون أي قيود أو اختصار
             if (currentRole === 'admin') {
                 [menuNews, menuTeachersAdmin, menuGrades, menuControl, menuAttendance, menuUsers, menuTickets, menuPassword].forEach(el => { if(el) el.style.display = 'flex'; });
                 document.getElementById('gradesSectionTitle').textContent = `📊 رصد الدرجات والتقيمات حسب الفصول الدراسية`;
@@ -813,9 +817,12 @@
         }
 
         function loadCurrentPasswords() {
+            db.ref('adminConfig').once('value').then((snapshot) => {
+                const data = snapshot.val() || {};
+                document.getElementById('passAdmin').value = data.pass || '001123';
+            });
             db.ref('settings').once('value').then((snapshot) => {
                 const data = snapshot.val() || {};
-                document.getElementById('passAdmin').value = data.adminPassword || '001123';
                 document.getElementById('passControl').value = data.controlPassword || '0011234';
                 document.getElementById('passAffairs').value = data.affairsPassword || '00112345';
             });
@@ -823,12 +830,15 @@
 
         function saveSystemPasswords(e) {
             e.preventDefault();
-            const adminPassword = document.getElementById('passAdmin').value.trim();
+            const passAdmin = document.getElementById('passAdmin').value.trim();
             const controlPassword = document.getElementById('passControl').value.trim();
             const affairsPassword = document.getElementById('passAffairs').value.trim();
 
-            db.ref('settings').update({ adminPassword, controlPassword, affairsPassword }).then(() => {
-                showToast('تم حفظ وتغيير كلمات المرور بنجاح 🔑', '✅');
+            // حفظ باسورد المدير في مسار adminConfig المخصص لديه
+            db.ref('adminConfig').update({ pass: passAdmin }).then(() => {
+                db.ref('settings').update({ controlPassword, affairsPassword }).then(() => {
+                    showToast('تم حفظ وتغيير كلمات المرور بنجاح 🔑', '✅');
+                });
             });
         }
 
@@ -1003,7 +1013,6 @@
                 let html = '';
 
                 subjectsList.forEach(sub => {
-                    // إذا كان الحساب مدير (admin)، يعرض كل المواد بدون أي فلترة أو استثناء
                     if (currentRole === 'teacher' && loggedTeacherSubjectId && sub.id !== loggedTeacherSubjectId) {
                         return;
                     }
