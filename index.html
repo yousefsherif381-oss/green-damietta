@@ -625,7 +625,9 @@
                 let found = null;
                 Object.keys(users).forEach(key => {
                     const u = users[key];
-                    if ((u.nationalId === identifier || u.fullName === identifier || u.email === identifier || u.phone === identifier) && u.password === pass) {
+                    const matchesId = (u.nationalId === identifier || u.fullName === identifier || u.email === identifier || u.phone === identifier);
+                    const matchesPass = (String(u.password).trim() === String(pass).trim());
+                    if (matchesId && matchesPass) {
                         found = { id: key, ...u };
                     }
                 });
@@ -638,7 +640,7 @@
                     updateHeaderUI();
                     showHomePage();
                 } else {
-                    showToast('بيانات الدخول غير صحيحة، تأكد منها ❌', '⚠️');
+                    showToast('بيانات الدخول أو كلمة المرور غير صحيحة ❌', '⚠️');
                 }
             });
         }
