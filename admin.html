@@ -266,7 +266,7 @@
             </div>
             <div class="sidebar-item" id="menuPassword" onclick="switchAdminSection('passwordSection', this)">
                 <span class="sidebar-icon">🔑</span>
-                <span class="sidebar-label">إعداد وتغيير كلمات المرور</span>
+                <span class="sidebar-label">إعداد وتغيير كلمات المرور للأقسام</span>
             </div>
         </div>
     </aside>
@@ -304,8 +304,10 @@
                         <span id="imageNamePreview" class="file-name-preview">لم يتم اختيار ملف بعد</span>
                     </div>
                     <div>
-                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎬 رابط فيديو الإعلان أو يوتيوب:</label>
-                        <input type="text" id="newsVideoUrlInput" class="form-control" placeholder="أدخل رابط الفيديو أو اembed (اختياري)">
+                        <label style="font-size: 12.5px; font-weight: 700; display: block; margin-bottom: 6px;">🎬 إرفاق فيديو الإعلان من الجهاز:</label>
+                        <label for="newsVideoFile" class="custom-file-upload"><span>📁 اضغط لاختيار فيديو الإعلان</span></label>
+                        <input type="file" id="newsVideoFile" accept="video/*" onchange="updateFileName(this, 'videoNamePreview')">
+                        <span id="videoNamePreview" class="file-name-preview">لم يتم اختيار فيديو بعد</span>
                     </div>
                 </div>
 
@@ -473,7 +475,7 @@
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
-        <!-- 7️⃣ قسم إعداد وتغيير كلمات المرور للأقسام (إدارة، كنترول، شؤون طلاب) -->
+        <!-- 7️⃣ قسم إعداد وتغيير كلمات المرور للأقسام -->
         <div class="admin-section" id="passwordSection">
             <div class="card-title">🔑 إعداد وتغيير كلمات المرور للأقسام (مباشر بـ Firebase)</div>
             <form onsubmit="saveSystemPasswords(event)" style="max-width: 500px;">
@@ -635,7 +637,7 @@
             db.ref('adminConfig').set({
                 pass, passControl, passAttendance
             }).then(() => {
-                showToast("تم تحديث  كلمة المرور  🔑", "✅");
+                showToast("تم تحديث وحفظ كلمات المرور للأقسام في فايربيز بنجاح 🔑", "✅");
             }).catch(err => {
                 showToast("حدث خطأ أثناء التحديث: " + err.message, "❌");
             });
@@ -646,33 +648,50 @@
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim() || 'إعلان رسمي';
             const content = document.getElementById('newsContent').value.trim();
-            const videoUrl = document.getElementById('newsVideoUrlInput').value.trim();
 
             const imageFile = document.getElementById('newsImageFile').files[0];
+            const videoFile = document.getElementById('newsVideoFile').files[0];
+
+            let imageUrl = '';
+            let videoUrl = '';
+
+            const processUpload = () => {
+                db.ref('news').push({
+                    title, badge, content, imageUrl, videoUrl, timestamp: Date.now()
+                }).then(() => {
+                    showToast("تم نشر الإعلان بنجاح 🚀", "📢");
+                    e.target.reset();
+                    document.getElementById('imageNamePreview').textContent = "لم يتم اختيار ملف بعد";
+                    document.getElementById('videoNamePreview').textContent = "لم يتم اختيار فيديو بعد";
+                });
+            };
 
             if (imageFile) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    saveNewsToFirebase(title, badge, content, event.target.result, videoUrl);
+                const readerImg = new FileReader();
+                readerImg.onload = function(e) {
+                    imageUrl = e.target.result;
+                    if (videoFile) {
+                        const readerVid = new FileReader();
+                        readerVid.onload = function(ev) {
+                            videoUrl = ev.target.result;
+                            processUpload();
+                        };
+                        readerVid.readAsDataURL(videoFile);
+                    } else {
+                        processUpload();
+                    }
                 };
-                reader.readAsDataURL(imageFile);
+                readerImg.readAsDataURL(imageFile);
+            } else if (videoFile) {
+                const readerVid = new FileReader();
+                readerVid.onload = function(ev) {
+                    videoUrl = ev.target.result;
+                    processUpload();
+                };
+                readerVid.readAsDataURL(videoFile);
             } else {
-                saveNewsToFirebase(title, badge, content, '', videoUrl);
+                processUpload();
             }
-        }
-
-        function saveNewsToFirebase(title, badge, content, imageUrl, videoUrl) {
-            db.ref('news').push({
-                title, badge, content, imageUrl, videoUrl, timestamp: Date.now()
-            }).then(() => {
-                showToast("تم نشر الإعلان بنجاح 🚀", "📢");
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsBadge').value = '';
-                document.getElementById('newsContent').value = '';
-                document.getElementById('newsVideoUrlInput').value = '';
-                document.getElementById('newsImageFile').value = '';
-                document.getElementById('imageNamePreview').textContent = "لم يتم اختيار ملف بعد";
-            });
         }
 
         function loadAdminNews() {
