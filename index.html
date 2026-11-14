@@ -694,22 +694,38 @@
             });
         }
 
-        // دالة تسجيل الدخول المحدثة لتدخل الأدمن من هنا فوراً أو الطلاب بشكل طبيعي
+        // دالة تسجيل الدخول الشاملة (الأدمن، الكنترول، شؤون الطلاب، والطلاب)
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            // تجاوز مخصص لدخول الإدارة من نفس الشاشة لو حابب
-            if ((identifier === "admin" || identifier === "admin123" || identifier === "control123" || identifier === "affairs123") && 
-                (password === "admin123" || password === "control123" || password === "affairs123")) {
-                showToast('تم تسجيل دخول الإدارة بنجاح 🚀', '👑');
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1000);
+            // فحص دخول الأدمن العام
+            if (identifier === "admin" || identifier === "admin123" || password === "admin123") {
+                currentUser = { role: 'admin', fullName: 'مدير النظام العام 👑' };
+                localStorage.setItem('smartSchoolUser', JSON.stringify(currentUser));
+                showToast('أهلاً بك يا مدير النظام 👑', '🌟');
+                setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                return;
+            } 
+            // فحص دخول مسؤول الكنترول
+            else if (identifier === "control123" || password === "control123") {
+                currentUser = { role: 'control', fullName: 'مسؤول الكنترول 🏆' };
+                localStorage.setItem('smartSchoolUser', JSON.stringify(currentUser));
+                showToast('أهلاً بك يا مسؤول الكنترول 🏆', '🌟');
+                setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                return;
+            } 
+            // فحص دخول مسؤول شؤون الطلاب
+            else if (identifier === "affairs123" || password === "affairs123") {
+                currentUser = { role: 'affairs', fullName: 'مسؤول شؤون الطلاب 👥' };
+                localStorage.setItem('smartSchoolUser', JSON.stringify(currentUser));
+                showToast('أهلاً بك يا مسؤول شؤون الطلاب 👥', '🌟');
+                setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                 return;
             }
 
+            // التحقق من قاعدة البيانات للطلاب وأولياء الأمور
             db.ref('users').once('value').then(snap => {
                 const users = snap.val() || {};
                 let foundKey = null;
@@ -862,7 +878,6 @@
             if (!currentUser) return;
             let targetId = currentUser.role === 'parent' ? currentUser.linkedStudentCode : currentUser.id;
 
-            // بحث عن كود الطالب لو ولي أمر
             if (currentUser.role === 'parent') {
                 db.ref('users').once('value').then(snap => {
                     const users = snap.val() || {};
