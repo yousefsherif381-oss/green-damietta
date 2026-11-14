@@ -603,34 +603,80 @@
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            db.ref('users').once('value').then(snapshot => {
-                const users = snapshot.val() || {};
-                let foundKey = null;
-                let foundUser = null;
+            // التحقق من بوابات الإدارة والكنترول وشؤون الطلاب والمدرسين من قاعدة البيانات
+            db.ref('adminConfig').once('value').then(adminSnap => {
+                const adminData = adminSnap.val() || {};
+                const adminPass = adminData.pass || '001123';
 
-                Object.keys(users).forEach(key => {
-                    const u = users[key];
-                    if ((u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier) && u.password === password) {
-                        foundKey = key;
-                        foundUser = u;
+                db.ref('settings').once('value').then(settingSnap => {
+                    const settingsData = settingSnap.val() || {};
+                    const controlPass = settingsData.controlPassword || '0011234';
+                    const affairsPass = settingsData.affairsPassword || '00112345';
+
+                    if (password === adminPass || password === controlPass || password === affairsPass) {
+                        localStorage.setItem('adminRole', password === adminPass ? 'admin' : (password === controlPass ? 'control' : 'affairs'));
+                        showToast('تم التحقق من صلاحيات الإدارة بنجاح 👑', '🎉');
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 800);
+                        return;
                     }
+
+                    // التحقق من حسابات المدرسين
+                    db.ref('teachers').once('value').then(teacherSnap => {
+                        const teachers = teacherSnap.val() || {};
+                        let foundTeacher = false;
+                        Object.keys(teachers).forEach(tKey => {
+                            if (teachers[tKey].password === password) {
+                                foundTeacher = true;
+                                localStorage.setItem('adminRole', 'teacher');
+                                localStorage.setItem('loggedTeacherName', teachers[tKey].name);
+                                localStorage.setItem('loggedTeacherSubject', teachers[tKey].subject);
+                                localStorage.setItem('loggedTeacherSubjectId', teachers[tKey].subjectId);
+                                localStorage.setItem('loggedTeacherClasses', teachers[tKey].classes);
+                            }
+                        });
+
+                        if (foundTeacher) {
+                            showToast('أهلاً بك يا فندم، جاري تحويلك لوحة التحكم الإدارية...', '👨‍🏫');
+                            setTimeout(() => {
+                                window.location.href = 'admin.html';
+                            }, 800);
+                            return;
+                        }
+
+                        // التحقق من تسجيل دخول الطلاب وأولياء الأمور
+                        db.ref('users').once('value').then(snapshot => {
+                            const users = snapshot.val() || {};
+                            let foundKey = null;
+                            let foundUser = null;
+
+                            Object.keys(users).forEach(key => {
+                                const u = users[key];
+                                if ((u.nationalId === identifier || u.code === identifier || u.email === identifier || u.fullName === identifier) && u.password === password) {
+                                    foundKey = key;
+                                    foundUser = u;
+                                }
+                            });
+
+                            if (foundUser) {
+                                currentUser = { key: foundKey, ...foundUser };
+                                localStorage.setItem('studentKey', foundKey);
+                                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                                
+                                document.getElementById('headerAuthActions').style.display = 'none';
+                                document.getElementById('headerUserActions').style.display = 'flex';
+                                document.getElementById('sidebarProfileBtn').style.display = 'flex';
+
+                                showToast('أهلاً بك يا ' + foundUser.fullName, '👋');
+                                showHomePage();
+                                loadUserData();
+                            } else {
+                                showToast('بيانات الدخول غير صحيحة ❌', '⚠️');
+                            }
+                        });
+                    });
                 });
-
-                if (foundUser) {
-                    currentUser = { key: foundKey, ...foundUser };
-                    localStorage.setItem('studentKey', foundKey);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    document.getElementById('headerAuthActions').style.display = 'none';
-                    document.getElementById('headerUserActions').style.display = 'flex';
-                    document.getElementById('sidebarProfileBtn').style.display = 'flex';
-
-                    showToast('أهلاً بك يا ' + foundUser.fullName, '👋');
-                    showHomePage();
-                    loadUserData();
-                } else {
-                    showToast('بيانات الدخول غير صحيحة ❌', '⚠️');
-                }
             });
         }
 
@@ -694,9 +740,6 @@
         function loadStudentGrades() {
             if (!currentUser) return;
             let targetKey = currentUser.key;
-            if (currentUser.role === 'parent' && currentUser.linkedCode) {
-                // منطق ربط ولي الأمر بالمعرف
-            }
 
             db.ref('grades/' + targetKey).on('value', snapshot => {
                 const grades = snapshot.val() || {};
