@@ -233,7 +233,7 @@
     <div id="adminLoginOverlay">
         <div class="admin-login-box">
             <h3 style="color: var(--primary-dark); font-size: 20px; font-weight: 900; margin-bottom: 8px;">🔐 تسجيل دخول الإدارة</h3>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور للمدير أو الكنترول أو شؤون الطلاب</p>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">أدخل كود المرور (الافتراضي: admin123, control123, affairs123)</p>
             <form onsubmit="handleAdminLogin(event)">
                 <div class="form-group" style="margin-bottom: 15px; text-align: right;">
                     <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">كلمة المرور / الكود</label>
@@ -401,7 +401,7 @@
             </div>
 
             <div id="gradesEditFormContainer" style="display: none; background: rgba(248, 250, 252, 0.95); padding: 20px; border-radius: 16px; border: 2px solid #BAE6FD;">
-                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للط الطالب: </h4>
+                <h4 id="editingStudentNameTitle" style="color: var(--primary-dark); margin-bottom: 5px; font-weight: 900;">رصد الدرجات للطالب: </h4>
                 <p id="editingStudentGradeBadge" style="color: var(--accent-hover); font-weight: 800; font-size: 13px; margin-bottom: 15px;"></p>
                 <div style="overflow-x: auto;">
                     <table>
@@ -492,7 +492,7 @@
         </div>
 
         <div class="admin-section" id="ticketsSection">
-            <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور</div>
+            <div class="card-title">📨 مركز الشكاوى والاستفسارات المقدمة من أولياء الأمور والطلاب</div>
             <div id="adminTicketsList">جاري تحميل الطلبات والشكاوى...</div>
         </div>
 
@@ -564,6 +564,7 @@
             }
         }
 
+        // دالة تسجيل الدخول المحسنة (تقرأ من القاعدة أو تقبل الأكواد الافتراضية المضمونة مباشرة)
         function handleAdminLogin(e) {
             e.preventDefault();
             const val = document.getElementById('adminPasswordInput').value.trim();
@@ -583,6 +584,28 @@
                     showToast('أهلاً بك يا مسؤل الكنترول 📊', '🏆');
                     loadAdminData();
                 } else if (val === p.affairs || val === "affairs123") {
+                    currentAdminRole = 'affairs';
+                    document.getElementById('adminLoginOverlay').style.display = 'none';
+                    setupAffairsRoleUI();
+                    showToast('أهلاً بك يا مسؤل شؤون الطلاب 👥', '✨');
+                    loadAdminData();
+                } else {
+                    showToast('كود المرور غير صحيح ❌', '⚠️');
+                }
+            }).catch(() => {
+                // في حال حدوث أي خطأ في الاتصال، السماح بالدخول بالباسوردات الافتراضية
+                if (val === "admin123") {
+                    currentAdminRole = 'admin';
+                    document.getElementById('adminLoginOverlay').style.display = 'none';
+                    showToast('أهلاً بك يا مدير النظام 👑', '🚀');
+                    loadAdminData();
+                } else if (val === "control123") {
+                    currentAdminRole = 'control';
+                    document.getElementById('adminLoginOverlay').style.display = 'none';
+                    setupControlRoleUI();
+                    showToast('أهلاً بك يا مسؤل الكنترول 📊', '🏆');
+                    loadAdminData();
+                } else if (val === "affairs123") {
                     currentAdminRole = 'affairs';
                     document.getElementById('adminLoginOverlay').style.display = 'none';
                     setupAffairsRoleUI();
@@ -1006,10 +1029,13 @@
                 Object.keys(data).reverse().forEach(key => {
                     const t = data[key];
                     html += `
-                        <div style="background:#F8FAFC; padding:18px; border-radius:16px; border:1px solid #CBD5E1; margin-bottom:15px;">
+                        <div style="background:#F8FAFC; padding:18px; border-radius:16px; border:1px solid #CBD5E1; margin-bottom:15px; position:relative;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                <strong style="color:var(--primary-dark); font-size:15px;">الطالب: ${t.studentName} | ولي الأمر: ${t.parentName} (${t.parentEmail})</strong>
-                                <span style="background:#FEF3C7; color:#D97706; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:800;">${t.type}</span>
+                                <strong style="color:var(--primary-dark); font-size:15px;">الطالب: ${t.studentName || '---'} | ولي الأمر: ${t.parentName || '---'} (${t.parentEmail || '---'})</strong>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <span style="background:#FEF3C7; color:#D97706; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:800;">${t.type || 'شكوى'}</span>
+                                    <button onclick="deleteAdminTicket('${key}')" class="btn btn-danger" style="background:#EF4444; color:white; border:none; padding:6px 12px; border-radius:8px; font-size:12px; cursor:pointer; font-weight:700;">حذف نهائي 🗑️</button>
+                                </div>
                             </div>
                             <p style="font-size:14px; color:var(--text-dark); margin-bottom:12px;"><strong>تفاصيل الطلب:</strong> ${t.content}</p>
                             
@@ -1022,6 +1048,15 @@
                 });
                 container.innerHTML = html;
             });
+        }
+
+        // دالة الحذف النهائي للشكوى من الإدارة (تتحذف من عند الطالب والإدارة فوراً)
+        function deleteAdminTicket(key) {
+            if(confirm('هل أنت متأكد من حذف هذه الشكوى نهائياً من السيستم؟')) {
+                db.ref('tickets/' + key).remove().then(() => {
+                    showToast('تم حذف الشكوى بنجاح من النظام 🗑️', '✨');
+                });
+            }
         }
 
         function sendTicketReply(key) {
