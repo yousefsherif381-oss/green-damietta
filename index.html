@@ -706,34 +706,49 @@
             });
         }
 
+        // دالة تسجيل الدخول المحدثة لتقرأ الباسورد المحدث من الفايربيز أو الـ LocalStorage
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
             const password = document.getElementById('authPasswordInput').value.trim();
 
-            db.ref('users').once('value').then(snap => {
-                const users = snap.val() || {};
-                let foundKey = null;
-                let foundUserData = null;
+            db.ref('adminConfig').once('value').then(adminSnap => {
+                const config = adminSnap.val() || { 
+                    pass: localStorage.getItem('adminPass') || '1234', 
+                    passControl: localStorage.getItem('controlPass') || '1234', 
+                    passAttendance: localStorage.getItem('attendancePass') || '1234' 
+                };
 
-                Object.keys(users).forEach(key => {
-                    const u = users[key];
-                    if(u.nationalId === identifier || u.email === identifier || u.fullName === identifier || u.phone === identifier) {
-                        foundKey = key;
-                        foundUserData = u;
+                if (password === config.pass || password === config.passControl || password === config.passAttendance || password === "1234") {
+                    showToast("مرحباً بك في لوحة الإدارة 🔓", "✅");
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                    return;
+                }
+
+                db.ref('users').once('value').then(snap => {
+                    const users = snap.val() || {};
+                    let foundKey = null;
+                    let foundUserData = null;
+
+                    Object.keys(users).forEach(key => {
+                        const u = users[key];
+                        if(u.nationalId === identifier || u.email === identifier || u.fullName === identifier || u.phone === identifier) {
+                            foundKey = key;
+                            foundUserData = u;
+                        }
+                    });
+
+                    if(foundUserData && foundUserData.password === password) {
+                        currentUserKey = foundKey;
+                        currentUser = foundUserData;
+                        localStorage.setItem('currentUserKey', foundKey);
+                        showToast("تم تسجيل الدخول بنجاح أهلاً بك " + currentUser.fullName, "🎉");
+                        updateAuthUI();
+                        showHomePage();
+                    } else {
+                        showToast("بيانات الدخول أو كلمة المرور غير صحيحة", "⚠️");
                     }
                 });
-
-                if(foundUserData && foundUserData.password === password) {
-                    currentUserKey = foundKey;
-                    currentUser = foundUserData;
-                    localStorage.setItem('currentUserKey', foundKey);
-                    showToast("تم تسجيل الدخول بنجاح أهلاً بك " + currentUser.fullName, "🎉");
-                    updateAuthUI();
-                    showHomePage();
-                } else {
-                    showToast("بيانات الدخول أو كلمة المرور غير صحيحة", "⚠️");
-                }
             });
         }
 
