@@ -706,7 +706,7 @@
             });
         }
 
-        // دالة تسجيل الدخول المحدثة لتقرأ الباسوردات من فايربيز مباشرة
+        // دالة تسجيل الدخول المحدثة للتحقق من الأدمن، الكنترول، شؤون الطلاب، والمدرسين من فايربيز مباشرة
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -743,30 +743,51 @@
                     return;
                 }
 
-                // 4. التحقق من حسابات الطلاب وأولياء الأمور
-                db.ref('users').once('value').then(snap => {
-                    const users = snap.val() || {};
-                    let foundKey = null;
-                    let foundUserData = null;
+                // 4. التحقق من حسابات المدرسين المسجلين في الداتابيز
+                db.ref('teachers').once('value').then(teacherSnap => {
+                    const teachers = teacherSnap.val() || {};
+                    let foundTeacher = null;
 
-                    Object.keys(users).forEach(key => {
-                        const u = users[key];
-                        if(u.nationalId === identifier || u.email === identifier || u.fullName === identifier || u.phone === identifier) {
-                            foundKey = key;
-                            foundUserData = u;
+                    Object.keys(teachers).forEach(key => {
+                        const t = teachers[key];
+                        if ((t.fullName === identifier || t.subjectId === identifier || t.subjectName === identifier) && t.password === password) {
+                            foundTeacher = t;
                         }
                     });
 
-                    if(foundUserData && foundUserData.password === password) {
-                        currentUserKey = foundKey;
-                        currentUser = foundUserData;
-                        localStorage.setItem('currentUserKey', foundKey);
-                        showToast("تم تسجيل الدخول بنجاح أهلاً بك " + currentUser.fullName, "🎉");
-                        updateAuthUI();
-                        showHomePage();
-                    } else {
-                        showToast("بيانات الدخول أو كلمة المرور غير صحيحة", "⚠️");
+                    if (foundTeacher) {
+                        showToast("مرحباً بك يا أستاذ " + foundTeacher.fullName + " 👨‍🏫", "✅");
+                        localStorage.setItem('adminPermission', 'teacher');
+                        localStorage.setItem('teacherData', JSON.stringify(foundTeacher));
+                        setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                        return;
                     }
+
+                    // 5. التحقق من حسابات الطلاب وأولياء الأمور
+                    db.ref('users').once('value').then(snap => {
+                        const users = snap.val() || {};
+                        let foundKey = null;
+                        let foundUserData = null;
+
+                        Object.keys(users).forEach(key => {
+                            const u = users[key];
+                            if(u.nationalId === identifier || u.email === identifier || u.fullName === identifier || u.phone === identifier) {
+                                foundKey = key;
+                                foundUserData = u;
+                            }
+                        });
+
+                        if(foundUserData && foundUserData.password === password) {
+                            currentUserKey = foundKey;
+                            currentUser = foundUserData;
+                            localStorage.setItem('currentUserKey', foundKey);
+                            showToast("تم تسجيل الدخول بنجاح أهلاً بك " + currentUser.fullName, "🎉");
+                            updateAuthUI();
+                            showHomePage();
+                        } else {
+                            showToast("بيانات الدخول أو كلمة المرور غير صحيحة", "⚠️");
+                        }
+                    });
                 });
             });
         }
