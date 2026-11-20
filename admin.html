@@ -981,6 +981,7 @@
             });
         }
 
+        // دالة حفظ وتحديث كلمات المرور وتخزينها في الداتابيز وفي الـ LocalStorage معاً لضمان سرعة الدخول
         function saveSystemPasswords(e) {
             e.preventDefault();
             const pass = document.getElementById('passAdmin').value.trim();
@@ -988,7 +989,13 @@
             const passAttendance = document.getElementById('passAttendance').value.trim();
 
             db.ref('adminConfig').set({ pass, passControl, passAttendance }).then(() => {
-                showToast("تم تحديث وحفظ كلمات المرور بنجاح 🔑", "✅");
+                localStorage.setItem('adminPass', pass);
+                localStorage.setItem('controlPass', passControl);
+                localStorage.setItem('attendancePass', passAttendance);
+                
+                showToast("تم تحديث وحفظ كلمات المرور بنجاح تام 🔑", "✅");
+            }).catch(error => {
+                showToast("حدث خطأ أثناء حفظ كلمات المرور ❌", "⚠️");
             });
         }
 
