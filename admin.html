@@ -323,7 +323,7 @@
                     <input type="text" id="teacherName" class="form-control" placeholder="اسم المدرس الرباعي" required>
                     <input type="text" id="teacherSubject" class="form-control" placeholder="اسم المادة بالعربي (مثال: الرياضيات)" required>
                     <input type="text" id="teacherSubjectId" class="form-control" placeholder="معرف المادة بالإنجليزي (arabic, math..)" required>
-                    <input type="text" id="teacherClasses" class="form-control" placeholder="السنة المسندة (مثال: الصف الاول الاعدادي)" required>
+                    <input type="text" id="teacherClasses" class="form-control" placeholder="السنة المسندة (مثال: الصف الأول الإعدادي)" required>
                     <input type="text" id="teacherPassword" class="form-control" placeholder="كلمة مرور المدرس" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">إضافة المدرس وصلاحياته 💾</button>
@@ -496,6 +496,7 @@
 
         let allStudentsCache = [];
         let currentSelectedStudentForGrades = null;
+        let loggedInTeacher = JSON.parse(localStorage.getItem('teacherData') || 'null');
 
         const curriculumByGrade = {
             "الصف الأول الابتدائي": [
@@ -805,9 +806,14 @@
 
             db.ref('grades/' + studentId).once('value').then(snap => {
                 const gradesData = snap.val() || {};
-                const subjects = curriculumByGrade[currentSelectedStudentForGrades.grade] || [];
-                let html = '';
+                
+                // لو المدرس هو اللي مسجل دخول، اعرض مادته فقط لتسهيل رصد الدرجات بدقة
+                let subjects = curriculumByGrade[currentSelectedStudentForGrades.grade] || [];
+                if (loggedInTeacher) {
+                    subjects = subjects.filter(sub => sub.id === loggedInTeacher.subjectId || sub.name === loggedInTeacher.subjectName);
+                }
 
+                let html = '';
                 subjects.forEach(sub => {
                     const subGrade = gradesData[sub.id] || { term1: 0, term2: 0, exam: 0 };
                     html += `
@@ -825,18 +831,25 @@
 
         function saveAllStudentGradesDirect() {
             if(!currentSelectedStudentForGrades) return;
-            const subjects = curriculumByGrade[currentSelectedStudentForGrades.grade] || [];
-            let updates = {};
+            
+            let subjects = curriculumByGrade[currentSelectedStudentForGrades.grade] || [];
+            if (loggedInTeacher) {
+                subjects = subjects.filter(sub => sub.id === loggedInTeacher.subjectId || sub.name === loggedInTeacher.subjectName);
+            }
 
-            subjects.forEach(sub => {
-                const term1 = Number(document.getElementById(`g_term1_${sub.id}`).value) || 0;
-                const term2 = Number(document.getElementById(`g_term2_${sub.id}`).value) || 0;
-                const exam = Number(document.getElementById(`g_exam_${sub.id}`).value) || 0;
-                updates[sub.id] = { term1, term2, exam };
-            });
+            db.ref('grades/' + currentSelectedStudentForGrades.id).once('value').then(snap => {
+                let existingGrades = snap.val() || {};
+                
+                subjects.forEach(sub => {
+                    const term1 = Number(document.getElementById(`g_term1_${sub.id}`).value) || 0;
+                    const term2 = Number(document.getElementById(`g_term2_${sub.id}`).value) || 0;
+                    const exam = Number(document.getElementById(`g_exam_${sub.id}`).value) || 0;
+                    existingGrades[sub.id] = { term1, term2, exam };
+                });
 
-            db.ref('grades/' + currentSelectedStudentForGrades.id).set(updates).then(() => {
-                showToast("تم حفظ وتثبيت درجات الطالب بنجاح 📊", "✅");
+                db.ref('grades/' + currentSelectedStudentForGrades.id).set(existingGrades).then(() => {
+                    showToast("تم حفظ وتثبيت درجات المادة بنجاح 📊", "✅");
+                });
             });
         }
 
@@ -981,7 +994,6 @@
             });
         }
 
-        // دالة حفظ وتحديث كلمات المرور في الداتابيز مباشرة
         function saveSystemPasswords(e) {
             e.preventDefault();
             const pass = document.getElementById('passAdmin').value.trim();
@@ -1011,11 +1023,9 @@
             loadAdminTickets();
             loadSystemPasswords();
 
-            // التحقق من الصلاحية وإخفاء باقي الأقسام تماماً بحسب نوع الدخول
             const permission = localStorage.getItem('adminPermission');
             
             if (permission === 'control') {
-                // كنترول المدرسة فقط وباقي القوائم مخفية
                 switchAdminSection('controlSection', document.getElementById('menuControl'));
                 document.getElementById('menuNews').style.display = 'none';
                 document.getElementById('menuTeachersAdmin').style.display = 'none';
@@ -1027,7 +1037,6 @@
                 document.getElementById('sidebarTitleText').textContent = '📌 كنترول المدرسة';
             } 
             else if (permission === 'attendance') {
-                // شؤون الطلاب والغياب فقط وباقي القوائم مخفية
                 switchAdminSection('attendanceSection', document.getElementById('menuAttendance'));
                 document.getElementById('menuNews').style.display = 'none';
                 document.getElementById('menuTeachersAdmin').style.display = 'none';
@@ -1038,8 +1047,28 @@
                 document.getElementById('menuPassword').style.display = 'none';
                 document.getElementById('sidebarTitleText').textContent = '📌 شؤون الطلاب';
             }
+            else if (permission === 'teacher') {
+                // تفعيل قسم رصد الدرجات للمدرس وإخفاء باقي الأقسام الإدارية
+                switchAdminSection('gradesSection', document.getElementById('menuGrades'));
+                document.getElementById('menuNews').style.display = 'none';
+                document.getElementById('menuTeachersAdmin').style.display = 'none';
+                document.getElementById('menuControl').style.display = 'none';
+                document.getElementById('menuAttendance').style.display = 'none';
+                document.getElementById('menuUsers').style.display = 'none';
+                document.getElementById('menuTickets').style.display = 'none';
+                document.getElementById('menuPassword').style.display = 'none';
+                
+                if (loggedInTeacher) {
+                    document.getElementById('sidebarTitleText').textContent = '📌 أ. ' + loggedInTeacher.fullName;
+                    document.getElementById('gradesMenuLabel').textContent = `رصد درجات مادة: ${loggedInTeacher.subjectName} (${loggedInTeacher.assignedClasses})`;
+                    
+                    // تحديد الصف الدراسي للمدرس تلقائياً لتسهيل الاستخدام
+                    const gradeSelect = document.getElementById('adminGradeSelect');
+                    gradeSelect.value = loggedInTeacher.assignedClasses;
+                    onAdminGradeChange();
+                }
+            }
             else {
-                // الأدمن العام (كل الصلاحيات ظاهرة)
                 switchAdminSection('newsSection', document.getElementById('menuNews'));
             }
         };
