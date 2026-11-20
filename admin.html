@@ -981,7 +981,7 @@
             });
         }
 
-        // دالة حفظ وتحديث كلمات المرور وتخزينها في الداتابيز وفي الـ LocalStorage معاً لضمان سرعة الدخول
+        // دالة حفظ وتحديث كلمات المرور في الداتابيز مباشرة
         function saveSystemPasswords(e) {
             e.preventDefault();
             const pass = document.getElementById('passAdmin').value.trim();
@@ -989,11 +989,7 @@
             const passAttendance = document.getElementById('passAttendance').value.trim();
 
             db.ref('adminConfig').set({ pass, passControl, passAttendance }).then(() => {
-                localStorage.setItem('adminPass', pass);
-                localStorage.setItem('controlPass', passControl);
-                localStorage.setItem('attendancePass', passAttendance);
-                
-                showToast("تم تحديث وحفظ كلمات المرور بنجاح تام 🔑", "✅");
+                showToast("تم تحديث وحفظ كلمات المرور في الداتابيز بنجاح 🔑", "✅");
             }).catch(error => {
                 showToast("حدث خطأ أثناء حفظ كلمات المرور ❌", "⚠️");
             });
@@ -1014,6 +1010,38 @@
             loadAllStudentsCache();
             loadAdminTickets();
             loadSystemPasswords();
+
+            // التحقق من الصلاحية وإخفاء باقي الأقسام تماماً بحسب نوع الدخول
+            const permission = localStorage.getItem('adminPermission');
+            
+            if (permission === 'control') {
+                // كنترول المدرسة فقط وباقي القوائم مخفية
+                switchAdminSection('controlSection', document.getElementById('menuControl'));
+                document.getElementById('menuNews').style.display = 'none';
+                document.getElementById('menuTeachersAdmin').style.display = 'none';
+                document.getElementById('menuGrades').style.display = 'none';
+                document.getElementById('menuAttendance').style.display = 'none';
+                document.getElementById('menuUsers').style.display = 'none';
+                document.getElementById('menuTickets').style.display = 'none';
+                document.getElementById('menuPassword').style.display = 'none';
+                document.getElementById('sidebarTitleText').textContent = '📌 كنترول المدرسة';
+            } 
+            else if (permission === 'attendance') {
+                // شؤون الطلاب والغياب فقط وباقي القوائم مخفية
+                switchAdminSection('attendanceSection', document.getElementById('menuAttendance'));
+                document.getElementById('menuNews').style.display = 'none';
+                document.getElementById('menuTeachersAdmin').style.display = 'none';
+                document.getElementById('menuGrades').style.display = 'none';
+                document.getElementById('menuControl').style.display = 'none';
+                document.getElementById('menuUsers').style.display = 'none';
+                document.getElementById('menuTickets').style.display = 'none';
+                document.getElementById('menuPassword').style.display = 'none';
+                document.getElementById('sidebarTitleText').textContent = '📌 شؤون الطلاب';
+            }
+            else {
+                // الأدمن العام (كل الصلاحيات ظاهرة)
+                switchAdminSection('newsSection', document.getElementById('menuNews'));
+            }
         };
     </script>
 </body>
