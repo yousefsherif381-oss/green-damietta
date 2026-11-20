@@ -706,7 +706,7 @@
             });
         }
 
-        // دالة تسجيل الدخول المحدثة لتقرأ الباسورد المحدث من الفايربيز أو الـ LocalStorage
+        // دالة تسجيل الدخول المحدثة لتقرأ الباسوردات من فايربيز مباشرة
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -714,17 +714,36 @@
 
             db.ref('adminConfig').once('value').then(adminSnap => {
                 const config = adminSnap.val() || { 
-                    pass: localStorage.getItem('adminPass') || '1234', 
-                    passControl: localStorage.getItem('controlPass') || '1234', 
-                    passAttendance: localStorage.getItem('attendancePass') || '1234' 
+                    pass: '1234', 
+                    passControl: '1234', 
+                    passAttendance: '1234' 
                 };
 
-                if (password === config.pass || password === config.passControl || password === config.passAttendance || password === "1234") {
-                    showToast("مرحباً بك في لوحة الإدارة 🔓", "✅");
+                // 1. لو الباسورد مطابق للأدمن العام
+                if (password === config.pass || password === "1234") {
+                    showToast("مرحباً بك في لوحة الإدارة العامة 🔓", "✅");
+                    localStorage.setItem('adminPermission', 'admin');
                     setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                     return;
                 }
 
+                // 2. لو الباسورد مطابق لكنترول المدرسة
+                if (password === config.passControl) {
+                    showToast("مرحباً بك في كنترول المدرسة 🏆", "✅");
+                    localStorage.setItem('adminPermission', 'control');
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                    return;
+                }
+
+                // 3. لو الباسورد مطابق لشؤون الطلاب
+                if (password === config.passAttendance) {
+                    showToast("مرحباً بك في شؤون الطلاب 👥", "✅");
+                    localStorage.setItem('adminPermission', 'attendance');
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                    return;
+                }
+
+                // 4. التحقق من حسابات الطلاب وأولياء الأمور
                 db.ref('users').once('value').then(snap => {
                     const users = snap.val() || {};
                     let foundKey = null;
