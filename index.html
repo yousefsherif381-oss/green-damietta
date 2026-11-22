@@ -284,7 +284,7 @@
     <main class="main-wrapper">
         
         <div id="newsHomeContainer" style="display: block;">
-            <!-- قسم الفيديو التعريفي والإعلانات -->
+            <!-- قسم الفيديو التعريفي (يظهر مرة واحدة فقط بشكل نظيف) -->
             <div class="news-card" style="margin-bottom: 25px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <h3 style="color: var(--primary-dark); font-weight: 900; font-size: 18px;">🎥 فيديو تعريفي</h3>
@@ -634,7 +634,6 @@
             });
         }
 
-        // دالة تسجيل الدخول المتصلة بقاعدة البيانات لتناسب أدوار لوحة الإدارة
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -714,12 +713,23 @@
             });
         }
 
+        // دعم عرض الفيديو من جهازك أو من اليوتيوب بمرونة تامة
         function loadIntroVideo() {
             const videoContainer = document.getElementById('introVideoContainer');
             db.ref('settings/introVideoUrl').once('value').then(snap => {
                 const url = snap.val();
                 if (url) {
-                    videoContainer.innerHTML = `<iframe width="100%" height="315" src="${url}" title="فيديو تعريفي" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:320px; border-radius:12px;"></iframe>`;
+                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        let embedUrl = url;
+                        if (url.includes('watch?v=')) {
+                            embedUrl = url.replace('watch?v=', 'embed/');
+                        } else if (url.includes('youtu.be/')) {
+                            embedUrl = url.replace('youtu.be/', 'www.youtube.com/embed/');
+                        }
+                        videoContainer.innerHTML = `<iframe width="100%" height="315" src="${embedUrl}" title="فيديو تعريفي" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:320px; border-radius:12px;"></iframe>`;
+                    } else {
+                        videoContainer.innerHTML = `<video controls style="width:100%; height:320px; border-radius:12px; object-fit:cover;"><source src="${url}" type="video/mp4">متصفحك لا يدعم عرض الفيديو.</video>`;
+                    }
                 } else {
                     videoContainer.innerHTML = `<div style="padding: 40px; text-align: center; color: #64748B; font-weight: 700;">لا يوجد فيديو تعريفي مضاف حالياً من لوحة التحكم.</div>`;
                 }
