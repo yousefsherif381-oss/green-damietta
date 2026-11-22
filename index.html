@@ -706,7 +706,7 @@
             });
         }
 
-        // دالة تسجيل الدخول المحدثة للتحقق من الأدمن، الكنترول، شؤون الطلاب، والمدرسين من فايربيز مباشرة
+        // دالة تسجيل الدخول المُحدثة والمحصنة لمنع تداخل الباسوردات
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -719,24 +719,24 @@
                     passAttendance: '1234' 
                 };
 
-                // 1. لو الباسورد مطابق للأدمن العام
-                if (password === config.pass || password === "1234") {
+                // 1. التحقق من الإدارة العامة (يجب إدخال باسورد الأدمن الصحيح)
+                if (password === config.pass || (password === "1234" && identifier === "admin")) {
                     showToast("مرحباً بك في لوحة الإدارة العامة 🔓", "✅");
                     localStorage.setItem('adminPermission', 'admin');
                     setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                     return;
                 }
 
-                // 2. لو الباسورد مطابق لكنترول المدرسة
-                if (password === config.passControl) {
+                // 2. التحقق من كنترول المدرسة (يجب إدخال باسورد الكنترول الصحيح حصرياً)
+                if (password === config.passControl && password !== "") {
                     showToast("مرحباً بك في كنترول المدرسة 🏆", "✅");
                     localStorage.setItem('adminPermission', 'control');
                     setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                     return;
                 }
 
-                // 3. لو الباسورد مطابق لشؤون الطلاب
-                if (password === config.passAttendance) {
+                // 3. التحقق من شؤون الطلاب (يجب إدخال باسورد شؤون الطلاب الصحيح حصرياً)
+                if (password === config.passAttendance && password !== "") {
                     showToast("مرحباً بك في شؤون الطلاب 👥", "✅");
                     localStorage.setItem('adminPermission', 'attendance');
                     setTimeout(() => { window.location.href = 'admin.html'; }, 800);
@@ -763,7 +763,7 @@
                         return;
                     }
 
-                    // 5. التحقق من حسابات الطلاب وأولياء الأمور
+                    // 5. التحقق من حسابات الطلاب وأولياء الأمور (يجب تطابق اليوزرنيم والباسورد معاً بدقة تامة)
                     db.ref('users').once('value').then(snap => {
                         const users = snap.val() || {};
                         let foundKey = null;
@@ -771,13 +771,13 @@
 
                         Object.keys(users).forEach(key => {
                             const u = users[key];
-                            if(u.nationalId === identifier || u.email === identifier || u.fullName === identifier || u.phone === identifier) {
+                            if((u.nationalId === identifier || u.email === identifier || u.fullName === identifier || u.phone === identifier) && u.password === password) {
                                 foundKey = key;
                                 foundUserData = u;
                             }
                         });
 
-                        if(foundUserData && foundUserData.password === password) {
+                        if(foundUserData) {
                             currentUserKey = foundKey;
                             currentUser = foundUserData;
                             localStorage.setItem('currentUserKey', foundKey);
