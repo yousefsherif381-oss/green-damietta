@@ -284,6 +284,17 @@
     <main class="main-wrapper">
         
         <div id="newsHomeContainer" style="display: block;">
+            <!-- قسم الفيديو التعريفي والإعلانات -->
+            <div class="news-card" style="margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="color: var(--primary-dark); font-weight: 900; font-size: 18px;">🎥 فيديو تعريفي</h3>
+                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">🕒 لفهم الموقع</span>
+                </div>
+                <div id="introVideoContainer" style="width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #fff;">
+                    <p style="font-size: 13px; color: #94A3B8;">جاري تحميل الفيديو التعريفي...</p>
+                </div>
+            </div>
+
             <div class="news-header-title">📢 أحدث التنبيهات والإعلانات التعليمية</div>
             <div class="news-feed" id="newsFeedList">
                 <p style="color: #FFFFFF; text-align: center; padding: 30px;">جاري تحميل الأخبار والتحديثات...</p>
@@ -623,7 +634,7 @@
             });
         }
 
-        // دالة تسجيل الدخول المحدثة لتتوافق مع أسماء المستخدمين من لوحة الأدمن
+        // دالة تسجيل الدخول المتصلة بقاعدة البيانات لتناسب أدوار لوحة الإدارة
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -637,7 +648,6 @@
                     usernameAttendance: 'attendance', passAttendance: '1234' 
                 };
 
-                // التحقق من يوزر وباسورد الإدارة العامة
                 if (idLower === (config.usernameAdmin || 'admin').toLowerCase()) {
                     if (password === config.pass) {
                         showToast("مرحباً بك في لوحة الإدارة العامة 🔓", "✅");
@@ -649,7 +659,6 @@
                     return;
                 }
 
-                // التحقق من يوزر وباسورد الكنترول
                 if (idLower === (config.usernameControl || 'control').toLowerCase()) {
                     if (password === config.passControl) {
                         showToast("مرحباً بك في كنترول المدرسة 🏆", "✅");
@@ -661,7 +670,6 @@
                     return;
                 }
 
-                // التحقق من يوزر وباسورد شؤون الطلاب
                 if (idLower === (config.usernameAttendance || 'attendance').toLowerCase()) {
                     if (password === config.passAttendance) {
                         showToast("مرحباً بك في شؤون الطلاب 👥", "✅");
@@ -673,7 +681,6 @@
                     return;
                 }
 
-                // التحقق من حسابات الطلاب وأولياء الأمور العاديين في الداتابيز
                 db.ref('users').once('value').then(snapshot => {
                     let foundUser = null;
                     let foundKey = null;
@@ -707,7 +714,20 @@
             });
         }
 
+        function loadIntroVideo() {
+            const videoContainer = document.getElementById('introVideoContainer');
+            db.ref('settings/introVideoUrl').once('value').then(snap => {
+                const url = snap.val();
+                if (url) {
+                    videoContainer.innerHTML = `<iframe width="100%" height="315" src="${url}" title="فيديو تعريفي" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:320px; border-radius:12px;"></iframe>`;
+                } else {
+                    videoContainer.innerHTML = `<div style="padding: 40px; text-align: center; color: #64748B; font-weight: 700;">لا يوجد فيديو تعريفي مضاف حالياً من لوحة التحكم.</div>`;
+                }
+            });
+        }
+
         function loadNewsFeed() {
+            loadIntroVideo();
             const feed = document.getElementById('newsFeedList');
             db.ref('news').once('value').then(snap => {
                 if (!snap.exists()) {
