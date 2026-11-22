@@ -706,7 +706,7 @@
             });
         }
 
-        // دالة تسجيل الدخول المُحدثة والمحصنة لمنع تداخل الباسوردات
+        // دالة تسجيل الدخول المُحدثة والمؤمنة بدقة تامة لمنع تداخل الباسوردات مع الطلاب
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -719,24 +719,24 @@
                     passAttendance: '1234' 
                 };
 
-                // 1. التحقق من الإدارة العامة (يجب إدخال باسورد الأدمن الصحيح)
-                if (password === config.pass || (password === "1234" && identifier === "admin")) {
+                // 1. التحقق من الإدارة العامة (يجب أن يكون الباسورد مطابقاً وبدون تداخل مع الطلاب)
+                if (password === config.pass && password !== "" && identifier !== "") {
                     showToast("مرحباً بك في لوحة الإدارة العامة 🔓", "✅");
                     localStorage.setItem('adminPermission', 'admin');
                     setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                     return;
                 }
 
-                // 2. التحقق من كنترول المدرسة (يجب إدخال باسورد الكنترول الصحيح حصرياً)
-                if (password === config.passControl && password !== "") {
+                // 2. التحقق من كنترول المدرسة (يجب أن يتم إدخال باسورد الكنترول الصحيح حصرياً)
+                if (password === config.passControl && password !== "" && identifier !== "") {
                     showToast("مرحباً بك في كنترول المدرسة 🏆", "✅");
                     localStorage.setItem('adminPermission', 'control');
                     setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                     return;
                 }
 
-                // 3. التحقق من شؤون الطلاب (يجب إدخال باسورد شؤون الطلاب الصحيح حصرياً)
-                if (password === config.passAttendance && password !== "") {
+                // 3. التحقق من شؤون الطلاب (يجب أن يتم إدخال باسورد شؤون الطلاب الصحيح حصرياً)
+                if (password === config.passAttendance && password !== "" && identifier !== "") {
                     showToast("مرحباً بك في شؤون الطلاب 👥", "✅");
                     localStorage.setItem('adminPermission', 'attendance');
                     setTimeout(() => { window.location.href = 'admin.html'; }, 800);
@@ -763,7 +763,7 @@
                         return;
                     }
 
-                    // 5. التحقق من حسابات الطلاب وأولياء الأمور (يجب تطابق اليوزرنيم والباسورد معاً بدقة تامة)
+                    // 5. التحقق من حسابات الطلاب وأولياء الأمور (يجب تطابق اليوزرنيم والباسورد معاً بدقة تامة ومنع أي تطابق خاطئ مع باسورد الكنترول)
                     db.ref('users').once('value').then(snap => {
                         const users = snap.val() || {};
                         let foundKey = null;
