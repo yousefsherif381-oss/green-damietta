@@ -638,9 +638,16 @@
             const passAttendance = document.getElementById('passAttendance').value.trim();
 
             db.ref('adminConfig').set({
-                usernameAdmin, pass, usernameControl, passControl, usernameAttendance, passAttendance
+                usernameAdmin: usernameAdmin,
+                pass: pass,
+                usernameControl: usernameControl,
+                passControl: passControl,
+                usernameAttendance: usernameAttendance,
+                passAttendance: passAttendance
             }).then(() => {
                 showToast("تم تحديث أسماء المستخدمين وكلمات المرور بنجاح 💾", "✅");
+            }).catch(error => {
+                showToast("حدث خطأ أثناء الحفظ", "❌");
             });
         }
 
