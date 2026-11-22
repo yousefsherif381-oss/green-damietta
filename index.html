@@ -623,6 +623,7 @@
             });
         }
 
+        // دالة تسجيل الدخول المحدثة لتتوافق مع أسماء المستخدمين من لوحة الأدمن
         function handleSignIn(e) {
             e.preventDefault();
             const identifier = document.getElementById('loginIdentifierInput').value.trim();
@@ -636,6 +637,7 @@
                     usernameAttendance: 'attendance', passAttendance: '1234' 
                 };
 
+                // التحقق من يوزر وباسورد الإدارة العامة
                 if (idLower === (config.usernameAdmin || 'admin').toLowerCase()) {
                     if (password === config.pass) {
                         showToast("مرحباً بك في لوحة الإدارة العامة 🔓", "✅");
@@ -647,6 +649,7 @@
                     return;
                 }
 
+                // التحقق من يوزر وباسورد الكنترول
                 if (idLower === (config.usernameControl || 'control').toLowerCase()) {
                     if (password === config.passControl) {
                         showToast("مرحباً بك في كنترول المدرسة 🏆", "✅");
@@ -658,6 +661,7 @@
                     return;
                 }
 
+                // التحقق من يوزر وباسورد شؤون الطلاب
                 if (idLower === (config.usernameAttendance || 'attendance').toLowerCase()) {
                     if (password === config.passAttendance) {
                         showToast("مرحباً بك في شؤون الطلاب 👥", "✅");
@@ -669,6 +673,7 @@
                     return;
                 }
 
+                // التحقق من حسابات الطلاب وأولياء الأمور العاديين في الداتابيز
                 db.ref('users').once('value').then(snapshot => {
                     let foundUser = null;
                     let foundKey = null;
@@ -739,6 +744,11 @@
             document.getElementById('signUpView').style.display = 'block';
             updateClassRoomsList();
             toggleRoleFields();
+        }
+
+        function openForgotPasswordModal() {
+            document.querySelectorAll('.view-section, .auth-page-view, #newsHomeContainer').forEach(el => el.style.display = 'none');
+            document.getElementById('forgotPasswordView').style.display = 'block';
         }
 
         function navigateToSection(sectionId) {
@@ -849,6 +859,32 @@
             });
         }
 
+        function handleResetPassword(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('resetIdentifierInput').value.trim();
+            const phone = document.getElementById('resetPhoneInput').value.trim();
+            const newPassword = document.getElementById('newPasswordInput').value.trim();
+
+            db.ref('users').once('value').then(snapshot => {
+                let targetKey = null;
+                snapshot.forEach(childSnap => {
+                    const u = childSnap.val();
+                    if ((u.nationalId === identifier || u.email === identifier) && u.phone === phone) {
+                        targetKey = childSnap.key;
+                    }
+                });
+
+                if (targetKey) {
+                    db.ref('users/' + targetKey).update({ password: newPassword }).then(() => {
+                        showToast("تم تحديث كلمة المرور بنجاح! سجّل دخولك الآن 🔑", "✅");
+                        openSignInPage();
+                    });
+                } else {
+                    showToast("البيانات المدخلة لا تطابق أي حساب مسجل ❌", "⚠️");
+                }
+            });
+        }
+
         function logoutUser() {
             currentUser = null;
             currentUserKey = null;
@@ -877,7 +913,7 @@
                 });
             } else {
                 if(authActions) authActions.style.display = 'flex';
-                if(userActions) authActions.style.display = 'none';
+                if(userActions) userActions.style.display = 'none';
                 if(profileBtn) profileBtn.style.display = 'none';
             }
         }
