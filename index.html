@@ -481,6 +481,7 @@
                     <label>اختر نوع الحساب:</label>
                     <select id="signUpRole" class="form-control" onchange="toggleRoleFields()">
                         <option value="student">🎓 حساب طالب</option>
+                        <option value="teacher">👨‍🏫 حساب مدرس</option>
                         <option value="parent">👨‍👩‍👦 حساب ولي أمر (مربوط بالطالب)</option>
                     </select>
                 </div>
@@ -639,6 +640,10 @@
                 linkGroup.style.display = 'block';
                 gradeGroup.style.display = 'none';
                 classGroup.style.display = 'none';
+            } else if (role === 'teacher') {
+                linkGroup.style.display = 'none';
+                gradeGroup.style.display = 'none';
+                classGroup.style.display = 'none';
             } else {
                 linkGroup.style.display = 'none';
                 gradeGroup.style.display = 'block';
@@ -770,7 +775,7 @@
                 document.getElementById('profilePhone').value = currentUser.phone || '';
                 document.getElementById('profilePassword').value = currentUser.password || '';
                 document.getElementById('profileName').textContent = currentUser.fullName || '';
-                document.getElementById('profileRoleBadge').textContent = currentUser.role === 'parent' ? 'ولي أمر' : 'طالب';
+                document.getElementById('profileRoleBadge').textContent = currentUser.role === 'teacher' ? 'مدرس 👨‍🏫' : (currentUser.role === 'parent' ? 'ولي أمر' : 'طالب');
                 document.getElementById('profileGradeDisplay').textContent = currentUser.grade || '';
             } else if (sectionId === 'gradesSection' && currentUser) {
                 loadStudentGradesView();
@@ -869,6 +874,7 @@
                     return;
                 }
 
+                // التحقق من حسابات المدرسين والطلاب وأولياء الأمور المسجلين في قاعدة البيانات
                 db.ref('users').once('value').then(snapshot => {
                     let foundUser = null;
                     let foundKey = null;
@@ -891,8 +897,16 @@
                             currentUser = foundUser;
                             currentUserKey = foundKey;
                             localStorage.setItem('currentUserKey', foundKey);
-                            showToast("تم تسجيل الدخول بنجاح! أهلاً بك 🌟", "🎉");
-                            setTimeout(() => { showHomePage(); updateHeaderUI(); }, 800);
+                            
+                            // إذا كان الحساب لمدرس، يمكن توجيهه للوحة الإدارة أو تفعيل صلاحياته
+                            if (foundUser.role === 'teacher') {
+                                showToast("مرحباً بك يا أستاذنا الفاضل! 👨‍🏫", "🎉");
+                                localStorage.setItem('adminPermission', 'teacher');
+                                setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                            } else {
+                                showToast("تم تسجيل الدخول بنجاح! أهلاً بك 🌟", "🎉");
+                                setTimeout(() => { showHomePage(); updateHeaderUI(); }, 800);
+                            }
                         } else {
                             showToast("كلمة المرور غير صحيحة ❌", "⚠️");
                         }
