@@ -617,12 +617,15 @@
             const grade = document.getElementById('signUpGrade').value;
             const classSelect = document.getElementById('signUpClassRoom');
             classSelect.innerHTML = '';
-            for (let i = 1; i <= 6; i++) {
+            
+            // توليد الفصول بالحروف الإنجليزية من A إلى E لتتطابق تماماً مع لوحة التحكم
+            const sections = ['A', 'B', 'C', 'D', 'E'];
+            sections.forEach(sec => {
                 const opt = document.createElement('option');
-                opt.value = `${grade} - الفصل ${i}`;
-                opt.textContent = `${grade} - الفصل ${i}`;
+                opt.value = `${grade} - ${sec}`;
+                opt.textContent = `${grade} (فصل ${sec})`;
                 classSelect.appendChild(opt);
-            }
+            });
         }
 
         function toggleRoleFields() {
@@ -1068,6 +1071,7 @@
         window.onload = function() {
             updateHeaderUI();
             showHomePage();
+            updateClassRoomsList();
         };
     </script>
 </body>
