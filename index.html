@@ -294,11 +294,11 @@
             </div>
         </div>
 
-        <!-- مركز الشكاوى والاستفسارات القديم (اسم الطالب، رقم التلفون، والشكوى) -->
+        <!-- مركز الشكاوى والاستفسارات (اسم الطالب، شكوى عن ايه، وتحت يكتب الشكوى) -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 6px; text-align: center; margin-top: 10px;">📨 مركز الشكاوى والاستفسارات</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم الطالب ورقم التلفون ثم اكتب الشكوى أو الاستفسار لتصل للإدارة</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم الطالب ونوع الشكوى ثم تفاصيل الشكوى لتصل للإدارة</p>
 
             <form onsubmit="submitTicket(event)">
                 <div class="form-group">
@@ -306,12 +306,12 @@
                     <input type="text" id="ticketStudentName" class="form-control" placeholder="أدخل اسم الطالب الرباعي" required>
                 </div>
                 <div class="form-group">
-                    <label>رقم التلفون:</label>
-                    <input type="tel" id="ticketPhone" class="form-control" placeholder="أدخل رقم الهاتف للتواصل" required>
+                    <label>شكوى عن ايه:</label>
+                    <input type="text" id="ticketSubject" class="form-control" placeholder="اكتب موضوع أو عنوان الشكوى" required>
                 </div>
                 <div class="form-group">
-                    <label>الشكوى أو الاستفسار:</label>
-                    <textarea id="ticketMessageInput" class="form-control" rows="4" placeholder="اكتب تفاصيل الشكوى أو الاستفسار هنا..." required></textarea>
+                    <label>تفاصيل الشكوى:</label>
+                    <textarea id="ticketMessageInput" class="form-control" rows="4" placeholder="اكتب تفاصيل الشكوى هنا..." required></textarea>
                 </div>
                 <button type="submit" class="btn-submit">إرسال الشكوى للإدارة 🚀</button>
             </form>
@@ -708,19 +708,19 @@
         function submitTicket(e) {
             e.preventDefault();
             const senderName = document.getElementById('ticketStudentName').value.trim();
-            const phone = document.getElementById('ticketPhone').value.trim();
+            const subject = document.getElementById('ticketSubject').value.trim();
             const message = document.getElementById('ticketMessageInput').value.trim();
             const date = new Date().toLocaleDateString('ar-EG');
 
             db.ref('tickets').push({
                 senderName,
-                nationalId: phone,
+                subject,
                 message,
                 date
             }).then(() => {
                 showToast("تم إرسال الشكوى للإدارة بنجاح 🚀", "✅");
                 document.getElementById('ticketStudentName').value = '';
-                document.getElementById('ticketPhone').value = '';
+                document.getElementById('ticketSubject').value = '';
                 document.getElementById('ticketMessageInput').value = '';
                 showHomePage();
             }).catch(() => {
