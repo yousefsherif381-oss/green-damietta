@@ -874,7 +874,6 @@
                     return;
                 }
 
-                // التحقق من حسابات المدرسين والطلاب وأولياء الأمور المسجلين في قاعدة البيانات
                 db.ref('users').once('value').then(snapshot => {
                     let foundUser = null;
                     let foundKey = null;
@@ -898,7 +897,6 @@
                             currentUserKey = foundKey;
                             localStorage.setItem('currentUserKey', foundKey);
                             
-                            // إذا كان الحساب لمدرس، يمكن توجيهه للوحة الإدارة أو تفعيل صلاحياته
                             if (foundUser.role === 'teacher') {
                                 showToast("مرحباً بك يا أستاذنا الفاضل! 👨‍🏫", "🎉");
                                 localStorage.setItem('adminPermission', 'teacher');
