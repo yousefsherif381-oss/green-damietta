@@ -650,17 +650,26 @@
             const feed = document.getElementById('newsFeedList');
             db.ref('news').once('value').then(snap => {
                 if (!snap.exists()) {
-                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات منشورة حالياً.</p>';
+                    feed.innerHTML = '<p style="color: #FFFFFF; text-align: center; padding: 30px;">لا توجد إعلانات أو فيديوهات منشورة حالياً.</p>';
                     return;
                 }
                 feed.innerHTML = '';
                 snap.forEach(child => {
                     const n = child.val();
+                    let videoHtml = '';
+                    if (n.videoUrl) {
+                        videoHtml = `
+                            <div style="margin-top: 15px; width: 100%; border-radius: 12px; overflow: hidden; background: #000;">
+                                <video controls style="width: 100%; max-height: 400px; display: block;" src="${n.videoUrl}"></video>
+                            </div>
+                        `;
+                    }
                     feed.innerHTML += `
                         <div class="news-card">
-                            <h3 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 8px;">${n.title}</h3>
+                            <h3 style="color: var(--primary-dark); font-weight: 900; margin-bottom: 8px;">${n.title || 'إعلان هام'}</h3>
                             <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 10px;">🕒 ${n.date || ''}</p>
-                            <p style="color: var(--text-dark); font-size: 14.5px; line-height: 1.6; white-space: pre-wrap;">${n.content}</p>
+                            <p style="color: var(--text-dark); font-size: 14.5px; line-height: 1.6; white-space: pre-wrap; margin-bottom: 10px;">${n.content || ''}</p>
+                            ${videoHtml}
                         </div>
                     `;
                 });
