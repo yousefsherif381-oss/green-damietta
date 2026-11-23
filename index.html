@@ -294,16 +294,22 @@
             </div>
         </div>
 
-        <!-- مركز الشكاوى والاستفسارات المحدث -->
+        <!-- مركز الشكاوى والاستفسارات والسجل بالأسفل -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 6px; text-align: center; margin-top: 10px;">📨 مركز الشكاوى والاستفسارات</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم الطالب، واختار نوع الاستفسار، ثم اكتب تفاصيل الشكوى لتصل للإدارة</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل بياناتك واختر نوع الاستفسار ثم اكتب التفاصيل لتصل للإدارة</p>
 
             <form onsubmit="submitTicket(event)">
-                <div class="form-group">
-                    <label>اسم الطالب:</label>
-                    <input type="text" id="ticketStudentName" class="form-control" placeholder="أدخل اسم الطالب الرباعي" required>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>اسم الطالب:</label>
+                        <input type="text" id="ticketStudentName" class="form-control" placeholder="أدخل اسم الطالب الرباعي" required>
+                    </div>
+                    <div class="form-group">
+                        <label>كود الطالب / الرقم القومي:</label>
+                        <input type="text" id="ticketStudentCode" class="form-control" placeholder="أدخل كود الطالب أو الرقم القومي" required>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>شكوى عن إيه (نوع الاستفسار):</label>
@@ -321,6 +327,13 @@
                 </div>
                 <button type="submit" class="btn-submit">إرسال الشكوى للإدارة 🚀</button>
             </form>
+
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #E2E8F0;">
+
+            <h3 style="font-size: 16px; font-weight: 900; color: var(--primary-dark); margin-bottom: 15px; text-align: right;">📋 سجل الشكاوى والاستفسارات المرسلة وحالة الرد:</h3>
+            <div id="ticketsListContainer" style="display: flex; flex-direction: column; gap: 14px;">
+                <p style="color: var(--text-muted); text-align: center; font-size: 13.5px;">جاري تحميل الشكاوى السابقة...</p>
+            </div>
         </div>
 
         <div class="view-section" id="profileSection">
@@ -654,6 +667,37 @@
             });
         }
 
+        function loadStudentTickets() {
+            const container = document.getElementById('ticketsListContainer');
+            db.ref('tickets').once('value').then(snap => {
+                if (!snap.exists()) {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; font-size: 13.5px;">لا توجد شكاوى مسجلة حتى الآن.</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                snap.forEach(child => {
+                    const t = child.val();
+                    const sName = t.studentName || t.senderName || 'طالب';
+                    const sCode = t.studentCode || t.nationalId || '---';
+                    container.innerHTML += `
+                        <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #E2E8F0; text-align: right;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                                <span style="font-weight: 900; color: var(--primary-dark); font-size: 14px;">👤 ${sName} (كود: ${sCode})</span>
+                                <span style="font-size: 12px; font-weight: 800; color: #10B981; background: #ECFDF5; padding: 3px 10px; border-radius: 20px;">${t.status || 'قيد المراجعة 🔄'}</span>
+                            </div>
+                            <p style="font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 4px;">📌 نوع الاستفسار: ${t.subject || '---'}</p>
+                            <p style="font-size: 13.5px; color: var(--text-dark); margin-bottom: 8px;">💬 <strong>التفاصيل:</strong> ${t.message || ''}</p>
+                            <div style="background: #FFFFFF; padding: 10px; border-radius: 10px; border: 1px dashed #CBD5E1; margin-top: 8px;">
+                                <span style="font-size: 12px; font-weight: 800; color: var(--primary);">💬 رد الإدارة:</span>
+                                <p style="font-size: 13px; color: var(--text-dark); margin-top: 2px;">${t.adminReply || t.reply || 'لم تقم الإدارة بالرد بعد'}</p>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 6px; text-align: left;">🕒 ${t.date || ''}</span>
+                        </div>
+                    `;
+                });
+            });
+        }
+
         function showHomePage() {
             document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
             document.getElementById('newsHomeContainer').style.display = 'block';
@@ -686,7 +730,13 @@
             document.querySelectorAll('.view-section, .auth-page-view, #newsHomeContainer').forEach(el => el.style.display = 'none');
             document.getElementById(sectionId).style.display = 'block';
 
-            if (sectionId === 'profileSection' && currentUser) {
+            if (sectionId === 'ticketsSection') {
+                if (currentUser) {
+                    document.getElementById('ticketStudentName').value = currentUser.fullName || '';
+                    document.getElementById('ticketStudentCode').value = currentUser.nationalId || currentUser.linkedStudentCode || '';
+                }
+                loadStudentTickets();
+            } else if (sectionId === 'profileSection' && currentUser) {
                 document.getElementById('profileFullName').value = currentUser.fullName || '';
                 document.getElementById('profileNationalId').value = currentUser.nationalId || '';
                 document.getElementById('profileEmail').value = currentUser.email || '';
@@ -713,24 +763,33 @@
 
         function submitTicket(e) {
             e.preventDefault();
-            const senderName = document.getElementById('ticketStudentName').value.trim();
+            const studentName = document.getElementById('ticketStudentName').value.trim();
+            const studentCode = document.getElementById('ticketStudentCode').value.trim();
             const subject = document.getElementById('ticketSubjectSelect').value;
             const message = document.getElementById('ticketMessageInput').value.trim();
             const date = new Date().toLocaleDateString('ar-EG');
 
             db.ref('tickets').push({
-                senderName,
-                subject,
-                message,
+                studentName: studentName,
+                senderName: studentName,
+                studentCode: studentCode,
+                nationalId: studentCode,
+                userId: currentUserKey || '',
+                grade: currentUser ? (currentUser.grade || '') : '',
+                subject: subject,
+                message: message,
                 status: 'قيد المراجعة 🔄',
                 adminReply: 'لم تقم الإدارة بالرد بعد',
-                date
+                date: date
             }).then(() => {
                 showToast("تم إرسال الشكوى للإدارة بنجاح وهي قيد المراجعة 🚀", "✅");
-                document.getElementById('ticketStudentName').value = '';
+                if (!currentUser) {
+                    document.getElementById('ticketStudentName').value = '';
+                    document.getElementById('ticketStudentCode').value = '';
+                }
                 document.getElementById('ticketSubjectSelect').selectedIndex = 0;
                 document.getElementById('ticketMessageInput').value = '';
-                showHomePage();
+                loadStudentTickets();
             }).catch(() => {
                 showToast("حدث خطأ أثناء إرسال الشكوى", "❌");
             });
