@@ -294,11 +294,11 @@
             </div>
         </div>
 
-        <!-- مركز الشكاوى والاستفسارات (اسم الطالب، شكوى عن ايه، وتحت يكتب الشكوى) -->
+        <!-- مركز الشكاوى والاستفسارات المحدث -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 6px; text-align: center; margin-top: 10px;">📨 مركز الشكاوى والاستفسارات</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم الطالب ونوع الشكوى ثم تفاصيل الشكوى لتصل للإدارة</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم الطالب، واختار نوع الاستفسار، ثم اكتب تفاصيل الشكوى لتصل للإدارة</p>
 
             <form onsubmit="submitTicket(event)">
                 <div class="form-group">
@@ -306,8 +306,14 @@
                     <input type="text" id="ticketStudentName" class="form-control" placeholder="أدخل اسم الطالب الرباعي" required>
                 </div>
                 <div class="form-group">
-                    <label>شكوى عن ايه:</label>
-                    <input type="text" id="ticketSubject" class="form-control" placeholder="اكتب موضوع أو عنوان الشكوى" required>
+                    <label>شكوى عن إيه (نوع الاستفسار):</label>
+                    <select id="ticketSubjectSelect" class="form-control" required>
+                        <option value="" disabled selected>اختر موضوع الشكوى أو الاستفسار</option>
+                        <option value="مشكلة في الدرجات والنتائج">مشكلة في الدرجات والنتائج 📊</option>
+                        <option value="مشكلة في الحضور والغياب">مشكلة في الحضور والغياب 📅</option>
+                        <option value="استفسار تقني أو الدخول للمنصة">استفسار تقني أو الدخول للمنصة 💻</option>
+                        <option value="شكوى عامة / أخرى">شكوى عامة / أخرى 📌</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>تفاصيل الشكوى:</label>
@@ -708,7 +714,7 @@
         function submitTicket(e) {
             e.preventDefault();
             const senderName = document.getElementById('ticketStudentName').value.trim();
-            const subject = document.getElementById('ticketSubject').value.trim();
+            const subject = document.getElementById('ticketSubjectSelect').value;
             const message = document.getElementById('ticketMessageInput').value.trim();
             const date = new Date().toLocaleDateString('ar-EG');
 
@@ -716,11 +722,13 @@
                 senderName,
                 subject,
                 message,
+                status: 'قيد المراجعة 🔄',
+                adminReply: 'لم تقم الإدارة بالرد بعد',
                 date
             }).then(() => {
-                showToast("تم إرسال الشكوى للإدارة بنجاح 🚀", "✅");
+                showToast("تم إرسال الشكوى للإدارة بنجاح وهي قيد المراجعة 🚀", "✅");
                 document.getElementById('ticketStudentName').value = '';
-                document.getElementById('ticketSubject').value = '';
+                document.getElementById('ticketSubjectSelect').selectedIndex = 0;
                 document.getElementById('ticketMessageInput').value = '';
                 showHomePage();
             }).catch(() => {
