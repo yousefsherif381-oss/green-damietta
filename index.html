@@ -294,7 +294,6 @@
             </div>
         </div>
 
-        <!-- مركز الشكاوى والاستفسارات والسجل بالأسفل -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 6px; text-align: center; margin-top: 10px;">📨 مركز الشكاوى والاستفسارات</h2>
@@ -426,7 +425,6 @@
             </div>
         </div>
 
-        <!-- صفحة تسجيل الدخول -->
         <div class="auth-page-view" id="signInView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">تسجيل الدخول</h2>
@@ -448,7 +446,6 @@
             </form>
         </div>
 
-        <!-- صفحة إعادة تعيين كلمة المرور -->
         <div class="auth-page-view" id="forgotPasswordView" style="display: none;">
             <button onclick="openSignInPage()" class="btn-back-home">➡️ العودة لتسجيل الدخول</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">إعادة تعيين كلمة المرور 🔄</h2>
@@ -471,7 +468,6 @@
             </form>
         </div>
 
-        <!-- صفحة إنشاء حساب جديد -->
         <div class="auth-page-view" id="signUpView">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 6px; margin-top: 10px;">إنشاء حساب جديد ✨</h2>
@@ -481,7 +477,6 @@
                     <label>اختر نوع الحساب:</label>
                     <select id="signUpRole" class="form-control" onchange="toggleRoleFields()">
                         <option value="student">🎓 حساب طالب</option>
-                        <option value="teacher">👨‍🏫 حساب مدرس</option>
                         <option value="parent">👨‍👩‍👦 حساب ولي أمر (مربوط بالطالب)</option>
                     </select>
                 </div>
@@ -638,10 +633,6 @@
             
             if (role === 'parent') {
                 linkGroup.style.display = 'block';
-                gradeGroup.style.display = 'none';
-                classGroup.style.display = 'none';
-            } else if (role === 'teacher') {
-                linkGroup.style.display = 'none';
                 gradeGroup.style.display = 'none';
                 classGroup.style.display = 'none';
             } else {
@@ -884,6 +875,7 @@
                             (u.nationalId && u.nationalId.toString().toLowerCase() === idLower) ||
                             (u.email && u.email.toLowerCase() === idLower) ||
                             (u.fullName && u.fullName.toLowerCase() === idLower) ||
+                            (u.subjectId && u.subjectId.toString().toLowerCase() === idLower) ||
                             (u.linkedStudentCode && u.linkedStudentCode.toString().toLowerCase() === idLower)
                         ) {
                             foundUser = u;
@@ -900,6 +892,7 @@
                             if (foundUser.role === 'teacher') {
                                 showToast("مرحباً بك يا أستاذنا الفاضل! 👨‍🏫", "🎉");
                                 localStorage.setItem('adminPermission', 'teacher');
+                                localStorage.setItem('teacherData', JSON.stringify(foundUser));
                                 setTimeout(() => { window.location.href = 'admin.html'; }, 800);
                             } else {
                                 showToast("تم تسجيل الدخول بنجاح! أهلاً بك 🌟", "🎉");
@@ -1022,7 +1015,7 @@
                 let targetKey = null;
                 snapshot.forEach(childSnap => {
                     const u = childSnap.val();
-                    if ((u.nationalId === identifier || u.email === identifier) && u.phone === phone) {
+                    if ((u.nationalId === identifier || u.email === identifier || u.subjectId === identifier) && u.phone === phone) {
                         targetKey = childSnap.key;
                     }
                 });
@@ -1043,6 +1036,7 @@
             currentUserKey = null;
             localStorage.removeItem('currentUserKey');
             localStorage.removeItem('adminPermission');
+            localStorage.removeItem('teacherData');
             showToast("تم تسجيل الخروج بنجاح 👋", "✅");
             showHomePage();
             updateHeaderUI();
