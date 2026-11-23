@@ -288,21 +288,13 @@
     <main class="main-wrapper">
         
         <div id="newsHomeContainer" style="display: block;">
-            <!-- قسم الفيديو التعريفي ثابت في مكانه -->
-            <div class="news-card" style="margin-bottom: 25px;">
-                <h3 style="color: var(--primary-dark); font-weight: 900; font-size: 17px; margin-bottom: 12px;">🎥 الفيديو التعريفي للموقع</h3>
-                <div id="homeIntroVideoContainer" style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #fff;">
-                    <p style="font-size: 13px; color: #94A3B8;">جاري تحميل الفيديو التعريفي...</p>
-                </div>
-            </div>
-
             <div class="news-header-title">📢 أحدث التنبيهات والإعلانات التعليمية</div>
             <div class="news-feed" id="newsFeedList">
                 <p style="color: #FFFFFF; text-align: center; padding: 30px;">جاري تحميل الأخبار والتحديثات...</p>
             </div>
         </div>
 
-        <!-- قسم مركز الشكاوى والاستفسارات (بالاسم ورقم التلفون والشكوى مباشرة) -->
+        <!-- مركز الشكاوى والاستفسارات القديم (اسم الطالب، رقم التلفون، والشكوى) -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 6px; text-align: center; margin-top: 10px;">📨 مركز الشكاوى والاستفسارات</h2>
@@ -635,28 +627,6 @@
             }
         }
 
-        function loadIntroVideo() {
-            const container = document.getElementById('homeIntroVideoContainer');
-            db.ref('settings/introVideoUrl').once('value').then(snap => {
-                const url = snap.val();
-                if (!url) {
-                    container.innerHTML = '<p style="font-size: 13px; color: #94A3B8;">لم يتم إضافة فيديو تعريفي بعد.</p>';
-                    return;
-                }
-                if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                    let embedUrl = url;
-                    if (url.includes('watch?v=')) {
-                        embedUrl = url.replace('watch?v=', 'embed/');
-                    } else if (url.includes('youtu.be/')) {
-                        embedUrl = url.replace('youtu.be/', 'www.youtube.com/embed/');
-                    }
-                    container.innerHTML = `<iframe src="${embedUrl}" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>`;
-                } else {
-                    container.innerHTML = `<video src="${url}" controls style="width:100%; height:100%; object-fit:cover;"></video>`;
-                }
-            });
-        }
-
         function loadNewsFeed() {
             const feed = document.getElementById('newsFeedList');
             db.ref('news').once('value').then(snap => {
@@ -681,7 +651,6 @@
         function showHomePage() {
             document.querySelectorAll('.view-section, .auth-page-view').forEach(el => el.style.display = 'none');
             document.getElementById('newsHomeContainer').style.display = 'block';
-            loadIntroVideo();
             loadNewsFeed();
         }
 
