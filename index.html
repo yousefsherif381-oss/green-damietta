@@ -618,7 +618,7 @@
             const classSelect = document.getElementById('signUpClassRoom');
             classSelect.innerHTML = '';
             
-            // توليد الفصول بالحروف الإنجليزية من A إلى E لتتطابق تماماً مع لوحة التحكم
+            // توليد الفصول تلقائياً مرتبطة بالصف (مثال: الصف الثالث الإعدادي - A) لتتطابق تماماً مع لوحة التحكم
             const sections = ['A', 'B', 'C', 'D', 'E'];
             sections.forEach(sec => {
                 const opt = document.createElement('option');
