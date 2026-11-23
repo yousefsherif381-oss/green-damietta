@@ -757,9 +757,13 @@
 
             classWrapper.style.display = 'block';
             classSelect.innerHTML = '<option value="">-- اختر الفصل --</option>';
-            for(let i=1; i<=6; i++) {
-                classSelect.innerHTML += `<option value="${grade} - الفصل ${i}">${grade} - الفصل ${i}</option>`;
-            }
+            
+            // توليد الفصول من A إلى E
+            const sections = ['A', 'B', 'C', 'D', 'E'];
+            sections.forEach(sec => {
+                const classVal = `${grade} - ${sec}`;
+                classSelect.innerHTML += `<option value="${classVal}">${grade} (فصل ${sec})</option>`;
+            });
         }
 
         function filterStudentsByGradeAndClass() {
@@ -776,18 +780,31 @@
 
             studentWrapper.style.display = 'block';
             studentSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
+            allStudentsCache = [];
 
             db.ref('users').orderByChild('grade').equalTo(grade).once('value').then(snap => {
                 studentSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
-                if (!snap.exists()) return;
+                if (!snap.exists()) {
+                    showToast("لا توجد طلاب مسجلين في هذا الصف", "⚠️");
+                    return;
+                }
+                
+                let foundCount = 0;
                 snap.forEach(child => {
                     const u = child.val();
                     const key = child.key;
                     if(u.role === 'student' && u.classRoom === classRoom) {
                         allStudentsCache.push({ key, ...u });
                         studentSelect.innerHTML += `<option value="${key}">${u.fullName} (كود: ${u.nationalId || '---'})</option>`;
+                        foundCount++;
                     }
                 });
+
+                if(foundCount === 0) {
+                    showToast("لا توجد طلاب مسجلين في هذا الفصل حالياً", "ℹ️");
+                } else {
+                    showToast(`تم العثور على ${foundCount} طالب في هذا الفصل 🌟`, "✅");
+                }
             });
         }
 
