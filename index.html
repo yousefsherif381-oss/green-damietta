@@ -244,7 +244,7 @@
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-label">الحضور والغياب</span>
             </div>
-            <div class="sidebar-item" onclick="closeSidebar(); checkAuthAndNavigate('ticketsSection');">
+            <div class="sidebar-item" onclick="closeSidebar(); navigateToSection('ticketsSection');">
                 <span class="sidebar-icon">📨</span>
                 <span class="sidebar-label">مركز الشكاوى والاستفسارات</span>
             </div>
@@ -288,7 +288,7 @@
     <main class="main-wrapper">
         
         <div id="newsHomeContainer" style="display: block;">
-            <!-- قسم الفيديو التعريفي -->
+            <!-- قسم الفيديو التعريفي ثابت في مكانه -->
             <div class="news-card" style="margin-bottom: 25px;">
                 <h3 style="color: var(--primary-dark); font-weight: 900; font-size: 17px; margin-bottom: 12px;">🎥 الفيديو التعريفي للموقع</h3>
                 <div id="homeIntroVideoContainer" style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #fff;">
@@ -302,18 +302,26 @@
             </div>
         </div>
 
-        <!-- قسم شكاوى الطالب / ولي الأمر -->
+        <!-- قسم مركز الشكاوى والاستفسارات (بالاسم ورقم التلفون والشكوى مباشرة) -->
         <div class="view-section" id="ticketsSection">
             <button onclick="showHomePage()" class="btn-back-home">➡️ العودة للرئيسية</button>
             <h2 style="font-size: 20px; font-weight: 900; color: var(--primary-dark); margin-bottom: 6px; text-align: center; margin-top: 10px;">📨 مركز الشكاوى والاستفسارات</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">يمكنك إرسال استفسارك أو شكواك مباشرة لإدارة المدرسة وسيتم الرد عليها</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">أدخل اسم الطالب ورقم التلفون ثم اكتب الشكوى أو الاستفسار لتصل للإدارة</p>
 
             <form onsubmit="submitTicket(event)">
                 <div class="form-group">
-                    <label>نص الشكوى أو الاستفسار:</label>
-                    <textarea id="ticketMessageInput" class="form-control" rows="5" placeholder="اكتب تفاصيل شكواك أو استفسارك هنا..." required></textarea>
+                    <label>اسم الطالب:</label>
+                    <input type="text" id="ticketStudentName" class="form-control" placeholder="أدخل اسم الطالب الرباعي" required>
                 </div>
-                <button type="submit" class="btn-submit">إرسال للإدارة 🚀</button>
+                <div class="form-group">
+                    <label>رقم التلفون:</label>
+                    <input type="tel" id="ticketPhone" class="form-control" placeholder="أدخل رقم الهاتف للتواصل" required>
+                </div>
+                <div class="form-group">
+                    <label>الشكوى أو الاستفسار:</label>
+                    <textarea id="ticketMessageInput" class="form-control" rows="4" placeholder="اكتب تفاصيل الشكوى أو الاستفسار هنا..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">إرسال الشكوى للإدارة 🚀</button>
             </form>
         </div>
 
@@ -695,7 +703,7 @@
         }
 
         function navigateToSection(sectionId) {
-            if (!currentUser && sectionId !== 'newsHomeContainer') {
+            if (!currentUser && sectionId !== 'newsHomeContainer' && sectionId !== 'ticketsSection') {
                 showToast("يرجى تسجيل الدخول أولاً 🔒", "⚠️");
                 openSignInPage();
                 return;
@@ -730,23 +738,20 @@
 
         function submitTicket(e) {
             e.preventDefault();
-            if (!currentUser) {
-                showToast("يرجى تسجيل الدخول أولاً لإرسال الشكوى", "⚠️");
-                openSignInPage();
-                return;
-            }
+            const senderName = document.getElementById('ticketStudentName').value.trim();
+            const phone = document.getElementById('ticketPhone').value.trim();
             const message = document.getElementById('ticketMessageInput').value.trim();
             const date = new Date().toLocaleDateString('ar-EG');
-            const senderName = currentUser.fullName + (currentUser.role === 'parent' ? ' (ولي أمر)' : ' (طالب)');
-            const nationalId = currentUser.nationalId || currentUser.linkedStudentCode || '---';
 
             db.ref('tickets').push({
                 senderName,
-                nationalId,
+                nationalId: phone,
                 message,
                 date
             }).then(() => {
-                showToast("تم إرسال شكواك للإدارة بنجاح 🚀", "✅");
+                showToast("تم إرسال الشكوى للإدارة بنجاح 🚀", "✅");
+                document.getElementById('ticketStudentName').value = '';
+                document.getElementById('ticketPhone').value = '';
                 document.getElementById('ticketMessageInput').value = '';
                 showHomePage();
             }).catch(() => {
