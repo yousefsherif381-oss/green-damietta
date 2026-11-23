@@ -590,21 +590,173 @@
             document.body.classList.remove('sidebar-open');
         }
 
-        function switchAdminSection(sectionId, el) {
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
-            closeSidebar();
-        }
-
         function updateFileName(input, previewId) {
             const preview = document.getElementById(previewId);
             if (input.files && input.files[0]) {
-                preview.textContent = "📎 تم اختيار: " + input.files[0].name;
+                preview.textContent = "📁 " + input.files[0].name;
             } else {
                 preview.textContent = "لم يتم اختيار ملف بعد";
             }
+        }
+
+        function switchAdminSection(sectionId, element) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            if(element) element.classList.add('active');
+            closeSidebar();
+
+            if(sectionId === 'newsSection') loadAdminNews();
+            else if(sectionId === 'teachersAdminSection') loadAdminTeachers();
+            else if(sectionId === 'usersSection') loadAdminUsers();
+            else if(sectionId === 'ticketsSection') loadAdminTickets();
+            else if(sectionId === 'controlSection') loadStudentsForControl();
+            else if(sectionId === 'attendanceSection') loadStudentsForAttendance();
+            else if(sectionId === 'passwordSection') loadSystemPasswords();
+        }
+
+        // دالة توليد رقم الصف مع الحرف (مثل 3A, 3B .. أو 1A للمدرس والطالب)
+        function getShortGradePrefix(gradeName) {
+            if (!gradeName) return "الفصل";
+            if (gradeName.includes("الأول الابتدائي")) return "1P";
+            if (gradeName.includes("الثاني الابتدائي")) return "2P";
+            if (gradeName.includes("الثالث الابتدائي")) return "3P";
+            if (gradeName.includes("الرابع الابتدائي")) return "4P";
+            if (gradeName.includes("الخامس الابتدائي")) return "5P";
+            if (gradeName.includes("السادس الابتدائي")) return "6P";
+            if (gradeName.includes("الصف الأول الإعدادي") || gradeName.includes("الأول الإعدادي")) return "1";
+            if (gradeName.includes("الصف الثاني الإعدادي") || gradeName.includes("الثاني الإعدادي")) return "2";
+            if (gradeName.includes("الصف الثالث الإعدادي") || gradeName.includes("الثالث الإعدادي")) return "3";
+            return "فصل";
+        }
+
+        function onAdminGradeChange() {
+            const grade = document.getElementById('adminGradeSelect').value;
+            const classSelect = document.getElementById('teacherClassSelect');
+            const classWrapper = document.getElementById('adminClassSelectWrapper');
+            const studentWrapper = document.getElementById('studentSelectWrapper');
+            const editBox = document.getElementById('gradesEditFormContainer');
+
+            classSelect.innerHTML = '<option value="">-- اختر الفصل --</option>';
+            studentWrapper.style.display = 'none';
+            editBox.style.display = 'none';
+
+            if (!grade) {
+                classWrapper.style.display = 'none';
+                return;
+            }
+
+            classWrapper.style.display = 'block';
+            const shortNum = getShortGradePrefix(grade);
+            const sections = ['A', 'B', 'C', 'D', 'E'];
+
+            sections.forEach(sec => {
+                const opt = document.createElement('option');
+                // القيمة تخزن متطابقة مع صفحة الطالب: "الصف الثالث الإعدادي - A"
+                opt.value = `${grade} - ${sec}`;
+                // التنسيق المعروض للمدرس بشكل مختصر ومرتب: 3A, 3B ...
+                opt.textContent = `${shortNum}${sec} (فصل ${sec})`;
+                classSelect.appendChild(opt);
+            });
+        }
+
+        function filterStudentsByGradeAndClass() {
+            const selectedClass = document.getElementById('teacherClassSelect').value;
+            const studentSelect = document.getElementById('studentSelectForGrades');
+            const studentWrapper = document.getElementById('studentSelectWrapper');
+            const editBox = document.getElementById('gradesEditFormContainer');
+
+            studentSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
+            editBox.style.display = 'none';
+
+            if (!selectedClass) {
+                studentWrapper.style.display = 'none';
+                return;
+            }
+
+            studentWrapper.style.display = 'block';
+            const filtered = allStudentsCache.filter(s => s.classRoom === selectedClass);
+
+            if (filtered.length === 0) {
+                studentSelect.innerHTML = '<option value="">لا توجد طلاب مسجلين في هذا الفصل حتى الآن</option>';
+                return;
+            }
+
+            filtered.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.key;
+                opt.textContent = `${s.fullName} (كود: ${s.nationalId || '---'})`;
+                studentSelect.appendChild(opt);
+            });
+        }
+
+        function loadStudentGradesToEdit() {
+            const studentKey = document.getElementById('studentSelectForGrades').value;
+            const editBox = document.getElementById('gradesEditFormContainer');
+            const tbody = document.getElementById('adminGradesEditTableBody');
+
+            if (!studentKey) {
+                editBox.style.display = 'none';
+                return;
+            }
+
+            currentSelectedStudentForGrades = allStudentsCache.find(s => s.key === studentKey);
+            if (!currentSelectedStudentForGrades) return;
+
+            document.getElementById('editingStudentNameTitle').textContent = `رصد الدرجات للطالب: ${currentSelectedStudentForGrades.fullName}`;
+            document.getElementById('editingStudentGradeBadge').textContent = `الصف الدراسي: ${currentSelectedStudentForGrades.grade} | الفصل: ${currentSelectedStudentForGrades.classRoom}`;
+
+            const gradeName = currentSelectedStudentForGrades.grade;
+            const subjects = curriculumByGrade[gradeName] || [];
+
+            db.ref('grades/' + studentKey).once('value').then(snap => {
+                const userGrades = snap.val() || {};
+                tbody.innerHTML = '';
+
+                if (subjects.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">لا توجد مواد دراسية مسجلة لهذا الصف.</td></tr>';
+                    editBox.style.display = 'block';
+                    return;
+                }
+
+                subjects.forEach(sub => {
+                    const subData = userGrades[sub.id] || { termWork: 0, weekly: 0, exam: 0 };
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${sub.name}</strong></td>
+                            <td><input type="number" class="form-control grade-termwork" data-sub="${sub.id}" value="${subData.termWork || 0}" min="0" max="30"></td>
+                            <td><input type="number" class="form-control grade-weekly" data-sub="${sub.id}" value="${subData.weekly || 0}" min="0" max="20"></td>
+                            <td><input type="number" class="form-control grade-exam" data-sub="${sub.id}" value="${subData.exam || 0}" min="0" max="50"></td>
+                        </tr>
+                    `;
+                });
+                editBox.style.display = 'block';
+            });
+        }
+
+        function saveAllStudentGradesDirect() {
+            if (!currentSelectedStudentForGrades) return;
+            const studentKey = currentSelectedStudentForGrades.key;
+            const rows = document.querySelectorAll('#adminGradesEditTableBody tr');
+            const gradesObj = {};
+
+            rows.forEach(row => {
+                const termInput = row.querySelector('.grade-termwork');
+                if (!termInput) return;
+                const subId = termInput.getAttribute('data-sub');
+                const termWork = Number(termInput.value) || 0;
+                const weekly = Number(row.querySelector('.grade-weekly').value) || 0;
+                const exam = Number(row.querySelector('.grade-exam').value) || 0;
+
+                gradesObj[subId] = { termWork, weekly, exam };
+            });
+
+            db.ref('grades/' + studentKey).set(gradesObj).then(() => {
+                showToast("تم حفظ وتثبيت درجات الطالب بنجاح 🏆", "✅");
+            }).catch(() => {
+                showToast("حدث خطأ أثناء حفظ الدرجات", "❌");
+            });
         }
 
         function postNews(e) {
@@ -612,13 +764,14 @@
             const title = document.getElementById('newsTitle').value.trim();
             const badge = document.getElementById('newsBadge').value.trim();
             const content = document.getElementById('newsContent').value.trim();
-            const imageFile = document.getElementById('newsImageFile').files[0];
-            const videoFile = document.getElementById('newsVideoFile').files[0];
             const date = new Date().toLocaleDateString('ar-EG');
 
-            function saveToDb(videoUrl = "", imageUrl = "") {
-                db.ref('news').push({ title, badge, content, videoUrl, imageUrl, date }).then(() => {
-                    showToast("تم نشر الخبر بنجاح 🚀", "✅");
+            const imageFile = document.getElementById('newsImageFile').files[0];
+            const videoFile = document.getElementById('newsVideoFile').files[0];
+
+            function saveToDb(imageUrl = '', videoUrl = '') {
+                db.ref('news').push({ title, badge, content, date, imageUrl, videoUrl }).then(() => {
+                    showToast("تم نشر الإعلان بنجاح للجميع 🚀", "✅");
                     document.getElementById('newsTitle').value = '';
                     document.getElementById('newsBadge').value = '';
                     document.getElementById('newsContent').value = '';
@@ -630,50 +783,55 @@
                 });
             }
 
-            if (videoFile) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    const videoBase64 = evt.target.result;
-                    if (imageFile) {
-                        const imgReader = new FileReader();
-                        imgReader.onload = function(imgEvt) {
-                            saveToDb(videoBase64, imgEvt.target.result);
-                        };
-                        imgReader.readAsDataURL(imageFile);
-                    } else {
-                        saveToDb(videoBase64, "");
-                    }
-                };
-                reader.readAsDataURL(videoFile);
-            } else if (imageFile) {
-                const imgReader = new FileReader();
-                imgReader.onload = function(evt) {
-                    saveToDb("", evt.target.result);
-                };
-                imgReader.readAsDataURL(imageFile);
+            if (imageFile || videoFile) {
+                showToast("جاري رفع الملفات ونشر الخبر...", "⏳");
+                let imgUrl = '';
+                let vidUrl = '';
+                let processed = 0;
+                let totalToProcess = (imageFile ? 1 : 0) + (videoFile ? 1 : 0);
+
+                if (imageFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgUrl = e.target.result;
+                        processed++;
+                        if (processed === totalToProcess) saveToDb(imgUrl, vidUrl);
+                    };
+                    reader.readAsDataURL(imageFile);
+                }
+
+                if (videoFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        vidUrl = e.target.result;
+                        processed++;
+                        if (processed === totalToProcess) saveToDb(imgUrl, vidUrl);
+                    };
+                    reader.readAsDataURL(videoFile);
+                }
             } else {
-                saveToDb("", "");
+                saveToDb();
             }
         }
 
         function loadAdminNews() {
-            const list = document.getElementById('adminNewsList');
+            const container = document.getElementById('adminNewsList');
             db.ref('news').once('value').then(snap => {
                 if (!snap.exists()) {
-                    list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد أخبار منشورة حالياً.</p>';
+                    container.innerHTML = '<p style="color:var(--text-muted);">لا توجد إعلانات منشورة حالياً.</p>';
                     return;
                 }
-                list.innerHTML = '';
+                container.innerHTML = '';
                 snap.forEach(child => {
+                    const k = child.key;
                     const n = child.val();
-                    const key = child.key;
-                    list.innerHTML += `
-                        <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #CBD5E1; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    container.innerHTML += `
+                        <div style="background:#F8FAFC; padding:15px; border-radius:12px; border:1px solid #CBD5E1; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <h5 style="color: var(--primary-dark); font-size: 15px; font-weight: 900;">${n.title}</h5>
-                                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">${n.content.substring(0, 80)}...</p>
+                                <h4 style="color:var(--primary-dark); font-weight:900;">${n.title}</h4>
+                                <p style="font-size:12.5px; color:var(--text-muted);">${n.date || ''}</p>
                             </div>
-                            <button onclick="deleteNews('${key}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">🗑️ حذف</button>
+                            <button onclick="deleteNews('${k}')" class="btn btn-danger" style="padding:6px 12px; font-size:12px;">حذف 🗑️</button>
                         </div>
                     `;
                 });
@@ -683,7 +841,7 @@
         function deleteNews(key) {
             if (confirm("هل أنت متأكد من حذف هذا الخبر؟")) {
                 db.ref('news/' + key).remove().then(() => {
-                    showToast("تم الحذف بنجاح", "✅");
+                    showToast("تم حذف الخبر بنجاح 🗑️", "✅");
                     loadAdminNews();
                 });
             }
@@ -698,15 +856,7 @@
             const password = document.getElementById('teacherPassword').value.trim();
 
             db.ref('users').push({
-                role: 'teacher',
-                fullName,
-                nationalId: subjectId,
-                email: subjectId + '@school.com',
-                phone: '01000000000',
-                password,
-                grade: classes,
-                subject,
-                subjectId
+                role: 'teacher', fullName, subject, subjectId, grade: classes, classRoom: classes, password, phone: '---', nationalId: subjectId
             }).then(() => {
                 showToast("تم إضافة حساب المدرس بنجاح 👨‍🏫", "✅");
                 document.getElementById('teacherName').value = '';
@@ -714,267 +864,59 @@
                 document.getElementById('teacherSubjectId').value = '';
                 document.getElementById('teacherClasses').value = '';
                 document.getElementById('teacherPassword').value = '';
-                loadTeachersAdminTable();
+                loadAdminTeachers();
             });
         }
 
-        function loadTeachersAdminTable() {
+        function loadAdminTeachers() {
             const tbody = document.getElementById('adminTeachersTableBody');
             db.ref('users').orderByChild('role').equalTo('teacher').once('value').then(snap => {
                 if (!snap.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">لا توجد حسابات مدرسين مسجلة.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد مدرسين مسجلين.</td></tr>';
                     return;
                 }
                 tbody.innerHTML = '';
                 snap.forEach(child => {
+                    const k = child.key;
                     const t = child.val();
-                    const key = child.key;
                     tbody.innerHTML += `
                         <tr>
-                            <td>${t.fullName}</td>
-                            <td>${t.subject || '---'}</td>
-                            <td>${t.subjectId || '---'}</td>
-                            <td>${t.grade || '---'}</td>
-                            <td>${t.password}</td>
-                            <td><button onclick="deleteUser('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">🗑️ حذف</button></td>
+                            <td>${t.fullName || ''}</td>
+                            <td>${t.subject || ''}</td>
+                            <td>${t.subjectId || ''}</td>
+                            <td>${t.grade || ''}</td>
+                            <td>${t.password || ''}</td>
+                            <td><button onclick="deleteUser('${k}')" class="btn btn-danger" style="padding:4px 10px; font-size:11.5px;">حذف</button></td>
                         </tr>
                     `;
                 });
             });
         }
 
-        function onAdminGradeChange() {
-            const grade = document.getElementById('adminGradeSelect').value;
-            const classWrapper = document.getElementById('adminClassSelectWrapper');
-            const classSelect = document.getElementById('teacherClassSelect');
-            
-            if(!grade) {
-                classWrapper.style.display = 'none';
-                document.getElementById('studentSelectWrapper').style.display = 'none';
-                document.getElementById('gradesEditFormContainer').style.display = 'none';
-                return;
-            }
-
-            classWrapper.style.display = 'block';
-            classSelect.innerHTML = '<option value="">-- اختر الفصل --</option>';
-            
-            // توليد الفصول من A إلى E
-            const sections = ['A', 'B', 'C', 'D', 'E'];
-            sections.forEach(sec => {
-                const classVal = `${grade} - ${sec}`;
-                classSelect.innerHTML += `<option value="${classVal}">${grade} (فصل ${sec})</option>`;
-            });
-        }
-
-        function filterStudentsByGradeAndClass() {
-            const grade = document.getElementById('adminGradeSelect').value;
-            const classRoom = document.getElementById('teacherClassSelect').value;
-            const studentSelect = document.getElementById('studentSelectForGrades');
-            const studentWrapper = document.getElementById('studentSelectWrapper');
-
-            if(!classRoom) {
-                studentWrapper.style.display = 'none';
-                document.getElementById('gradesEditFormContainer').style.display = 'none';
-                return;
-            }
-
-            studentWrapper.style.display = 'block';
-            studentSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
-            allStudentsCache = [];
-
-            db.ref('users').orderByChild('grade').equalTo(grade).once('value').then(snap => {
-                studentSelect.innerHTML = '<option value="">-- حدد الطالب من القائمة --</option>';
-                if (!snap.exists()) {
-                    showToast("لا توجد طلاب مسجلين في هذا الصف", "⚠️");
-                    return;
-                }
-                
-                let foundCount = 0;
-                snap.forEach(child => {
-                    const u = child.val();
-                    const key = child.key;
-                    if(u.role === 'student' && u.classRoom === classRoom) {
-                        allStudentsCache.push({ key, ...u });
-                        studentSelect.innerHTML += `<option value="${key}">${u.fullName} (كود: ${u.nationalId || '---'})</option>`;
-                        foundCount++;
-                    }
-                });
-
-                if(foundCount === 0) {
-                    showToast("لا توجد طلاب مسجلين في هذا الفصل حالياً", "ℹ️");
-                } else {
-                    showToast(`تم العثور على ${foundCount} طالب في هذا الفصل 🌟`, "✅");
-                }
-            });
-        }
-
-        function loadStudentGradesToEdit() {
-            const studentKey = document.getElementById('studentSelectForGrades').value;
-            const container = document.getElementById('gradesEditFormContainer');
-            const tbody = document.getElementById('adminGradesEditTableBody');
-
-            if (!studentKey) {
-                container.style.display = 'none';
-                return;
-            }
-
-            currentSelectedStudentForGrades = allStudentsCache.find(s => s.key === studentKey) || null;
-            if(!currentSelectedStudentForGrades) {
-                db.ref('users/' + studentKey).once('value').then(snap => {
-                    currentSelectedStudentForGrades = snap.val();
-                    currentSelectedStudentForGrades.key = studentKey;
-                    renderGradesTable(studentKey);
-                });
-            } else {
-                renderGradesTable(studentKey);
-            }
-        }
-
-        function renderGradesTable(studentKey) {
-            const container = document.getElementById('gradesEditFormContainer');
-            const tbody = document.getElementById('adminGradesEditTableBody');
-            const gradeName = currentSelectedStudentForGrades.grade;
-            const subjects = curriculumByGrade[gradeName] || [];
-
-            document.getElementById('editingStudentNameTitle').textContent = "رصد الدرجات للطالب: " + currentSelectedStudentForGrades.fullName;
-            document.getElementById('editingStudentGradeBadge').textContent = gradeName + " - " + currentSelectedStudentForGrades.classRoom;
-            container.style.display = 'block';
-
-            db.ref('grades/' + studentKey).once('value').then(snap => {
-                const userGrades = snap.val() || {};
-                tbody.innerHTML = '';
-                subjects.forEach(sub => {
-                    const subData = userGrades[sub.id] || { termWork: 0, weekly: 0, exam: 0 };
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${sub.name}</td>
-                            <td><input type="number" class="form-control grade-input" data-sub="${sub.id}" data-field="termWork" value="${subData.termWork || 0}" min="0" max="30"></td>
-                            <td><input type="number" class="form-control grade-input" data-sub="${sub.id}" data-field="weekly" value="${subData.weekly || 0}" min="0" max="20"></td>
-                            <td><input type="number" class="form-control grade-input" data-sub="${sub.id}" data-field="exam" value="${subData.exam || 0}" min="0" max="50"></td>
-                        </tr>
-                    `;
-                });
-            });
-        }
-
-        function saveAllStudentGradesDirect() {
-            if(!currentSelectedStudentForGrades) return;
-            const studentKey = currentSelectedStudentForGrades.key;
-            const rows = document.querySelectorAll('.grade-input');
-            const gradesData = {};
-
-            rows.forEach(input => {
-                const sub = input.getAttribute('data-sub');
-                const field = input.getAttribute('data-field');
-                if(!gradesData[sub]) gradesData[sub] = {};
-                gradesData[sub][field] = Number(input.value) || 0;
-            });
-
-            db.ref('grades/' + studentKey).set(gradesData).then(() => {
-                showToast("تم حفظ درجات الطالب بنجاح وتحديث الكشف 📊", "✅");
-            });
-        }
-
-        function loadControlStudentsList() {
-            const select = document.getElementById('controlStudentSelect');
-            db.ref('users').orderByChild('role').equalTo('student').once('value').then(snap => {
-                select.innerHTML = '<option value="">-- حدد الطالب --</option>';
-                if (!snap.exists()) return;
-                snap.forEach(child => {
-                    const u = child.val();
-                    select.innerHTML += `<option value="${child.key}">${u.fullName} (${u.grade})</option>`;
-                });
-            });
-        }
-
-        function loadControlStudentData() {
-            const key = document.getElementById('controlStudentSelect').value;
-            const box = document.getElementById('controlResultBox');
-            if(!key) { box.style.display = 'none'; return; }
-
-            db.ref('users/' + key).once('value').then(snap => {
-                const u = snap.val();
-                document.getElementById('controlStudentName').textContent = "نتائج الطالب: " + u.fullName;
-                document.getElementById('term1Grade').value = u.term1Grade || '';
-                document.getElementById('term2Grade').value = u.term2Grade || '';
-                box.style.display = 'block';
-            });
-        }
-
-        function saveControlResults() {
-            const key = document.getElementById('controlStudentSelect').value;
-            const term1Grade = Number(document.getElementById('term1Grade').value) || 0;
-            const term2Grade = Number(document.getElementById('term2Grade').value) || 0;
-
-            db.ref('users/' + key).update({ term1Grade, term2Grade }).then(() => {
-                showToast("تم حفظ نتائج الكنترول بنجاح 🏆", "✅");
-            });
-        }
-
-        function loadAttendanceStudentsList() {
-            const select = document.getElementById('studentAttendanceSelect');
-            db.ref('users').orderByChild('role').equalTo('student').once('value').then(snap => {
-                select.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
-                if (!snap.exists()) return;
-                snap.forEach(child => {
-                    const u = child.val();
-                    select.innerHTML += `<option value="${child.key}">${u.fullName} (${u.grade})</option>`;
-                });
-            });
-        }
-
-        function loadStudentAttendanceData() {
-            const key = document.getElementById('studentAttendanceSelect').value;
-            if(!key) return;
-            db.ref('users/' + key).once('value').then(snap => {
-                const u = snap.val();
-                document.getElementById('attendanceStatusSelect').value = u.attendanceStatus || 'منتظم';
-                document.getElementById('absenceCountInput').value = u.absenceCount || 0;
-                document.getElementById('attendanceNoteInput').value = u.attendanceNote || '';
-                document.getElementById('absenceDatesLogInput').value = u.absenceDatesLog || '';
-            });
-        }
-
-        function saveStudentAttendance() {
-            const key = document.getElementById('studentAttendanceSelect').value;
-            if(!key) { showToast("يرجى اختيار الطالب أولاً", "⚠️"); return; }
-
-            const attendanceStatus = document.getElementById('attendanceStatusSelect').value;
-            const absenceCount = Number(document.getElementById('absenceCountInput').value) || 0;
-            const attendanceNote = document.getElementById('attendanceNoteInput').value.trim();
-            const absenceDatesLog = document.getElementById('absenceDatesLogInput').value.trim();
-
-            db.ref('users/' + key).update({
-                attendanceStatus, absenceCount, attendanceNote, absenceDatesLog
-            }).then(() => {
-                showToast("تم تحديث سجل حضور الطالب بنجاح ✅", "✅");
-            });
-        }
-
-        function loadAdminUsersTable() {
+        function loadAdminUsers() {
             const tbody = document.getElementById('adminUsersTableBody');
             db.ref('users').once('value').then(snap => {
                 if (!snap.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">لا توجد حسابات مسجلة.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">لا توجد حسابات مسجلة.</td></tr>';
                     return;
                 }
                 tbody.innerHTML = '';
                 snap.forEach(child => {
+                    const k = child.key;
                     const u = child.val();
-                    const key = child.key;
-                    if(u.role === 'admin') return;
+                    if (u.role === 'teacher') return;
                     tbody.innerHTML += `
                         <tr>
-                            <td>${u.fullName || '---'}</td>
-                            <td>${u.role === 'teacher' ? 'مدرس 👨‍🏫' : (u.role === 'parent' ? 'ولي أمر 👨‍👩‍👦' : 'طالب 🎓')}</td>
+                            <td><strong>${u.fullName || ''}</strong></td>
+                            <td><span style="background:#E0F2FE; color:var(--primary-dark); padding:2px 8px; border-radius:6px; font-weight:700;">${u.role === 'parent' ? 'ولي أمر' : 'طالب'}</span></td>
                             <td>${u.grade || '---'}</td>
                             <td>${u.classRoom || '---'}</td>
                             <td>${u.nationalId || u.linkedStudentCode || '---'}</td>
                             <td>${u.phone || '---'}</td>
-                            <td>${u.password || '---'}</td>
-                            <td>${u.attendanceStatus || 'منتظم'}</td>
-                            <td>${u.absenceCount || 0}</td>
-                            <td><button onclick="deleteUser('${key}')" class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;">🗑️ حذف</button></td>
+                            <td>${u.password || ''}</td>
+                            <td><span style="color:var(--success); font-weight:800;">${u.attendanceStatus || 'منتظم'}</span></td>
+                            <td><strong>${u.absenceCount || 0} مرة</strong></td>
+                            <td><button onclick="deleteUser('${k}')" class="btn btn-danger" style="padding:4px 10px; font-size:11.5px;">حذف 🗑️</button></td>
                         </tr>
                     `;
                 });
@@ -984,34 +926,118 @@
         function deleteUser(key) {
             if (confirm("هل أنت متأكد من حذف هذا الحساب نهائياً؟")) {
                 db.ref('users/' + key).remove().then(() => {
-                    showToast("تم حذف الحساب بنجاح 🗑️", "✅");
-                    loadAdminUsersTable();
-                    loadTeachersAdminTable();
+                    showToast("تم الحذف بنجاح 🗑️", "✅");
+                    loadAdminUsers();
+                    loadAdminTeachers();
+                    fetchAllStudents();
                 });
             }
+        }
+
+        function loadStudentsForControl() {
+            const select = document.getElementById('controlStudentSelect');
+            select.innerHTML = '<option value="">-- حدد الطالب --</option>';
+            allStudentsCache.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.key;
+                opt.textContent = `${s.fullName} (${s.grade} - ${s.classRoom || ''})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function loadControlStudentData() {
+            const key = document.getElementById('controlStudentSelect').value;
+            const box = document.getElementById('controlResultBox');
+            if (!key) { box.style.display = 'none'; return; }
+
+            const student = allStudentsCache.find(s => s.key === key);
+            if (!student) return;
+
+            document.getElementById('controlStudentName').textContent = `نتائج الطالب: ${student.fullName}`;
+            db.ref('controlResults/' + key).once('value').then(snap => {
+                const res = snap.val() || { term1: 0, term2: 0 };
+                document.getElementById('term1Grade').value = res.term1 || 0;
+                document.getElementById('term2Grade').value = res.term2 || 0;
+                box.style.display = 'block';
+            });
+        }
+
+        function saveControlResults() {
+            const key = document.getElementById('controlStudentSelect').value;
+            if (!key) return;
+            const term1 = Number(document.getElementById('term1Grade').value) || 0;
+            const term2 = Number(document.getElementById('term2Grade').value) || 0;
+
+            db.ref('controlResults/' + key).set({ term1, term2 }).then(() => {
+                showToast("تم حفظ نتائج الكنترول بنجاح 🏆", "✅");
+            });
+        }
+
+        function loadStudentsForAttendance() {
+            const select = document.getElementById('studentAttendanceSelect');
+            select.innerHTML = '<option value="">-- اختر طالب من القائمة --</option>';
+            allStudentsCache.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.key;
+                opt.textContent = `${s.fullName} (${s.grade} - ${s.classRoom || ''})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function loadStudentAttendanceData() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key) return;
+            db.ref('users/' + key).once('value').then(snap => {
+                if (snap.exists()) {
+                    const u = snap.val();
+                    document.getElementById('attendanceStatusSelect').value = u.attendanceStatus || 'منتظم';
+                    document.getElementById('absenceCountInput').value = u.absenceCount || 0;
+                    document.getElementById('attendanceNoteInput').value = u.attendanceNote || '---';
+                    document.getElementById('absenceDatesLogInput').value = u.absenceDatesLog || 'لا توجد تواريخ غياب مسجلة حتى الآن.';
+                }
+            });
+        }
+
+        function saveStudentAttendance() {
+            const key = document.getElementById('studentAttendanceSelect').value;
+            if (!key) { showToast("يرجى اختيار الطالب أولاً", "⚠️"); return; }
+
+            const attendanceStatus = document.getElementById('attendanceStatusSelect').value;
+            const absenceCount = Number(document.getElementById('absenceCountInput').value) || 0;
+            const attendanceNote = document.getElementById('attendanceNoteInput').value.trim();
+            const absenceDatesLog = document.getElementById('absenceDatesLogInput').value.trim();
+
+            db.ref('users/' + key).update({
+                attendanceStatus, absenceCount, attendanceNote, absenceDatesLog
+            }).then(() => {
+                showToast("تم تحديث سجل الحضور وشؤون الطلاب بنجاح 👥", "✅");
+                fetchAllStudents();
+            });
         }
 
         function loadAdminTickets() {
             const container = document.getElementById('adminTicketsList');
             db.ref('tickets').once('value').then(snap => {
                 if (!snap.exists()) {
-                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد شكاوى أو طلبات مرسلة حالياً.</p>';
+                    container.innerHTML = '<p style="color:var(--text-muted);">لا توجد شكاوى أو استفسارات حالياً.</p>';
                     return;
                 }
                 container.innerHTML = '';
                 snap.forEach(child => {
-                    const tKey = child.key;
+                    const k = child.key;
                     const t = child.val();
                     container.innerHTML += `
-                        <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #CBD5E1; margin-bottom: 14px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <strong style="color: var(--primary-dark);">👤 ${t.studentName || t.senderName} (كود: ${t.studentCode || t.nationalId})</strong>
-                                <span style="font-size: 12px; color: var(--accent); font-weight: 800;">${t.subject}</span>
+                        <div style="background:#F8FAFC; padding:18px; border-radius:14px; border:1px solid #CBD5E1; margin-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <h4 style="color:var(--primary-dark); font-weight:900;">👤 ${t.studentName || t.senderName || 'طالب'} (كود: ${t.studentCode || t.nationalId || '---'})</h4>
+                                <span style="font-size:12px; font-weight:800; color:var(--success); background:#ECFDF5; padding:3px 10px; border-radius:20px;">${t.status || 'قيد المراجعة'}</span>
                             </div>
-                            <p style="font-size: 13.5px; color: var(--text-dark); margin-bottom: 10px;">💬 <strong>الرسالة:</strong> ${t.message}</p>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="text" id="replyInput_${tKey}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.reply || t.adminReply || ''}" style="margin: 0;">
-                                <button onclick="sendAdminReply('${tKey}')" class="btn btn-primary" style="white-space: nowrap;">إرسال الرد 🚀</button>
+                            <p style="font-size:13px; font-weight:800; color:var(--accent); margin-bottom:4px;">📌 الموضوع: ${t.subject || ''}</p>
+                            <p style="font-size:13.5px; color:var(--text-dark); margin-bottom:10px;">💬 <strong>الرسالة:</strong> ${t.message || ''}</p>
+                            
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <input type="text" id="replyInput_${k}" class="form-control" placeholder="اكتب رد الإدارة هنا..." value="${t.reply !== 'لم تقم الإدارة بالرد بعد' ? t.reply : ''}">
+                                <button onclick="sendAdminReply('${k}')" class="btn btn-success" style="white-space:nowrap;">إرسال الرد 🚀</button>
                             </div>
                         </div>
                     `;
@@ -1021,6 +1047,8 @@
 
         function sendAdminReply(ticketKey) {
             const replyText = document.getElementById('replyInput_' + ticketKey).value.trim();
+            if (!replyText) { showToast("يرجى كتابة نص الرد أولاً", "⚠️"); return; }
+
             db.ref('tickets/' + ticketKey).update({
                 reply: replyText,
                 adminReply: replyText,
@@ -1031,57 +1059,81 @@
             });
         }
 
-        function saveSystemPasswords(e) {
-            e.preventDefault();
-            const usernameAdmin = 'admin';
-            const pass = document.getElementById('passAdmin').value.trim();
-            const usernameControl = 'control';
-            const passControl = document.getElementById('passControl').value.trim();
-            const usernameAttendance = 'attendance';
-            const passAttendance = document.getElementById('passAttendance').value.trim();
-
-            db.ref('adminConfig').set({ usernameAdmin, pass, usernameControl, passControl, usernameAttendance, passAttendance }).then(() => {
-                showToast("تم تحديث وحفظ كلمات المرور بنجاح 🔑", "✅");
-            });
-        }
-
-        window.onload = function() {
-            const permission = localStorage.getItem('adminPermission');
-            
+        function loadSystemPasswords() {
             db.ref('adminConfig').once('value').then(snap => {
-                const config = snap.val() || { pass: '1234', passControl: '1234', passAttendance: '1234' };
+                const config = snap.val() || { usernameAdmin: 'admin', pass: '1234', usernameControl: 'control', passControl: '1234', usernameAttendance: 'attendance', passAttendance: '1234' };
                 document.getElementById('passAdmin').value = config.pass || '1234';
                 document.getElementById('passControl').value = config.passControl || '1234';
                 document.getElementById('passAttendance').value = config.passAttendance || '1234';
             });
+        }
 
-            if(permission === 'control') {
-                document.getElementById('sidebarMenuContainer').innerHTML = `
-                    <div class="sidebar-item active" onclick="switchAdminSection('controlSection', this)"><span class="sidebar-icon">🏆</span><span class="sidebar-label">كنترول المدرسة</span></div>
-                `;
-                switchAdminSection('controlSection');
-                document.getElementById('headerMainTitle').textContent = "بوابة التعلم الذكي - كنترول المدرسة";
-                loadControlStudentsList();
-            } else if(permission === 'attendance') {
-                document.getElementById('sidebarMenuContainer').innerHTML = `
-                    <div class="sidebar-item active" onclick="switchAdminSection('attendanceSection', this)"><span class="sidebar-icon">👥</span><span class="sidebar-label">شؤون الطلاب</span></div>
-                `;
-                switchAdminSection('attendanceSection');
-                document.getElementById('headerMainTitle').textContent = "بوابة التعلم الذكي - شؤون الطلاب";
-                loadAttendanceStudentsList();
-            } else if(permission === 'teacher') {
-                document.getElementById('sidebarMenuContainer').innerHTML = `
-                    <div class="sidebar-item active" onclick="switchAdminSection('gradesSection', this)"><span class="sidebar-icon">📊</span><span class="sidebar-label">رصد الدرجات والتقيمات</span></div>
-                `;
-                switchAdminSection('gradesSection');
-                document.getElementById('headerMainTitle').textContent = "بوابة التعلم الذكي - لوحة المدرس";
-            } else {
-                loadAdminNews();
-                loadTeachersAdminTable();
-                loadControlStudentsList();
-                loadAttendanceStudentsList();
-                loadAdminUsersTable();
-                loadAdminTickets();
+        function saveSystemPasswords(e) {
+            e.preventDefault();
+            const pass = document.getElementById('passAdmin').value.trim();
+            const passControl = document.getElementById('passControl').value.trim();
+            const passAttendance = document.getElementById('passAttendance').value.trim();
+
+            db.ref('adminConfig').update({ pass, passControl, passAttendance }).then(() => {
+                showToast("تم تحديث كلمات المرور بنجاح 🔑", "✅");
+            });
+        }
+
+        function fetchAllStudents() {
+            db.ref('users').once('value').then(snap => {
+                allStudentsCache = [];
+                snap.forEach(child => {
+                    const u = child.val();
+                    if (u.role === 'student') {
+                        allStudentsCache.push({ key: child.key, ...u });
+                    }
+                });
+            });
+        }
+
+        window.onload = function() {
+            fetchAllStudents();
+            loadAdminNews();
+
+            const permission = localStorage.getItem('adminPermission');
+            if (permission === 'teacher') {
+                loggedInTeacher = JSON.parse(localStorage.getItem('teacherData') || 'null');
+                if (loggedInTeacher) {
+                    document.getElementById('sidebarTitleText').textContent = `👨‍🏫 ${loggedInTeacher.fullName}`;
+                    document.getElementById('gradesMenuLabel').textContent = `رصد درجات مادة: ${loggedInTeacher.subject}`;
+                    document.getElementById('gradesSectionTitle').textContent = `📊 رصد درجات ${loggedInTeacher.subject} للفصل الدراسي`;
+                    document.getElementById('adminGradeSelect').value = loggedInTeacher.grade || '';
+                    onAdminGradeChange();
+                    
+                    // إخفاء الأقسام غير المتاحة للمدرس
+                    document.getElementById('menuNews').style.display = 'none';
+                    document.getElementById('menuTeachersAdmin').style.display = 'none';
+                    document.getElementById('menuControl').style.display = 'none';
+                    document.getElementById('menuAttendance').style.display = 'none';
+                    document.getElementById('menuUsers').style.display = 'none';
+                    document.getElementById('menuTickets').style.display = 'none';
+                    document.getElementById('menuPassword').style.display = 'none';
+                    
+                    switchAdminSection('gradesSection', document.getElementById('menuGrades'));
+                }
+            } else if (permission === 'control') {
+                document.getElementById('menuNews').style.display = 'none';
+                document.getElementById('menuTeachersAdmin').style.display = 'none';
+                document.getElementById('menuGrades').style.display = 'none';
+                document.getElementById('menuAttendance').style.display = 'none';
+                document.getElementById('menuUsers').style.display = 'none';
+                document.getElementById('menuTickets').style.display = 'none';
+                document.getElementById('menuPassword').style.display = 'none';
+                switchAdminSection('controlSection', document.getElementById('menuControl'));
+            } else if (permission === 'attendance') {
+                document.getElementById('menuNews').style.display = 'none';
+                document.getElementById('menuTeachersAdmin').style.display = 'none';
+                document.getElementById('menuGrades').style.display = 'none';
+                document.getElementById('menuControl').style.display = 'none';
+                document.getElementById('menuUsers').style.display = 'none';
+                document.getElementById('menuTickets').style.display = 'none';
+                document.getElementById('menuPassword').style.display = 'none';
+                switchAdminSection('attendanceSection', document.getElementById('menuAttendance'));
             }
         };
     </script>
