@@ -676,26 +676,44 @@
                 }
                 container.innerHTML = '';
                 snap.forEach(child => {
+                    const tKey = child.key;
                     const t = child.val();
                     const sName = t.studentName || t.senderName || 'طالب';
                     const sCode = t.studentCode || t.nationalId || '---';
+                    const adminReplyText = t.reply || t.adminReply || 'لم تقم الإدارة بالرد بعد';
+                    const ticketStatus = t.status || 'قيد المراجعة 🔄';
+
                     container.innerHTML += `
-                        <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #E2E8F0; text-align: right;">
+                        <div style="background: #F8FAFC; padding: 16px; border-radius: 14px; border: 1px solid #E2E8F0; text-align: right; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
                                 <span style="font-weight: 900; color: var(--primary-dark); font-size: 14px;">👤 ${sName} (كود: ${sCode})</span>
-                                <span style="font-size: 12px; font-weight: 800; color: #10B981; background: #ECFDF5; padding: 3px 10px; border-radius: 20px;">${t.status || 'قيد المراجعة 🔄'}</span>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <span style="font-size: 12px; font-weight: 800; color: #10B981; background: #ECFDF5; padding: 3px 10px; border-radius: 20px;">${ticketStatus}</span>
+                                    <button onclick="deleteTicket('${tKey}')" style="background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 800; cursor: pointer;" title="حذف الرسالة">🗑️ حذف</button>
+                                </div>
                             </div>
                             <p style="font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 4px;">📌 نوع الاستفسار: ${t.subject || '---'}</p>
                             <p style="font-size: 13.5px; color: var(--text-dark); margin-bottom: 8px;">💬 <strong>التفاصيل:</strong> ${t.message || ''}</p>
                             <div style="background: #FFFFFF; padding: 10px; border-radius: 10px; border: 1px dashed #CBD5E1; margin-top: 8px;">
                                 <span style="font-size: 12px; font-weight: 800; color: var(--primary);">💬 رد الإدارة:</span>
-                                <p style="font-size: 13px; color: var(--text-dark); margin-top: 2px;">${t.adminReply || t.reply || 'لم تقم الإدارة بالرد بعد'}</p>
+                                <p style="font-size: 13px; color: var(--text-dark); margin-top: 2px;">${adminReplyText}</p>
                             </div>
                             <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 6px; text-align: left;">🕒 ${t.date || ''}</span>
                         </div>
                     `;
                 });
             });
+        }
+
+        function deleteTicket(ticketKey) {
+            if (confirm("هل أنت متأكد من حذف هذه الشكوى؟")) {
+                db.ref('tickets/' + ticketKey).remove().then(() => {
+                    showToast("تم حذف الشكوى بنجاح 🗑️", "✅");
+                    loadStudentTickets();
+                }).catch(() => {
+                    showToast("حدث خطأ أثناء حذف الشكوى", "❌");
+                });
+            }
         }
 
         function showHomePage() {
@@ -779,6 +797,7 @@
                 subject: subject,
                 message: message,
                 status: 'قيد المراجعة 🔄',
+                reply: 'لم تقم الإدارة بالرد بعد',
                 adminReply: 'لم تقم الإدارة بالرد بعد',
                 date: date
             }).then(() => {
